@@ -2702,13 +2702,20 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
         if (userId === ADMIN_ID && newState.channelId && oldState.channelId !== newState.channelId) {
             try {
                 const imgPath = 'C:\\Users\\ADMIN\\.gemini\\antigravity-ide\\brain\\3dc1e042-00bf-48ef-8b3d-beb74a248c25\\god_arrival_1781495845667.png';
+                const embed = new EmbedBuilder()
+                    .setTitle('👑 QUỲ XUỐNG! THẦN SÁNG THẾ ĐÃ GIÁNG LÂM! 👑')
+                    .setDescription(`**<@${ADMIN_ID}>** vừa bước vào **${newState.channel.name}**!\nTất cả bách tính mau mau nghênh giá!`)
+                    .setColor('#FFD700')
+                    .setTimestamp();
+
                 if (fs.existsSync(imgPath)) {
+                    embed.setImage('attachment://god_arrival.png');
                     await newState.channel.send({
-                        content: '👑 **QUỲ XUỐNG! THẦN SÁNG THẾ ĐÃ GIÁNG LÂM VÀO KÊNH NÀY!** 👑',
+                        embeds: [embed],
                         files: [{ attachment: imgPath, name: 'god_arrival.png' }]
                     });
                 } else {
-                    await newState.channel.send('👑 **QUỲ XUỐNG! THẦN SÁNG THẾ ĐÃ GIÁNG LÂM VÀO KÊNH NÀY!** 👑');
+                    await newState.channel.send({ embeds: [embed] });
                 }
             } catch (err) {
                 // Bỏ qua nếu bot không có quyền gửi tin nhắn vào voice channel
