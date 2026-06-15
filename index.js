@@ -138,7 +138,8 @@ function buildHelpPages(prefix) {
                 { name: '`/taixiu` hoặc `!tx <cược>`', value: 'Chơi Tài Xỉu 🎲 (Sic Bo)', inline: true },
                 { name: '`/baucua` hoặc `!bc <cược>`', value: 'Bầu Cua Tôm Cá 🦀', inline: true },
                 { name: '`/blackjack` hoặc `!bj <cược>`', value: 'Chơi bài Xì Dách ♠️ (Blackjack)', inline: true },
-                { name: '`/guess` hoặc `!guess <cược>`', value: 'Đoán số 1-100, trúng nhận thưởng x3 🎯', inline: true }
+                { name: '`/guess` hoặc `!guess <cược>`', value: 'Đoán số 1-100, trúng nhận thưởng x3 🎯', inline: true },
+                { name: '`/noitu` hoặc `!noitu`', value: 'Minigame Nối Từ Tiếng Việt 🧠', inline: true }
             )
             .setColor('#FFD700')
             .setFooter({ text: 'Trang 3/10 • Coin & Minigame' })
@@ -2349,6 +2350,12 @@ const slashCommands = [
             option.setName('amount').setDescription('Số tiền cần thanh toán').setRequired(true))
         .addStringOption(option =>
             option.setName('content').setDescription('Nội dung chuyển khoản (tùy chọn)').setRequired(false)),
+    new SlashCommandBuilder()
+        .setName('noitu')
+        .setDescription('Bắt đầu trò chơi Nối Từ Tiếng Việt.'),
+    new SlashCommandBuilder()
+        .setName('stopnoitu')
+        .setDescription('Dừng trò chơi Nối Từ đang diễn ra.'),
     // --- MUSIC COMMANDS ---
     new SlashCommandBuilder()
         .setName('play')
@@ -2632,9 +2639,41 @@ async function handleGiveAll(userId, amount, msgOrInteraction) {
 }
 
 // ========================
+// WORD CHAIN (NỐI TỪ)
+// ========================
+const vnDictionary = new Set();
+const noituGames = new Map();
+
+async function initDictionary() {
+    const dictPath = path.join(__dirname, 'vn_words.txt');
+    if (!fs.existsSync(dictPath)) {
+        console.log('Đang tải từ điển Tiếng Việt...');
+        try {
+            const res = await axios.get('https://raw.githubusercontent.com/duyet/vietnamese-wordlist/master/Viet74K.txt');
+            fs.writeFileSync(dictPath, res.data);
+            console.log('✅ Đã tải xong từ điển Tiếng Việt!');
+        } catch (err) {
+            console.error('❌ Lỗi tải từ điển:', err);
+        }
+    }
+    
+    if (fs.existsSync(dictPath)) {
+        const words = fs.readFileSync(dictPath, 'utf-8').split('\n');
+        for (const w of words) {
+            const clean = w.trim().toLowerCase();
+            if (clean && clean.split(' ').length === 2) {
+                vnDictionary.add(clean);
+            }
+        }
+        console.log(`📖 Đã nạp ${vnDictionary.size} từ ghép 2 âm tiết vào bộ nhớ.`);
+    }
+}
+
+// ========================
 // BOT READY
 // ========================
 client.once('ready', async () => {
+    await initDictionary();
     console.log(`✅ Bot đã đăng nhập với tên: ${client.user.tag}`);
     client.user.setActivity('🎵 Nhạc YouTube | !help', { type: 2 }); // type 2 = Listening
 
@@ -2725,21 +2764,21 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
         if (!oldState.channelId && newState.channelId) {
             const channel = newState.channel;
             if (channel && channel.permissionsFor(newState.guild.members.me).has('SendMessages')) {
-                await channel.send(`🔔 <@${newState.member.user.id}> vừa tham gia kênh thoại! Vô chém gió nào mọi người.`);
+                await channel.send(`🔔 **${newState.member.displayName || newState.member.user.username}** vừa tham gia kênh thoại! Vô chém gió nào mọi người.`);
             }
         } else if (oldState.channelId && !newState.channelId) {
             const channel = oldState.channel;
             if (channel && channel.permissionsFor(oldState.guild.members.me).has('SendMessages')) {
-                await channel.send(`👋 <@${newState.member.user.id}> đã rời khỏi kênh thoại.`);
+                await channel.send(`👋 **${newState.member.displayName || newState.member.user.username}** đã rời khỏi kênh thoại.`);
             }
         } else if (oldState.channelId && newState.channelId && oldState.channelId !== newState.channelId) {
             const oldChannel = oldState.channel;
             const newChannel = newState.channel;
             if (oldChannel && oldChannel.permissionsFor(oldState.guild.members.me).has('SendMessages')) {
-                await oldChannel.send(`👋 <@${newState.member.user.id}> đã rời đi và chuyển sang kênh khác.`);
+                await oldChannel.send(`👋 **${newState.member.displayName || newState.member.user.username}** đã rời đi và chuyển sang kênh khác.`);
             }
             if (newChannel && newChannel.permissionsFor(newState.guild.members.me).has('SendMessages')) {
-                await newChannel.send(`🔔 <@${newState.member.user.id}> vừa chuyển đến kênh thoại này!`);
+                await newChannel.send(`🔔 **${newState.member.displayName || newState.member.user.username}** vừa chuyển đến kênh thoại này!`);
             }
         }
     } catch (error) {
@@ -2812,8 +2851,72 @@ client.on('messageCreate', async (message) => {
         return;
     }
 
+    // --- NOITU GAME LOGIC ---
+    if (message.guildId && noituGames.has(message.channelId)) {
+        const game = noituGames.get(message.channelId);
+        const msgText = content;
+        const words = msgText.split(/\s+/);
+        if (words.length === 2 && !msgText.startsWith(prefix)) {
+            const firstSyllable = words[0];
+            const lastWordObj = game.lastWord;
+            const lastSyllableOfGame = lastWordObj.split(' ')[1];
+            
+            if (firstSyllable === lastSyllableOfGame) {
+                if (vnDictionary.has(msgText)) {
+                    if (game.usedWords.has(msgText)) {
+                        message.react('❌').catch(() => {});
+                        message.reply(`Từ **${msgText}** đã được dùng rồi! Bạn hãy tìm từ khác nối chữ **${lastSyllableOfGame}** nhé.`).catch(() => {});
+                    } else {
+                        game.lastWord = msgText;
+                        game.usedWords.add(msgText);
+                        clearTimeout(game.timeout);
+                        
+                        addCoins(message.author.id, 50000);
+                        message.react('❤️').catch(() => {});
+                        
+                        game.timeout = setTimeout(() => {
+                            noituGames.delete(message.channelId);
+                            message.channel.send(`⏰ Hết 60 giây không ai nối được chữ **${msgText.split(' ')[1]}**. Trò chơi Nối Từ kết thúc!`).catch(() => {});
+                        }, 60000);
+                    }
+                } else {
+                    message.react('❌').catch(() => {});
+                    message.reply(`Từ **${msgText}** không có trong từ điển Tiếng Việt!`).catch(() => {});
+                }
+            }
+        }
+    }
+
     // --- PREFIX COMMANDS ---
     if (!content.startsWith(prefix)) return;
+
+    if (content === `${prefix}noitu`) {
+        if (noituGames.has(message.channelId)) return message.reply('❌ Trò chơi Nối Từ đang diễn ra ở kênh này rồi!');
+        if (vnDictionary.size === 0) return message.reply('❌ Từ điển chưa tải xong, vui lòng chờ giây lát...');
+        
+        const allWords = Array.from(vnDictionary);
+        const randomWord = allWords[Math.floor(Math.random() * allWords.length)];
+        
+        const game = {
+            lastWord: randomWord,
+            usedWords: new Set([randomWord]),
+            timeout: setTimeout(() => {
+                noituGames.delete(message.channelId);
+                message.channel.send(`⏰ Hết 60 giây không ai nối được chữ **${randomWord.split(' ')[1]}**. Trò chơi Nối Từ kết thúc!`).catch(() => {});
+            }, 60000)
+        };
+        noituGames.set(message.channelId, game);
+        
+        return message.channel.send(`🎮 **TRÒ CHƠI NỐI TỪ BẮT ĐẦU!**\nTừ đầu tiên là: **${randomWord.toUpperCase()}**\n\nHãy nối tiếp bằng từ có chữ đầu là **${randomWord.split(' ')[1].toUpperCase()}** nhé!\n_Thưởng 50,000 🪙 mỗi từ đúng. Mọi người chỉ cần gõ 2 chữ tự do vào chat!_`).catch(() => {});
+    }
+
+    if (content === `${prefix}stopnoitu`) {
+        if (!noituGames.has(message.channelId)) return message.reply('❌ Không có trò chơi Nối Từ nào đang diễn ra.');
+        const game = noituGames.get(message.channelId);
+        clearTimeout(game.timeout);
+        noituGames.delete(message.channelId);
+        return message.reply('🛑 Trò chơi Nối Từ đã kết thúc.').catch(() => {});
+    }
 
     // Đổi prefix
     if (content.startsWith(`${prefix}setprefix`)) {
@@ -5806,6 +5909,35 @@ client.on('interactionCreate', async (interaction) => {
         if (game.voteMsg) await game.voteMsg.edit({ components: [] }).catch(() => {});
         if (game.lobbyMsg) await game.lobbyMsg.edit({ components: [] }).catch(() => {});
         return interaction.reply({ content: '🛑 Game Ma Sói đã bị hủy!', ephemeral: false });
+    }
+
+    // --- NOITU SLASH ---
+    if (commandName === 'noitu') {
+        if (noituGames.has(interaction.channelId)) return interaction.reply({ content: '❌ Trò chơi Nối Từ đang diễn ra ở kênh này rồi!', ephemeral: true });
+        if (vnDictionary.size === 0) return interaction.reply({ content: '❌ Từ điển chưa tải xong, vui lòng chờ giây lát...', ephemeral: true });
+        
+        const allWords = Array.from(vnDictionary);
+        const randomWord = allWords[Math.floor(Math.random() * allWords.length)];
+        
+        const game = {
+            lastWord: randomWord,
+            usedWords: new Set([randomWord]),
+            timeout: setTimeout(() => {
+                noituGames.delete(interaction.channelId);
+                interaction.channel.send(`⏰ Hết 60 giây không ai nối được chữ **${randomWord.split(' ')[1]}**. Trò chơi Nối Từ kết thúc!`).catch(() => {});
+            }, 60000)
+        };
+        noituGames.set(interaction.channelId, game);
+        
+        return interaction.reply(`🎮 **TRÒ CHƠI NỐI TỪ BẮT ĐẦU!**\nTừ đầu tiên là: **${randomWord.toUpperCase()}**\n\nHãy nối tiếp bằng từ có chữ đầu là **${randomWord.split(' ')[1].toUpperCase()}** nhé!\n_Thưởng 50,000 🪙 mỗi từ đúng. Mọi người chỉ cần gõ 2 chữ tự do vào chat!_`);
+    }
+
+    if (commandName === 'stopnoitu') {
+        if (!noituGames.has(interaction.channelId)) return interaction.reply({ content: '❌ Không có trò chơi Nối Từ nào đang diễn ra.', ephemeral: true });
+        const game = noituGames.get(interaction.channelId);
+        clearTimeout(game.timeout);
+        noituGames.delete(interaction.channelId);
+        return interaction.reply('🛑 Trò chơi Nối Từ đã kết thúc.');
     }
 });
 
