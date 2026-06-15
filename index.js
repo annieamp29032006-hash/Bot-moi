@@ -19,8 +19,11 @@ const YouTubeSR = require('youtube-sr').default;
 const ffmpegPath = require('ffmpeg-static');
 const WW = require('./werewolf.js');
 
-// Đường dẫn tới yt-dlp.exe
-const YTDLP_PATH = path.join(__dirname, 'yt-dlp.exe');
+// Chỉ định đường dẫn FFmpeg cho prism-media (dùng cho @discordjs/voice)
+process.env.FFMPEG_PATH = ffmpegPath;
+
+// Đường dẫn tới yt-dlp (cross-platform)
+const YTDLP_PATH = path.join(__dirname, process.platform === 'win32' ? 'yt-dlp.exe' : 'yt-dlp');
 
 // Lấy thông tin video bằng yt-dlp (JSON)
 function ytdlpGetInfo(url) {
@@ -29,6 +32,7 @@ function ytdlpGetInfo(url) {
         execFile(YTDLP_PATH, [
             '--dump-json',
             '--no-playlist',
+            '--extractor-args', 'youtube:player_client=android', // Bypass "Sign in to confirm you're not a bot"
             '--quiet',
             '--no-warnings',
             query
@@ -57,12 +61,22 @@ function ytdlpGetInfo(url) {
 // Stream audio từ YouTube bằng yt-dlp pipe vào ffmpeg
 function ytdlpStream(url) {
     const ytdlp = spawn(YTDLP_PATH, [
-        '-f', 'bestaudio[ext=webm]/bestaudio/best',
+        '-f', 'bestaudio',
         '--no-playlist',
+        '--extractor-args', 'youtube:player_client=android', // Bypass YouTube blocking
         '-q',
         '-o', '-',
         url
     ]);
+    
+    ytdlp.stdout.on('close', () => {
+        ytdlp.kill(); // Dọn dẹp tiến trình khi stream kết thúc
+    });
+    
+    ytdlp.on('error', (err) => {
+        console.error('Lỗi tiến trình yt-dlp:', err);
+    });
+
     return ytdlp.stdout;
 }
 
@@ -374,6 +388,10 @@ async function playNext(guildId, textChannel) {
         // Áp dụng âm lượng hiện tại
         resource.volume?.setVolume(state.volume);
         state.resource = resource;
+
+        resource.playStream.on('error', (err) => {
+            console.error('Lỗi resource playStream:', err);
+        });
 
         if (!state.player) {
             state.player = createAudioPlayer();
