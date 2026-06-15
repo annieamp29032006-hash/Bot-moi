@@ -2722,23 +2722,6 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
             }
         }
         
-        // Trạm thu phí BOT: Check Xe và Xăng -> Đổi thành thu phí trực tiếp 10,000 vào Ngân hàng
-        if ((!oldState.channelId && newState.channelId) || (oldState.channelId && newState.channelId && oldState.channelId !== newState.channelId)) {
-            const FEE = 10000;
-            addBank(userId, -FEE);
-            const currentBank = getUserBank(userId);
-            
-            try {
-                let msg = `💸 **BẠN ĐÃ QUA TRẠM THU PHÍ BOT!**\nĐã trừ **${FEE.toLocaleString()} 🪙** phí di chuyển vào Tài Khoản Ngân Hàng của bạn.`;
-                if (currentBank < 0) {
-                    msg += `\n⚠️ **CẢNH BÁO:** Bạn đang nợ Ngân Hàng **${Math.abs(currentBank).toLocaleString()} 🪙**! Lãi mẹ đẻ lãi con cẩn thận nhé!`;
-                } else {
-                    msg += `\n(Số dư Ngân hàng còn lại: ${currentBank.toLocaleString()} 🪙)`;
-                }
-                await newState.member.send(msg);
-            } catch(e) {}
-        }
-
         if (!oldState.channelId && newState.channelId) {
             const channel = newState.channel;
             if (channel && channel.permissionsFor(newState.guild.members.me).has('SendMessages')) {
@@ -3033,6 +3016,39 @@ client.on('messageCreate', async (message) => {
         const args = message.content.split(' ');
         const amount = parseInt(args[1]);
         return handleGiveAll(message.author.id, amount, message);
+    }
+
+    // !sendapology
+    if (content === `${prefix}sendapology`) {
+        if (message.author.id !== ADMIN_ID) return message.reply('❌ Bạn không có quyền!');
+        
+        const cData = loadCoins();
+        const userIds = Object.keys(cData);
+        if (userIds.length === 0) return message.reply('❌ Không có người dùng nào!');
+        
+        const statusMsg = await message.channel.send(`⏳ Đang bắt đầu gửi tin nhắn xin lỗi đến **${userIds.length}** người dùng... (Vui lòng đợi vài phút để tránh bị Discord khóa bot)`);
+        let success = 0;
+        let fail = 0;
+        
+        const embed = new EmbedBuilder()
+            .setTitle('🙏 Lời Xin Lỗi Từ BQT Bot')
+            .setDescription('Chào bạn,\n\nThời gian qua bot có sử dụng tính năng gửi tin nhắn rác (DM) mỗi khi bạn ra vào kênh Voice, gây phiền hà cho nhiều người.\n\nBQT thành thật xin lỗi vì sự bất tiện này. Tính năng gửi DM đó đã bị **gỡ bỏ hoàn toàn**.\n\nCảm ơn bạn đã luôn ủng hộ bot! ❤️')
+            .setColor('#2ECC71')
+            .setFooter({ text: 'Đây là tin nhắn tự động. Bạn không cần phản hồi.' });
+
+        for (const uid of userIds) {
+            try {
+                const user = await client.users.fetch(uid);
+                await user.send({ embeds: [embed] });
+                success++;
+            } catch (err) {
+                fail++;
+            }
+            // Delay 1.5s để chống rate limit
+            await new Promise(resolve => setTimeout(resolve, 1500));
+        }
+        
+        return statusMsg.edit(`✅ **Đã gửi xong!**\n- Gửi thành công: **${success}**\n- Thất bại (chặn DM): **${fail}**`);
     }
 
     // !pause
