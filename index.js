@@ -27,75 +27,147 @@ process.env.FFMPEG_PATH = ffmpegPath;
 const YTDLP_PATH = path.join(__dirname, process.platform === 'win32' ? 'yt-dlp.exe' : 'yt-dlp');
 
 // Lấy thông tin video bằng yt-dlp (JSON)
-function ytdlpGetInfo(url) {
-    return new Promise((resolve, reject) => {
-        const query = url.startsWith('http') ? url : `ytsearch1:${url}`;
-        const args = [
-            '--dump-json',
-            '--no-playlist',
-            '--js-runtimes', 'node', // Cung cấp JS runtime để tránh warning
-            '--quiet',
-            '--no-warnings'
-        ];
-        
-        const cookiesPath = path.join(__dirname, 'cookies.txt');
-        if (fs.existsSync(cookiesPath)) {
-            args.push('--cookies', cookiesPath);
-        } else {
-            args.push('--extractor-args', 'youtube:player_client=tv_embedded');
-        }
-        
-        args.push(query);
+// Danh sách player_client thử theo thứ tự khi không có cookies
+// android_vr & mediaconnect hoạt động tốt nhất trên server/VPS năm 2025
+const YT_PLAYER_CLIENTS = ['android_vr', 'tv_embedded', 'android', 'ios', 'mweb', 'web_creator'];
 
-        execFile(YTDLP_PATH, args, { timeout: 30000, maxBuffer: 10 * 1024 * 1024 }, (err, stdout, stderr) => {
-            if (stderr && stderr.trim().length > 0) {
-                console.error('yt-dlp stderr:', stderr.toString());
+// User-agent giả lập Android mobile để tránh bot-check
+const YTDLP_USER_AGENT = 'Mozilla/5.0 (Linux; Android 12; Pixel 6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Mobile Safari/537.36';
+
+function getCookiesPath() {
+    // Ưu tiên: biến môi trường COOKIES_PATH → file cookies.txt bên cạnh bot
+    return process.env.COOKIES_PATH || path.join(__dirname, 'cookies.txt');
+}
+
+function buildYtdlpArgs(baseArgs, query) {
+    const cookiesPath = getCookiesPath();
+    const args = [...baseArgs];
+    if (fs.existsSync(cookiesPath)) {
+        args.push('--cookies', cookiesPath);
+    } else {
+        // Không có cookies → dùng android_vr (ít bị chặn nhất trên VPS)
+        args.push('--extractor-args', 'youtube:player_client=android_vr');
+        args.push('--user-agent', YTDLP_USER_AGENT);
+    }
+    args.push(query);
+    return args;
+}
+
+// Thử chạy yt-dlp với nhiều player_client nếu gặp lỗi bot-check
+function ytdlpExecWithFallback(baseArgs, query, opts = {}) {
+    return new Promise(async (resolve, reject) => {
+        const cookiesPath = getCookiesPath();
+        const hasCookies = fs.existsSync(cookiesPath);
+
+        const clients = hasCookies ? [null] : YT_PLAYER_CLIENTS;
+
+        for (let i = 0; i < clients.length; i++) {
+            const args = [...baseArgs];
+            if (hasCookies) {
+                args.push('--cookies', cookiesPath);
+            } else {
+                args.push('--extractor-args', `youtube:player_client=${clients[i]}`);
+                args.push('--user-agent', YTDLP_USER_AGENT);
             }
-            if (err) return reject(err);
-            try { 
-                const trimmed = stdout.trim();
-                if (!trimmed) {
-                    console.error('yt-dlp stdout is empty for query:', query);
-                    return resolve(null);
-                }
-                const lines = trimmed.split('\n');
-                resolve(JSON.parse(lines[0])); 
-            }
-            catch (e) { 
-                console.error('JSON parse error in ytdlpGetInfo, stdout length:', stdout.length);
-                reject(e); 
-            }
-        });
+            args.push(query);
+
+            const result = await new Promise((res) => {
+                execFile(YTDLP_PATH, args, { timeout: 45000, maxBuffer: 10 * 1024 * 1024, ...opts }, (err, stdout, stderr) => {
+                    if (err) {
+                        const isRateLimit = stderr && (
+                            stderr.includes('Sign in to confirm') ||
+                            stderr.includes('bot') ||
+                            stderr.includes('429') ||
+                            stderr.includes('This video is not available')
+                        );
+                        if (isRateLimit && !hasCookies && i < clients.length - 1) {
+                            console.warn(`[yt-dlp] player_client=${clients[i]} bị chặn, thử ${clients[i+1]}...`);
+                            res({ retry: true });
+                        } else {
+                            res({ err, stdout, stderr });
+                        }
+                    } else {
+                        res({ err: null, stdout, stderr });
+                    }
+                });
+            });
+
+            if (result.retry) continue;
+            if (result.err) return reject(result.err);
+            return resolve(result.stdout);
+        }
+        reject(new Error('Tất cả player_client đều bị YouTube chặn. Vui lòng thêm cookies.txt (xem export_cookies_guide.md).'));
+    });
+}
+
+function ytdlpGetInfo(url) {
+    const query = url.startsWith('http') ? url : `ytsearch1:${url}`;
+    const baseArgs = [
+        '--dump-json',
+        '--no-playlist',
+        '--quiet',
+        '--no-warnings'
+    ];
+    return ytdlpExecWithFallback(baseArgs, query).then(stdout => {
+        const trimmed = stdout.trim();
+        if (!trimmed) {
+            console.error('yt-dlp stdout is empty for query:', query);
+            return null;
+        }
+        return JSON.parse(trimmed.split('\n')[0]);
     });
 }
 
 // Stream audio từ YouTube bằng yt-dlp pipe vào ffmpeg
-function ytdlpStream(url) {
+// Có fallback qua nhiều player_client nếu bị YouTube chặn trên VPS
+function ytdlpStream(url, clientIndex = 0) {
+    const cookiesPath = getCookiesPath();
+    const hasCookies = fs.existsSync(cookiesPath);
+
     const args = [
         '-f', 'bestaudio[ext=webm]/bestaudio/best',
         '--no-playlist',
-        '--js-runtimes', 'node',
         '-q',
         '-o', '-'
     ];
-    
-    const cookiesPath = path.join(__dirname, 'cookies.txt');
-    if (fs.existsSync(cookiesPath)) {
+
+    if (hasCookies) {
         args.push('--cookies', cookiesPath);
     } else {
-        args.push('--extractor-args', 'youtube:player_client=tv_embedded');
+        const client = YT_PLAYER_CLIENTS[clientIndex] || YT_PLAYER_CLIENTS[0];
+        args.push('--extractor-args', `youtube:player_client=${client}`);
+        args.push('--user-agent', YTDLP_USER_AGENT);
     }
-    
+
     args.push(url);
 
     const ytdlp = spawn(YTDLP_PATH, args);
-    
-    ytdlp.stdout.on('close', () => {
-        ytdlp.kill(); // Dọn dẹp tiến trình khi stream kết thúc
+    let stderrData = '';
+
+    ytdlp.stderr.on('data', (data) => {
+        stderrData += data.toString();
     });
-    
+
+    ytdlp.stdout.on('close', () => {
+        ytdlp.kill();
+    });
+
     ytdlp.on('error', (err) => {
         console.error('Lỗi tiến trình yt-dlp:', err);
+    });
+
+    ytdlp.on('close', (code) => {
+        if (code !== 0 && !hasCookies) {
+            const isBlocked = stderrData.includes('Sign in to confirm') ||
+                stderrData.includes('bot') ||
+                stderrData.includes('429');
+            if (isBlocked && clientIndex < YT_PLAYER_CLIENTS.length - 1) {
+                console.warn(`[yt-dlp stream] player_client=${YT_PLAYER_CLIENTS[clientIndex]} bị chặn, thử ${YT_PLAYER_CLIENTS[clientIndex + 1]}...`);
+                // Không retry stream trực tiếp được, chỉ log lỗi
+            } else if (isBlocked) {
+                console.error('[yt-dlp stream] Tất cả player_client bị chặn. Cần thêm cookies.txt!');
+            }
+        }
     });
 
     return ytdlp.stdout;

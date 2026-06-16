@@ -6,3 +6,9 @@ userData.json
 database.sqlite
 *.log
 *.exe
+cookies.txt
+giveaways.json
+git_log.txt
+temp_acorn/
+test_playdl.js
+test_ytdlp.js
