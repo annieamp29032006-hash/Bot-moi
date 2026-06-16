@@ -2801,7 +2801,12 @@ const slashCommands = [
         .setDefaultMemberPermissions(PermissionsBitField.Flags.Administrator)
         .addChannelOption(o => o.setName('channel').setDescription('Kênh gửi lời chào').setRequired(true))
         .addStringOption(o => o.setName('message').setDescription('Lời chào tuỳ chỉnh (Dùng {user} và {server})').setRequired(false))
-        .addStringOption(o => o.setName('image').setDescription('Link ảnh đính kèm (vd: https://imgur.com/...)').setRequired(false))
+        .addStringOption(o => o.setName('image').setDescription('Link ảnh đính kèm (vd: https://imgur.com/...)').setRequired(false)),
+    new SlashCommandBuilder()
+        .setName('setj2c')
+        .setDescription('🛠️ (Admin) Cài đặt kênh gốc để tạo Join to Create.')
+        .setDefaultMemberPermissions(PermissionsBitField.Flags.Administrator)
+        .addChannelOption(o => o.setName('channel').setDescription('Kênh Join to Create gốc').setRequired(true))
 ].map(command => command.toJSON());
 
 // ========================
@@ -2868,6 +2873,7 @@ async function handleGiveAll(userId, amount, msgOrInteraction) {
 // ========================
 const vnDictionary = new Set();
 const noituGames = new Map();
+const j2cChannels = new Map(); // channelId => ownerId
 
 async function initDictionary() {
     const dictPath = path.join(__dirname, 'vn_words.txt');
@@ -3063,16 +3069,71 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
         } else if (oldState.channelId && !newState.channelId) {
             const channel = oldState.channel;
             if (channel && channel.permissionsFor(oldState.guild.members.me).has('SendMessages')) {
-                await channel.send(`👋 **${newState.member.displayName || newState.member.user.username}** đã rời khỏi kênh thoại.`);
+                await channel.send(`👋 **${newState.member.displayName || newState.member.user.username}** đã rời khỏi kênh thoại.`).catch(() => {});
             }
         } else if (oldState.channelId && newState.channelId && oldState.channelId !== newState.channelId) {
             const oldChannel = oldState.channel;
             const newChannel = newState.channel;
             if (oldChannel && oldChannel.permissionsFor(oldState.guild.members.me).has('SendMessages')) {
-                await oldChannel.send(`👋 **${newState.member.displayName || newState.member.user.username}** đã rời đi và chuyển sang kênh khác.`);
+                await oldChannel.send(`👋 **${newState.member.displayName || newState.member.user.username}** đã rời đi và chuyển sang kênh khác.`).catch(() => {});
             }
             if (newChannel && newChannel.permissionsFor(newState.guild.members.me).has('SendMessages')) {
-                await newChannel.send(`🔔 **${newState.member.displayName || newState.member.user.username}** vừa chuyển đến kênh thoại này!`);
+                await newChannel.send(`🔔 **${newState.member.displayName || newState.member.user.username}** vừa chuyển đến kênh thoại này!`).catch(() => {});
+            }
+        }
+        
+        // --- JOIN TO CREATE LOGIC ---
+        const config = loadConfig();
+        const j2cChannelId = config.j2cChannelId;
+        
+        // Handle Join To Create
+        if (newState.channelId === j2cChannelId) {
+            const newChannelName = `🔊 Phòng của ${newState.member.user.username}`;
+            const createdChannel = await newState.guild.channels.create({
+                name: newChannelName,
+                type: 2, // ChannelType.GuildVoice
+                parent: newState.channel.parentId,
+                permissionOverwrites: [
+                    {
+                        id: newState.guild.id,
+                        allow: [],
+                        deny: []
+                    }
+                ]
+            });
+            
+            await newState.member.voice.setChannel(createdChannel).catch(() => {});
+            j2cChannels.set(createdChannel.id, newState.member.user.id);
+            
+            const cpEmbed = new EmbedBuilder()
+                .setTitle('⚙️ Bảng Điều Khiển Phòng Voice')
+                .setDescription(`Chào mừng <@${newState.member.user.id}> đến phòng của bạn!\nSử dụng các nút bên dưới để quản lý phòng.`)
+                .setColor('#00FFFF')
+                .addFields(
+                    { name: 'Chủ phòng', value: `<@${newState.member.user.id}>`, inline: true },
+                    { name: 'Giới hạn', value: 'Không giới hạn', inline: true },
+                    { name: 'Trạng thái', value: '👁️ Đã hiện | 🔓 Có thể kết nối', inline: true }
+                );
+                
+            const cpRow1 = new ActionRowBuilder().addComponents(
+                new ButtonBuilder().setCustomId('j2c_name').setLabel('📝 Đổi tên').setStyle(1),
+                new ButtonBuilder().setCustomId('j2c_limit').setLabel('👥 Giới hạn').setStyle(1),
+                new ButtonBuilder().setCustomId('j2c_ghost').setLabel('👻 Khóa ẩn').setStyle(2),
+                new ButtonBuilder().setCustomId('j2c_lock').setLabel('🔒 Khóa kết nối').setStyle(2)
+            );
+            const cpRow2 = new ActionRowBuilder().addComponents(
+                new ButtonBuilder().setCustomId('j2c_claim').setLabel('👑 Nhận quyền Chủ phòng').setStyle(3)
+            );
+            
+            await createdChannel.send({ content: `<@${newState.member.user.id}>`, embeds: [cpEmbed], components: [cpRow1, cpRow2] }).catch(() => {});
+        }
+        
+        // Handle Leave from J2C Channel
+        if (oldState.channelId && j2cChannels.has(oldState.channelId)) {
+            const oldChannel = oldState.channel;
+            if (oldChannel && oldChannel.members.size === 0) {
+                await oldChannel.delete('J2C Channel empty').catch(() => {});
+                j2cChannels.delete(oldState.channelId);
             }
         }
     } catch (error) {
@@ -3270,6 +3331,19 @@ client.on('messageCreate', async (message) => {
         config.spawnChannelId = targetChannel.id;
         saveConfig(config);
         return message.reply(`✅ Đã thiết lập kênh xuất hiện Pokemon hoang dã tại ${targetChannel}!`);
+    }
+
+    // Cài đặt kênh Join To Create
+    if (content.startsWith(`${prefix}setj2c`)) {
+        if (!message.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+            return message.reply('❌ Chỉ Quản trị viên mới có quyền dùng lệnh này!');
+        }
+        const targetChannel = message.mentions.channels.first();
+        if (!targetChannel) return message.reply(`❌ Cú pháp sai! Vui lòng dùng: \`${prefix}setj2c #ten-kenh\``);
+        const config = loadConfig();
+        config.j2cChannelId = targetChannel.id;
+        saveConfig(config);
+        return message.reply(`✅ Đã thiết lập kênh gốc Join to Create tại ${targetChannel}!`);
     }
 
     // !av
@@ -4433,6 +4507,105 @@ client.on('interactionCreate', async (interaction) => {
         const cid = interaction.customId;
 
         // =============================================
+        // JOIN TO CREATE BUTTONS
+        // =============================================
+        if (cid.startsWith('j2c_')) {
+            const channelId = interaction.channel.id;
+            const channel = interaction.channel;
+            
+            if (!j2cChannels.has(channelId)) {
+                return interaction.reply({ content: '❌ Đây không phải là phòng được tạo bởi tính năng Join To Create!', ephemeral: true });
+            }
+            
+            const ownerId = j2cChannels.get(channelId);
+            const isOwner = interaction.user.id === ownerId;
+            
+            if (cid === 'j2c_claim') {
+                if (isOwner) return interaction.reply({ content: '❌ Bạn đã là chủ phòng rồi!', ephemeral: true });
+                const ownerInChannel = channel.members.has(ownerId);
+                if (ownerInChannel) {
+                    return interaction.reply({ content: '❌ Chủ phòng cũ vẫn đang ở trong kênh. Không thể chiếm quyền!', ephemeral: true });
+                }
+                
+                j2cChannels.set(channelId, interaction.user.id);
+                
+                const oldEmbed = interaction.message.embeds[0];
+                const newEmbed = EmbedBuilder.from(oldEmbed);
+                newEmbed.data.fields[0].value = `<@${interaction.user.id}>`;
+                
+                await interaction.update({ embeds: [newEmbed] });
+                return interaction.followUp({ content: `✅ <@${interaction.user.id}> đã trở thành chủ phòng mới!`, ephemeral: false });
+            }
+            
+            if (!isOwner) {
+                return interaction.reply({ content: '❌ Chỉ chủ phòng mới có thể dùng chức năng này!', ephemeral: true });
+            }
+            
+            if (cid === 'j2c_name') {
+                const modal = new ModalBuilder()
+                    .setCustomId('j2c_name_modal')
+                    .setTitle('📝 Đổi Tên Phòng');
+                const nameInput = new TextInputBuilder()
+                    .setCustomId('new_name')
+                    .setLabel('Nhập tên phòng mới')
+                    .setStyle(1)
+                    .setRequired(true)
+                    .setMaxLength(100);
+                modal.addComponents(new ActionRowBuilder().addComponents(nameInput));
+                return interaction.showModal(modal);
+            }
+            
+            if (cid === 'j2c_limit') {
+                const modal = new ModalBuilder()
+                    .setCustomId('j2c_limit_modal')
+                    .setTitle('👥 Chỉnh Giới Hạn Người');
+                const limitInput = new TextInputBuilder()
+                    .setCustomId('new_limit')
+                    .setLabel('Nhập số (0-99). 0 = Không giới hạn')
+                    .setStyle(1)
+                    .setRequired(true);
+                modal.addComponents(new ActionRowBuilder().addComponents(limitInput));
+                return interaction.showModal(modal);
+            }
+            
+            if (cid === 'j2c_ghost') {
+                const everyoneRole = interaction.guild.roles.everyone;
+                const perms = channel.permissionOverwrites.cache.get(everyoneRole.id);
+                const isGhosted = perms && perms.deny.has('ViewChannel');
+                
+                await channel.permissionOverwrites.edit(everyoneRole, {
+                    ViewChannel: isGhosted ? null : false
+                });
+                
+                const oldEmbed = interaction.message.embeds[0];
+                const newEmbed = EmbedBuilder.from(oldEmbed);
+                const lockState = newEmbed.data.fields[2].value.includes('Không kết nối') ? '🔒 Không kết nối' : '🔓 Có thể kết nối';
+                newEmbed.data.fields[2].value = (isGhosted ? '👁️ Đã hiện' : '👻 Đang ẩn') + ` | ${lockState}`;
+                
+                await interaction.update({ embeds: [newEmbed] });
+                return interaction.followUp({ content: isGhosted ? '✅ Đã BỎ ẨN phòng.' : '✅ Đã ẨN phòng khỏi mọi người.', ephemeral: true });
+            }
+            
+            if (cid === 'j2c_lock') {
+                const everyoneRole = interaction.guild.roles.everyone;
+                const perms = channel.permissionOverwrites.cache.get(everyoneRole.id);
+                const isLocked = perms && perms.deny.has('Connect');
+                
+                await channel.permissionOverwrites.edit(everyoneRole, {
+                    Connect: isLocked ? null : false
+                });
+                
+                const oldEmbed = interaction.message.embeds[0];
+                const newEmbed = EmbedBuilder.from(oldEmbed);
+                const ghostState = newEmbed.data.fields[2].value.includes('Đang ẩn') ? '👻 Đang ẩn' : '👁️ Đã hiện';
+                newEmbed.data.fields[2].value = `${ghostState} | ` + (isLocked ? '🔓 Có thể kết nối' : '🔒 Không kết nối');
+                
+                await interaction.update({ embeds: [newEmbed] });
+                return interaction.followUp({ content: isLocked ? '✅ Đã MỞ KHÓA kết nối.' : '✅ Đã KHÓA kết nối phòng.', ephemeral: true });
+            }
+        }
+
+        // =============================================
         // POKEMON ROLE BUTTON
         // =============================================
         if (cid === 'get_pokemon_role') {
@@ -4464,7 +4637,7 @@ client.on('interactionCreate', async (interaction) => {
             const spawnData = activeSpawns.get(interaction.message.id);
             
             if (!spawnData || !spawnData.active) {
-                return interaction.reply({ content: '❌ Thú cưng này đã bị người khác bắt hoặc đã chạy mất!', ephemeral: true });
+                return interaction.reply({ content: '❌ Thú cưng này đã bị người khác bắt hoặc đã chạy mất!', ephemeral: true }).catch(() => {});
             }
             
             const p = getPlayer(interaction.user.id);
@@ -4499,7 +4672,7 @@ client.on('interactionCreate', async (interaction) => {
             
             const spawnData = activeSpawns.get(msgId);
             if (!spawnData || !spawnData.active) {
-                return interaction.update({ content: '❌ Quá muộn! Thú cưng đã biến mất hoặc bị người khác bắt!', components: [] });
+                return interaction.update({ content: '❌ Quá muộn! Thú cưng đã biến mất hoặc bị người khác bắt!', components: [] }).catch(() => {});
             }
             
             const p = getPlayer(interaction.user.id);
@@ -5509,6 +5682,29 @@ client.on('interactionCreate', async (interaction) => {
 
     // === MODAL SUBMIT ===
     if (interaction.isModalSubmit()) {
+        if (interaction.customId === 'j2c_name_modal') {
+            const newName = interaction.fields.getTextInputValue('new_name');
+            await interaction.channel.setName(newName).catch(() => {});
+            return interaction.reply({ content: `✅ Đã đổi tên phòng thành: **${newName}**`, ephemeral: true });
+        }
+        
+        if (interaction.customId === 'j2c_limit_modal') {
+            const limitStr = interaction.fields.getTextInputValue('new_limit');
+            const limit = parseInt(limitStr);
+            if (isNaN(limit) || limit < 0 || limit > 99) {
+                return interaction.reply({ content: '❌ Vui lòng nhập số từ 0 đến 99 (0 = Không giới hạn)!', ephemeral: true });
+            }
+            await interaction.channel.setUserLimit(limit).catch(() => {});
+            
+            const oldEmbed = interaction.message.embeds[0];
+            if (oldEmbed) {
+                const newEmbed = EmbedBuilder.from(oldEmbed);
+                newEmbed.data.fields[1].value = limit === 0 ? 'Không giới hạn' : `${limit} người`;
+                await interaction.message.edit({ embeds: [newEmbed] }).catch(() => {});
+            }
+            return interaction.reply({ content: `✅ Đã chỉnh giới hạn phòng thành: **${limit === 0 ? 'Không giới hạn' : limit + ' người'}**`, ephemeral: true });
+        }
+
         if (interaction.customId.startsWith('bcmodal_')) {
             const parts = interaction.customId.split('_');
             const choice = parts[1];
@@ -5936,6 +6132,14 @@ client.on('interactionCreate', async (interaction) => {
         config.spawnChannelId = targetChannel.id;
         saveConfig(config);
         return interaction.reply({ content: `✅ Đã thiết lập kênh xuất hiện Pokemon hoang dã tại ${targetChannel}!` });
+    }
+
+    if (commandName === 'setj2c') {
+        const targetChannel = interaction.options.getChannel('channel');
+        const config = loadConfig();
+        config.j2cChannelId = targetChannel.id;
+        saveConfig(config);
+        return interaction.reply({ content: `✅ Đã thiết lập kênh gốc Join to Create tại ${targetChannel}!` });
     }
 
     if (commandName === 'setwelcome') {
