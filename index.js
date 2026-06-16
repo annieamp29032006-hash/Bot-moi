@@ -1180,9 +1180,18 @@ async function spawnWildPet(client, manual = false) {
             if (spawnPet.rarity === 'Huyền Thoại') color = '#F1C40F';
             if (spawnPet.rarity === 'Đấng Sáng Tạo') color = '#00FFFF';
             
+            const isLegendary = ['Huyền Thoại', 'Đấng Sáng Tạo'].includes(spawnPet.rarity);
+            const embedTitle = spawnPet.rarity === 'Đấng Sáng Tạo'
+                ? '🌟 ĐẤNG SÁNG TẠO GIÁNG TRẦN!!!'
+                : spawnPet.rarity === 'Huyền Thoại'
+                ? '🔥 POKEMON HUYỀN THOẠI XUẤT HIỆN!!!'
+                : '✨ POKEMON HIẾM XUẤT HIỆN!';
+            const embedDesc = isLegendary
+                ? `⚠️ **CẢNH BÁO KHẨN CẤP!** ⚠️\nMột Pokemon **${spawnPet.rarity}** cực kỳ hiếm vừa xuất hiện!\nĐộ hiếm: **${spawnPet.rarity}** ✨\n\nĐây là cơ hội ngàn năm có một — Hãy bắt ngay trước khi nó biến mất!`
+                : `Một Pokemon vô cùng quý hiếm vừa xuất hiện ở khu vực này!\nĐộ hiếm: **${spawnPet.rarity}**\n\nHãy mau lấy bóng ra bắt nó trước khi nó chạy mất!`;
             const embed = new EmbedBuilder()
-                .setTitle('✨ POKEMON HIẾM XUẤT HIỆN!')
-                .setDescription(`Một Pokemon vô cùng quý hiếm vừa xuất hiện ở khu vực này!\nĐộ hiếm: **${spawnPet.rarity}**\n\nHãy mau lấy bóng ra bắt nó trước khi nó chạy mất!`)
+                .setTitle(embedTitle)
+                .setDescription(embedDesc)
                 .setColor(color)
                 .setImage('attachment://wild_pokemon_spawn.png');
                 
