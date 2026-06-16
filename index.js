@@ -30,14 +30,24 @@ const YTDLP_PATH = path.join(__dirname, process.platform === 'win32' ? 'yt-dlp.e
 function ytdlpGetInfo(url) {
     return new Promise((resolve, reject) => {
         const query = url.startsWith('http') ? url : `ytsearch1:${url}`;
-        execFile(YTDLP_PATH, [
+        const args = [
             '--dump-json',
             '--no-playlist',
             '--js-runtimes', 'node', // Cung cấp JS runtime để tránh warning
             '--quiet',
-            '--no-warnings',
-            query
-        ], { timeout: 30000, maxBuffer: 10 * 1024 * 1024 }, (err, stdout, stderr) => {
+            '--no-warnings'
+        ];
+        
+        const cookiesPath = path.join(__dirname, 'cookies.txt');
+        if (fs.existsSync(cookiesPath)) {
+            args.push('--cookies', cookiesPath);
+        } else {
+            args.push('--extractor-args', 'youtube:player_client=default,ios');
+        }
+        
+        args.push(query);
+
+        execFile(YTDLP_PATH, args, { timeout: 30000, maxBuffer: 10 * 1024 * 1024 }, (err, stdout, stderr) => {
             if (stderr && stderr.trim().length > 0) {
                 console.error('yt-dlp stderr:', stderr.toString());
             }
@@ -61,14 +71,24 @@ function ytdlpGetInfo(url) {
 
 // Stream audio từ YouTube bằng yt-dlp pipe vào ffmpeg
 function ytdlpStream(url) {
-    const ytdlp = spawn(YTDLP_PATH, [
+    const args = [
         '-f', 'bestaudio[ext=webm]/bestaudio/best',
         '--no-playlist',
         '--js-runtimes', 'node',
         '-q',
-        '-o', '-',
-        url
-    ]);
+        '-o', '-'
+    ];
+    
+    const cookiesPath = path.join(__dirname, 'cookies.txt');
+    if (fs.existsSync(cookiesPath)) {
+        args.push('--cookies', cookiesPath);
+    } else {
+        args.push('--extractor-args', 'youtube:player_client=default,ios');
+    }
+    
+    args.push(url);
+
+    const ytdlp = spawn(YTDLP_PATH, args);
     
     ytdlp.stdout.on('close', () => {
         ytdlp.kill(); // Dọn dẹp tiến trình khi stream kết thúc
