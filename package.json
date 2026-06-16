@@ -23,6 +23,8 @@
     "node-cron": "^4.2.1",
     "opusscript": "^0.0.8",
     "play-dl": "^1.9.7",
+    "spotify-uri": "^4.1.0",
+    "spotify-url-info": "^3.3.0",
     "youtube-sr": "^4.3.12",
     "yt-dlp-wrap": "^2.3.12"
   }

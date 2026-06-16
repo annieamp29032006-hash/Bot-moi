@@ -29,7 +29,7 @@ const YTDLP_PATH = path.join(__dirname, process.platform === 'win32' ? 'yt-dlp.e
 // Lấy thông tin video bằng yt-dlp (JSON)
 // Danh sách player_client thử theo thứ tự khi không có cookies
 // android_vr & mediaconnect hoạt động tốt nhất trên server/VPS năm 2025
-const YT_PLAYER_CLIENTS = ['android_vr', 'tv_embedded', 'android', 'ios', 'mweb', 'web_creator'];
+const YT_PLAYER_CLIENTS = ['default', 'ios', 'android_vr', 'tv_embedded', 'android', 'mweb', 'web_creator'];
 
 // User-agent giả lập Android mobile để tránh bot-check
 const YTDLP_USER_AGENT = 'Mozilla/5.0 (Linux; Android 12; Pixel 6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Mobile Safari/537.36';
@@ -100,22 +100,33 @@ function ytdlpExecWithFallback(baseArgs, query, opts = {}) {
     });
 }
 
-function ytdlpGetInfo(url) {
-    const query = url.startsWith('http') ? url : `ytsearch1:${url}`;
-    const baseArgs = [
-        '--dump-json',
-        '--no-playlist',
-        '--quiet',
-        '--no-warnings'
-    ];
-    return ytdlpExecWithFallback(baseArgs, query).then(stdout => {
-        const trimmed = stdout.trim();
-        if (!trimmed) {
-            console.error('yt-dlp stdout is empty for query:', query);
-            return null;
+async function ytdlpGetInfo(url) {
+    try {
+        let searchQuery = url;
+        if (url.includes('spotify.com')) {
+            const { getPreview } = require('spotify-url-info')(fetch);
+            const spotInfo = await getPreview(url);
+            searchQuery = `${spotInfo.title} ${spotInfo.artist}`;
         }
-        return JSON.parse(trimmed.split('\n')[0]);
-    });
+        
+        let video;
+        if (searchQuery.startsWith('http')) {
+            video = await YouTubeSR.getVideo(searchQuery);
+        } else {
+            video = await YouTubeSR.searchOne(searchQuery);
+        }
+        
+        if (!video || !video.id) return null;
+        return {
+            title: video.title,
+            webpage_url: `https://www.youtube.com/watch?v=${video.id}`,
+            duration: video.duration / 1000,
+            thumbnail: video.thumbnail?.url || ''
+        };
+    } catch (err) {
+        console.error('Lỗi khi lấy info bài hát bằng YouTubeSR/Spotify:', err);
+        return null;
+    }
 }
 
 // Stream audio từ YouTube bằng yt-dlp pipe vào ffmpeg
