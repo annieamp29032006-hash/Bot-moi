@@ -153,6 +153,7 @@ function buildHelpPages(prefix) {
                 { name: '`/baucua` hoặc `!bc <cược>`', value: 'Bầu Cua Tôm Cá 🦀', inline: true },
                 { name: '`/blackjack` hoặc `!bj <cược>`', value: 'Chơi bài Xì Dách ♠️ (Blackjack)', inline: true },
                 { name: '`/guess` hoặc `!guess <cược>`', value: 'Đoán số 1-100, trúng nhận thưởng x3 🎯', inline: true },
+                { name: '`/lode` hoặc `!lode <số> <cược>`', value: 'Đánh lô đề 00-99, trúng nhận x5 💸', inline: true },
                 { name: '`/noitu` hoặc `!noitu`', value: 'Minigame Nối Từ Tiếng Việt 🧠', inline: true }
             )
             .setColor('#FFD700')
@@ -166,6 +167,8 @@ function buildHelpPages(prefix) {
             .addFields(
                 { name: '`/bank` hoặc `!bank`', value: 'Mở bảng ngân hàng cá nhân với các nút tương tác:\n• **💳 Gửi Tiền** — Chuyển coin từ ví vào bank\n• **💸 Rút Tiền** — Rút coin từ bank về ví\n• **🏆 Top Bank** — Xem ai đang giàu nhất bank\n• **🔄 Làm mới** — Cập nhật số dư mới nhất', inline: false },
                 { name: '`/dautu` hoặc `!dautu <số tiền>`', value: 'Đầu tư cổ phiếu ngẫu nhiên 📊\n• Có thể **lãi** tối đa +80%\n• Có thể **lỗ** tối đa -50%\n• Kết quả hiện ngay sau khi xác nhận', inline: false },
+                { name: '`/robbank` hoặc `!robbank`', value: '🏦 Cướp ngân hàng hệ thống (Thành công nhận thưởng khủng, thất bại bị trừ 50% tiền và đi tù 5 phút)', inline: false },
+                { name: '`/nopphat` hoặc `!nopphat`', value: '🚓 Hối lộ công an 100,000 🪙 để được thả tự do nếu bị bắt đi tù', inline: false },
                 { name: '💡 Mẹo', value: 'Dùng bank để giữ tiền an toàn, tránh mất hết khi thua cờ bạc!', inline: false }
             )
             .setColor('#2ECC71')
@@ -1594,7 +1597,7 @@ async function handleRob(userId, targetId, msgOrInteraction) {
         return replyMsg(msgOrInteraction, '❌ Người này quá nghèo, hãy tha cho họ (cần có ít nhất 1000 🪙 tiền mặt để trộm)!');
     }
     
-    const success = Math.random() < 0.5; // 50%
+    const success = Math.random() < 0.3; // 30%
     if (success || userId === ADMIN_ID) { // Admin rob always success
         const pct = Math.random() * 0.2 + 0.1; // 10 - 30%
         const stolen = Math.floor(targetCash * pct);
@@ -1611,7 +1614,7 @@ async function handleRob(userId, targetId, msgOrInteraction) {
     }
 }
 
-async function handleHeist(userId, msgOrInteraction) {
+async function handleRobbank(userId, msgOrInteraction) {
     const data = loadCoins();
     if (!data[userId]) data[userId] = { coins: 0, bank: 0, lastHeist: 0 };
     
@@ -1632,13 +1635,14 @@ async function handleHeist(userId, msgOrInteraction) {
         const reward = Math.floor(Math.random() * (20000000 - 5000000 + 1)) + 5000000;
         data[userId].coins = (data[userId].coins || 0) + reward;
         saveCoins(data);
-        return replyMsg(msgOrInteraction, `🏦 **TRÚNG MÁNH KHỔNG LỒ!** Đội của bạn đã phá két sắt Ngân hàng Trung ương và cướp thành công **${reward.toLocaleString()} 🪙**!!!`);
+        return replyMsg(msgOrInteraction, `🏦 **TRÚNG MÁNH KHỔNG LỒ!** Bạn đã phá két sắt Ngân hàng Trung ương và cướp thành công **${reward.toLocaleString()} 🪙**!!!`);
     } else {
         const cash = data[userId].coins || 0;
         const penalty = Math.floor(cash * 0.5);
         data[userId].coins -= penalty;
+        data[userId].jailEnd = Date.now() + 5 * 60 * 1000; // 5 phút tù
         saveCoins(data);
-        return replyMsg(msgOrInteraction, `🚔 **BỊ SWAT VÂY BẮT!** Vụ cướp ngân hàng đã thất bại. Bạn bị tịch thu 50% tiền mặt, tương đương **-${penalty.toLocaleString()} 🪙**!`);
+        return replyMsg(msgOrInteraction, `🚔 **BỊ CÔNG AN BẮT!** Vụ cướp ngân hàng thất bại. Bạn bị tịch thu 50% tiền mặt (**-${penalty.toLocaleString()} 🪙**) và **bị bỏ tù 5 phút**! (Gõ !nopphat hoặc /nopphat để hối lộ 100k ra sớm)`);
     }
 }
 
@@ -2451,6 +2455,12 @@ const slashCommands = [
         .setName('heist')
         .setDescription('🏦 Cướp ngân hàng hệ thống (Siêu rủi ro 15%!).'),
     new SlashCommandBuilder()
+        .setName('robbank')
+        .setDescription('🏦 Cướp ngân hàng hệ thống. Cẩn thận bị bắt vào tù!'),
+    new SlashCommandBuilder()
+        .setName('nopphat')
+        .setDescription('🚓 Hối lộ công an 100,000 🪙 để ra tù sớm.'),
+    new SlashCommandBuilder()
         .setName('invest')
         .setDescription('📈 Ném tiền vào quỹ đầu tư (Có thể Lãi to hoặc Lỗ nặng).')
         .addStringOption(o => o.setName('amount').setDescription('Số tiền (hoặc "all")').setRequired(true)),
@@ -2504,6 +2514,11 @@ const slashCommands = [
         .setName('guess')
         .setDescription('🎯 Đoán số 1-100, thắng coin.')
         .addStringOption(o => o.setName('bet').setDescription('Số coin cược (hoặc gõ "all")').setRequired(true)),
+    new SlashCommandBuilder()
+        .setName('lode')
+        .setDescription('💸 Đánh lô đề (đoán số 00-99), trúng x5 coin cược.')
+        .addStringOption(o => o.setName('so').setDescription('Số muốn đánh (00-99)').setRequired(true))
+        .addStringOption(o => o.setName('bet').setDescription('Số coin cược (hoặc "all")').setRequired(true)),
     new SlashCommandBuilder()
         .setName('taixiu')
         .setDescription('🎲 Chơi Tài Xỉu (Sic Bo).')
@@ -2941,6 +2956,36 @@ client.on('messageCreate', async (message) => {
     // --- PREFIX COMMANDS ---
     if (!content.startsWith(prefix)) return;
 
+    // --- JAIL CHECK ---
+    const uid = message.author.id;
+    const userData = loadCoins()[uid] || {};
+    if (userData.jailEnd && Date.now() < userData.jailEnd) {
+        if (!content.startsWith(`${prefix}nopphat`) && !content.startsWith(`${prefix}bribe`)) {
+            const r = userData.jailEnd - Date.now();
+            return message.reply(`🚓 **BẠN ĐANG Ở TRONG TÙ!** Hãy đợi **${Math.ceil(r/60000)} phút** nữa hoặc dùng lệnh \`${prefix}nopphat\` (phí 100,000 🪙) để hối lộ ra tù sớm.`);
+        }
+    } else if (userData.jailEnd && Date.now() >= userData.jailEnd) {
+        const coinsData = loadCoins();
+        if (coinsData[uid] && coinsData[uid].jailEnd) {
+            coinsData[uid].jailEnd = null;
+            saveCoins(coinsData);
+        }
+    }
+
+    if (content === `${prefix}nopphat` || content === `${prefix}bribe`) {
+        const data = loadCoins();
+        if (!data[uid] || !data[uid].jailEnd || Date.now() >= data[uid].jailEnd) {
+            return message.reply('❌ Bạn có ở trong tù đâu mà đòi nộp phạt!');
+        }
+        if ((data[uid].coins || 0) < 100000) {
+            return message.reply('❌ Không đủ tiền! Bạn cần **100,000 🪙** tiền mặt để nộp phạt.');
+        }
+        data[uid].coins -= 100000;
+        data[uid].jailEnd = null;
+        saveCoins(data);
+        return message.reply('🔓 Bạn đã nộp **100,000 🪙** cho công an và được thả tự do!');
+    }
+
     if (content === `${prefix}noitu`) {
         if (noituGames.has(message.channelId)) return message.reply('❌ Trò chơi Nối Từ đang diễn ra ở kênh này rồi!');
         if (vnDictionary.size === 0) return message.reply('❌ Từ điển chưa tải xong, vui lòng chờ giây lát...');
@@ -3375,6 +3420,39 @@ client.on('messageCreate', async (message) => {
         return message.reply({ embeds: [new EmbedBuilder().setTitle('🎯 Đoán số bí mật!').setDescription(`Ta nghĩ một số từ **1-100**. Bạn có **7 lượt**!\n→ Gõ một số vào chat!`).setColor('#9B59B6').addFields({ name: '💰 Cược', value: `${bet.toLocaleString()} 🪙`, inline: true }, { name: '✅ Thưởng', value: `${(bet*3).toLocaleString()} 🪙`, inline: true })] });
     }
 
+    // !lode <số> <bet>
+    if (content.startsWith(`${prefix}lode`) || content.startsWith(`${prefix}ld `)) {
+        const uid = message.author.id;
+        const args = message.content.split(' ');
+        const soInput = args[1];
+        const betInput = args[2]?.toLowerCase();
+        
+        let so = parseInt(soInput);
+        if (isNaN(so) || so < 0 || so > 99) return message.reply(`❌ Bạn phải chọn một số từ **00** đến **99**!`);
+        
+        if (!betInput) return message.reply(`❌ Cú pháp: \`${prefix}lode <số 00-99> <số_coin|all>\` (tối thiểu 10)`);
+        
+        let bet = parseInt(betInput);
+        if (betInput === 'all') {
+            bet = Math.min(getUserCoins(uid), 500000);
+            if (bet < 10) return message.reply(`❌ Không đủ coin! Bạn có **${getUserCoins(uid).toLocaleString()} 🪙**.`);
+        } else if (isNaN(bet) || bet < 10) return message.reply(`❌ Cú pháp: \`${prefix}lode <số 00-99> <số_coin|all>\` (tối thiểu 10)`);
+        
+        if (bet > 500000) return message.reply('❌ Mức cược tối đa là **500,000 🪙**!');
+        if (getUserCoins(uid) < bet) return message.reply(`❌ Không đủ coin! Bạn có **${getUserCoins(uid).toLocaleString()} 🪙**.`);
+        
+        addCoins(uid, -bet);
+        const result = Math.floor(Math.random() * 100);
+        
+        if (so === result) {
+            const win = bet * 5;
+            addCoins(uid, win);
+            return message.reply({ embeds: [new EmbedBuilder().setTitle('💸 KẾT QUẢ LÔ ĐỀ').setDescription(`Kết quả xổ số là: **${result.toString().padStart(2, '0')}**\nBạn đã chọn: **${so.toString().padStart(2, '0')}**\n\n🎉 CHÚC MỪNG! Bạn đã trúng lô đề và nhận được **${win.toLocaleString()} 🪙**!`).setColor('#00FF00')] });
+        } else {
+            return message.reply({ embeds: [new EmbedBuilder().setTitle('💸 KẾT QUẢ LÔ ĐỀ').setDescription(`Kết quả xổ số là: **${result.toString().padStart(2, '0')}**\nBạn đã chọn: **${so.toString().padStart(2, '0')}**\n\n😢 Rất tiếc! Chúc bạn may mắn lần sau. Bạn đã mất **${bet.toLocaleString()} 🪙**!`).setColor('#FF0000')] });
+        }
+    }
+
     // !taixiu <bet>
     if (content.startsWith(`${prefix}taixiu`) || content.startsWith(`${prefix}tx `)) {
         const uid = message.author.id;
@@ -3542,8 +3620,8 @@ client.on('messageCreate', async (message) => {
         if (!target) return message.reply(`❌ Cú pháp: \`${prefix}rob @user\``);
         return handleRob(message.author.id, target.id, message);
     }
-    if (content === `${prefix}heist`) {
-        return handleHeist(message.author.id, message);
+    if (content === `${prefix}robbank` || content === `${prefix}heist`) {
+        return handleRobbank(message.author.id, message);
     }
     if (content.startsWith(`${prefix}invest`)) {
         const p = getPlayer(message.author.id);
@@ -4068,6 +4146,22 @@ function giveawayMessages() {
 // INTERACTION HANDLER
 // ========================
 client.on('interactionCreate', async (interaction) => {
+    // --- JAIL CHECK ---
+    const uid = interaction.user.id;
+    const userData = loadCoins()[uid] || {};
+    if (userData.jailEnd && Date.now() < userData.jailEnd) {
+        if (!interaction.isChatInputCommand() || (interaction.commandName !== 'nopphat' && interaction.commandName !== 'bribe')) {
+            const r = userData.jailEnd - Date.now();
+            return interaction.reply({ content: `🚓 **BẠN ĐANG Ở TRONG TÙ!** Hãy đợi **${Math.ceil(r/60000)} phút** nữa hoặc dùng lệnh \`/nopphat\` (phí 100,000 🪙) để hối lộ ra tù sớm.`, ephemeral: true });
+        }
+    } else if (userData.jailEnd && Date.now() >= userData.jailEnd) {
+        const coinsData = loadCoins();
+        if (coinsData[uid] && coinsData[uid].jailEnd) {
+            coinsData[uid].jailEnd = null;
+            saveCoins(coinsData);
+        }
+    }
+
     // === MESSAGE COMPONENT (BUTTONS & MENUS) ===
     if (interaction.isMessageComponent()) {
         const cid = interaction.customId;
@@ -5308,6 +5402,24 @@ client.on('interactionCreate', async (interaction) => {
     if (!interaction.isChatInputCommand()) return;
     const { commandName } = interaction;
 
+    if (commandName === 'nopphat' || commandName === 'bribe') {
+        const data = loadCoins();
+        if (!data[uid] || !data[uid].jailEnd || Date.now() >= data[uid].jailEnd) {
+            return interaction.reply({ content: '❌ Bạn có ở trong tù đâu mà đòi nộp phạt!', ephemeral: true });
+        }
+        if ((data[uid].coins || 0) < 100000) {
+            return interaction.reply({ content: '❌ Không đủ tiền! Bạn cần **100,000 🪙** tiền mặt để nộp phạt.', ephemeral: true });
+        }
+        data[uid].coins -= 100000;
+        data[uid].jailEnd = null;
+        saveCoins(data);
+        return interaction.reply({ content: '🔓 Bạn đã nộp **100,000 🪙** cho công an và được thả tự do!', ephemeral: false });
+    }
+
+    if (commandName === 'robbank' || commandName === 'heist') {
+        return handleRobbank(uid, interaction);
+    }
+
     // --- HELP ---
     if (commandName === 'help') {
         const prefix = getPrefix();
@@ -5809,6 +5921,38 @@ client.on('interactionCreate', async (interaction) => {
         return interaction.reply({
             embeds: [new EmbedBuilder().setTitle('🎯 Đoán số bí mật!').setDescription(`Ta đang nghĩ một số từ **1 đến 100**.\nBạn có **7 lượt** để đoán!\n\n→ Hãy gõ một số vào chat!`).setColor('#9B59B6').addFields({ name: '💰 Cược', value: `${bet.toLocaleString()} 🪙`, inline: true }, { name: '✅ Thưởng nếu thắng', value: `${(bet * 3).toLocaleString()} 🪙`, inline: true })]
         });
+    }
+
+    // --- LÔ ĐỀ ---
+    if (commandName === 'lode') {
+        const uid = interaction.user.id;
+        const soInput = interaction.options.getString('so');
+        const betInput = interaction.options.getString('bet')?.toLowerCase();
+        
+        let so = parseInt(soInput);
+        if (isNaN(so) || so < 0 || so > 99) return interaction.reply({ content: `❌ Bạn phải chọn một số từ **00** đến **99**!`, ephemeral: true });
+        
+        let bet = parseInt(betInput);
+        if (betInput === 'all') {
+            bet = Math.min(getUserCoins(uid), 500000);
+            if (bet < 10) return interaction.reply({ content: `❌ Không đủ coin! Bạn có **${getUserCoins(uid).toLocaleString()} 🪙**.`, ephemeral: true });
+        } else if (isNaN(bet) || bet < 10) {
+            return interaction.reply({ content: `❌ Cú pháp cược: số_coin (tối thiểu 10) hoặc "all"`, ephemeral: true });
+        }
+        
+        if (bet > 500000) return interaction.reply({ content: '❌ Mức cược tối đa là **500,000 🪙**!', ephemeral: true });
+        if (getUserCoins(uid) < bet) return interaction.reply({ content: `❌ Không đủ coin! Bạn có **${getUserCoins(uid).toLocaleString()} 🪙**.`, ephemeral: true });
+        
+        addCoins(uid, -bet);
+        const result = Math.floor(Math.random() * 100);
+        
+        if (so === result) {
+            const win = bet * 5;
+            addCoins(uid, win);
+            return interaction.reply({ embeds: [new EmbedBuilder().setTitle('💸 KẾT QUẢ LÔ ĐỀ').setDescription(`Kết quả xổ số là: **${result.toString().padStart(2, '0')}**\nBạn đã chọn: **${so.toString().padStart(2, '0')}**\n\n🎉 CHÚC MỪNG! Bạn đã trúng lô đề và nhận được **${win.toLocaleString()} 🪙**!`).setColor('#00FF00')] });
+        } else {
+            return interaction.reply({ embeds: [new EmbedBuilder().setTitle('💸 KẾT QUẢ LÔ ĐỀ').setDescription(`Kết quả xổ số là: **${result.toString().padStart(2, '0')}**\nBạn đã chọn: **${so.toString().padStart(2, '0')}**\n\n😢 Rất tiếc! Chúc bạn may mắn lần sau. Bạn đã mất **${bet.toLocaleString()} 🪙**!`).setColor('#FF0000')] });
+        }
     }
 
     // --- TAI XIU ---
