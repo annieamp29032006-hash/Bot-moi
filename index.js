@@ -3255,7 +3255,8 @@ client.on('messageCreate', async (message) => {
         if (words.length === 2 && !msgText.startsWith(prefix)) {
             const firstSyllable = words[0];
             const lastWordObj = game.lastWord;
-            const lastSyllableOfGame = lastWordObj.split(' ')[1];
+            const lastWordParts = lastWordObj.split(' ');
+            const lastSyllableOfGame = lastWordParts[lastWordParts.length - 1];
             
             if (firstSyllable === lastSyllableOfGame) {
                 if (vnDictionary.has(msgText)) {
@@ -3324,8 +3325,8 @@ client.on('messageCreate', async (message) => {
         if (noituGames.has(message.channelId)) return message.reply('❌ Trò chơi Nối Từ đang diễn ra ở kênh này rồi!');
         if (vnDictionary.size === 0) return message.reply('❌ Từ điển chưa tải xong, vui lòng chờ giây lát...');
         
-        const allWords = Array.from(vnDictionary);
-        const randomWord = allWords[Math.floor(Math.random() * allWords.length)];
+        const easyStartingWords = ["nhà", "học", "bạn", "làm", "người", "xe", "hoa", "cây", "nước", "mưa", "nắng", "gió", "trời", "đất", "biển", "sông", "núi", "đường", "áo", "quần", "máy", "điện", "bàn", "ghế", "sách", "vở", "bút", "chữ", "toán", "nhạc", "hát", "tình", "yêu", "đời", "trăng", "sao", "chim", "cá", "chuột", "mèo", "chó", "heo", "bò", "gà", "vịt", "thuyền", "cầu", "sân"];
+        const randomWord = easyStartingWords[Math.floor(Math.random() * easyStartingWords.length)];
         
         const game = {
             lastWord: randomWord,
@@ -3333,12 +3334,12 @@ client.on('messageCreate', async (message) => {
             lastUser: null,
             timeout: setTimeout(() => {
                 noituGames.delete(message.channelId);
-                message.channel.send(`⏰ Hết 60 giây không ai nối được chữ **${randomWord.split(' ')[1]}**. Trò chơi Nối Từ kết thúc!`).catch(() => {});
+                message.channel.send(`⏰ Hết 60 giây không ai nối được chữ **${randomWord}**. Trò chơi Nối Từ kết thúc!`).catch(() => {});
             }, 60000)
         };
         noituGames.set(message.channelId, game);
         
-        return message.channel.send(`🎮 **TRÒ CHƠI NỐI TỪ BẮT ĐẦU!**\nTừ đầu tiên là: **${randomWord.toUpperCase()}**\n\nHãy nối tiếp bằng từ có chữ đầu là **${randomWord.split(' ')[1].toUpperCase()}** nhé!\n_Thưởng 50,000 🪙 mỗi từ đúng. Mọi người chỉ cần gõ 2 chữ tự do vào chat!_`).catch(() => {});
+        return message.channel.send(`🎮 **TRÒ CHƠI NỐI TỪ BẮT ĐẦU!**\nTừ đầu tiên để nối là: **${randomWord.toUpperCase()}**\n\nHãy nối tiếp bằng một từ ghép có chữ đầu là **${randomWord.toUpperCase()}** nhé!\n_Thưởng 50,000 🪙 mỗi từ đúng. Mọi người chỉ cần gõ 2 chữ tự do vào chat!_`).catch(() => {});
     }
 
     if (content === `${prefix}stopnoitu`) {
@@ -6718,8 +6719,8 @@ client.on('interactionCreate', async (interaction) => {
         if (noituGames.has(interaction.channelId)) return interaction.reply({ content: '❌ Trò chơi Nối Từ đang diễn ra ở kênh này rồi!', ephemeral: true });
         if (vnDictionary.size === 0) return interaction.reply({ content: '❌ Từ điển chưa tải xong, vui lòng chờ giây lát...', ephemeral: true });
         
-        const allWords = Array.from(vnDictionary);
-        const randomWord = allWords[Math.floor(Math.random() * allWords.length)];
+        const easyStartingWords = ["nhà", "học", "bạn", "làm", "người", "xe", "hoa", "cây", "nước", "mưa", "nắng", "gió", "trời", "đất", "biển", "sông", "núi", "đường", "áo", "quần", "máy", "điện", "bàn", "ghế", "sách", "vở", "bút", "chữ", "toán", "nhạc", "hát", "tình", "yêu", "đời", "trăng", "sao", "chim", "cá", "chuột", "mèo", "chó", "heo", "bò", "gà", "vịt", "thuyền", "cầu", "sân"];
+        const randomWord = easyStartingWords[Math.floor(Math.random() * easyStartingWords.length)];
         
         const game = {
             lastWord: randomWord,
@@ -6727,12 +6728,12 @@ client.on('interactionCreate', async (interaction) => {
             lastUser: null,
             timeout: setTimeout(() => {
                 noituGames.delete(interaction.channelId);
-                interaction.channel.send(`⏰ Hết 60 giây không ai nối được chữ **${randomWord.split(' ')[1]}**. Trò chơi Nối Từ kết thúc!`).catch(() => {});
+                interaction.channel.send(`⏰ Hết 60 giây không ai nối được chữ **${randomWord}**. Trò chơi Nối Từ kết thúc!`).catch(() => {});
             }, 60000)
         };
         noituGames.set(interaction.channelId, game);
         
-        return interaction.reply(`🎮 **TRÒ CHƠI NỐI TỪ BẮT ĐẦU!**\nTừ đầu tiên là: **${randomWord.toUpperCase()}**\n\nHãy nối tiếp bằng từ có chữ đầu là **${randomWord.split(' ')[1].toUpperCase()}** nhé!\n_Thưởng 50,000 🪙 mỗi từ đúng. Mọi người chỉ cần gõ 2 chữ tự do vào chat!_`);
+        return interaction.reply(`🎮 **TRÒ CHƠI NỐI TỪ BẮT ĐẦU!**\nTừ đầu tiên để nối là: **${randomWord.toUpperCase()}**\n\nHãy nối tiếp bằng một từ ghép có chữ đầu là **${randomWord.toUpperCase()}** nhé!\n_Thưởng 50,000 🪙 mỗi từ đúng. Mọi người chỉ cần gõ 2 chữ tự do vào chat!_`);
     }
 
     if (commandName === 'stopnoitu') {
