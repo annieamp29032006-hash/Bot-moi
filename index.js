@@ -247,7 +247,7 @@ function buildHelpPages(prefix) {
             .setDescription('Quản lý sự kiện, cài đặt bot và đặc quyền Admin.')
             .addFields(
                 { name: '🎁 Sự kiện Giveaway', value: `\`${prefix}gstart <time> <winner> <giải>\` — Bắt đầu Giveaway\n\`/gend <id>\` — Kết thúc sớm\n\`/greroll <id>\` — Chọn lại người thắng`, inline: false },
-                { name: '⚙️ Đổi Prefix & Cài Đặt', value: `\`${prefix}setprefix <dấu mới>\` — Đổi prefix bot\n\`/setspawnchannel #channel\` hoặc \`!setspawnchannel #channel\` — Đặt nơi xuất hiện Pokemon Huyền Thoại\n\`!spawnpet\` — Ép Pokemon Huyền Thoại xuất hiện ngay lập tức\n\`/addpetvip @user <pet_id>\` hoặc \`!addpetvip\` — Tặng pet VIP cho user (Admin)`, inline: false },
+                { name: '⚙️ Đổi Prefix & Cài Đặt', value: `\`${prefix}setprefix <dấu mới>\` — Đổi prefix bot\n\`/setspawnchannel #channel\` hoặc \`!setspawnchannel #channel\` — Đặt nơi xuất hiện Pokemon\n\`/setuppokemonrole\` — Cài đặt tính năng ping Role Pokemon\n\`!spawnpet\` — Ép Pokemon Huyền Thoại xuất hiện\n\`/addpetvip @user <pet_id>\` hoặc \`!addpetvip\` — Tặng pet VIP cho user`, inline: false },
                 { name: '👑 Admin Cheat Panel', value: `\`${prefix}admincheat\` hoặc \`/admincheat\` *(Chỉ Admin Chính)*\nMở bảng điều khiển đặc biệt:\n• Bật/Tắt chế độ **luôn thắng** cờ bạc\n• Các quyền năng đặc biệt khác`, inline: false },
                 { name: '🤖 Tự động hệ thống', value: 'Bot tự chào mừng thành viên, ghi log voice, reply từ khoá mặc định.', inline: false }
             )
