@@ -264,7 +264,8 @@ function buildHelpPages(prefix) {
             .addFields(
                 { name: '`/bank` hoặc `!bank`', value: 'Mở bảng ngân hàng cá nhân với các nút tương tác:\n• **💳 Gửi Tiền** — Chuyển coin từ ví vào bank\n• **💸 Rút Tiền** — Rút coin từ bank về ví\n• **🏆 Top Bank** — Xem ai đang giàu nhất bank\n• **🔄 Làm mới** — Cập nhật số dư mới nhất', inline: false },
                 { name: '`/dautu` hoặc `!dautu <số tiền>`', value: 'Đầu tư cổ phiếu ngẫu nhiên 📊\n• Có thể **lãi** tối đa +80%\n• Có thể **lỗ** tối đa -50%\n• Kết quả hiện ngay sau khi xác nhận', inline: false },
-                { name: '`/robbank` hoặc `!robbank`', value: '🏦 Cướp ngân hàng hệ thống (Thành công nhận thưởng khủng, thất bại bị trừ 50% tiền và đi tù 5 phút)', inline: false },
+                { name: '`/robbank` hoặc `!robbank`', value: '🏦 Cướp ngân hàng hệ thống (15% thành công → nhận thưởng khủng; thất bại → -50% tiền + tù 5 phút)', inline: false },
+                { name: '`/robbank @user` hoặc `!robbank @user`', value: '🥷 Cướp ngân hàng của người khác (40% thành công → lấy 10-30% bank của họ; thất bại → -30% tiền mặt + tù 3 phút)', inline: false },
                 { name: '`/nopphat` hoặc `!nopphat`', value: '🚓 Hối lộ công an 100,000 🪙 để được thả tự do nếu bị bắt đi tù', inline: false },
                 { name: '💡 Mẹo', value: 'Dùng bank để giữ tiền an toàn, tránh mất hết khi thua cờ bạc!', inline: false }
             )
@@ -1721,15 +1722,20 @@ async function handleRob(userId, targetId, msgOrInteraction) {
         saveCoins(data);
         return replyMsg(msgOrInteraction, `🥷 **THÀNH CÔNG!** Bạn đã lẻn vào nhà <@${targetId}> và trộm được **${stolen.toLocaleString()} 🪙**!`);
     } else {
-        const fine = Math.min((data[userId].coins || 0), 5000);
-        data[userId].coins -= fine;
-        data[targetId].coins = (data[targetId].coins || 0) + fine;
+        const cash = data[userId].coins || 0;
+        const fine = Math.floor(cash * 0.20);
+        data[userId].coins = Math.max(0, cash - fine);
+        data[userId].jailEnd = Date.now() + 5 * 60 * 1000; // 5 phút tù
         saveCoins(data);
-        return replyMsg(msgOrInteraction, `🚨 **BỊ BẮT!** Bạn đã bị bắt quả tang khi cố trộm nhà <@${targetId}> và bị phạt bồi thường **${fine.toLocaleString()} 🪙**!`);
+        return replyMsg(msgOrInteraction,
+            `🚨 **BỊ BẮT QUẢ TANG!** Bạn đã bị bắt khi cố trộm nhà <@${targetId}>!\n` +
+            `Bị phạt **20% tiền mặt** (**-${fine.toLocaleString()} 🪙**) và **bỏ tù 5 phút**!\n` +
+            `*(Dùng \`!nopphat\` hoặc \`/nopphat\` để hối lộ 100k ra sớm)*`
+        );
     }
 }
 
-async function handleRobbank(userId, msgOrInteraction) {
+async function handleRobbank(userId, msgOrInteraction, targetId = null) {
     const data = loadCoins();
     if (!data[userId]) data[userId] = { coins: 0, bank: 0, lastHeist: 0 };
     
@@ -1743,6 +1749,48 @@ async function handleRobbank(userId, msgOrInteraction) {
         return replyMsg(msgOrInteraction, `⏳ Phi vụ đang được lên kế hoạch. Hãy đợi **${h}h ${m}p** nữa để thực hiện vụ cướp tiếp theo!`);
     }
     
+    // === Cướp ngân hàng của USER KHÁC ===
+    if (targetId && targetId !== userId) {
+        if (!data[targetId]) data[targetId] = { coins: 500000, bank: 0, lastDaily: 0 };
+        
+        const targetBank = data[targetId].bank || 0;
+        if (targetBank <= 0) {
+            return replyMsg(msgOrInteraction, `🏦 Ngân hàng của <@${targetId}> **trống rỗng**, không có gì để cướp cả!`);
+        }
+        
+        data[userId].lastHeist = now;
+        saveCoins(data);
+        
+        const success = Math.random() < 0.40 || userId === ADMIN_ID; // 40%
+        if (success) {
+            // Lấy 10% - 30% bank của nạn nhân
+            const stealRate = (Math.random() * 0.20) + 0.10;
+            const stolen = Math.floor(targetBank * stealRate);
+            data[userId].coins = (data[userId].coins || 0) + stolen;
+            data[targetId].bank = Math.max(0, targetBank - stolen);
+            saveCoins(data);
+            return replyMsg(msgOrInteraction,
+                `🥷 **CƯỚP THÀNH CÔNG!**\n` +
+                `Bạn đã bẻ khóa két sắt ngân hàng của <@${targetId}> và cướp đi **${stolen.toLocaleString()} 🪙** ` +
+                `(${(stealRate * 100).toFixed(0)}% tiền bank của họ)!\n` +
+                `💰 Tiền về ví của bạn ngay!`
+            );
+        } else {
+            const cash = data[userId].coins || 0;
+            const penalty = Math.floor(cash * 0.20);
+            data[userId].coins = Math.max(0, cash - penalty);
+            data[userId].jailEnd = Date.now() + 3 * 60 * 1000; // 3 phút tù
+            saveCoins(data);
+            return replyMsg(msgOrInteraction,
+                `🚔 **BỊ BẮT QUẢ TANG!**\n` +
+                `Bạn đang cưa két của <@${targetId}> thì bảo vệ ngân hàng gọi cảnh sát!\n` +
+                `Bị tịch thu **20% tiền mặt** (**-${penalty.toLocaleString()} 🪙**) và **bỏ tù 3 phút**!\n` +
+                `*(Dùng \`!nopphat\` hoặc \`/nopphat\` để hối lộ 100k ra sớm)*`
+            );
+        }
+    }
+    
+    // === Cướp ngân hàng HỆ THỐNG (không tag ai) ===
     data[userId].lastHeist = now;
     
     const success = Math.random() < 0.15; // 15%
@@ -1753,11 +1801,11 @@ async function handleRobbank(userId, msgOrInteraction) {
         return replyMsg(msgOrInteraction, `🏦 **TRÚNG MÁNH KHỔNG LỒ!** Bạn đã phá két sắt Ngân hàng Trung ương và cướp thành công **${reward.toLocaleString()} 🪙**!!!`);
     } else {
         const cash = data[userId].coins || 0;
-        const penalty = Math.floor(cash * 0.5);
-        data[userId].coins -= penalty;
+        const penalty = Math.floor(cash * 0.20);
+        data[userId].coins = Math.max(0, cash - penalty);
         data[userId].jailEnd = Date.now() + 5 * 60 * 1000; // 5 phút tù
         saveCoins(data);
-        return replyMsg(msgOrInteraction, `🚔 **BỊ CÔNG AN BẮT!** Vụ cướp ngân hàng thất bại. Bạn bị tịch thu 50% tiền mặt (**-${penalty.toLocaleString()} 🪙**) và **bị bỏ tù 5 phút**! (Gõ !nopphat hoặc /nopphat để hối lộ 100k ra sớm)`);
+        return replyMsg(msgOrInteraction, `🚔 **BỊ CÔNG AN BẮT!** Vụ cướp ngân hàng thất bại. Bạn bị tịch thu **20% tiền mặt** (**-${penalty.toLocaleString()} 🪙**) và **bị bỏ tù 5 phút**! (Gõ !nopphat hoặc /nopphat để hối lộ 100k ra sớm)`);
     }
 }
 
@@ -2571,7 +2619,8 @@ const slashCommands = [
         .setDescription('🏦 Cướp ngân hàng hệ thống (Siêu rủi ro 15%!).'),
     new SlashCommandBuilder()
         .setName('robbank')
-        .setDescription('🏦 Cướp ngân hàng hệ thống. Cẩn thận bị bắt vào tù!'),
+        .setDescription('🏦 Cướp ngân hàng hệ thống hoặc ngân hàng của người khác!')
+        .addUserOption(o => o.setName('user').setDescription('Tag người muốn cướp bank (bỏ trống = cướp hệ thống)').setRequired(false)),
     new SlashCommandBuilder()
         .setName('nopphat')
         .setDescription('🚓 Hối lộ công an 100,000 🪙 để ra tù sớm.'),
@@ -3825,8 +3874,9 @@ client.on('messageCreate', async (message) => {
         if (!target) return message.reply(`❌ Cú pháp: \`${prefix}rob @user\``);
         return handleRob(message.author.id, target.id, message);
     }
-    if (content === `${prefix}robbank` || content === `${prefix}heist`) {
-        return handleRobbank(message.author.id, message);
+    if (content.startsWith(`${prefix}robbank`) || content.startsWith(`${prefix}heist`)) {
+        const robTarget = message.mentions.users.first();
+        return handleRobbank(message.author.id, message, robTarget ? robTarget.id : null);
     }
     if (content.startsWith(`${prefix}invest`)) {
         const p = getPlayer(message.author.id);
@@ -5622,7 +5672,8 @@ client.on('interactionCreate', async (interaction) => {
     }
 
     if (commandName === 'robbank' || commandName === 'heist') {
-        return handleRobbank(uid, interaction);
+        const robTarget = interaction.options?.getUser('user');
+        return handleRobbank(uid, interaction, robTarget ? robTarget.id : null);
     }
 
     // --- HELP ---
