@@ -17,6 +17,7 @@ const { execFile, spawn } = require('child_process');
 const path = require('path');
 const YouTubeSR = require('youtube-sr').default;
 const ffmpegPath = require('ffmpeg-static');
+const cron = require('node-cron');
 const WW = require('./werewolf.js');
 
 // Chỉ định đường dẫn FFmpeg cho prism-media (dùng cho @discordjs/voice)
@@ -85,23 +86,27 @@ const configPath = './config.json';
 // ========================
 // CONFIG HELPERS
 // ========================
-function getPrefix() {
+function loadConfig() {
     if (fs.existsSync(configPath)) {
-        try {
-            const data = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-            if (data.prefix) return data.prefix;
-        } catch (e) {}
+        try { return JSON.parse(fs.readFileSync(configPath, 'utf8')); }
+        catch (e) {}
     }
-    return process.env.PREFIX || '!';
+    return {};
+}
+
+function saveConfig(data) {
+    fs.writeFileSync(configPath, JSON.stringify(data, null, 4));
+}
+
+function getPrefix() {
+    const config = loadConfig();
+    return config.prefix || process.env.PREFIX || '!';
 }
 
 function savePrefix(newPrefix) {
-    let data = {};
-    if (fs.existsSync(configPath)) {
-        try { data = JSON.parse(fs.readFileSync(configPath, 'utf8')); } catch (e) {}
-    }
-    data.prefix = newPrefix;
-    fs.writeFileSync(configPath, JSON.stringify(data, null, 4));
+    const config = loadConfig();
+    config.prefix = newPrefix;
+    saveConfig(config);
 }
 
 // ========================
@@ -2483,6 +2488,11 @@ const slashCommands = [
     new SlashCommandBuilder()
         .setName('wwstop')
         .setDescription('🛑 Hủy game Ma Sói đang chạy (Admin).'),
+    new SlashCommandBuilder()
+        .setName('setlodechannel')
+        .setDescription('👑 [Admin] Cài đặt kênh hiển thị kết quả Lô đề 18h30 hàng ngày.')
+        .setDefaultMemberPermissions(PermissionsBitField.Flags.Administrator)
+        .addChannelOption(o => o.setName('channel').setDescription('Kênh hiển thị kết quả').setRequired(true)),
     // --- COIN / MINIGAME ---
     new SlashCommandBuilder()
         .setName('daily')
@@ -2729,6 +2739,59 @@ client.once('ready', async () => {
         await rest.put(Routes.applicationCommands(client.user.id), { body: slashCommands });
         console.log('✅ Đã đăng ký Slash Commands thành công!');
         startWildPetSpawns(client);
+
+        // --- LÔ ĐỀ CRON JOB (18:30 hàng ngày) ---
+        cron.schedule('30 18 * * *', async () => {
+            console.log('⏰ Bắt đầu xổ số lô đề 18h30...');
+            const config = loadConfig();
+            if (!config.lodeChannelId) {
+                console.log('❌ Chưa cấu hình lodeChannelId, không thể gửi kết quả lô đề!');
+                return;
+            }
+            const channel = client.channels.cache.get(config.lodeChannelId);
+            if (!channel) return;
+
+            const lodeData = loadLode();
+            if (!lodeData.bets || lodeData.bets.length === 0) {
+                channel.send('📊 **XỔ SỐ 18H30**\nHôm nay không có ai ghi lô đề. Hẹn gặp lại ngày mai!');
+                return;
+            }
+
+            const winningNumber = Math.floor(Math.random() * 100);
+            const formattedWinNum = winningNumber.toString().padStart(2, '0');
+
+            let winners = [];
+            const coinsData = loadCoins();
+
+            for (const betObj of lodeData.bets) {
+                if (betObj.so === winningNumber) {
+                    const prize = betObj.bet * 5;
+                    if (!coinsData[betObj.userId]) coinsData[betObj.userId] = { coins: 0, bank: 0 };
+                    coinsData[betObj.userId].coins += prize;
+                    winners.push({ userId: betObj.userId, prize: prize });
+                }
+            }
+
+            saveCoins(coinsData);
+            saveLode({ bets: [] });
+
+            const embed = new EmbedBuilder()
+                .setTitle('🎉 KẾT QUẢ XỔ SỐ LÔ ĐỀ 18H30 🎉')
+                .setDescription(`Con số may mắn ngày hôm nay là: **${formattedWinNum}** 🎯`)
+                .setColor('#FF0000');
+
+            if (winners.length > 0) {
+                const winnerText = winners.map(w => `<@${w.userId}> trúng **${w.prize.toLocaleString()} 🪙**`).join('\n');
+                embed.addFields({ name: '🏆 Chúc mừng các đại gia đã trúng lô', value: winnerText });
+                channel.send({ content: `🔔 Loa loa loa! Đã có kết quả xổ số: ${winners.map(w => `<@${w.userId}>`).join(' ')}`, embeds: [embed] });
+            } else {
+                embed.addFields({ name: '😢 Chia buồn', value: 'Rất tiếc hôm nay không có ai trúng lô cả. Chúc các bạn may mắn lần sau!' });
+                channel.send({ embeds: [embed] });
+            }
+        }, {
+            timezone: 'Asia/Ho_Chi_Minh'
+        });
+
     } catch (error) {
         console.error('Lỗi khi đăng ký Slash Commands:', error);
     }
@@ -3421,6 +3484,20 @@ client.on('messageCreate', async (message) => {
     }
 
     // !lode <số> <bet>
+    if (content.startsWith(`${prefix}setlodechannel`)) {
+        if (!message.member.permissions.has(PermissionsBitField.Flags.Administrator) && message.author.id !== ADMIN_ID) {
+            return message.reply('❌ Chỉ Admin mới có thể sử dụng lệnh này!');
+        }
+        let targetChannel = message.mentions.channels.first();
+        if (!targetChannel) targetChannel = message.channel;
+        
+        const config = loadConfig();
+        config.lodeChannelId = targetChannel.id;
+        saveConfig(config);
+        
+        return message.reply(`✅ Đã thiết lập kênh xổ số lô đề 18h30 tại <#${targetChannel.id}>`);
+    }
+
     if (content.startsWith(`${prefix}lode`) || content.startsWith(`${prefix}ld `)) {
         const uid = message.author.id;
         const args = message.content.split(' ');
@@ -3442,15 +3519,12 @@ client.on('messageCreate', async (message) => {
         if (getUserCoins(uid) < bet) return message.reply(`❌ Không đủ coin! Bạn có **${getUserCoins(uid).toLocaleString()} 🪙**.`);
         
         addCoins(uid, -bet);
-        const result = Math.floor(Math.random() * 100);
         
-        if (so === result) {
-            const win = bet * 5;
-            addCoins(uid, win);
-            return message.reply({ embeds: [new EmbedBuilder().setTitle('💸 KẾT QUẢ LÔ ĐỀ').setDescription(`Kết quả xổ số là: **${result.toString().padStart(2, '0')}**\nBạn đã chọn: **${so.toString().padStart(2, '0')}**\n\n🎉 CHÚC MỪNG! Bạn đã trúng lô đề và nhận được **${win.toLocaleString()} 🪙**!`).setColor('#00FF00')] });
-        } else {
-            return message.reply({ embeds: [new EmbedBuilder().setTitle('💸 KẾT QUẢ LÔ ĐỀ').setDescription(`Kết quả xổ số là: **${result.toString().padStart(2, '0')}**\nBạn đã chọn: **${so.toString().padStart(2, '0')}**\n\n😢 Rất tiếc! Chúc bạn may mắn lần sau. Bạn đã mất **${bet.toLocaleString()} 🪙**!`).setColor('#FF0000')] });
-        }
+        const lodeData = loadLode();
+        lodeData.bets.push({ userId: uid, so: so, bet: bet });
+        saveLode(lodeData);
+        
+        return message.reply(`✅ Bạn đã ghi lô số **${so.toString().padStart(2, '0')}** với số tiền **${bet.toLocaleString()} 🪙**. Chờ kết quả xổ số lúc 18h30 hàng ngày nhé!`);
     }
 
     // !taixiu <bet>
@@ -5923,6 +5997,14 @@ client.on('interactionCreate', async (interaction) => {
         });
     }
 
+    if (commandName === 'setlodechannel') {
+        const targetChannel = interaction.options.getChannel('channel');
+        const config = loadConfig();
+        config.lodeChannelId = targetChannel.id;
+        saveConfig(config);
+        return interaction.reply({ content: `✅ Đã thiết lập kênh xổ số lô đề 18h30 tại <#${targetChannel.id}>`, ephemeral: true });
+    }
+
     // --- LÔ ĐỀ ---
     if (commandName === 'lode') {
         const uid = interaction.user.id;
@@ -5944,15 +6026,12 @@ client.on('interactionCreate', async (interaction) => {
         if (getUserCoins(uid) < bet) return interaction.reply({ content: `❌ Không đủ coin! Bạn có **${getUserCoins(uid).toLocaleString()} 🪙**.`, ephemeral: true });
         
         addCoins(uid, -bet);
-        const result = Math.floor(Math.random() * 100);
         
-        if (so === result) {
-            const win = bet * 5;
-            addCoins(uid, win);
-            return interaction.reply({ embeds: [new EmbedBuilder().setTitle('💸 KẾT QUẢ LÔ ĐỀ').setDescription(`Kết quả xổ số là: **${result.toString().padStart(2, '0')}**\nBạn đã chọn: **${so.toString().padStart(2, '0')}**\n\n🎉 CHÚC MỪNG! Bạn đã trúng lô đề và nhận được **${win.toLocaleString()} 🪙**!`).setColor('#00FF00')] });
-        } else {
-            return interaction.reply({ embeds: [new EmbedBuilder().setTitle('💸 KẾT QUẢ LÔ ĐỀ').setDescription(`Kết quả xổ số là: **${result.toString().padStart(2, '0')}**\nBạn đã chọn: **${so.toString().padStart(2, '0')}**\n\n😢 Rất tiếc! Chúc bạn may mắn lần sau. Bạn đã mất **${bet.toLocaleString()} 🪙**!`).setColor('#FF0000')] });
-        }
+        const lodeData = loadLode();
+        lodeData.bets.push({ userId: uid, so: so, bet: bet });
+        saveLode(lodeData);
+        
+        return interaction.reply(`✅ Bạn đã ghi lô số **${so.toString().padStart(2, '0')}** với số tiền **${bet.toLocaleString()} 🪙**. Chờ kết quả xổ số lúc 18h30 hàng ngày nhé!`);
     }
 
     // --- TAI XIU ---
