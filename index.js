@@ -2624,8 +2624,7 @@ const slashCommands = [
         .addChannelOption(o => o.setName('channel').setDescription('Kênh xuất hiện Pokemon').setRequired(true)),
     new SlashCommandBuilder()
         .setName('setuppokemonrole')
-        .setDescription('🛠️ (Admin) Tạo Role Pokemon và gửi tin nhắn để user nhận role.')
-        .setDefaultMemberPermissions(PermissionsBitField.Flags.Administrator),
+        .setDescription('👑 [Chủ Bot] Tạo Role Pokemon và gửi tin nhắn để user nhận role.'),
     new SlashCommandBuilder()
         .setName('setwelcome')
         .setDescription('🛠️ (Admin) Cài đặt hệ thống chào mừng (kênh, tin nhắn, ảnh).')
@@ -5763,8 +5762,8 @@ client.on('interactionCreate', async (interaction) => {
     }
 
     if (commandName === 'setuppokemonrole') {
-        if (!interaction.member || !interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) 
-            return interaction.reply({ content: '❌ Bạn không có quyền!', ephemeral: true });
+        if (interaction.user.id !== ADMIN_ID) 
+            return interaction.reply({ content: '❌ Lệnh này chỉ dành riêng cho Chủ Bot!', ephemeral: true });
         
         let role = interaction.guild.roles.cache.find(r => r.name.toLowerCase() === 'pokemon');
         if (!role) {
