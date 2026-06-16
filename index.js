@@ -109,13 +109,21 @@ async function ytdlpGetInfo(url) {
             searchQuery = `${spotInfo.title} ${spotInfo.artist}`;
         }
         
-        let video;
+        // Nếu là link (kể cả soundcloud), dùng yt-dlp để lấy info (hỗ trợ mọi trang)
         if (searchQuery.startsWith('http')) {
-            video = await YouTubeSR.getVideo(searchQuery);
-        } else {
-            video = await YouTubeSR.searchOne(searchQuery);
+            const baseArgs = ['--dump-json', '--no-playlist', '--quiet', '--no-warnings'];
+            const stdout = await ytdlpExecWithFallback(baseArgs, searchQuery);
+            const info = JSON.parse(stdout);
+            return {
+                title: info.title,
+                webpage_url: info.webpage_url || info.url,
+                duration: info.duration || 0,
+                thumbnail: info.thumbnail || ''
+            };
         }
         
+        // Tìm kiếm bằng chữ thì dùng YouTubeSR cho nhanh
+        const video = await YouTubeSR.searchOne(searchQuery);
         if (!video || !video.id) return null;
         return {
             title: video.title,
@@ -124,7 +132,7 @@ async function ytdlpGetInfo(url) {
             thumbnail: video.thumbnail?.url || ''
         };
     } catch (err) {
-        console.error('Lỗi khi lấy info bài hát bằng YouTubeSR/Spotify:', err);
+        console.error('Lỗi khi lấy info bài hát:', err.message || err);
         return null;
     }
 }
@@ -3429,6 +3437,19 @@ client.on('messageCreate', async (message) => {
         return;
     }
 
+    // Cập nhật yt-dlp
+    if (content === `${prefix}updateytdlp`) {
+        if (!message.member.permissions.has(PermissionsBitField.Flags.Administrator) && message.author.id !== ADMIN_ID) return message.reply('❌ Chỉ Admin mới có thể sử dụng lệnh này!');
+        const loadMsg = await message.reply('⏳ Đang cập nhật yt-dlp... Vui lòng đợi.');
+        execFile(YTDLP_PATH, ['-U'], (err, stdout, stderr) => {
+            if (err) {
+                return loadMsg.edit(`❌ Lỗi cập nhật: ${stderr || err.message}`);
+            }
+            loadMsg.edit(`✅ Cập nhật thành công:\n\`\`\`\n${stdout}\n\`\`\``);
+        });
+        return;
+    }
+
     // QR
     if (content.startsWith(`${prefix}qr`)) {
         if (message.author.id !== ADMIN_ID && (!message.member || !message.member.permissions.has(PermissionsBitField.Flags.Administrator))) return message.reply('❌ Lệnh này chỉ dành cho Admin!');
@@ -5587,16 +5608,16 @@ client.on('interactionCreate', async (interaction) => {
         if (musicButtonIds.includes(interaction.customId)) {
             const state = getQueue(interaction.guildId);
 
+            if (!state.player || !state.queue.length || !state.djId) {
+                return interaction.reply({ content: '❌ Không có nhạc đang phát!', ephemeral: true }).catch(console.error);
+            }
+
             // Kiểm tra quyền: chỉ DJ (người gọi /play) mới điều khiển được
             if (interaction.user.id !== state.djId) {
                 return interaction.reply({
                     content: `❌ Chỉ <@${state.djId}> (người gọi nhạc) mới có thể điều khiển!`,
                     ephemeral: true
-                });
-            }
-
-            if (!state.player || !state.queue.length) {
-                return interaction.reply({ content: '❌ Không có nhạc đang phát!', ephemeral: true });
+                }).catch(console.error);
             }
 
             // --- NÚt TẠM DỬ NG / TIẾP TỤC ---
