@@ -32,7 +32,7 @@ function ytdlpGetInfo(url) {
         execFile(YTDLP_PATH, [
             '--dump-json',
             '--no-playlist',
-            '--extractor-args', 'youtube:player_client=android', // Bypass "Sign in to confirm you're not a bot"
+            '--js-runtimes', 'node', // Cung cấp JS runtime để tránh warning
             '--quiet',
             '--no-warnings',
             query
@@ -61,9 +61,9 @@ function ytdlpGetInfo(url) {
 // Stream audio từ YouTube bằng yt-dlp pipe vào ffmpeg
 function ytdlpStream(url) {
     const ytdlp = spawn(YTDLP_PATH, [
-        '-f', 'bestaudio',
+        '-f', 'bestaudio[ext=webm]/bestaudio/best',
         '--no-playlist',
-        '--extractor-args', 'youtube:player_client=android', // Bypass YouTube blocking
+        '--js-runtimes', 'node',
         '-q',
         '-o', '-',
         url
@@ -1527,7 +1527,7 @@ async function awaitConfirmation(msgOrInteraction, userId, promptText, onConfirm
     }
 }
 
-const ADMIN_ID = '1204627726254997546';
+const ADMIN_ID = process.env.ADMIN_ID || '1204627726254997546';
 const ROB_COOLDOWN = 5 * 60 * 1000; // 5 minutes
 const HEIST_COOLDOWN = 4 * 60 * 60 * 1000; // 4 hours
 
@@ -2991,7 +2991,7 @@ client.on('messageCreate', async (message) => {
 
     // QR
     if (content.startsWith(`${prefix}qr`)) {
-        if (message.author.id !== '1204627726254997546') return message.reply('❌ Lệnh này chỉ dành cho Admin!');
+        if (message.author.id !== ADMIN_ID && (!message.member || !message.member.permissions.has(PermissionsBitField.Flags.Administrator))) return message.reply('❌ Lệnh này chỉ dành cho Admin!');
         const args = message.content.split(' ').slice(1);
         if (!args.length) return message.reply(`❌ Cú pháp: \`${prefix}qr <số tiền> [nội dung]\``);
         const amount = args[0];
@@ -5503,7 +5503,7 @@ client.on('interactionCreate', async (interaction) => {
 
     // --- QR ---
     if (commandName === 'qr') {
-        if (interaction.user.id !== '1204627726254997546') return interaction.reply({ content: '❌ Lệnh này chỉ dành cho Admin!', ephemeral: true });
+        if (interaction.user.id !== ADMIN_ID && (!interaction.member || !interaction.member.permissions.has(PermissionsBitField.Flags.Administrator))) return interaction.reply({ content: '❌ Lệnh này chỉ dành cho Admin!', ephemeral: true });
         const amount = interaction.options.getInteger('amount');
         const baseInfo = interaction.options.getString('content') || '';
         const safeBaseInfo = baseInfo.replace(/[^a-zA-Z0-9 ]/g, '');
