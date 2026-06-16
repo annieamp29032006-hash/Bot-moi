@@ -2913,9 +2913,13 @@ client.on('messageCreate', async (message) => {
                     if (game.usedWords.has(msgText)) {
                         message.react('❌').catch(() => {});
                         message.reply(`Từ **${msgText}** đã được dùng rồi! Bạn hãy tìm từ khác nối chữ **${lastSyllableOfGame}** nhé.`).catch(() => {});
+                    } else if (game.lastUser === message.author.id) {
+                        message.react('❌').catch(() => {});
+                        message.reply(`Bạn vừa nối từ rồi, hãy đợi người khác nối tiếp nhé!`).catch(() => {});
                     } else {
                         game.lastWord = msgText;
                         game.usedWords.add(msgText);
+                        game.lastUser = message.author.id;
                         clearTimeout(game.timeout);
                         
                         addCoins(message.author.id, 50000);
@@ -2947,6 +2951,7 @@ client.on('messageCreate', async (message) => {
         const game = {
             lastWord: randomWord,
             usedWords: new Set([randomWord]),
+            lastUser: null,
             timeout: setTimeout(() => {
                 noituGames.delete(message.channelId);
                 message.channel.send(`⏰ Hết 60 giây không ai nối được chữ **${randomWord.split(' ')[1]}**. Trò chơi Nối Từ kết thúc!`).catch(() => {});
@@ -6045,6 +6050,7 @@ client.on('interactionCreate', async (interaction) => {
         const game = {
             lastWord: randomWord,
             usedWords: new Set([randomWord]),
+            lastUser: null,
             timeout: setTimeout(() => {
                 noituGames.delete(interaction.channelId);
                 interaction.channel.send(`⏰ Hết 60 giây không ai nối được chữ **${randomWord.split(' ')[1]}**. Trò chơi Nối Từ kết thúc!`).catch(() => {});
