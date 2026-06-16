@@ -3088,50 +3088,83 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
         
         // Handle Join To Create
         if (newState.channelId === j2cChannelId) {
-            const newChannelName = `🔊 Phòng của ${newState.member.user.username}`;
-            const createdChannel = await newState.guild.channels.create({
-                name: newChannelName,
-                type: 2, // ChannelType.GuildVoice
-                parent: newState.channel.parentId,
-                permissionOverwrites: [
-                    {
-                        id: newState.guild.id,
-                        allow: [],
-                        deny: []
-                    }
-                ]
-            });
+            const member = newState.member;
             
-            await newState.member.voice.setChannel(createdChannel).catch(() => {});
-            j2cChannels.set(createdChannel.id, newState.member.user.id);
-            
-            const cpEmbed = new EmbedBuilder()
-                .setTitle('⚙️ Bảng Điều Khiển Phòng Voice')
-                .setDescription(`Chào mừng <@${newState.member.user.id}> đến phòng của bạn!\nSử dụng các nút bên dưới để quản lý phòng.`)
-                .setColor('#00FFFF')
-                .addFields(
-                    { name: 'Chủ phòng', value: `<@${newState.member.user.id}>`, inline: true },
-                    { name: 'Giới hạn', value: 'Không giới hạn', inline: true },
-                    { name: 'Trạng thái', value: '👁️ Đã hiện | 🔓 Có thể kết nối', inline: true }
+            // Không cho phép ai ngồi trong phòng Tạo Phòng quá 1.5s
+            const antiSitTimeout = setTimeout(() => {
+                if (member.voice.channelId === j2cChannelId) {
+                    member.voice.disconnect('Ngồi trong phòng tạo quá lâu').catch(() => {});
+                }
+            }, 1500);
+
+            const newChannelName = `🔊 Phòng của ${member.user.username}`;
+            let createdChannel;
+            try {
+                createdChannel = await newState.guild.channels.create({
+                    name: newChannelName,
+                    type: 2, // ChannelType.GuildVoice
+                    parent: newState.channel?.parentId || null,
+                    permissionOverwrites: [
+                        {
+                            id: newState.guild.id,
+                            allow: [],
+                            deny: []
+                        }
+                    ]
+                });
+                
+                await member.voice.setChannel(createdChannel).catch(() => {});
+                clearTimeout(antiSitTimeout);
+                
+                j2cChannels.set(createdChannel.id, member.user.id);
+                
+                const cpEmbed = new EmbedBuilder()
+                    .setTitle('⚙️ Bảng Điều Khiển Phòng Voice')
+                    .setDescription(`Chào mừng <@${member.user.id}> đến phòng của bạn!\nSử dụng các nút bên dưới để quản lý phòng.`)
+                    .setColor('#00FFFF')
+                    .addFields(
+                        { name: 'Chủ phòng', value: `<@${member.user.id}>`, inline: true },
+                        { name: 'Giới hạn', value: 'Không giới hạn', inline: true },
+                        { name: 'Trạng thái', value: '👁️ Đã hiện | 🔓 Có thể kết nối', inline: true }
+                    );
+                    
+                const cpRow1 = new ActionRowBuilder().addComponents(
+                    new ButtonBuilder().setCustomId('j2c_name').setLabel('📝 Đổi tên').setStyle(1),
+                    new ButtonBuilder().setCustomId('j2c_limit').setLabel('👥 Giới hạn').setStyle(1),
+                    new ButtonBuilder().setCustomId('j2c_ghost').setLabel('👻 Khóa ẩn').setStyle(2),
+                    new ButtonBuilder().setCustomId('j2c_lock').setLabel('🔒 Khóa kết nối').setStyle(2)
+                );
+                const cpRow2 = new ActionRowBuilder().addComponents(
+                    new ButtonBuilder().setCustomId('j2c_claim').setLabel('👑 Nhận quyền Chủ phòng').setStyle(3)
                 );
                 
-            const cpRow1 = new ActionRowBuilder().addComponents(
-                new ButtonBuilder().setCustomId('j2c_name').setLabel('📝 Đổi tên').setStyle(1),
-                new ButtonBuilder().setCustomId('j2c_limit').setLabel('👥 Giới hạn').setStyle(1),
-                new ButtonBuilder().setCustomId('j2c_ghost').setLabel('👻 Khóa ẩn').setStyle(2),
-                new ButtonBuilder().setCustomId('j2c_lock').setLabel('🔒 Khóa kết nối').setStyle(2)
-            );
-            const cpRow2 = new ActionRowBuilder().addComponents(
-                new ButtonBuilder().setCustomId('j2c_claim').setLabel('👑 Nhận quyền Chủ phòng').setStyle(3)
-            );
-            
-            await createdChannel.send({ content: `<@${newState.member.user.id}>`, embeds: [cpEmbed], components: [cpRow1, cpRow2] }).catch(() => {});
+                await createdChannel.send({ content: `<@${member.user.id}>`, embeds: [cpEmbed], components: [cpRow1, cpRow2] }).catch(() => {});
+                
+                // Kiểm tra lại sau 2s, nếu user join phòng gốc rồi out ngay, phòng tạo ra sẽ bị bỏ hoang -> xóa
+                setTimeout(async () => {
+                    const checkChan = newState.guild.channels.cache.get(createdChannel.id);
+                    if (checkChan && checkChan.members.size === 0) {
+                        await checkChan.delete('J2C Channel empty instantly').catch(() => {});
+                        j2cChannels.delete(createdChannel.id);
+                    }
+                }, 2000);
+                
+            } catch (err) {
+                clearTimeout(antiSitTimeout);
+                if (member.voice.channelId === j2cChannelId) {
+                    member.voice.disconnect().catch(() => {});
+                }
+                if (createdChannel) {
+                    createdChannel.delete().catch(() => {});
+                }
+            }
         }
         
         // Handle Leave from J2C Channel
-        if (oldState.channelId && j2cChannels.has(oldState.channelId)) {
+        if (oldState.channelId) {
             const oldChannel = oldState.channel;
-            if (oldChannel && oldChannel.members.size === 0) {
+            // Xóa phòng ngay lập tức nếu không còn ai, dựa vào bộ nhớ hoặc tên phòng
+            if (oldChannel && oldChannel.members.size === 0 && (j2cChannels.has(oldState.channelId) || oldChannel.name.startsWith('🔊 Phòng của'))) {
                 await oldChannel.delete('J2C Channel empty').catch(() => {});
                 j2cChannels.delete(oldState.channelId);
             }
