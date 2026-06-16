@@ -247,7 +247,7 @@ function buildHelpPages(prefix) {
             .setDescription('Quản lý sự kiện, cài đặt bot và đặc quyền Admin.')
             .addFields(
                 { name: '🎁 Sự kiện Giveaway', value: `\`${prefix}gstart <time> <winner> <giải>\` — Bắt đầu Giveaway\n\`/gend <id>\` — Kết thúc sớm\n\`/greroll <id>\` — Chọn lại người thắng`, inline: false },
-                { name: '⚙️ Đổi Prefix & Cài Đặt', value: `\`${prefix}setprefix <dấu mới>\` — Đổi prefix bot\n\`/setspawnchannel #channel\` hoặc \`!setspawnchannel #channel\` — Đặt nơi xuất hiện Pokemon\n\`/setuppokemonrole\` — Cài đặt tính năng ping Role Pokemon\n\`!spawnpet\` — Ép Pokemon Huyền Thoại xuất hiện\n\`/addpetvip @user <pet_id>\` hoặc \`!addpetvip\` — Tặng pet VIP cho user`, inline: false },
+                { name: '⚙️ Đổi Prefix & Cài Đặt', value: `\`${prefix}setprefix <dấu mới>\` — Đổi prefix bot\n\`/setwelcome\` — Cài đặt tin nhắn chào mừng & ảnh\n\`/setspawnchannel #channel\` hoặc \`!setspawnchannel #channel\` — Đặt nơi xuất hiện Pokemon\n\`/setuppokemonrole\` — Cài đặt tính năng ping Role Pokemon\n\`!spawnpet\` — Ép Pokemon Huyền Thoại xuất hiện\n\`/addpetvip @user <pet_id>\` hoặc \`!addpetvip\` — Tặng pet VIP cho user`, inline: false },
                 { name: '👑 Admin Cheat Panel', value: `\`${prefix}admincheat\` hoặc \`/admincheat\` *(Chỉ Admin Chính)*\nMở bảng điều khiển đặc biệt:\n• Bật/Tắt chế độ **luôn thắng** cờ bạc\n• Các quyền năng đặc biệt khác`, inline: false },
                 { name: '🤖 Tự động hệ thống', value: 'Bot tự chào mừng thành viên, ghi log voice, reply từ khoá mặc định.', inline: false }
             )
@@ -2600,7 +2600,14 @@ const slashCommands = [
     new SlashCommandBuilder()
         .setName('setuppokemonrole')
         .setDescription('🛠️ (Admin) Tạo Role Pokemon và gửi tin nhắn để user nhận role.')
+        .setDefaultMemberPermissions(PermissionsBitField.Flags.Administrator),
+    new SlashCommandBuilder()
+        .setName('setwelcome')
+        .setDescription('🛠️ (Admin) Cài đặt hệ thống chào mừng (kênh, tin nhắn, ảnh).')
         .setDefaultMemberPermissions(PermissionsBitField.Flags.Administrator)
+        .addChannelOption(o => o.setName('channel').setDescription('Kênh gửi lời chào').setRequired(true))
+        .addStringOption(o => o.setName('message').setDescription('Lời chào tuỳ chỉnh (Dùng {user} và {server})').setRequired(false))
+        .addStringOption(o => o.setName('image').setDescription('Link ảnh đính kèm (vd: https://imgur.com/...)').setRequired(false))
 ].map(command => command.toJSON());
 
 // ========================
@@ -2717,7 +2724,8 @@ client.once('ready', async () => {
 // ========================
 client.on('guildMemberAdd', async (member) => {
     try {
-        const welcomeChannelId = process.env.WELCOME_CHANNEL_ID;
+        const config = loadConfig();
+        const welcomeChannelId = config.welcomeChannelId || process.env.WELCOME_CHANNEL_ID;
         const receptionistRoleId = process.env.RECEPTIONIST_ROLE_ID;
         let channel;
         if (welcomeChannelId && welcomeChannelId !== 'YOUR_WELCOME_CHANNEL_ID_HERE') {
@@ -2728,11 +2736,26 @@ client.on('guildMemberAdd', async (member) => {
             );
         }
         if (!channel) return;
-        let welcomeMessage = `Chào mừng <@${member.user.id}> đã tham gia server **${member.guild.name}**!`;
+        
+        let customMessage = config.welcomeMessage || `Chào mừng {user} đã tham gia server **{server}**!`;
+        customMessage = customMessage.replace(/{user}/g, `<@${member.user.id}>`).replace(/{server}/g, member.guild.name);
+        
         if (receptionistRoleId && receptionistRoleId !== 'YOUR_RECEPTIONIST_ROLE_ID_HERE') {
-            welcomeMessage += `\n<@&${receptionistRoleId}> ra đón khách kìa! 🎉`;
+            customMessage += `\n<@&${receptionistRoleId}> ra đón khách kìa! 🎉`;
         }
-        channel.send(welcomeMessage);
+        
+        const embed = new EmbedBuilder()
+            .setTitle(`🎉 Chào mừng thành viên mới!`)
+            .setDescription(customMessage)
+            .setColor('#00FF00')
+            .setThumbnail(member.user.displayAvatarURL({ dynamic: true, size: 256 }))
+            .setTimestamp();
+            
+        if (config.welcomeImage) {
+            embed.setImage(config.welcomeImage);
+        }
+        
+        channel.send({ content: `<@${member.user.id}>`, embeds: [embed] });
     } catch (error) {
         console.error('Lỗi khi gửi lời chào:', error);
     }
@@ -5529,6 +5552,23 @@ client.on('interactionCreate', async (interaction) => {
         config.spawnChannelId = targetChannel.id;
         saveConfig(config);
         return interaction.reply({ content: `✅ Đã thiết lập kênh xuất hiện Pokemon hoang dã tại ${targetChannel}!` });
+    }
+
+    if (commandName === 'setwelcome') {
+        if (!interaction.member || !interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) 
+            return interaction.reply({ content: '❌ Bạn không có quyền!', ephemeral: true });
+        
+        const channel = interaction.options.getChannel('channel');
+        const messageStr = interaction.options.getString('message');
+        const image = interaction.options.getString('image');
+        
+        const config = loadConfig();
+        config.welcomeChannelId = channel.id;
+        if (messageStr) config.welcomeMessage = messageStr;
+        if (image) config.welcomeImage = image;
+        saveConfig(config);
+        
+        return interaction.reply({ content: `✅ Đã cài đặt chào mừng!\n- **Kênh:** ${channel}\n- **Lời chào:** ${messageStr || 'Mặc định'}\n- **Ảnh:** ${image || 'Không có'}`, ephemeral: true });
     }
 
     if (commandName === 'setuppokemonrole') {
