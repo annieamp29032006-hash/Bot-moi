@@ -1154,7 +1154,9 @@ async function spawnWildPet(client, manual = false) {
             );
             
             const attachment = new AttachmentBuilder('./wild_pokemon_spawn.png', { name: 'wild_pokemon_spawn.png' });
-            const msg = await channel.send({ embeds: [embed], components: [row], files: [attachment] });
+            let msgContent = undefined;
+            if (config.pokemonRoleId) msgContent = `<@&${config.pokemonRoleId}>`;
+            const msg = await channel.send({ content: msgContent, embeds: [embed], components: [row], files: [attachment] });
             activeSpawns.set(msg.id, { guildId: target.guildId || channel.guild.id, channelId: target.channelId, petId: spawnPet.id, active: true, expireTimeout: setTimeout(() => expireSpawn(msg), 1 * 60 * 1000) });
         } catch (e) {
             console.error('Lỗi spawn pet:', e);
@@ -2594,7 +2596,11 @@ const slashCommands = [
         .setName('setspawnchannel')
         .setDescription('🛠️ (Admin) Cài đặt kênh duy nhất xuất hiện Pokemon hoang dã.')
         .setDefaultMemberPermissions(PermissionsBitField.Flags.Administrator)
-        .addChannelOption(o => o.setName('channel').setDescription('Kênh xuất hiện Pokemon').setRequired(true))
+        .addChannelOption(o => o.setName('channel').setDescription('Kênh xuất hiện Pokemon').setRequired(true)),
+    new SlashCommandBuilder()
+        .setName('setuppokemonrole')
+        .setDescription('🛠️ (Admin) Tạo Role Pokemon và gửi tin nhắn để user nhận role.')
+        .setDefaultMemberPermissions(PermissionsBitField.Flags.Administrator)
 ].map(command => command.toJSON());
 
 // ========================
@@ -4037,6 +4043,30 @@ client.on('interactionCreate', async (interaction) => {
     // === MESSAGE COMPONENT (BUTTONS & MENUS) ===
     if (interaction.isMessageComponent()) {
         const cid = interaction.customId;
+
+        // =============================================
+        // POKEMON ROLE BUTTON
+        // =============================================
+        if (cid === 'get_pokemon_role') {
+            const config = loadConfig();
+            const roleId = config.pokemonRoleId;
+            if (!roleId) return interaction.reply({ content: '❌ Hệ thống chưa cài đặt role.', ephemeral: true });
+            
+            const role = interaction.guild.roles.cache.get(roleId);
+            if (!role) return interaction.reply({ content: '❌ Role không tồn tại hoặc đã bị xóa.', ephemeral: true });
+            
+            try {
+                if (interaction.member.roles.cache.has(roleId)) {
+                    await interaction.member.roles.remove(roleId);
+                    return interaction.reply({ content: '✅ Bạn đã **hủy** role Pokemon!', ephemeral: true });
+                } else {
+                    await interaction.member.roles.add(roleId);
+                    return interaction.reply({ content: '✅ Bạn đã **nhận** role Pokemon!', ephemeral: true });
+                }
+            } catch (err) {
+                return interaction.reply({ content: '❌ Bot không đủ quyền để cấp role cho bạn (Role bot phải xếp cao hơn role Pokemon).', ephemeral: true });
+            }
+        }
 
         // =============================================
         // WILD PET SYSTEM BUTTONS
@@ -5499,6 +5529,41 @@ client.on('interactionCreate', async (interaction) => {
         config.spawnChannelId = targetChannel.id;
         saveConfig(config);
         return interaction.reply({ content: `✅ Đã thiết lập kênh xuất hiện Pokemon hoang dã tại ${targetChannel}!` });
+    }
+
+    if (commandName === 'setuppokemonrole') {
+        if (!interaction.member || !interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) 
+            return interaction.reply({ content: '❌ Bạn không có quyền!', ephemeral: true });
+        
+        let role = interaction.guild.roles.cache.find(r => r.name.toLowerCase() === 'pokemon');
+        if (!role) {
+            try {
+                role = await interaction.guild.roles.create({
+                    name: 'Pokemon',
+                    color: '#FF0000',
+                    mentionable: true,
+                    reason: 'Role cho tính năng thông báo Pokemon'
+                });
+            } catch (err) {
+                return interaction.reply({ content: '❌ Bot không có đủ quyền để tạo role. Vui lòng cấp quyền `Manage Roles` cho bot.', ephemeral: true });
+            }
+        }
+        
+        const config = loadConfig();
+        config.pokemonRoleId = role.id;
+        saveConfig(config);
+        
+        const embed = new EmbedBuilder()
+            .setTitle('🔔 Đăng Ký Nhận Thông Báo Pokemon')
+            .setDescription('Bấm vào nút bên dưới để nhận (hoặc hủy) role **Pokemon**.\nBạn sẽ được thông báo ngay lập tức mỗi khi có Pokemon Huyền Thoại xuất hiện!')
+            .setColor('#FF0000');
+            
+        const row = new ActionRowBuilder().addComponents(
+            new ButtonBuilder().setCustomId('get_pokemon_role').setLabel('Nhận / Hủy Role Pokemon').setStyle(ButtonStyle.Primary).setEmoji('🐾')
+        );
+        
+        await interaction.channel.send({ embeds: [embed], components: [row] });
+        return interaction.reply({ content: '✅ Đã cài đặt thành công role Pokemon và gửi bảng đăng ký!', ephemeral: true });
     }
 
     // --- QR ---
