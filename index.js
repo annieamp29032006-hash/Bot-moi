@@ -247,13 +247,14 @@ function buildHelpPages(prefix) {
             .setTitle('📱 Tiện Ích')
             .setDescription('Các tính năng tự động và công cụ tiện lợi.')
             .addFields(
+                { name: '`/av` hoặc `!av [@user]`', value: 'Hiển thị Avatar, ngày tạo tài khoản và ngày vào Server của bạn hoặc người khác.', inline: false },
                 { name: '📱 Tải Video TikTok', value: 'Chỉ cần **dán link TikTok** vào kênh chat, bot tự tải video **không watermark** và gửi lên.\n> Hỗ trợ: `vm.tiktok.com`, `vt.tiktok.com`, `tiktok.com`', inline: false },
                 { name: '🎙️ Thông Báo Voice', value: 'Bot tự động gửi tin nhắn trong kênh voice khi có người **vào / rời** kênh thoại.', inline: false },
                 { name: '👋 Chào Mừng Thành Viên', value: 'Bot tự động chào mừng thành viên mới tham gia server.', inline: false },
                 { name: '🤖 Tự động Reply', value: 'Bot tự động phản hồi các từ khóa: `ping`, `hello`, `bot`, v.v.', inline: false }
             )
             .setColor('#00FF88')
-            .setFooter({ text: 'Trang 7/9 • Tiện ích' })
+            .setFooter({ text: 'Trang 7/10 • Tiện ích' })
             .setTimestamp(),
 
         // Page 7 - Admin Quản lý
@@ -523,6 +524,14 @@ function loadCoins() {
     catch { return {}; }
 }
 function saveCoins(data) { fs.writeFileSync(coinsPath, JSON.stringify(data, null, 2)); }
+
+const lodePath = './lode.json';
+function loadLode() {
+    if (!fs.existsSync(lodePath)) return { bets: [] };
+    try { return JSON.parse(fs.readFileSync(lodePath, 'utf8')); }
+    catch { return { bets: [] }; }
+}
+function saveLode(data) { fs.writeFileSync(lodePath, JSON.stringify(data, null, 2)); }
 
 function getUserCoins(userId) {
     const data = loadCoins();
@@ -3120,6 +3129,28 @@ client.on('messageCreate', async (message) => {
         config.spawnChannelId = targetChannel.id;
         saveConfig(config);
         return message.reply(`✅ Đã thiết lập kênh xuất hiện Pokemon hoang dã tại ${targetChannel}!`);
+    }
+
+    // !av
+    if (content === `${prefix}av` || content.startsWith(`${prefix}av `)) {
+        const target = message.mentions.users.first() || message.author;
+        let member;
+        try {
+            member = await message.guild.members.fetch(target.id);
+        } catch (e) {
+            member = null;
+        }
+        
+        const embed = new EmbedBuilder()
+            .setTitle(`Thông tin của ${target.username}`)
+            .setColor('#9B59B6')
+            .addFields(
+                { name: 'Ngày tạo tài khoản', value: `<t:${Math.floor(target.createdTimestamp / 1000)}:D>\n(<t:${Math.floor(target.createdTimestamp / 1000)}:R>)`, inline: true },
+                { name: 'Ngày tham gia Server', value: member && member.joinedTimestamp ? `<t:${Math.floor(member.joinedTimestamp / 1000)}:D>\n(<t:${Math.floor(member.joinedTimestamp / 1000)}:R>)` : 'Không rõ', inline: true }
+            )
+            .setImage(target.displayAvatarURL({ extension: 'png', size: 1024 }));
+            
+        return message.reply({ embeds: [embed] });
     }
 
     // Help
