@@ -42,7 +42,7 @@ function ytdlpGetInfo(url) {
         if (fs.existsSync(cookiesPath)) {
             args.push('--cookies', cookiesPath);
         } else {
-            args.push('--extractor-args', 'youtube:player_client=default,ios');
+            args.push('--extractor-args', 'youtube:player_client=tv_embedded');
         }
         
         args.push(query);
@@ -83,7 +83,7 @@ function ytdlpStream(url) {
     if (fs.existsSync(cookiesPath)) {
         args.push('--cookies', cookiesPath);
     } else {
-        args.push('--extractor-args', 'youtube:player_client=default,ios');
+        args.push('--extractor-args', 'youtube:player_client=tv_embedded');
     }
     
     args.push(url);
