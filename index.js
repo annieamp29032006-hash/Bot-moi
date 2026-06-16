@@ -4552,7 +4552,7 @@ client.on('interactionCreate', async (interaction) => {
                     .setRequired(true)
                     .setMaxLength(100);
                 modal.addComponents(new ActionRowBuilder().addComponents(nameInput));
-                return interaction.showModal(modal);
+                return interaction.showModal(modal).catch(() => {});
             }
             
             if (cid === 'j2c_limit') {
@@ -4565,7 +4565,7 @@ client.on('interactionCreate', async (interaction) => {
                     .setStyle(1)
                     .setRequired(true);
                 modal.addComponents(new ActionRowBuilder().addComponents(limitInput));
-                return interaction.showModal(modal);
+                return interaction.showModal(modal).catch(() => {});
             }
             
             if (cid === 'j2c_ghost') {
