@@ -228,10 +228,10 @@ function buildHelpPages(prefix) {
         // Page 0 - Tổng quan
         new EmbedBuilder()
             .setTitle('📖 Trợ Lý Bot — Tổng Quan')
-            .setDescription(`Xin chào! Tôi là **Moonie Bot** 🌙\nDùng menu bên dưới để xem hướng dẫn từng nhóm lệnh.\n\n> Prefix hiện tại: **\`${prefix}\`**`)
+            .setDescription(`Xin chào! Tôi là **Moonie Bot** 🌙\nBot đa năng: phát nhạc, minigame, kinh tế, RPG, kết hôn, game Ma Sói và nhiều tiện ích khác!\n\n> Prefix hiện tại: **\`${prefix}\`**\n> Bạn có thể dùng **lệnh prefix** (ví dụ \`${prefix}play\`) hoặc **slash command** (ví dụ \`/play\`)\n\n📌 **Cách dùng menu:** Chọn danh mục bên dưới để xem hướng dẫn chi tiết từng nhóm lệnh.`)
             .addFields(
-                { name: '👤 DÀNH CHO USER', value: '🎵  **Nhạc YouTube** — Phát, skip, queue, nowplaying...\n💰  **Coin & Minigame** — Daily, Tài Xỉu, Blackjack, Đoán số...\n🏦  **Ngân Hàng & Kinh Tế** — Bank, Đầu tư cổ phiếu, Gửi/Rút...\n⚔️  **RPG Nhập vai** — Đánh quái, shop trang bị, nhẫn...\n💍  **Kết hôn** — Mua nhẫn, cầu hôn, ly hôn...\n🐺  **Ma Sói** — Game đối kháng', inline: false },
-                { name: '🛠️ DÀNH CHO ADMIN', value: '⚙️  **Hệ thống** — Prefix, Giveaway, Auto-reply\n🔧  **Quản lý** — Cộng/Trừ coin, Xóa tin, QR bank\n👑  **Đặc quyền** — Admin cheat panel', inline: false }
+                { name: '👤 DÀNH CHO USER', value: '🎵  **Nhạc** — Phát nhạc YouTube, Spotify, SoundCloud trong voice\n💰  **Coin & Minigame** — Daily, Work, Tài Xỉu, Blackjack, Đoán số, Lô đề, Nối từ\n🏦  **Ngân Hàng** — Gửi/rút tiền, đầu tư cổ phiếu, cướp bank\n⚔️  **RPG** — Đánh quái, mua trang bị, bắt Pokemon, thách đấu\n💍  **Kết hôn** — Mua nhẫn, cầu hôn, ly hôn\n🐺  **Ma Sói** — Game đối kháng nhiều người\n📱  **Tiện ích** — Avatar, TikTok, J2C, thông báo voice', inline: false },
+                { name: '🛠️ DÀNH CHO ADMIN', value: '🔧  **Quản lý** — Cộng/Trừ/Set coin, Xóa tin nhắn, QR bank\n⚙️  **Hệ thống** — Prefix, Giveaway, Chào mừng, Pokemon spawn\n👑  **Đặc quyền** — Admin Cheat Panel (bật/tắt luôn thắng)', inline: false }
             )
             .setColor('#5865F2')
             .setFooter({ text: 'Trang 1/10 • Chọn danh mục bên dưới để xem chi tiết' })
@@ -239,17 +239,17 @@ function buildHelpPages(prefix) {
 
         // Page 1 - Nhạc
         new EmbedBuilder()
-            .setTitle('🎵 Nhạc YouTube')
-            .setDescription('Bot vào **voice channel** của bạn và phát nhạc từ YouTube!\n> Bạn cần ở trong voice channel trước khi dùng lệnh nhạc.')
+            .setTitle('🎵 Nhạc YouTube / Spotify / SoundCloud')
+            .setDescription(`Phát nhạc trong voice channel! Bot hỗ trợ tìm kiếm bằng **tên bài**, **link YouTube**, **link Spotify** và **link SoundCloud**.\n\n⚠️ **Yêu cầu:** Bạn phải **ở trong voice channel** trước khi dùng lệnh nhạc.\n🎛️ Sau khi phát, bot sẽ hiện **bảng điều khiển** với các nút: Tạm dừng, Bỏ qua, Dừng hẳn, Xem hàng đợi, Lặp bài, Chỉnh âm lượng.`)
             .addFields(
-                { name: '`/play` hoặc `!play <tên bài/link>`', value: 'Phát nhạc hoặc thêm vào hàng đợi (hỗ trợ link YouTube)', inline: false },
-                { name: '`/skip` hoặc `!skip`', value: 'Bỏ qua bài đang phát', inline: true },
-                { name: '`/stop` hoặc `!stop`', value: 'Dừng nhạc và rời kênh', inline: true },
-                { name: '`/pause` hoặc `!pause`', value: 'Tạm dừng nhạc', inline: true },
-                { name: '`/resume` hoặc `!resume`', value: 'Tiếp tục phát nhạc', inline: true },
-                { name: '`/queue` hoặc `!q`', value: 'Xem danh sách hàng đợi', inline: true },
-                { name: '`/nowplaying` hoặc `!np`', value: 'Xem bài đang phát', inline: true },
-                { name: '💡 Ví dụ', value: `\`${prefix}play Nắng Ấm Xa Dần\`\n\`/play https://www.youtube.com/watch?v=...\``, inline: false }
+                { name: `\`${prefix}play <tên bài hoặc link>\` hoặc \`/play\``, value: '▶️ Phát nhạc hoặc thêm bài vào cuối hàng đợi.\n• Hỗ trợ: tên bài hát, link YouTube, link Spotify, link SoundCloud\n• Ví dụ: `' + prefix + 'play Nắng Ấm Xa Dần` hoặc `' + prefix + 'play https://youtube.com/...`', inline: false },
+                { name: `\`${prefix}skip\` hoặc \`/skip\``, value: '⏭️ Bỏ qua bài hiện tại, phát bài tiếp theo trong hàng đợi.', inline: true },
+                { name: `\`${prefix}stop\` hoặc \`/stop\``, value: '⏹️ Dừng toàn bộ nhạc, xóa hàng đợi và bot rời kênh voice.', inline: true },
+                { name: `\`${prefix}pause\` hoặc \`/pause\``, value: '⏸️ Tạm dừng bài đang phát. Dùng resume để tiếp tục.', inline: true },
+                { name: `\`${prefix}resume\` hoặc \`/resume\``, value: '▶️ Tiếp tục phát bài đã tạm dừng.', inline: true },
+                { name: `\`${prefix}q\` hoặc \`/queue\``, value: '📋 Xem danh sách các bài trong hàng đợi (tối đa 10 bài/trang).', inline: true },
+                { name: `\`${prefix}np\` hoặc \`/nowplaying\``, value: '🎵 Xem thông tin bài đang phát: tên, thời lượng, người yêu cầu.', inline: true },
+                { name: '💡 Mẹo hữu ích', value: '• Chỉ **người gọi lệnh /play** mới điều khiển được bảng nút nhạc.\n• Bot tự rời kênh sau **30 giây** nếu hết bài trong hàng đợi.\n• Âm lượng có thể chỉnh từ **0% đến 200%** qua nút 🔉/🔊.', inline: false }
             )
             .setColor('#FF0000')
             .setFooter({ text: 'Trang 2/10 • Nhạc YouTube' })
@@ -258,19 +258,15 @@ function buildHelpPages(prefix) {
         // Page 2 - Coin & Minigame
         new EmbedBuilder()
             .setTitle('💰 Tiền tệ & Minigame')
-            .setDescription('Hệ thống tiền ảo và các trò chơi giải trí kiếm coin.')
+            .setDescription(`Hệ thống tiền ảo (🪙) và các trò chơi giải trí để kiếm coin.\nMọi thành viên mới bắt đầu với **500,000 🪙**.`)
             .addFields(
-                { name: '`/daily` hoặc `!daily`', value: 'Nhận coin hằng ngày (thưởng chuỗi liên tiếp)', inline: true },
-                { name: '`/work` hoặc `!work`', value: 'Làm việc kiếm coin (cooldown 1 giờ)', inline: true },
-                { name: '`/balance` hoặc `!bal [@user]`', value: 'Xem số dư coin của bạn hoặc người khác', inline: true },
-                { name: '`/give` hoặc `!give @user <số>`', value: 'Tặng coin cho người khác', inline: true },
-                { name: '`/top` hoặc `!top`', value: 'Bảng xếp hạng người giàu nhất server', inline: true },
-                { name: '`/taixiu` hoặc `!tx <cược>`', value: 'Chơi Tài Xỉu 🎲 (Sic Bo)', inline: true },
-                { name: '`/baucua` hoặc `!bc <cược>`', value: 'Bầu Cua Tôm Cá 🦀', inline: true },
-                { name: '`/blackjack` hoặc `!bj <cược>`', value: 'Chơi bài Xì Dách ♠️ (Blackjack)', inline: true },
-                { name: '`/guess` hoặc `!guess <cược>`', value: 'Đoán số 1-100, trúng nhận thưởng x3 🎯', inline: true },
-                { name: '`/lode` hoặc `!lode <số> <cược>`', value: 'Đánh lô đề 00-99, trúng nhận x5 💸', inline: true },
-                { name: '`/noitu` hoặc `!noitu`', value: 'Minigame Nối Từ Tiếng Việt 🧠', inline: true }
+                { name: `\`${prefix}daily\` hoặc \`/daily\``, value: '📅 Nhận coin hằng ngày (10,000–50,000 🪙).\n• Chơi liên tiếp nhiều ngày sẽ được **thưởng chuỗi** (+5,000/ngày, tối đa +50,000).\n• Nghỉ quá 48h → chuỗi bị reset về 0.', inline: false },
+                { name: `\`${prefix}work\` hoặc \`/work\``, value: '💼 Chọn 1 trong 10 công việc để kiếm coin.\n• Từ **Nhặt ve chai** (1,000–5,000 🪙, 1 phút) đến **Giám đốc** (500,000–1,200,000 🪙, 60 phút).\n• Công việc lương cao hơn → thời gian chờ lâu hơn.', inline: false },
+                { name: `\`${prefix}bal [@user]\` hoặc \`/balance\``, value: '💵 Xem số dư coin (ví + bank) của bạn hoặc người khác.', inline: true },
+                { name: `\`${prefix}give @user <số>\` hoặc \`/give\``, value: '🎁 Tặng coin từ ví của bạn cho người khác.', inline: true },
+                { name: `\`${prefix}top\` hoặc \`/top\``, value: '🏆 Bảng xếp hạng Top 10 người giàu nhất server.', inline: true },
+                { name: '🎲 CÁC TRÒ CHƠI CỜ BẠC', value: `\`${prefix}tx <cược>\` — **Tài Xỉu**: Đoán tài/xỉu, thắng x2 tiền cược.\n\`${prefix}bc <cược>\` — **Bầu Cua**: Chọn con vật, trúng nhận x2.\n\`${prefix}bj <cược>\` — **Blackjack**: Xì Dách, thắng x2 (Blackjack x2.5).\n\`${prefix}guess <cược>\` — **Đoán số**: Đoán số 1–100, trúng nhận **x3**.\n\`${prefix}lode <số 00-99> <cược>\` — **Lô đề**: Xổ số 18h30 hằng ngày, trúng **x5**.`, inline: false },
+                { name: `\`${prefix}noitu\` hoặc \`/noitu\``, value: '🧠 Nối Từ Tiếng Việt: Nối từ ghép 2 chữ, mỗi từ đúng +50,000 🪙. Hết 60 giây không ai nối → kết thúc.', inline: false }
             )
             .setColor('#FFD700')
             .setFooter({ text: 'Trang 3/10 • Coin & Minigame' })
@@ -279,14 +275,14 @@ function buildHelpPages(prefix) {
         // Page 3 - Ngân hàng & Đầu tư
         new EmbedBuilder()
             .setTitle('🏦 Ngân Hàng & Đầu Tư')
-            .setDescription('Gửi tiền vào bank để bảo toàn tài sản, đầu tư cổ phiếu sinh lời!')
+            .setDescription('Gửi tiền vào bank để bảo toàn tài sản (tránh mất khi thua cờ bạc), đầu tư sinh lời hoặc liều mình cướp bank!')
             .addFields(
-                { name: '`/bank` hoặc `!bank`', value: 'Mở bảng ngân hàng cá nhân với các nút tương tác:\n• **💳 Gửi Tiền** — Chuyển coin từ ví vào bank\n• **💸 Rút Tiền** — Rút coin từ bank về ví\n• **🏆 Top Bank** — Xem ai đang giàu nhất bank\n• **🔄 Làm mới** — Cập nhật số dư mới nhất', inline: false },
-                { name: '`/dautu` hoặc `!dautu <số tiền>`', value: 'Đầu tư cổ phiếu ngẫu nhiên 📊\n• Có thể **lãi** tối đa +80%\n• Có thể **lỗ** tối đa -50%\n• Kết quả hiện ngay sau khi xác nhận', inline: false },
-                { name: '`/robbank` hoặc `!robbank`', value: '🏦 Cướp ngân hàng hệ thống (15% thành công → nhận thưởng khủng; thất bại → -50% tiền + tù 5 phút)', inline: false },
-                { name: '`/robbank @user` hoặc `!robbank @user`', value: '🥷 Cướp ngân hàng của người khác (40% thành công → lấy 10-30% bank của họ; thất bại → -30% tiền mặt + tù 3 phút)', inline: false },
-                { name: '`/nopphat` hoặc `!nopphat`', value: '🚓 Hối lộ công an 100,000 🪙 để được thả tự do nếu bị bắt đi tù', inline: false },
-                { name: '💡 Mẹo', value: 'Dùng bank để giữ tiền an toàn, tránh mất hết khi thua cờ bạc!', inline: false }
+                { name: `\`${prefix}bank\` hoặc \`/bank\``, value: '🏦 Mở bảng ngân hàng cá nhân với 4 nút bấm:\n• 📥 **Gửi Tiền** — Nhập số tiền muốn chuyển từ ví → bank\n• 📤 **Rút Tiền** — Nhập số tiền muốn rút từ bank → ví\n• 🏆 **Top Bank** — Xem bảng xếp hạng người giàu nhất bank\n• 🔄 **Làm mới** — Cập nhật lại số dư hiện tại', inline: false },
+                { name: `\`${prefix}dautu <số tiền>\` hoặc \`/dautu\``, value: '📊 Đầu tư cổ phiếu ngẫu nhiên:\n• Có thể **lãi tối đa +80%** số tiền đầu tư\n• Có thể **lỗ tối đa -50%** số tiền đầu tư\n• Kết quả hiện ngay sau khi bấm xác nhận\n• Ví dụ: Đầu tư 1,000,000 → lãi +800,000 hoặc lỗ -500,000', inline: false },
+                { name: `\`${prefix}robbank\` hoặc \`/robbank\``, value: '🏦 **Cướp ngân hàng hệ thống:**\n• 15% thành công → nhận thưởng lớn\n• Thất bại → mất 50% tiền mặt + bị tù 5 phút', inline: false },
+                { name: `\`${prefix}robbank @user\` hoặc \`/robbank @user\``, value: '🥷 **Cướp ngân hàng người khác:**\n• 40% thành công → lấy 10–30% tiền bank của họ\n• Thất bại → mất 30% tiền mặt + bị tù 3 phút', inline: false },
+                { name: `\`${prefix}nopphat\` hoặc \`/nopphat\``, value: '🚓 Đang bị tù? Nộp **100,000 🪙** để hối lộ và được thả tự do ngay lập tức!', inline: false },
+                { name: '💡 Mẹo quan trọng', value: '• Tiền trong **bank** an toàn, không bị mất khi thua cờ bạc!\n• Nhưng tiền bank **có thể bị cướp** bởi người khác qua lệnh `robbank`.\n• Bị tù → không dùng được bất kỳ lệnh nào ngoài `nopphat`.', inline: false }
             )
             .setColor('#2ECC71')
             .setFooter({ text: 'Trang 4/10 • Ngân Hàng & Đầu Tư' })
@@ -295,14 +291,11 @@ function buildHelpPages(prefix) {
         // Page 4 - RPG Nhập vai
         new EmbedBuilder()
             .setTitle('⚔️ Nhập vai RPG & Pokemon')
-            .setDescription('Hệ thống cày cuốc đánh quái, nâng cấp nhân vật và săn bắt Pokemon.')
+            .setDescription('Hệ thống cày cuốc đánh quái, nâng cấp nhân vật, mua trang bị và săn bắt Pokemon!')
             .addFields(
-                { name: '`/profile` hoặc `!pr [@user]`', value: 'Xem hồ sơ nhân vật', inline: true },
-                { name: '`/hunt` hoặc `!hu`', value: 'Đi đánh quái vật', inline: true },
-                { name: '`/heal` hoặc `!heal`', value: 'Hồi máu', inline: true },
-                { name: '`/inv` hoặc `!i`', value: 'Xem túi đồ', inline: true },
-                { name: '`/shop` hoặc `!sh`', value: 'Cửa hàng trang bị, bóng bắt thú, nhẫn...', inline: false },
-                { name: '🐾 HỆ THỐNG POKEMON', value: '`/catchpet` (hoặc `!cp`) — Bắt Pokemon\n`/pets` (hoặc `!p`) — Xem chuồng thú\n`/sellpet` (hoặc `!sp`) — Bán thú\n`/petbattle` (hoặc `!pb`) @user <cược> — Thách đấu\n`/ptrade` (hoặc `!pt`) @user — Giao dịch thú cưng', inline: false }
+                { name: '🗡️ HỆ THỐNG NHÂN VẬT', value: `\`${prefix}pr [@user]\` hoặc \`/profile\` — Xem hồ sơ: Level, HP, ATK, DEF, EXP, trang bị đang mang, trạng thái hôn nhân.\n\`${prefix}hu\` hoặc \`/hunt\` — Đi săn quái vật để nhận EXP + coin. Quái càng mạnh → thưởng càng lớn.\n\`${prefix}heal\` hoặc \`/heal\` — Hồi phục HP bằng coin (cần khi HP thấp sau khi đánh quái).`, inline: false },
+                { name: '🎒 TRANG BỊ & CỬA HÀNG', value: `\`${prefix}i\` hoặc \`/inv\` — Xem túi đồ (vũ khí, giáp, nhẫn, bóng Pokemon...)\n\`${prefix}sh\` hoặc \`/shop\` — Cửa hàng có nhiều tab:\n• ⚔️ **Vũ khí** — Tăng sát thương khi đánh quái\n• 🛡️ **Giáp** — Tăng phòng thủ, giảm sát thương nhận\n• 🔮 **Bóng Pokemon** — Mua bóng để bắt Pokemon hoang dã\n• 💍 **Nhẫn** — Dùng để cầu hôn`, inline: false },
+                { name: '🐾 HỆ THỐNG POKEMON', value: `\`${prefix}cp\` hoặc \`/catchpet\` — Bắt Pokemon hoang dã (cần có bóng trong túi)\n\`${prefix}p\` hoặc \`/pets\` — Xem chuồng thú cưng của bạn\n\`${prefix}sp\` hoặc \`/sellpet\` — Bán Pokemon lấy coin\n\`${prefix}pb @user <cược>\` hoặc \`/petbattle\` — Thách đấu Pokemon với người khác\n\`${prefix}pt @user\` hoặc \`/ptrade\` — Trao đổi Pokemon 1:1 với người khác\n\n🌟 **Pokemon hoang dã** sẽ tự xuất hiện ngẫu nhiên (1–2 tiếng/lần). Nhấn nút **Ném Bóng** để bắt!`, inline: false }
             )
             .setColor('#E67E22')
             .setFooter({ text: 'Trang 5/10 • RPG Nhập vai' })
@@ -311,11 +304,11 @@ function buildHelpPages(prefix) {
         // Page 5 - Kết hôn
         new EmbedBuilder()
             .setTitle('💍 Hệ Thống Kết Hôn')
-            .setDescription('Mua nhẫn, cầu hôn, xem bạn đời và ly hôn khi cần thiết.')
+            .setDescription('Mua nhẫn, cầu hôn người ấy, xem bạn đời và ly hôn khi cần!')
             .addFields(
-                { name: '💍 Các loại nhẫn', value: '🌿 **Nhẫn Cỏ** — 10,000 🪙\n🥈 **Nhẫn Bạc** — 250,000 🪙\n🥇 **Nhẫn Vàng** — 1,000,000 🪙\n💎 **Nhẫn Kim Cương** — 5,000,000 🪙\n👑 **Nhẫn Vô Cực** — 20,000,000 🪙', inline: true },
-                { name: '📜 Các lệnh', value: '`/shop` → Tab **💍 Nhẫn** để mua nhẫn\n`/marry [@user]` hoặc `!marry [@user]` — Cầu hôn (không tag = random)\n`/divorce` hoặc `!divorce` — Ly hôn (phí **1,000,000 🪙**)\n`/profile` — Xem trạng thái hôn nhân', inline: true },
-                { name: '💡 Quy trình', value: '1️⃣ Mua nhẫn tại `/shop` → tab 💍\n2️⃣ Dùng `/marry @người_ấy` → Chọn nhẫn muốn dùng\n3️⃣ Đối phương xác nhận đồng ý\n4️⃣ Chúc mừng! Đã kết hôn 💑', inline: false }
+                { name: '💍 Bảng giá nhẫn (mua tại `/shop` → tab 💍)', value: '🌿 **Nhẫn Cỏ** — 10,000 🪙 (cơ bản)\n🥈 **Nhẫn Bạc** — 250,000 🪙\n🥇 **Nhẫn Vàng** — 1,000,000 🪙\n💎 **Nhẫn Kim Cương** — 5,000,000 🪙\n👑 **Nhẫn Vô Cực** — 20,000,000 🪙 (sang nhất!)', inline: true },
+                { name: '📜 Các lệnh kết hôn', value: `\`${prefix}marry @user\` hoặc \`/marry @user\`\n→ Cầu hôn người bạn tag, chọn nhẫn muốn dùng.\n\n\`${prefix}marry\` (không tag ai)\n→ Cầu hôn ngẫu nhiên 1 người trong server.\n\n\`${prefix}divorce\` hoặc \`/divorce\`\n→ Ly hôn (phí **1,000,000 🪙**).\n\n\`${prefix}pr\` hoặc \`/profile\`\n→ Xem trạng thái hôn nhân trong hồ sơ.`, inline: true },
+                { name: '💡 Quy trình cầu hôn', value: '1️⃣ Mua nhẫn tại `/shop` → chọn tab 💍 Nhẫn\n2️⃣ Dùng `/marry @người_ấy` → Chọn nhẫn muốn dùng từ túi đồ\n3️⃣ Đối phương nhấn nút **Đồng ý** hoặc **Từ chối** (có 60 giây)\n4️⃣ Nếu đồng ý → Chúc mừng! Đã kết hôn 💑\n\n⚠️ Mỗi người chỉ được kết hôn với **1 người** cùng lúc.', inline: false }
             )
             .setColor('#FF69B4')
             .setFooter({ text: 'Trang 6/10 • Kết Hôn' })
@@ -324,11 +317,12 @@ function buildHelpPages(prefix) {
         // Page 6 - Game Ma Sói
         new EmbedBuilder()
             .setTitle('🐺 Game Ma Sói (Werewolf)')
-            .setDescription('Tổ chức game Ma Sói ngay trong Discord! Cần ít nhất 4 người chơi.')
+            .setDescription('Tổ chức game Ma Sói ngay trong Discord! Trò chơi suy luận và đối kháng nhiều người.')
             .addFields(
-                { name: '`/masoi` hoặc `!masoi`', value: 'Mở phòng chờ game Ma Sói\n• Host có thể bắt đầu khi đủ người.\n• Các vai được chia ngẫu nhiên qua tin nhắn riêng (DM).\n• Nút tương tác ngày/đêm và vote trực tiếp trên kênh chat.', inline: false },
-                { name: '`/wwstop` hoặc `!wwstop`', value: 'Hủy game Ma Sói đang diễn ra (Chỉ Host hoặc Admin)', inline: false },
-                { name: '🏆 Phần thưởng', value: '• Thắng: Dân (+100,000🪙), Ma Sói (+300,000🪙)\n• Tham gia: +10,000🪙', inline: false }
+                { name: `\`${prefix}masoi\` hoặc \`/masoi\``, value: '🎮 **Mở phòng chờ** game Ma Sói:\n• Cần tối thiểu **4 người chơi** để bắt đầu.\n• Host (người tạo) nhấn nút **Bắt đầu** khi đủ người.\n• Các vai được **chia ngẫu nhiên qua tin nhắn riêng (DM)**.\n• Trò chơi diễn ra theo chu kỳ **Đêm → Ngày**:\n  🌙 Đêm: Ma Sói chọn nạn nhân, các vai đặc biệt hành động.\n  ☀️ Ngày: Thảo luận 60 giây → Vote treo cổ kẻ tình nghi.', inline: false },
+                { name: `\`${prefix}wwstop\` hoặc \`/wwstop\``, value: '🛑 Hủy game Ma Sói đang diễn ra.\n• Chỉ **Host** (người tạo phòng) hoặc **Admin** mới được hủy.', inline: false },
+                { name: '🎭 Các vai trò trong game', value: '🐺 **Ma Sói** — Mỗi đêm chọn 1 người để giết.\n👨‍⚕️ **Bác Sĩ** — Mỗi đêm chọn 1 người để bảo vệ (cứu khỏi bị giết).\n🔮 **Tiên Tri** — Mỗi đêm soi 1 người để biết vai trò thật.\n🏹 **Thợ Săn** — Khi chết, được kéo theo 1 người cùng chết.\n👤 **Dân Làng** — Không có kỹ năng, nhưng phải suy luận để vote đúng.', inline: false },
+                { name: '🏆 Phần thưởng', value: '• 🏅 Tham gia: **+10,000 🪙** (cho tất cả)\n• 🎉 Thắng phe Dân: **+100,000 🪙**\n• 🐺 Thắng phe Sói: **+300,000 🪙**', inline: false }
             )
             .setColor('#34495E')
             .setFooter({ text: 'Trang 7/10 • Game Ma Sói' })
@@ -337,41 +331,39 @@ function buildHelpPages(prefix) {
         // Page 7 - Tiện ích User
         new EmbedBuilder()
             .setTitle('📱 Tiện Ích & Voice (J2C)')
-            .setDescription('Các tính năng tự động, công cụ tiện lợi và quản lý phòng Voice.')
+            .setDescription('Các tính năng tự động, công cụ tiện lợi và hệ thống tự tạo phòng Voice.')
             .addFields(
-                { name: '`/av` hoặc `!av [@user]`', value: 'Hiển thị Avatar, ngày tạo tài khoản và ngày vào Server của bạn hoặc người khác.', inline: false },
-                { name: '📱 Tải Video TikTok', value: 'Chỉ cần **dán link TikTok** vào kênh chat, bot tự tải video **không watermark** và gửi lên.', inline: false },
-                { name: '🎧 Join To Create (J2C)', value: 'Hệ thống tự tạo phòng Voice khi bạn tham gia.\n> Bạn có thể đổi tên, giới hạn, khóa ẩn, khóa kết nối...\n> 👢 **Nút Kích User:** Mở menu chọn và đá người trong phòng ra.\n> 🚫 **Lệnh `/1an @user`:** Ẩn phòng Voice hiện tại với một người cụ thể.\n> **MẸO:** Để người khác vào phòng đang khóa, hãy **@mention** tên họ vào kênh chat Voice!', inline: false },
-                { name: '🎙️ Thông Báo Voice', value: 'Bot tự động gửi tin nhắn báo người **vào / rời** kênh thoại.', inline: false },
-                { name: '👋 Chào Mừng Thành Viên', value: 'Bot tự động chào mừng thành viên mới tham gia server.', inline: false },
-                { name: '🤖 Tự động Reply', value: 'Bot tự động phản hồi các từ khóa: `ping`, `hello`, `bot`, v.v.', inline: false }
+                { name: `\`${prefix}av [@user]\` hoặc \`/av\``, value: '🖼️ Hiển thị **Avatar** (ảnh đại diện) ở kích thước lớn nhất.\nKèm thông tin: ngày tạo tài khoản Discord, ngày tham gia server.\nKhông tag ai → xem avatar của chính bạn.', inline: false },
+                { name: '📱 Tải Video TikTok (Tự động)', value: 'Chỉ cần **dán link TikTok** vào bất kỳ kênh chat nào, bot sẽ tự động:\n1. Phát hiện link TikTok\n2. Tải video **không watermark**\n3. Gửi video + thông tin (tên tác giả, lượt thích, lượt xem)\n\n✅ Không cần gõ lệnh gì cả!', inline: false },
+                { name: '🎧 Join To Create (J2C) — Tự tạo phòng Voice', value: `Vào kênh voice **"Tạo Phòng"** → Bot tự tạo phòng riêng cho bạn.\n\n**Bảng điều khiển phòng (các nút bấm):**\n📝 **Đổi tên** — Đặt tên phòng theo ý muốn\n👥 **Giới hạn** — Giới hạn số người (0 = không giới hạn)\n👻 **Khóa ẩn** — Ẩn phòng khỏi danh sách (không ai thấy)\n🔒 **Khóa kết nối** — Không ai vào được nữa\n👢 **Kích User** — Chọn và đá 1 người ra khỏi phòng\n👑 **Nhận quyền Chủ phòng** — Nếu chủ phòng rời, người khác có thể nhận quyền\n\n🚫 \`/1an @user\` — Ẩn phòng với 1 người cụ thể (họ không thấy phòng bạn)\n\n💡 **MẸO:** Phòng đang khóa nhưng muốn cho bạn bè vào? **@mention** tên họ vào kênh chat của phòng Voice!`, inline: false },
+                { name: '🔔 Tính năng tự động', value: '• 🎙️ **Thông báo Voice** — Bot báo khi có người vào/rời kênh thoại.\n• 👋 **Chào mừng** — Bot chào mừng thành viên mới tham gia server.\n• 🤖 **Auto-reply** — Bot tự trả lời khi ai gõ: `ping`, `hello`, `moonie`.', inline: false }
             )
             .setColor('#00FF88')
             .setFooter({ text: 'Trang 8/10 • Tiện ích & Voice' })
             .setTimestamp(),
 
-        // Page 7 - Admin Quản lý
+        // Page 8 - Admin Quản lý
         new EmbedBuilder()
             .setTitle('🔧 Quản Lý (Admin)')
-            .setDescription('Các lệnh yêu cầu quyền **Administrator** hoặc **Manage Messages**.')
+            .setDescription('⚠️ Các lệnh bên dưới yêu cầu quyền **Administrator** hoặc là **Admin Chính** của bot.')
             .addFields(
-                { name: '💰 Quản lý Coin', value: '`/addcoin @user <số>` hoặc `!addcoin` — Cộng coin\n`/removecoin @user <số>` hoặc `!removecoin` — Trừ coin\n`/setcoin @user <số>` hoặc `!setcoin` — Đặt số coin cụ thể\n`/resetcoin @user` hoặc `!resetcoin` — Reset coin 1 người về mặc định\n`/resetallcoin` hoặc `!resetallcoin` — Reset coin toàn server\n`!giveall <số>` — Phát coin cho toàn server (Admin Chính)', inline: false },
-                { name: '🛠️ Quản lý Server', value: '`/clear <số>` hoặc `!clear <số>` — Xóa hàng loạt tin nhắn (1-100)\n`/say #kênh <nội dung>` hoặc `!say` — Gửi thông báo thay mặt bot\n`/resetwork @user` hoặc `!resetwork` — Xóa cooldown làm việc', inline: false },
-                { name: '💳 QR Ngân Hàng', value: `\`/qr <số tiền>\` hoặc \`${prefix}qr <số tiền>\` — Tạo mã QR chuyển khoản ngân hàng *(Admin Chính)*`, inline: false }
+                { name: '💰 Quản lý Coin của thành viên', value: `\`${prefix}addcoin @user <số>\` hoặc \`/addcoin\` — Cộng thêm coin cho 1 người\n\`${prefix}removecoin @user <số>\` hoặc \`/removecoin\` — Trừ bớt coin của 1 người\n\`${prefix}setcoin @user <số>\` hoặc \`/setcoin\` — Đặt chính xác số coin cho 1 người\n\`${prefix}resetcoin @user\` hoặc \`/resetcoin\` — Reset coin 1 người về 500,000\n\`${prefix}resetallcoin\` hoặc \`/resetallcoin\` — ⚠️ Reset coin **toàn bộ server** về 500,000\n\`${prefix}giveall <số>\` — Phát <số> coin cho **tất cả** thành viên (Chỉ Admin Chính)`, inline: false },
+                { name: '🛠️ Quản lý Server', value: `\`${prefix}clear <1-100>\` hoặc \`/clear\` — Xóa hàng loạt tin nhắn (từ 1 đến 100 tin)\n\`${prefix}say #kênh <nội dung>\` hoặc \`/say\` — Bot gửi tin nhắn vào kênh bạn chọn, thay mặt bot\n\`${prefix}resetwork @user\` hoặc \`/resetwork\` — Xóa cooldown làm việc cho 1 người (để họ work lại ngay)`, inline: false },
+                { name: '💳 QR Ngân Hàng', value: `\`${prefix}qr <số tiền>\` hoặc \`/qr\` — Tạo mã QR chuyển khoản ngân hàng thật\n*(Chỉ Admin Chính — số tài khoản cấu hình trong .env)*`, inline: false }
             )
             .setColor('#FF4444')
             .setFooter({ text: 'Trang 9/10 • Admin Quản Lý' })
             .setTimestamp(),
 
-        // Page 8 - Admin Hệ thống
+        // Page 9 - Admin Hệ thống
         new EmbedBuilder()
             .setTitle('⚙️ Hệ Thống & Cài Đặt (Admin)')
-            .setDescription('Quản lý sự kiện, cài đặt bot và đặc quyền Admin.')
+            .setDescription('Quản lý sự kiện, cài đặt tính năng bot và đặc quyền Admin Chính.')
             .addFields(
-                { name: '🎁 Sự kiện Giveaway', value: `\`${prefix}gstart <time> <winner> <giải>\` — Bắt đầu Giveaway\n\`/gend <id>\` — Kết thúc sớm\n\`/greroll <id>\` — Chọn lại người thắng`, inline: false },
-                { name: '⚙️ Đổi Prefix & Cài Đặt', value: `\`${prefix}setprefix <dấu mới>\` — Đổi prefix bot\n\`/setwelcome\` — Cài đặt tin nhắn chào mừng & ảnh\n\`/setspawnchannel #channel\` hoặc \`!setspawnchannel #channel\` — Đặt nơi xuất hiện Pokemon\n\`/setuppokemonrole\` — Cài đặt tính năng ping Role Pokemon\n\`!spawnpet\` — Ép Pokemon Huyền Thoại xuất hiện\n\`/addpetvip @user <pet_id>\` hoặc \`!addpetvip\` — Tặng pet VIP cho user`, inline: false },
-                { name: '👑 Admin Cheat Panel', value: `\`${prefix}admincheat\` hoặc \`/admincheat\` *(Chỉ Admin Chính)*\nMở bảng điều khiển đặc biệt:\n• Bật/Tắt chế độ **luôn thắng** cờ bạc\n• Các quyền năng đặc biệt khác`, inline: false },
-                { name: '🤖 Tự động hệ thống', value: 'Bot tự chào mừng thành viên, ghi log voice, reply từ khoá mặc định.', inline: false }
+                { name: '🎁 Sự kiện Giveaway', value: `\`${prefix}gstart <thời gian> <số người thắng> <tên giải>\`\n→ Bắt đầu Giveaway. Ví dụ: \`${prefix}gstart 1h 1 Nitro Classic\`\n• Thời gian hỗ trợ: \`30s\`, \`5m\`, \`1h\`, \`1d\`...\n\n\`/gend <message_id>\` — Kết thúc Giveaway sớm\n\`/greroll <message_id>\` — Chọn lại người thắng`, inline: false },
+                { name: '⚙️ Cài đặt Bot', value: `\`${prefix}setprefix <dấu mới>\` — Đổi prefix bot (ví dụ: \`${prefix}setprefix !\`)\n\`/setwelcome #kênh [lời chào] [link ảnh]\` — Cài đặt kênh + tin nhắn chào mừng thành viên mới\n\`/setspawnchannel #channel\` — Đặt kênh xuất hiện Pokemon hoang dã\n\`/setuppokemonrole\` — Tạo role "Pokemon" để ping khi có Pokemon hiếm xuất hiện\n\`${prefix}spawnpet\` — Ép xuất hiện 1 Pokemon hiếm ngay lập tức (Admin)\n\`/addpetvip @user <pet_id>\` — Tặng trực tiếp 1 pet VIP cho user`, inline: false },
+                { name: '👑 Admin Cheat Panel (Chỉ Admin Chính)', value: `\`${prefix}admincheat\` hoặc \`/admincheat\`\nMở bảng điều khiển đặc biệt:\n• 🎰 Bật/Tắt chế độ **luôn thắng** tất cả trò cờ bạc\n• ⏱️ Bỏ qua mọi cooldown (daily, work...)\n• Các quyền năng đặc biệt khác`, inline: false },
+                { name: '🤖 Tính năng tự động hệ thống', value: '• Bot tự **chào mừng thành viên mới** (nếu đã cài `/setwelcome`)\n• Bot tự **ghi log voice** (ai vào/rời kênh thoại)\n• Bot tự **reply từ khóa** mặc định: `ping` → pong!, `hello` → Xin chào!\n• Bot tự **xóa phòng J2C trống** khi không còn ai trong phòng\n• Bot tự **xổ số lô đề** lúc 18h30 hằng ngày', inline: false }
             )
             .setColor('#9B59B6')
             .setFooter({ text: 'Trang 10/10 • Admin Hệ thống' })
@@ -2522,6 +2514,7 @@ const client = new Client({
         GatewayIntentBits.MessageContent,
         GatewayIntentBits.GuildMessageReactions,
     ],
+    allowedMentions: { parse: ['users', 'roles'], repliedUser: true }
 });
 
 // Khởi tạo Giveaway Manager
@@ -3057,6 +3050,22 @@ client.on('guildMemberAdd', async (member) => {
 // VOICE STATE - NOTIFY
 // ========================
 client.on('voiceStateUpdate', async (oldState, newState) => {
+    // LUÔN LUÔN xử lý việc xóa phòng J2C nếu có người/bot rời đi và phòng trống
+    if (oldState.channelId) {
+        const oldChannel = oldState.channel;
+        if (oldChannel && oldChannel.members.size === 0 && (j2cChannels.has(oldState.channelId) || oldChannel.name.startsWith('🔊 Phòng của'))) {
+            try {
+                await oldChannel.delete('J2C Channel empty');
+                j2cChannels.delete(oldState.channelId);
+                const currentJ2C = loadJ2C();
+                delete currentJ2C[oldState.channelId];
+                saveJ2C(currentJ2C);
+            } catch (e) {
+                // Không xóa khỏi j2cChannels để lần sau có cơ hội xóa lại
+            }
+        }
+    }
+
     // Handle bot's own voice state update to set Channel Status
     if (newState.member?.user?.id === client.user.id) {
         if (newState.channelId && oldState.channelId !== newState.channelId) {
@@ -3103,7 +3112,7 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
         if (!oldState.channelId && newState.channelId) {
             const channel = newState.channel;
             if (channel && channel.permissionsFor(newState.guild.members.me).has('SendMessages')) {
-                await channel.send(`🔔 **${newState.member.displayName || newState.member.user.username}** vừa tham gia kênh thoại! Vô chém gió nào mọi người.`);
+                await channel.send(`🔔 **${newState.member.displayName || newState.member.user.username}** vừa tham gia kênh thoại! Vô chém gió nào mọi người.`).catch(() => {});
             }
         } else if (oldState.channelId && !newState.channelId) {
             const channel = oldState.channel;
@@ -3191,11 +3200,13 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
                 setTimeout(async () => {
                     const checkChan = newState.guild.channels.cache.get(createdChannel.id);
                     if (checkChan && checkChan.members.size === 0) {
-                        await checkChan.delete('J2C Channel empty instantly').catch(() => {});
-                        j2cChannels.delete(createdChannel.id);
-                        const currentJ2C = loadJ2C();
-                        delete currentJ2C[createdChannel.id];
-                        saveJ2C(currentJ2C);
+                        try {
+                            await checkChan.delete('J2C Channel empty instantly');
+                            j2cChannels.delete(createdChannel.id);
+                            const currentJ2C = loadJ2C();
+                            delete currentJ2C[createdChannel.id];
+                            saveJ2C(currentJ2C);
+                        } catch(e) {}
                     }
                 }, 2000);
                 
@@ -3207,19 +3218,6 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
                 if (createdChannel) {
                     createdChannel.delete().catch(() => {});
                 }
-            }
-        }
-        
-        // Handle Leave from J2C Channel
-        if (oldState.channelId) {
-            const oldChannel = oldState.channel;
-            // Xóa phòng ngay lập tức nếu không còn ai, dựa vào bộ nhớ hoặc tên phòng
-            if (oldChannel && oldChannel.members.size === 0 && (j2cChannels.has(oldState.channelId) || oldChannel.name.startsWith('🔊 Phòng của'))) {
-                await oldChannel.delete('J2C Channel empty').catch(() => {});
-                j2cChannels.delete(oldState.channelId);
-                const currentJ2C = loadJ2C();
-                delete currentJ2C[oldState.channelId];
-                saveJ2C(currentJ2C);
             }
         }
     } catch (error) {
@@ -3252,7 +3250,10 @@ client.on('messageCreate', async (message) => {
                 // Mute (Timeout) 24h trên Discord
                 await message.member.timeout(24 * 60 * 60 * 1000, 'Ping everyone/here trong danh mục cấm').catch(() => {});
                 
-                return message.channel.send(`🚨 <@${message.author.id}> đã bị **Cấm chat 24 tiếng** và **bỏ tù 24 tiếng** vì hành vi ping \`@everyone\` / \`@here\` trong khu vực cấm!`).catch(() => {});
+                return message.channel.send({
+                    content: `🚨 <@${message.author.id}> đã bị **Cấm chat 24 tiếng** và **bỏ tù 24 tiếng** vì hành vi ping \`@everyone\` / \`@here\` trong khu vực cấm!`,
+                    allowedMentions: { parse: ['users'] }
+                }).catch(() => {});
             }
         }
     }
