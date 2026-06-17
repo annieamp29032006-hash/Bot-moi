@@ -2,7 +2,7 @@ require('dotenv').config();
 const {
     Client, GatewayIntentBits, EmbedBuilder, PermissionsBitField,
     ActionRowBuilder, ButtonBuilder, ButtonStyle, REST, Routes, SlashCommandBuilder,
-    StringSelectMenuBuilder, StringSelectMenuOptionBuilder, ComponentType,
+    StringSelectMenuBuilder, StringSelectMenuOptionBuilder, ComponentType, UserSelectMenuBuilder,
     ModalBuilder, TextInputBuilder, TextInputStyle, AttachmentBuilder
 } = require('discord.js');
 const { GiveawaysManager } = require('discord-giveaways');
@@ -342,6 +342,7 @@ function buildHelpPages(prefix) {
                 { name: '`/av` hoặc `!av [@user]`', value: 'Hiển thị Avatar, ngày tạo tài khoản và ngày vào Server của bạn hoặc người khác.', inline: false },
                 { name: '📱 Tải Video TikTok', value: 'Chỉ cần **dán link TikTok** vào kênh chat, bot tự tải video **không watermark** và gửi lên.\n> Hỗ trợ: `vm.tiktok.com`, `vt.tiktok.com`, `tiktok.com`', inline: false },
                 { name: '🎙️ Thông Báo Voice', value: 'Bot tự động gửi tin nhắn trong kênh voice khi có người **vào / rời** kênh thoại.', inline: false },
+                { name: '🎧 Join To Create (J2C)', value: 'Hệ thống tự tạo phòng Voice khi bạn tham gia.\n> Bạn có thể đổi tên, giới hạn người, khóa kênh...\n> **MẸO:** Để cho phép người khác vào phòng đang khóa, hãy **@mention** (tag) tên người đó vào kênh chat của Voice Channel!', inline: false },
                 { name: '👋 Chào Mừng Thành Viên', value: 'Bot tự động chào mừng thành viên mới tham gia server.', inline: false },
                 { name: '🤖 Tự động Reply', value: 'Bot tự động phản hồi các từ khóa: `ping`, `hello`, `bot`, v.v.', inline: false }
             )
@@ -3174,7 +3175,6 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
                 const cpRow2 = new ActionRowBuilder().addComponents(
                     new ButtonBuilder().setCustomId('j2c_claim').setLabel('👑 Nhận quyền Chủ phòng').setStyle(3)
                 );
-                
                 await createdChannel.send({ content: `<@${member.user.id}>`, embeds: [cpEmbed], components: [cpRow1, cpRow2] }).catch(() => {});
                 
                 // Kiểm tra lại sau 2s, nếu user join phòng gốc rồi out ngay, phòng tạo ra sẽ bị bỏ hoang -> xóa
@@ -3225,6 +3225,24 @@ const TIKTOK_REGEX = /https?:\/\/(www\.|vm\.|vt\.)?tiktok\.com\/[^\s]+/gi;
 
 client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
+
+    // --- J2C MENTION ALLOW ---
+    if (j2cChannels.has(message.channelId)) {
+        const ownerId = j2cChannels.get(message.channelId);
+        if (message.author.id === ownerId && message.mentions.users.size > 0) {
+            const addedUsers = [];
+            for (const [userId, user] of message.mentions.users) {
+                if (!user.bot && userId !== ownerId) {
+                    await message.channel.permissionOverwrites.edit(userId, { Connect: true, ViewChannel: true }).catch(() => {});
+                    addedUsers.push(`<@${userId}>`);
+                }
+            }
+            if (addedUsers.length > 0) {
+                await message.react('✅').catch(() => {});
+                await message.channel.send(`✅ Chủ phòng đã cho phép ${addedUsers.join(', ')} vào phòng!`).catch(() => {});
+            }
+        }
+    }
 
     if (message.guildId && message.channelId) {
         activeChannels.set(message.guildId, message.channelId);
