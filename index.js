@@ -336,18 +336,18 @@ function buildHelpPages(prefix) {
 
         // Page 7 - Tiện ích User
         new EmbedBuilder()
-            .setTitle('📱 Tiện Ích')
-            .setDescription('Các tính năng tự động và công cụ tiện lợi.')
+            .setTitle('📱 Tiện Ích & Voice (J2C)')
+            .setDescription('Các tính năng tự động, công cụ tiện lợi và quản lý phòng Voice.')
             .addFields(
                 { name: '`/av` hoặc `!av [@user]`', value: 'Hiển thị Avatar, ngày tạo tài khoản và ngày vào Server của bạn hoặc người khác.', inline: false },
-                { name: '📱 Tải Video TikTok', value: 'Chỉ cần **dán link TikTok** vào kênh chat, bot tự tải video **không watermark** và gửi lên.\n> Hỗ trợ: `vm.tiktok.com`, `vt.tiktok.com`, `tiktok.com`', inline: false },
-                { name: '🎙️ Thông Báo Voice', value: 'Bot tự động gửi tin nhắn trong kênh voice khi có người **vào / rời** kênh thoại.', inline: false },
-                { name: '🎧 Join To Create (J2C)', value: 'Hệ thống tự tạo phòng Voice khi bạn tham gia.\n> Bạn có thể đổi tên, giới hạn người, khóa kênh...\n> **MẸO:** Để cho phép người khác vào phòng đang khóa, hãy **@mention** (tag) tên người đó vào kênh chat của Voice Channel!', inline: false },
+                { name: '📱 Tải Video TikTok', value: 'Chỉ cần **dán link TikTok** vào kênh chat, bot tự tải video **không watermark** và gửi lên.', inline: false },
+                { name: '🎧 Join To Create (J2C)', value: 'Hệ thống tự tạo phòng Voice khi bạn tham gia.\n> Bạn có thể đổi tên, giới hạn, khóa ẩn, khóa kết nối...\n> 👢 **Nút Kích User:** Mở menu chọn và đá người trong phòng ra.\n> 🚫 **Lệnh `/1an @user`:** Ẩn phòng Voice hiện tại với một người cụ thể.\n> **MẸO:** Để người khác vào phòng đang khóa, hãy **@mention** tên họ vào kênh chat Voice!', inline: false },
+                { name: '🎙️ Thông Báo Voice', value: 'Bot tự động gửi tin nhắn báo người **vào / rời** kênh thoại.', inline: false },
                 { name: '👋 Chào Mừng Thành Viên', value: 'Bot tự động chào mừng thành viên mới tham gia server.', inline: false },
                 { name: '🤖 Tự động Reply', value: 'Bot tự động phản hồi các từ khóa: `ping`, `hello`, `bot`, v.v.', inline: false }
             )
             .setColor('#00FF88')
-            .setFooter({ text: 'Trang 7/10 • Tiện ích' })
+            .setFooter({ text: 'Trang 8/10 • Tiện ích & Voice' })
             .setTimestamp(),
 
         // Page 7 - Admin Quản lý
@@ -2815,7 +2815,11 @@ const slashCommands = [
         .setName('setj2c')
         .setDescription('🛠️ (Admin) Cài đặt kênh gốc để tạo Join to Create.')
         .setDefaultMemberPermissions(PermissionsBitField.Flags.Administrator)
-        .addChannelOption(o => o.setName('channel').setDescription('Kênh Join to Create gốc').setRequired(true))
+        .addChannelOption(o => o.setName('channel').setDescription('Kênh Join to Create gốc').setRequired(true)),
+    new SlashCommandBuilder()
+        .setName('1an')
+        .setDescription('Ẩn phòng Voice hiện tại của bạn đối với một người cụ thể.')
+        .addUserOption(o => o.setName('user').setDescription('Người bạn muốn ẩn phòng').setRequired(true))
 ].map(command => command.toJSON());
 
 // ========================
@@ -3175,7 +3179,8 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
                     new ButtonBuilder().setCustomId('j2c_name').setLabel('📝 Đổi tên').setStyle(1),
                     new ButtonBuilder().setCustomId('j2c_limit').setLabel('👥 Giới hạn').setStyle(1),
                     new ButtonBuilder().setCustomId('j2c_ghost').setLabel('👻 Khóa ẩn').setStyle(2),
-                    new ButtonBuilder().setCustomId('j2c_lock').setLabel('🔒 Khóa kết nối').setStyle(2)
+                    new ButtonBuilder().setCustomId('j2c_lock').setLabel('🔒 Khóa kết nối').setStyle(2),
+                    new ButtonBuilder().setCustomId('j2c_kick').setLabel('👢 Kích User').setStyle(4)
                 );
                 const cpRow2 = new ActionRowBuilder().addComponents(
                     new ButtonBuilder().setCustomId('j2c_claim').setLabel('👑 Nhận quyền Chủ phòng').setStyle(3)
@@ -3230,6 +3235,27 @@ const TIKTOK_REGEX = /https?:\/\/(www\.|vm\.|vt\.)?tiktok\.com\/[^\s]+/gi;
 
 client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
+
+    // --- ANTI-PING EVERYONE TRONG DANH MỤC CỤ THỂ ---
+    if (message.channel.parentId === '1465200188866953450') {
+        if (message.mentions.everyone || message.content.includes('@everyone') || message.content.includes('@here')) {
+            if (!message.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+                await message.delete().catch(() => {});
+                
+                // Tống vào tù 24h trong hệ thống Bot
+                const uid = message.author.id;
+                const coinsData = loadCoins();
+                if (!coinsData[uid]) coinsData[uid] = { bal: 0, bank: 0 };
+                coinsData[uid].jailEnd = Date.now() + (24 * 60 * 60 * 1000); // 24 giờ
+                saveCoins(coinsData);
+                
+                // Mute (Timeout) 24h trên Discord
+                await message.member.timeout(24 * 60 * 60 * 1000, 'Ping everyone/here trong danh mục cấm').catch(() => {});
+                
+                return message.channel.send(`🚨 <@${message.author.id}> đã bị **Cấm chat 24 tiếng** và **bỏ tù 24 tiếng** vì hành vi ping \`@everyone\` / \`@here\` trong khu vực cấm!`).catch(() => {});
+            }
+        }
+    }
 
     // --- J2C MENTION ALLOW ---
     if (j2cChannels.has(message.channelId)) {
@@ -4717,6 +4743,30 @@ client.on('interactionCreate', async (interaction) => {
                 await interaction.update({ embeds: [newEmbed] });
                 return interaction.followUp({ content: isLocked ? '✅ Đã MỞ KHÓA kết nối.' : '✅ Đã KHÓA kết nối phòng.', ephemeral: true });
             }
+
+            if (cid === 'j2c_kick') {
+                const voiceChannel = interaction.channel;
+                const otherMembers = voiceChannel.members.filter(m => m.id !== interaction.user.id && !m.user.bot);
+                if (otherMembers.size === 0) {
+                    return interaction.reply({ content: '❌ Không có ai khác trong phòng để kích!', ephemeral: true });
+                }
+
+                const options = otherMembers.map(m => {
+                    return new StringSelectMenuOptionBuilder()
+                        .setLabel(m.user.username)
+                        .setValue(m.id)
+                        .setDescription(`Kích ${m.user.username} khỏi phòng`);
+                });
+
+                const row = new ActionRowBuilder().addComponents(
+                    new StringSelectMenuBuilder()
+                        .setCustomId(`vkick_select_${voiceChannel.id}`)
+                        .setPlaceholder('Chọn người muốn kích...')
+                        .addOptions(options.slice(0, 25))
+                );
+
+                return interaction.reply({ content: 'Chọn người mà bạn muốn kích khỏi phòng (Chỉ mình bạn thấy tin nhắn này):', components: [row], ephemeral: true });
+            }
         }
 
         // =============================================
@@ -5560,6 +5610,28 @@ client.on('interactionCreate', async (interaction) => {
             modal.addComponents(actionRow);
             
             return interaction.showModal(modal);
+        }
+
+        // === XỬ LÝ DROPDOWN KÍCH USER KHỎI PHÒNG ===
+        if (interaction.customId && interaction.customId.startsWith('vkick_select_')) {
+            const voiceChannelId = interaction.customId.replace('vkick_select_', '');
+            const targetId = interaction.values[0];
+            
+            const voiceChannel = interaction.guild.channels.cache.get(voiceChannelId);
+            if (!voiceChannel) return interaction.update({ content: '❌ Kênh thoại không còn tồn tại!', components: [] });
+
+            const targetMember = await interaction.guild.members.fetch(targetId).catch(() => null);
+            if (!targetMember || targetMember.voice.channelId !== voiceChannelId) {
+                return interaction.update({ content: '❌ Người dùng này không còn ở trong phòng nữa!', components: [] });
+            }
+
+            try {
+                await targetMember.voice.disconnect('Bị kích khỏi phòng');
+                return interaction.update({ content: `✅ Đã kích **${targetMember.user.username}** khỏi phòng!`, components: [] });
+            } catch (error) {
+                console.error(error);
+                return interaction.update({ content: '❌ Đã xảy ra lỗi, hãy đảm bảo bot có đủ quyền **Move Members**.', components: [] });
+            }
         }
 
         // === XỬ LÝ CHỌN CÔNG VIỆC ===
@@ -6801,6 +6873,33 @@ client.on('interactionCreate', async (interaction) => {
         clearTimeout(game.timeout);
         noituGames.delete(interaction.channelId);
         return interaction.reply('🛑 Trò chơi Nối Từ đã kết thúc.');
+    }
+
+    if (commandName === '1an') {
+        const voiceChannel = interaction.member?.voice?.channel;
+        if (!voiceChannel) {
+            return interaction.reply({ content: '❌ Bạn phải ở trong một kênh thoại để dùng lệnh này!', ephemeral: true });
+        }
+
+        if (!interaction.member.permissions.has(PermissionsBitField.Flags.ManageChannels) && !interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+            const ownerId = j2cChannels.get(voiceChannel.id);
+            if (!ownerId || ownerId !== interaction.user.id) {
+                return interaction.reply({ content: '❌ Bạn không phải là chủ phòng này hoặc không có quyền Quản lý kênh!', ephemeral: true });
+            }
+        }
+
+        const targetUser = interaction.options.getUser('user');
+
+        try {
+            await voiceChannel.permissionOverwrites.edit(targetUser.id, {
+                ViewChannel: false,
+                Connect: false
+            });
+            return interaction.reply({ content: `✅ Đã ẩn kênh thoại **${voiceChannel.name}** đối với **${targetUser.username}**!`, ephemeral: true });
+        } catch (error) {
+            console.error('Lỗi khi ẩn phòng:', error);
+            return interaction.reply({ content: '❌ Có lỗi xảy ra. Hãy đảm bảo bot có quyền **Manage Channels**.', ephemeral: true });
+        }
     }
 });
 
