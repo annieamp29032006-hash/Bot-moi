@@ -3511,7 +3511,7 @@ client.on('messageCreate', async (message) => {
                 return i.reply({ content: '❌ Chỉ người dùng lệnh mới có thể điều hướng!', ephemeral: true });
             }
             const page = parseInt(i.values[0]);
-            if (page === 5 || page === 6) {
+            if (page === 8 || page === 9) {
                 await i.update({ components: [row] });
                 return i.followUp({ embeds: [pages[page]], ephemeral: true });
             }
@@ -6088,7 +6088,7 @@ client.on('interactionCreate', async (interaction) => {
                 return i.reply({ content: '❌ Chỉ người dùng lệnh mới có thể điều hướng!', ephemeral: true });
             }
             const page = parseInt(i.values[0]);
-            if (page === 5 || page === 6) {
+            if (page === 8 || page === 9) {
                 await i.update({ components: [row] });
                 return i.followUp({ embeds: [pages[page]], ephemeral: true });
             }
