@@ -2881,6 +2881,14 @@ async function handleGiveAll(userId, amount, msgOrInteraction) {
 // ========================
 const vnDictionary = new Set();
 const noituGames = new Map();
+const j2cPath = path.join(__dirname, 'j2c.json');
+function loadJ2C() {
+    if (!fs.existsSync(j2cPath)) return {};
+    return JSON.parse(fs.readFileSync(j2cPath, 'utf-8'));
+}
+function saveJ2C(data) {
+    fs.writeFileSync(j2cPath, JSON.stringify(data, null, 2));
+}
 const j2cChannels = new Map(); // channelId => ownerId
 
 async function initDictionary() {
@@ -2915,6 +2923,24 @@ client.once('ready', async () => {
     await initDictionary();
     console.log(`✅ Bot đã đăng nhập với tên: ${client.user.tag}`);
     client.user.setActivity('🎵 Nhạc YouTube | !help', { type: 2 }); // type 2 = Listening
+
+    // Cleanup empty J2C channels on startup
+    const savedJ2C = loadJ2C();
+    let j2cChanged = false;
+    for (const [chId, ownerId] of Object.entries(savedJ2C)) {
+        const channel = client.channels.cache.get(chId);
+        if (!channel) {
+            delete savedJ2C[chId];
+            j2cChanged = true;
+        } else if (channel.members.size === 0) {
+            channel.delete('J2C Cleanup on startup').catch(() => {});
+            delete savedJ2C[chId];
+            j2cChanged = true;
+        } else {
+            j2cChannels.set(chId, ownerId);
+        }
+    }
+    if (j2cChanged) saveJ2C(savedJ2C);
 
     const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
     try {
@@ -3125,6 +3151,9 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
                 clearTimeout(antiSitTimeout);
                 
                 j2cChannels.set(createdChannel.id, member.user.id);
+                const currentJ2C = loadJ2C();
+                currentJ2C[createdChannel.id] = member.user.id;
+                saveJ2C(currentJ2C);
                 
                 const cpEmbed = new EmbedBuilder()
                     .setTitle('⚙️ Bảng Điều Khiển Phòng Voice')
@@ -3154,6 +3183,9 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
                     if (checkChan && checkChan.members.size === 0) {
                         await checkChan.delete('J2C Channel empty instantly').catch(() => {});
                         j2cChannels.delete(createdChannel.id);
+                        const currentJ2C = loadJ2C();
+                        delete currentJ2C[createdChannel.id];
+                        saveJ2C(currentJ2C);
                     }
                 }, 2000);
                 
@@ -3175,6 +3207,9 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
             if (oldChannel && oldChannel.members.size === 0 && (j2cChannels.has(oldState.channelId) || oldChannel.name.startsWith('🔊 Phòng của'))) {
                 await oldChannel.delete('J2C Channel empty').catch(() => {});
                 j2cChannels.delete(oldState.channelId);
+                const currentJ2C = loadJ2C();
+                delete currentJ2C[oldState.channelId];
+                saveJ2C(currentJ2C);
             }
         }
     } catch (error) {

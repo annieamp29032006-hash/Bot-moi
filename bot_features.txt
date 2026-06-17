@@ -1,0 +1,46 @@
+Danh sách các tính năng của Bot:
+
+1. 🎵 Âm nhạc (Music):
+- Phát nhạc từ YouTube (play, skip, stop, pause, resume, queue, nowplaying).
+- Lệnh hỗ trợ join/leave kênh thoại.
+
+2. 💰 Kinh tế & Tiền tệ (Economy):
+- Nhận tiền mỗi ngày (daily), xem số dư (balance).
+- Chuyển tiền (give), gửi/rút ngân hàng (deposit, withdraw, bank).
+- Bảng xếp hạng đại gia (leaderboard, top).
+- Cướp bóc (rob, heist, robbank), hối lộ công an (nopphat).
+- Đầu tư rủi ro (invest, claiminvest).
+
+3. 🎲 Trò chơi & Cá cược (Minigames):
+- Đánh bài Blackjack, Bầu Cua Tôm Cá (baucua), Tài Xỉu (taixiu).
+- Lô Đề (lode - xổ số tự động 18h30 hàng ngày).
+- Đoán số dự thưởng (guess).
+
+4. ⚔️ Nhập vai (RPG) & Thú cưng (Pet):
+- Đi săn quái vật (hunt), làm việc kiếm tiền (work), hồi máu (heal).
+- Cửa hàng trang bị (shop), xem túi đồ (inv), xem hồ sơ nhân vật (profile).
+- Bắt thú cưng (catchpet), xem thú cưng (pets), bán thú (sellpet), đấu thú (petbattle).
+
+5. 🎭 Trò chơi Chat & Xã hội:
+- Chơi Ma Sói (masoi, wwstop).
+- Chơi Nối Từ Tiếng Việt (noitu, stopnoitu).
+- Kết hôn (marry), ly hôn (divorce), cài đặt ngày sinh (setbday).
+- Tạo mã QR thanh toán ngân hàng (qr).
+- Tổ chức Giveaways (gstart, gend, greroll).
+- Lời chào tự động khi có thành viên mới, tạo kênh thoại tạm thời (Join to Create).
+
+6. 👑 Lệnh dành cho Quản trị viên (Admin):
+- Quản lý tiền (addcoin, removecoin, setcoin, resetcoin, giveall).
+- Xóa tin nhắn (clear), cho bot nói thay (say).
+- Quản lý hệ thống (setwelcome, setj2c, setspawnchannel, setlodechannel, admincheat).
+
+--------------------------------------------------
+🔥 NHỮNG CẬP NHẬT TÍNH NĂNG MỚI NHẤT:
+
+1. Trò chơi Nối Từ (noitu):
+- Cập nhật thêm từ vựng Tiếng Việt hiện đại.
+- Cải tiến tính năng chọn từ bắt đầu (từ đầu tiên dễ hơn) giúp người chơi dễ dàng tham gia.
+
+2. Bot Âm nhạc (Music Bot):
+- Sửa lỗi "Unknown interaction" (thỉnh thoảng bot không phản hồi lệnh).
+- Thêm lệnh cập nhật công cụ tải nhạc (yt-dlp) để xử lý các lỗi phát sinh từ phía YouTube.
