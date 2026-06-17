@@ -3507,13 +3507,18 @@ client.on('messageCreate', async (message) => {
             time: 120_000
         });
         collector.on('collect', async i => {
-            if (i.user.id !== message.author.id) {
-                return i.reply({ content: '❌ Chỉ người dùng lệnh mới có thể điều hướng!', ephemeral: true });
-            }
             const page = parseInt(i.values[0]);
             if (page === 8 || page === 9) {
+                // Trang Admin: chỉ Admin mới được xem, hiển thị ẩn
+                const isAdmin = i.member?.permissions?.has(PermissionsBitField.Flags.Administrator);
+                if (!isAdmin) {
+                    return i.reply({ content: '🔒 **Trang này chỉ dành cho Admin!** Bạn không có quyền xem mục này.', ephemeral: true });
+                }
                 await i.update({ components: [row] });
                 return i.followUp({ embeds: [pages[page]], ephemeral: true });
+            }
+            if (i.user.id !== message.author.id) {
+                return i.reply({ content: '❌ Chỉ người dùng lệnh mới có thể điều hướng!', ephemeral: true });
             }
             await i.update({ embeds: [pages[page]], components: [row] });
         });
@@ -6084,13 +6089,18 @@ client.on('interactionCreate', async (interaction) => {
             time: 120_000
         });
         collector.on('collect', async i => {
-            if (i.user.id !== interaction.user.id) {
-                return i.reply({ content: '❌ Chỉ người dùng lệnh mới có thể điều hướng!', ephemeral: true });
-            }
             const page = parseInt(i.values[0]);
             if (page === 8 || page === 9) {
+                // Trang Admin: chỉ Admin mới được xem, hiển thị ẩn
+                const isAdmin = i.member?.permissions?.has(PermissionsBitField.Flags.Administrator);
+                if (!isAdmin) {
+                    return i.reply({ content: '🔒 **Trang này chỉ dành cho Admin!** Bạn không có quyền xem mục này.', ephemeral: true });
+                }
                 await i.update({ components: [row] });
                 return i.followUp({ embeds: [pages[page]], ephemeral: true });
+            }
+            if (i.user.id !== interaction.user.id) {
+                return i.reply({ content: '❌ Chỉ người dùng lệnh mới có thể điều hướng!', ephemeral: true });
             }
             await i.update({ embeds: [pages[page]], components: [row] });
         });
