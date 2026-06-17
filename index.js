@@ -3144,6 +3144,11 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
                             id: newState.guild.id,
                             allow: [],
                             deny: []
+                        },
+                        {
+                            id: member.user.id,
+                            allow: ['ViewChannel', 'Connect', 'SendMessages'],
+                            deny: []
                         }
                     ]
                 });
@@ -3233,7 +3238,7 @@ client.on('messageCreate', async (message) => {
             const addedUsers = [];
             for (const [userId, user] of message.mentions.users) {
                 if (!user.bot && userId !== ownerId) {
-                    await message.channel.permissionOverwrites.edit(userId, { Connect: true, ViewChannel: true }).catch(() => {});
+                    await message.channel.permissionOverwrites.edit(userId, { Connect: true, ViewChannel: true, SendMessages: true }).catch(() => {});
                     addedUsers.push(`<@${userId}>`);
                 }
             }
@@ -4636,6 +4641,7 @@ client.on('interactionCreate', async (interaction) => {
                 }
                 
                 j2cChannels.set(channelId, interaction.user.id);
+                await channel.permissionOverwrites.edit(interaction.user.id, { Connect: true, ViewChannel: true, SendMessages: true }).catch(() => {});
                 
                 const oldEmbed = interaction.message.embeds[0];
                 const newEmbed = EmbedBuilder.from(oldEmbed);
