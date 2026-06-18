@@ -2917,7 +2917,7 @@ async function initDictionary() {
 // ========================
 // BOT READY
 // ========================
-client.once('ready', async () => {
+client.once('clientReady', async () => {
     await initDictionary();
     console.log(`✅ Bot đã đăng nhập với tên: ${client.user.tag}`);
     client.user.setActivity('🎵 Nhạc YouTube | !help', { type: 2 }); // type 2 = Listening
