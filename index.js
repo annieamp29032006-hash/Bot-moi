@@ -2809,6 +2809,10 @@ const slashCommands = [
         .addStringOption(o => o.setName('message').setDescription('Lời chào tuỳ chỉnh (Dùng {user} và {server})').setRequired(false))
         .addStringOption(o => o.setName('image').setDescription('Link ảnh đính kèm (vd: https://imgur.com/...)').setRequired(false)),
     new SlashCommandBuilder()
+        .setName('disablewelcome')
+        .setDescription('🛠️ (Admin) Tắt tính năng tự động gửi lời chào mừng.')
+        .setDefaultMemberPermissions(PermissionsBitField.Flags.Administrator),
+    new SlashCommandBuilder()
         .setName('setj2c')
         .setDescription('🛠️ (Admin) Cài đặt kênh gốc để tạo Join to Create.')
         .setDefaultMemberPermissions(PermissionsBitField.Flags.Administrator)
@@ -6394,6 +6398,17 @@ client.on('interactionCreate', async (interaction) => {
         saveConfig(config);
         
         return interaction.reply({ content: `✅ Đã cài đặt chào mừng!\n- **Kênh:** ${channel}\n- **Lời chào:** ${messageStr || 'Mặc định'}\n- **Ảnh:** ${image || 'Không có'}`, ephemeral: true });
+    }
+
+    if (commandName === 'disablewelcome') {
+        if (!interaction.member || !interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) 
+            return interaction.reply({ content: '❌ Bạn không có quyền!', ephemeral: true });
+        
+        const config = loadConfig();
+        config.welcomeChannelId = 'disabled';
+        saveConfig(config);
+        
+        return interaction.reply({ content: `✅ Đã **TẮT** tính năng chào mừng thành viên mới! (Gõ lại /setwelcome để bật lại)`, ephemeral: true });
     }
 
     if (commandName === 'setuppokemonrole') {
