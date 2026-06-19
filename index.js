@@ -361,7 +361,7 @@ function buildHelpPages(prefix) {
             .setDescription('Quản lý sự kiện, cài đặt tính năng bot và đặc quyền Admin Chính.')
             .addFields(
                 { name: '🎁 Sự kiện Giveaway', value: `\`${prefix}gstart <thời gian> <số người thắng> <tên giải>\`\n→ Bắt đầu Giveaway. Ví dụ: \`${prefix}gstart 1h 1 Nitro Classic\`\n• Thời gian hỗ trợ: \`30s\`, \`5m\`, \`1h\`, \`1d\`...\n\n\`/gend <message_id>\` — Kết thúc Giveaway sớm\n\`/greroll <message_id>\` — Chọn lại người thắng`, inline: false },
-                { name: '⚙️ Cài đặt Bot', value: `\`${prefix}setprefix <dấu mới>\` — Đổi prefix bot (ví dụ: \`${prefix}setprefix !\`)\n\`/setwelcome #kênh [lời chào] [link ảnh]\` — Cài đặt kênh + tin nhắn chào mừng thành viên mới\n\`/setspawnchannel #channel\` — Đặt kênh xuất hiện Pokemon hoang dã\n\`/setuppokemonrole\` — Tạo role "Pokemon" để ping khi có Pokemon hiếm xuất hiện\n\`${prefix}spawnpet\` — Ép xuất hiện 1 Pokemon hiếm ngay lập tức (Admin)\n\`/addpetvip @user <pet_id>\` — Tặng trực tiếp 1 pet VIP cho user`, inline: false },
+                { name: '⚙️ Cài đặt Bot', value: `\`${prefix}setprefix <dấu mới>\` — Đổi prefix bot (ví dụ: \`${prefix}setprefix !\`)\n\`/setwelcome #kênh [lời chào] [link ảnh]\` — Cài đặt kênh + tin nhắn chào mừng thành viên mới\n\`/setspawnchannel #channel\` — Đặt kênh xuất hiện Pokemon hoang dã\n\`/setuppokemonrole\` — Tạo role "Pokemon" để ping khi có Pokemon hiếm xuất hiện\n\`${prefix}spawnpet\` — Ép xuất hiện 1 Pokemon hiếm ngay lập tức (Admin)\n\`/addpetvip @user <pet_id>\` — Tặng trực tiếp 1 pet VIP cho user\n\`/togglevoice\` — Bật/Tắt thông báo người ra vào kênh thoại`, inline: false },
                 { name: '👑 Admin Cheat Panel (Chỉ Admin Chính)', value: `\`${prefix}admincheat\` hoặc \`/admincheat\`\nMở bảng điều khiển đặc biệt:\n• 🎰 Bật/Tắt chế độ **luôn thắng** tất cả trò cờ bạc\n• ⏱️ Bỏ qua mọi cooldown (daily, work...)\n• Các quyền năng đặc biệt khác`, inline: false },
                 { name: '🤖 Tính năng tự động hệ thống', value: '• Bot tự **chào mừng thành viên mới** (nếu đã cài `/setwelcome`)\n• Bot tự **ghi log voice** (ai vào/rời kênh thoại)\n• Bot tự **reply từ khóa** mặc định: `ping` → pong!, `hello` → Xin chào!\n• Bot tự **xóa phòng J2C trống** khi không còn ai trong phòng\n• Bot tự **xổ số lô đề** lúc 18h30 hằng ngày', inline: false }
             )
@@ -2649,6 +2649,10 @@ const slashCommands = [
         .setDescription('💍 Ghép đôi ngẫu nhiên hoặc cầu hôn (Phí nhẫn 50,000 Coin).')
         .addUserOption(o => o.setName('user').setDescription('Người bạn muốn chung sống (Bỏ trống để ghép ngẫu nhiên)').setRequired(false)),
     new SlashCommandBuilder()
+        .setName('togglevoice')
+        .setDescription('Bật/Tắt thông báo tham gia kênh thoại.')
+        .setDefaultMemberPermissions(PermissionsBitField.Flags.Administrator),
+    new SlashCommandBuilder()
         .setName('divorce')
         .setDescription('💔 Ly hôn (Phí ra tòa 100,000 Coin).'),
     new SlashCommandBuilder()
@@ -2920,7 +2924,30 @@ async function initDictionary() {
 client.once('clientReady', async () => {
     await initDictionary();
     console.log(`✅ Bot đã đăng nhập với tên: ${client.user.tag}`);
-    client.user.setActivity('🎵 Nhạc YouTube | !help', { type: 2 }); // type 2 = Listening
+    
+    const statuses = [
+        "🎓 UTEHY 2026 đang mở cổng tuyển sinh!",
+        "📚 Chọn UTEHY – Chọn tương lai!",
+        "🚀 Đồng hành cùng tân sinh viên UTEHY.",
+        "💙 UTEHY chào đón K20!",
+        "📩 Hỏi đáp tuyển sinh 24/7.",
+        "🌟 Sẵn sàng nhập học tại UTEHY?",
+        "🔥 Tuyển sinh 2026 – Đừng bỏ lỡ!",
+        "🎯 Chạm tới ước mơ cùng UTEHY.",
+        "🏫 Khám phá ngành học tại UTEHY.",
+        "💡 Học kỹ thuật – Chọn UTEHY.",
+        "⚙️ Nơi đam mê công nghệ bắt đầu.",
+        "🎉 Chào mừng các sĩ tử 2K8!",
+        "📖 Tra cứu thông tin tuyển sinh.",
+        "🤖 Bot hỗ trợ tuyển sinh UTEHY.",
+        "✨ UTEHY – Kiến tạo tương lai."
+    ];
+    let statusIndex = 0;
+    setInterval(() => {
+        // type 4 = Custom, type 0 = Playing, type 2 = Listening, type 3 = Watching
+        client.user.setActivity(statuses[statusIndex], { type: 4 }); 
+        statusIndex = (statusIndex + 1) % statuses.length;
+    }, 5000);
 
     // Cleanup empty J2C channels on startup
     const savedJ2C = loadJ2C();
@@ -3109,29 +3136,33 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
             }
         }
         
-        if (!oldState.channelId && newState.channelId) {
-            const channel = newState.channel;
-            if (channel && channel.permissionsFor(newState.guild.members.me).has('SendMessages')) {
-                await channel.send(`🔔 **${newState.member.displayName || newState.member.user.username}** vừa tham gia kênh thoại! Vô chém gió nào mọi người.`).catch(() => {});
-            }
-        } else if (oldState.channelId && !newState.channelId) {
-            const channel = oldState.channel;
-            if (channel && channel.permissionsFor(oldState.guild.members.me).has('SendMessages')) {
-                await channel.send(`👋 **${newState.member.displayName || newState.member.user.username}** đã rời khỏi kênh thoại.`).catch(() => {});
-            }
-        } else if (oldState.channelId && newState.channelId && oldState.channelId !== newState.channelId) {
-            const oldChannel = oldState.channel;
-            const newChannel = newState.channel;
-            if (oldChannel && oldChannel.permissionsFor(oldState.guild.members.me).has('SendMessages')) {
-                await oldChannel.send(`👋 **${newState.member.displayName || newState.member.user.username}** đã rời đi và chuyển sang kênh khác.`).catch(() => {});
-            }
-            if (newChannel && newChannel.permissionsFor(newState.guild.members.me).has('SendMessages')) {
-                await newChannel.send(`🔔 **${newState.member.displayName || newState.member.user.username}** vừa chuyển đến kênh thoại này!`).catch(() => {});
+        const config = loadConfig();
+        const voiceNotifyEnabled = config.voiceNotifyEnabled !== false;
+
+        if (voiceNotifyEnabled) {
+            if (!oldState.channelId && newState.channelId) {
+                const channel = newState.channel;
+                if (channel && channel.permissionsFor(newState.guild.members.me).has('SendMessages')) {
+                    await channel.send({ content: `🔔 <@${userId}> vừa tham gia kênh thoại! Vô chém gió nào mọi người.`, allowedMentions: { users: [] } }).catch(() => {});
+                }
+            } else if (oldState.channelId && !newState.channelId) {
+                const channel = oldState.channel;
+                if (channel && channel.permissionsFor(oldState.guild.members.me).has('SendMessages')) {
+                    await channel.send({ content: `👋 <@${userId}> đã rời khỏi kênh thoại.`, allowedMentions: { users: [] } }).catch(() => {});
+                }
+            } else if (oldState.channelId && newState.channelId && oldState.channelId !== newState.channelId) {
+                const oldChannel = oldState.channel;
+                const newChannel = newState.channel;
+                if (oldChannel && oldChannel.permissionsFor(oldState.guild.members.me).has('SendMessages')) {
+                    await oldChannel.send({ content: `👋 <@${userId}> đã rời đi và chuyển sang kênh khác.`, allowedMentions: { users: [] } }).catch(() => {});
+                }
+                if (newChannel && newChannel.permissionsFor(newState.guild.members.me).has('SendMessages')) {
+                    await newChannel.send({ content: `🔔 <@${userId}> vừa chuyển đến kênh thoại này!`, allowedMentions: { users: [] } }).catch(() => {});
+                }
             }
         }
         
         // --- JOIN TO CREATE LOGIC ---
-        const config = loadConfig();
         const j2cChannelId = config.j2cChannelId;
         
         // Handle Join To Create
@@ -4597,6 +4628,15 @@ client.on('messageCreate', async (message) => {
         if (!text) return message.reply('❌ Nội dung không được để trống!');
         channel.send(text);
         return message.reply(`✅ Đã gửi tin nhắn vào ${channel}.`);
+    }
+
+    if (content.startsWith(`${prefix}togglevoice`)) {
+        if (!isAdmin) return message.reply('❌ Bạn không có quyền Administrator để dùng lệnh này!');
+        const config = loadConfig();
+        const currentState = config.voiceNotifyEnabled !== false;
+        config.voiceNotifyEnabled = !currentState;
+        saveConfig(config);
+        return message.reply(`✅ Đã **${config.voiceNotifyEnabled ? 'BẬT' : 'TẮT'}** thông báo người ra vào kênh thoại.`);
     }
 
 });
@@ -6817,6 +6857,13 @@ client.on('interactionCreate', async (interaction) => {
             saveCoins(data);
         }
         return interaction.reply({ content: `✅ Đã reset thời gian làm việc cho <@${target.id}>!`, ephemeral: true });
+    }
+    if (commandName === 'togglevoice') {
+        const config = loadConfig();
+        const currentState = config.voiceNotifyEnabled !== false;
+        config.voiceNotifyEnabled = !currentState;
+        saveConfig(config);
+        return interaction.reply({ content: `✅ Đã **${config.voiceNotifyEnabled ? 'BẬT' : 'TẮT'}** thông báo người ra vào kênh thoại.`, ephemeral: true });
     }
     if (commandName === 'clear') {
         const amount = interaction.options.getInteger('amount');
