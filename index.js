@@ -3143,21 +3143,21 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
             if (!oldState.channelId && newState.channelId) {
                 const channel = newState.channel;
                 if (channel && channel.permissionsFor(newState.guild.members.me).has('SendMessages')) {
-                    await channel.send({ content: `🔔 <@${userId}> vừa tham gia kênh thoại! Vô chém gió nào mọi người.`, allowedMentions: { users: [] } }).catch(() => {});
+                    await channel.send({ content: `🔔 <@${userId}> vừa tham gia kênh thoại **${channel.name}**! Vô chém gió nào mọi người.`, allowedMentions: { parse: [] } }).catch(() => {});
                 }
             } else if (oldState.channelId && !newState.channelId) {
                 const channel = oldState.channel;
                 if (channel && channel.permissionsFor(oldState.guild.members.me).has('SendMessages')) {
-                    await channel.send({ content: `👋 <@${userId}> đã rời khỏi kênh thoại.`, allowedMentions: { users: [] } }).catch(() => {});
+                    await channel.send({ content: `👋 <@${userId}> đã ngắt kết nối hoàn toàn khỏi kênh thoại **${channel.name}**.`, allowedMentions: { parse: [] } }).catch(() => {});
                 }
             } else if (oldState.channelId && newState.channelId && oldState.channelId !== newState.channelId) {
                 const oldChannel = oldState.channel;
                 const newChannel = newState.channel;
                 if (oldChannel && oldChannel.permissionsFor(oldState.guild.members.me).has('SendMessages')) {
-                    await oldChannel.send({ content: `👋 <@${userId}> đã rời đi và chuyển sang kênh khác.`, allowedMentions: { users: [] } }).catch(() => {});
+                    await oldChannel.send({ content: `👋 <@${userId}> đã rời khỏi đây và chuyển sang kênh **${newChannel.name}**.`, allowedMentions: { parse: [] } }).catch(() => {});
                 }
                 if (newChannel && newChannel.permissionsFor(newState.guild.members.me).has('SendMessages')) {
-                    await newChannel.send({ content: `🔔 <@${userId}> vừa chuyển đến kênh thoại này!`, allowedMentions: { users: [] } }).catch(() => {});
+                    await newChannel.send({ content: `🔔 <@${userId}> vừa chuyển từ kênh **${oldChannel.name}** sang kênh này!`, allowedMentions: { parse: [] } }).catch(() => {});
                 }
             }
         }
