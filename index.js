@@ -266,7 +266,7 @@ function buildHelpPages(prefix) {
                 { name: `\`${prefix}give @user <số>\` hoặc \`/give\``, value: '🎁 Tặng coin từ ví của bạn cho người khác.', inline: true },
                 { name: `\`${prefix}top\` hoặc \`/top\``, value: '🏆 Bảng xếp hạng Top 10 người giàu nhất server.', inline: true },
                 { name: '🎲 CÁC TRÒ CHƠI CỜ BẠC', value: `\`${prefix}tx <cược>\` — **Tài Xỉu**: Đoán tài/xỉu, thắng x2 tiền cược.\n\`${prefix}bc <cược>\` — **Bầu Cua**: Chọn con vật, trúng nhận x2.\n\`${prefix}bj <cược>\` — **Blackjack**: Xì Dách, thắng x2 (Blackjack x2.5).\n\`${prefix}guess <cược>\` — **Đoán số**: Đoán số 1–100, trúng nhận **x3**.\n\`${prefix}lode <số 00-99> <cược>\` — **Lô đề**: Xổ số 18h30 hằng ngày, trúng **x5**.`, inline: false },
-                { name: `\`${prefix}noitu\` hoặc \`/noitu\``, value: '🧠 Nối Từ Tiếng Việt: Nối từ ghép 2 chữ, mỗi từ đúng +50,000 🪙. Hết 60 giây không ai nối → kết thúc.', inline: false }
+                { name: `\`${prefix}noitu\` hoặc \`/noitu\``, value: '🧠 Nối Từ Nhiều Người: Chơi nối từ ghép 2 tiếng với nhau.\n• Thưởng **1,000 🪙** cho mỗi từ đúng hợp lệ.\n• Không được nối 2 lần liên tiếp. Hết 60 giây kết thúc game.\n\`' + prefix + 'stopnoitu\` — Dừng game sớm.', inline: false }
             )
             .setColor('#FFD700')
             .setFooter({ text: 'Trang 3/10 • Coin & Minigame' })
@@ -3403,41 +3403,51 @@ client.on('messageCreate', async (message) => {
                         return message.reply(`Từ **${msgText}** mới được sử dụng gần đây (phải qua 5 ván mới được dùng lại)! Bạn hãy tìm từ khác.`).catch(() => {});
                     }
                     
+                    if (game.lastUserId === message.author.id) {
+                        message.react('❌').catch(() => {});
+                        return message.reply(`Bạn vừa nối rồi, hãy nhường lượt cho người khác nhé!`).catch(() => {});
+                    }
+
                     game.lastWord = msgText;
                     game.usedWords.add(msgText);
                     globalUsedWords.set(msgText, game.matchId);
+                    game.lastUserId = message.author.id;
                     game.streak = (game.streak || 0) + 1;
+                    
+                    const userStreak = (game.userStreaks.get(message.author.id) || 0) + 1;
+                    game.userStreaks.set(message.author.id, userStreak);
+                    
                     clearTimeout(game.timeout);
                     
                     addCoins(message.author.id, 1000);
                     const numberEmojis = ['0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'];
-                    const streakEmoji = numberEmojis[game.streak] || '❤️';
+                    const streakEmoji = userStreak <= 10 ? numberEmojis[userStreak] : '🔥';
                     message.react(streakEmoji).catch(() => {});
                     
-                    if (game.streak >= 10) {
-                        noituGames.delete(message.channelId);
-                        addCoins(message.author.id, 50000);
-                        return message.reply(`🏆 **CHIẾN THẮNG!**\nBạn đã xuất sắc nối đúng 10 từ liên tiếp và giành giải thưởng lớn **50,000 🪙**! Trò chơi kết thúc.`).catch(() => {});
-                    }
+                    message.reply(`✅ **Chính xác!** <@${message.author.id}> cộng 1,000 🪙 (Chuỗi cá nhân: **${userStreak}** | Tổng chuỗi: **${game.streak}**).\nMời người tiếp theo nối chữ: **${msgText.split(' ')[1].toUpperCase()}**`).catch(() => {});
                     
-                    const botWord = getBotNoiTuWord(msgText, game.usedWords, game.matchId);
-                    if (botWord) {
-                        game.lastWord = botWord;
-                        game.usedWords.add(botWord);
-                        globalUsedWords.set(botWord, game.matchId);
-                        
-                        setTimeout(() => {
-                            message.reply(`🤖 Bot nối: **${botWord}**\nĐến lượt các bạn nối chữ **${botWord.split(' ')[1]}**!`).catch(() => {});
-                            game.timeout = setTimeout(() => {
-                                noituGames.delete(message.channelId);
-                                message.channel.send(`⏰ Hết 60 giây không ai nối được chữ **${botWord.split(' ')[1]}**. Trò chơi Nối Từ kết thúc!`).catch(() => {});
-                            }, 60000);
-                        }, 1000);
-                    } else {
+                    game.timeout = setTimeout(() => {
                         noituGames.delete(message.channelId);
-                        addCoins(message.author.id, 50000);
-                        return message.reply(`🎉 **BOT XIN ĐẦU HÀNG!**\nBạn đã tìm ra một từ quá khó khiến Bot bí đường. Bạn được thưởng nóng **50,000 🪙**! Trò chơi kết thúc.`).catch(() => {});
-                    }
+                        
+                        const sortedPlayers = Array.from(game.userStreaks.entries()).sort((a, b) => b[1] - a[1]);
+                        let leaderboardText = sortedPlayers.map((entry, index) => {
+                            let medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '🏅';
+                            return `${medal} <@${entry[0]}>: **${entry[1]}** từ`;
+                        }).join('\n');
+                        if (!leaderboardText) leaderboardText = "Chưa có ai ghi điểm.";
+                        
+                        const embed = new EmbedBuilder()
+                            .setTitle('🛑 TỔNG KẾT NỐI TỪ')
+                            .setDescription(`⏰ Hết 60 giây không ai nối tiếp được chữ **${msgText.split(' ')[1].toUpperCase()}**.\nTrò chơi đã kết thúc!`)
+                            .addFields(
+                                { name: '🔥 Tổng số từ đã nối', value: `**${game.streak}** từ`, inline: true },
+                                { name: '🏆 Bảng xếp hạng', value: leaderboardText, inline: false }
+                            )
+                            .setColor('#FF4500')
+                            .setTimestamp();
+                            
+                        message.channel.send({ embeds: [embed] }).catch(() => {});
+                    }, 60000);
                 } else {
                     message.react('❌').catch(() => {});
                     message.reply(`Từ **${msgText}** không hợp lệ hoặc không có trong từ điển Tiếng Việt!`).catch(() => {});
@@ -3490,17 +3500,27 @@ client.on('messageCreate', async (message) => {
         const game = {
             matchId: noituMatchCounter,
             streak: 0,
+            userStreaks: new Map(),
             lastWord: randomWord,
             usedWords: new Set([randomWord]),
             timeout: setTimeout(() => {
                 noituGames.delete(message.channelId);
-                message.channel.send(`⏰ Hết 60 giây không ai nối được chữ **${randomWord.split(' ')[1]}**. Trò chơi Nối Từ kết thúc!`).catch(() => {});
+                const embed = new EmbedBuilder()
+                    .setTitle('🛑 TỔNG KẾT NỐI TỪ')
+                    .setDescription(`⏰ Hết 60 giây không ai nối được chữ **${randomWord.split(' ')[1].toUpperCase()}**.\nTrò chơi đã kết thúc!`)
+                    .addFields(
+                        { name: '🔥 Tổng số từ đã nối', value: `**0** từ`, inline: true },
+                        { name: '🏆 Bảng xếp hạng', value: 'Chưa có ai tham gia.', inline: false }
+                    )
+                    .setColor('#FF4500')
+                    .setTimestamp();
+                message.channel.send({ embeds: [embed] }).catch(() => {});
             }, 60000)
         };
         noituGames.set(message.channelId, game);
         globalUsedWords.set(randomWord, game.matchId);
         
-        return message.channel.send(`🎮 **TRÒ CHƠI NỐI TỪ VỚI BOT BẮT ĐẦU!**\nBot ra từ đầu tiên: **${randomWord.toUpperCase()}**\n\nHãy nối tiếp bằng một từ ghép 2 chữ bắt đầu là **${randomWord.split(' ')[1].toUpperCase()}** nhé!\n_Thưởng 1,000 🪙 mỗi từ đúng. Đạt chuỗi 10 từ hoặc làm Bot bí từ sẽ thắng 50,000 🪙!_`).catch(() => {});
+        return message.channel.send(`🎮 **TRÒ CHƠI NỐI TỪ NHIỀU NGƯỜI BẮT ĐẦU!**\nTừ khởi đầu: **${randomWord.toUpperCase()}**\n\nHãy nối tiếp bằng một từ ghép 2 chữ bắt đầu là **${randomWord.split(' ')[1].toUpperCase()}** nhé!\n_Thưởng 1,000 🪙 mỗi từ đúng. Hãy xem các bạn nối được bao nhiêu từ!_`).catch(() => {});
     }
 
     if (content === `${prefix}stopnoitu`) {
