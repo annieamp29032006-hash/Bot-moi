@@ -1298,7 +1298,7 @@ async function expireSpawn(msg) {
 // ========================
 
 const CATCH_COST = 20000;
-const CATCH_COOLDOWN = 10 * 60 * 1000; // 10 minutes
+const CATCH_COOLDOWN = 1 * 60 * 1000; // 1 minute
 
 async function handleCatchPet(userId, msgOrInteraction) {
     const p = getPlayer(userId);
