@@ -1367,10 +1367,20 @@ async function handleCatchPet(userId, msgOrInteraction) {
     if (caughtPet.rarity === 'Huyền Thoại') color = '#F1C40F';
     
     const ballObj = RPG_ITEMS.pokeballs[usedBall];
+    const userAvatar = msgOrInteraction.user ? msgOrInteraction.user.displayAvatarURL() : msgOrInteraction.author.displayAvatarURL();
     const embed = new EmbedBuilder()
-        .setTitle('🐾 Bắt Thú Thành Công!')
-        .setDescription(`Bạn đã ném **${ballObj.emoji} ${ballObj.name}** và bắt được **${caughtPet.emoji} ${caughtPet.name}**!\n\n**Độ Hiếm:** ${caughtPet.rarity}\n**Giá Trị:** ${caughtPet.price.toLocaleString()} 🪙\n\n*(Dùng lệnh \`!pets\` để xem chuồng thú của bạn)*`)
-        .setColor(color);
+        .setTitle('✨ THU PHỤC THÀNH CÔNG! ✨')
+        .setDescription(`Một tia sáng lóe lên... Bạn đã ném **${ballObj.emoji} ${ballObj.name}** và bắt trúng một **${caughtPet.emoji} ${caughtPet.name}** hoang dã!`)
+        .addFields(
+            { name: '🌟 Độ Hiếm', value: `**${caughtPet.rarity}**`, inline: true },
+            { name: '💰 Giá Trị Định Giá', value: `**${caughtPet.price.toLocaleString()} 🪙**`, inline: true },
+            { name: '🎒 Chuồng Thú', value: `Xem bằng lệnh \`/pets\``, inline: true }
+        )
+        .setColor(color)
+        .setImage(caughtPet.imageUrl)
+        .setThumbnail(userAvatar)
+        .setFooter({ text: 'Hệ thống Pokemon • Pokemon Hunter' })
+        .setTimestamp();
         
     return msgOrInteraction.reply ? msgOrInteraction.reply({ embeds: [embed] }) : msgOrInteraction.channel.send({ embeds: [embed] });
 }
@@ -2872,6 +2882,8 @@ async function handleGiveAll(userId, amount, msgOrInteraction) {
 // ========================
 const vnDictionary = new Set();
 const noituGames = new Map();
+let noituMatchCounter = 0;
+const globalUsedWords = new Map();
 const j2cPath = path.join(__dirname, 'j2c.json');
 function loadJ2C() {
     if (!fs.existsSync(j2cPath)) return {};
@@ -2905,6 +2917,22 @@ async function initDictionary() {
         }
         console.log(`📖 Đã nạp ${vnDictionary.size} từ ghép 2 âm tiết vào bộ nhớ.`);
     }
+}
+function getBotNoiTuWord(lastWord, usedWords, currentMatchId) {
+    const lastSyllable = lastWord.split(' ').pop();
+    const possibleWords = [];
+    for (const word of vnDictionary) {
+        if (word.startsWith(`${lastSyllable} `) && !usedWords.has(word)) {
+            const lastUsed = globalUsedWords.get(word);
+            if (lastUsed === undefined || currentMatchId - lastUsed > 5) {
+                possibleWords.push(word);
+            }
+        }
+    }
+    if (possibleWords.length > 0) {
+        return possibleWords[Math.floor(Math.random() * possibleWords.length)];
+    }
+    return null;
 }
 
 // ========================
@@ -3355,7 +3383,7 @@ client.on('messageCreate', async (message) => {
     // --- NOITU GAME LOGIC ---
     if (message.guildId && noituGames.has(message.channelId)) {
         const game = noituGames.get(message.channelId);
-        const msgText = content;
+        const msgText = content.trim().toLowerCase();
         const words = msgText.split(/\s+/);
         if (words.length === 2 && !msgText.startsWith(prefix)) {
             const firstSyllable = words[0];
@@ -3367,27 +3395,52 @@ client.on('messageCreate', async (message) => {
                 if (vnDictionary.has(msgText)) {
                     if (game.usedWords.has(msgText)) {
                         message.react('❌').catch(() => {});
-                        message.reply(`Từ **${msgText}** đã được dùng rồi! Bạn hãy tìm từ khác nối chữ **${lastSyllableOfGame}** nhé.`).catch(() => {});
-                    } else if (game.lastUser === message.author.id) {
+                        return message.reply(`Từ **${msgText}** đã được dùng trong ván này rồi! Bạn hãy tìm từ khác.`).catch(() => {});
+                    }
+                    const lastUsedMatch = globalUsedWords.get(msgText);
+                    if (lastUsedMatch !== undefined && game.matchId - lastUsedMatch <= 5) {
                         message.react('❌').catch(() => {});
-                        message.reply(`Bạn vừa nối từ rồi, hãy đợi người khác nối tiếp nhé!`).catch(() => {});
-                    } else {
-                        game.lastWord = msgText;
-                        game.usedWords.add(msgText);
-                        game.lastUser = message.author.id;
-                        clearTimeout(game.timeout);
-                        
+                        return message.reply(`Từ **${msgText}** mới được sử dụng gần đây (phải qua 5 ván mới được dùng lại)! Bạn hãy tìm từ khác.`).catch(() => {});
+                    }
+                    
+                    game.lastWord = msgText;
+                    game.usedWords.add(msgText);
+                    globalUsedWords.set(msgText, game.matchId);
+                    game.streak = (game.streak || 0) + 1;
+                    clearTimeout(game.timeout);
+                    
+                    addCoins(message.author.id, 1000);
+                    const numberEmojis = ['0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'];
+                    const streakEmoji = numberEmojis[game.streak] || '❤️';
+                    message.react(streakEmoji).catch(() => {});
+                    
+                    if (game.streak >= 10) {
+                        noituGames.delete(message.channelId);
                         addCoins(message.author.id, 50000);
-                        message.react('❤️').catch(() => {});
+                        return message.reply(`🏆 **CHIẾN THẮNG!**\nBạn đã xuất sắc nối đúng 10 từ liên tiếp và giành giải thưởng lớn **50,000 🪙**! Trò chơi kết thúc.`).catch(() => {});
+                    }
+                    
+                    const botWord = getBotNoiTuWord(msgText, game.usedWords, game.matchId);
+                    if (botWord) {
+                        game.lastWord = botWord;
+                        game.usedWords.add(botWord);
+                        globalUsedWords.set(botWord, game.matchId);
                         
-                        game.timeout = setTimeout(() => {
-                            noituGames.delete(message.channelId);
-                            message.channel.send(`⏰ Hết 60 giây không ai nối được chữ **${msgText.split(' ')[1]}**. Trò chơi Nối Từ kết thúc!`).catch(() => {});
-                        }, 60000);
+                        setTimeout(() => {
+                            message.reply(`🤖 Bot nối: **${botWord}**\nĐến lượt các bạn nối chữ **${botWord.split(' ')[1]}**!`).catch(() => {});
+                            game.timeout = setTimeout(() => {
+                                noituGames.delete(message.channelId);
+                                message.channel.send(`⏰ Hết 60 giây không ai nối được chữ **${botWord.split(' ')[1]}**. Trò chơi Nối Từ kết thúc!`).catch(() => {});
+                            }, 60000);
+                        }, 1000);
+                    } else {
+                        noituGames.delete(message.channelId);
+                        addCoins(message.author.id, 50000);
+                        return message.reply(`🎉 **BOT XIN ĐẦU HÀNG!**\nBạn đã tìm ra một từ quá khó khiến Bot bí đường. Bạn được thưởng nóng **50,000 🪙**! Trò chơi kết thúc.`).catch(() => {});
                     }
                 } else {
                     message.react('❌').catch(() => {});
-                    message.reply(`Từ **${msgText}** không có trong từ điển Tiếng Việt!`).catch(() => {});
+                    message.reply(`Từ **${msgText}** không hợp lệ hoặc không có trong từ điển Tiếng Việt!`).catch(() => {});
                 }
             }
         }
@@ -3430,21 +3483,24 @@ client.on('messageCreate', async (message) => {
         if (noituGames.has(message.channelId)) return message.reply('❌ Trò chơi Nối Từ đang diễn ra ở kênh này rồi!');
         if (vnDictionary.size === 0) return message.reply('❌ Từ điển chưa tải xong, vui lòng chờ giây lát...');
         
-        const easyStartingWords = ["nhà", "học", "bạn", "làm", "người", "xe", "hoa", "cây", "nước", "mưa", "nắng", "gió", "trời", "đất", "biển", "sông", "núi", "đường", "áo", "quần", "máy", "điện", "bàn", "ghế", "sách", "vở", "bút", "chữ", "toán", "nhạc", "hát", "tình", "yêu", "đời", "trăng", "sao", "chim", "cá", "chuột", "mèo", "chó", "heo", "bò", "gà", "vịt", "thuyền", "cầu", "sân"];
+        noituMatchCounter++;
+        const easyStartingWords = ["nhà cửa", "học sinh", "bạn bè", "làm việc", "người lớn", "xe cộ", "hoa quả", "cây cối", "nước biển", "mưa rào", "bàn ghế", "sách vở", "yêu thương", "hát ca"];
         const randomWord = easyStartingWords[Math.floor(Math.random() * easyStartingWords.length)];
         
         const game = {
+            matchId: noituMatchCounter,
+            streak: 0,
             lastWord: randomWord,
             usedWords: new Set([randomWord]),
-            lastUser: null,
             timeout: setTimeout(() => {
                 noituGames.delete(message.channelId);
-                message.channel.send(`⏰ Hết 60 giây không ai nối được chữ **${randomWord}**. Trò chơi Nối Từ kết thúc!`).catch(() => {});
+                message.channel.send(`⏰ Hết 60 giây không ai nối được chữ **${randomWord.split(' ')[1]}**. Trò chơi Nối Từ kết thúc!`).catch(() => {});
             }, 60000)
         };
         noituGames.set(message.channelId, game);
+        globalUsedWords.set(randomWord, game.matchId);
         
-        return message.channel.send(`🎮 **TRÒ CHƠI NỐI TỪ BẮT ĐẦU!**\nTừ đầu tiên để nối là: **${randomWord.toUpperCase()}**\n\nHãy nối tiếp bằng một từ ghép có chữ đầu là **${randomWord.toUpperCase()}** nhé!\n_Thưởng 50,000 🪙 mỗi từ đúng. Mọi người chỉ cần gõ 2 chữ tự do vào chat!_`).catch(() => {});
+        return message.channel.send(`🎮 **TRÒ CHƠI NỐI TỪ VỚI BOT BẮT ĐẦU!**\nBot ra từ đầu tiên: **${randomWord.toUpperCase()}**\n\nHãy nối tiếp bằng một từ ghép 2 chữ bắt đầu là **${randomWord.split(' ')[1].toUpperCase()}** nhé!\n_Thưởng 1,000 🪙 mỗi từ đúng. Đạt chuỗi 10 từ hoặc làm Bot bí từ sẽ thắng 50,000 🪙!_`).catch(() => {});
     }
 
     if (content === `${prefix}stopnoitu`) {
@@ -4911,10 +4967,17 @@ client.on('interactionCreate', async (interaction) => {
                     const oldMsg = await channel.messages.fetch(msgId).catch(()=>{});
                     if (oldMsg) {
                         const embed = EmbedBuilder.from(oldMsg.embeds[0])
-                            .setTitle('🎉 ĐÃ BỊ BẮT!')
-                            .setDescription(`Đó là **${petConfig.emoji} ${petConfig.name}**!\n\nNó đã bị <@${interaction.user.id}> thu phục bằng **${ballConfig.emoji} ${ballConfig.name}**!`)
-                            .setImage(null)
-                            .setColor('#FFD700');
+                            .setTitle('🎉 POKEMON ĐÃ BỊ THU PHỤC!')
+                            .setDescription(`Một tràng pháo tay cho <@${interaction.user.id}>!\\nNgười chơi này đã nhanh tay ném **${ballConfig.emoji} ${ballConfig.name}** và bắt gọn **${petConfig.emoji} ${petConfig.name}**!`)
+                            .addFields(
+                                { name: '🌟 Độ Hiếm', value: `**${petConfig.rarity}**`, inline: true },
+                                { name: '💰 Định Giá', value: `**${petConfig.price.toLocaleString()} 🪙**`, inline: true },
+                                { name: '👤 Chủ Nhân Mới', value: `<@${interaction.user.id}>`, inline: true }
+                            )
+                            .setImage(petConfig.imageUrl)
+                            .setColor('#FFD700')
+                            .setThumbnail(interaction.user.displayAvatarURL())
+                            .setTimestamp();
                         await oldMsg.edit({ embeds: [embed], components: [] });
                     }
                 }
@@ -6908,21 +6971,24 @@ client.on('interactionCreate', async (interaction) => {
         if (noituGames.has(interaction.channelId)) return interaction.reply({ content: '❌ Trò chơi Nối Từ đang diễn ra ở kênh này rồi!', ephemeral: true });
         if (vnDictionary.size === 0) return interaction.reply({ content: '❌ Từ điển chưa tải xong, vui lòng chờ giây lát...', ephemeral: true });
         
-        const easyStartingWords = ["nhà", "học", "bạn", "làm", "người", "xe", "hoa", "cây", "nước", "mưa", "nắng", "gió", "trời", "đất", "biển", "sông", "núi", "đường", "áo", "quần", "máy", "điện", "bàn", "ghế", "sách", "vở", "bút", "chữ", "toán", "nhạc", "hát", "tình", "yêu", "đời", "trăng", "sao", "chim", "cá", "chuột", "mèo", "chó", "heo", "bò", "gà", "vịt", "thuyền", "cầu", "sân"];
+        noituMatchCounter++;
+        const easyStartingWords = ["nhà cửa", "học sinh", "bạn bè", "làm việc", "người lớn", "xe cộ", "hoa quả", "cây cối", "nước biển", "mưa rào", "bàn ghế", "sách vở", "yêu thương", "hát ca"];
         const randomWord = easyStartingWords[Math.floor(Math.random() * easyStartingWords.length)];
         
         const game = {
+            matchId: noituMatchCounter,
+            streak: 0,
             lastWord: randomWord,
             usedWords: new Set([randomWord]),
-            lastUser: null,
             timeout: setTimeout(() => {
                 noituGames.delete(interaction.channelId);
-                interaction.channel.send(`⏰ Hết 60 giây không ai nối được chữ **${randomWord}**. Trò chơi Nối Từ kết thúc!`).catch(() => {});
+                interaction.channel.send(`⏰ Hết 60 giây không ai nối được chữ **${randomWord.split(' ')[1]}**. Trò chơi Nối Từ kết thúc!`).catch(() => {});
             }, 60000)
         };
         noituGames.set(interaction.channelId, game);
+        globalUsedWords.set(randomWord, game.matchId);
         
-        return interaction.reply(`🎮 **TRÒ CHƠI NỐI TỪ BẮT ĐẦU!**\nTừ đầu tiên để nối là: **${randomWord.toUpperCase()}**\n\nHãy nối tiếp bằng một từ ghép có chữ đầu là **${randomWord.toUpperCase()}** nhé!\n_Thưởng 50,000 🪙 mỗi từ đúng. Mọi người chỉ cần gõ 2 chữ tự do vào chat!_`);
+        return interaction.reply(`🎮 **TRÒ CHƠI NỐI TỪ VỚI BOT BẮT ĐẦU!**\nBot ra từ đầu tiên: **${randomWord.toUpperCase()}**\n\nHãy nối tiếp bằng một từ ghép 2 chữ bắt đầu là **${randomWord.split(' ')[1].toUpperCase()}** nhé!\n_Thưởng 1,000 🪙 mỗi từ đúng. Đạt chuỗi 10 từ hoặc làm Bot bí từ sẽ thắng 50,000 🪙!_`);
     }
 
     if (commandName === 'stopnoitu') {
