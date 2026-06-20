@@ -982,11 +982,22 @@ function buildProfileEmbed(user) {
     let petsText = 'Không có thú cưng 😢';
     if (pData.pets && Object.keys(pData.pets).length > 0) {
         const petStrs = [];
+        let totalPets = 0;
         for (const pid of Object.keys(pData.pets)) {
-            const petInfo = PET_LIST.find(x => x.id === pid);
-            if (petInfo) petStrs.push(`${petInfo.emoji} ${petInfo.name} (x${pData.pets[pid]})`);
+            const amount = pData.pets[pid] || 0;
+            if (amount > 0) {
+                totalPets += amount;
+                const petInfo = PET_LIST.find(x => x.id === pid);
+                if (petInfo) petStrs.push(`${petInfo.emoji} ${petInfo.name} (x${amount})`);
+            }
         }
-        if (petStrs.length > 0) petsText = petStrs.join(', ');
+        if (petStrs.length > 0) {
+            if (petStrs.length > 10) {
+                petsText = petStrs.slice(0, 10).join(', ') + `... và ${petStrs.length - 10} loại khác (Tổng: ${totalPets} con). Dùng /pets để xem chi tiết.`;
+            } else {
+                petsText = petStrs.join(', ') + ` (Tổng: ${totalPets} con)`;
+            }
+        }
     }
 
     const embed = new EmbedBuilder()
@@ -1390,10 +1401,12 @@ async function handlePets(userId, msgOrInteraction) {
     const pets = p.pets || {};
     
     let desc = [];
+    const ownedPets = [];
     for (const pet of PET_LIST) {
         const amount = pets[pet.id] || 0;
         if (amount > 0) {
             desc.push(`${pet.emoji} **${pet.name}** (${pet.rarity}): ${amount} con`);
+            ownedPets.push({ pet, amount });
         }
     }
     
@@ -1402,29 +1415,100 @@ async function handlePets(userId, msgOrInteraction) {
         .setColor('#2ECC71')
         .setDescription(desc.length > 0 ? desc.join('\n') : 'Chuồng thú của bạn đang trống trơn! Hãy dùng lệnh `!catch` để bắt thêm.');
         
-    return msgOrInteraction.reply ? msgOrInteraction.reply({ embeds: [embed] }) : msgOrInteraction.channel.send({ embeds: [embed] });
+    if (ownedPets.length === 0) {
+        return msgOrInteraction.reply ? msgOrInteraction.reply({ embeds: [embed] }) : msgOrInteraction.channel.send({ embeds: [embed] });
+    }
+
+    ownedPets.sort((a, b) => b.pet.price - a.pet.price);
+    const options = ownedPets.slice(0, 25).map(p => 
+        new StringSelectMenuOptionBuilder()
+            .setLabel(`Xem ${p.pet.name} (Có: ${p.amount})`)
+            .setValue(`viewpet_${p.pet.id}`)
+            .setDescription(`Độ hiếm: ${p.pet.rarity}`)
+            .setEmoji(p.pet.emoji)
+    );
+
+    const row = new ActionRowBuilder().addComponents(
+        new StringSelectMenuBuilder().setCustomId(`viewpet_select_${userId}`).setPlaceholder('🔍 Chọn thú cưng để xem hình ảnh...').addOptions(options)
+    );
+
+    let msg;
+    if (msgOrInteraction.reply && typeof msgOrInteraction.reply === 'function') {
+        if (msgOrInteraction.isCommand && msgOrInteraction.isCommand()) {
+            await msgOrInteraction.reply({ embeds: [embed], components: [row] });
+            msg = await msgOrInteraction.fetchReply();
+        } else {
+            msg = await msgOrInteraction.reply({ embeds: [embed], components: [row] });
+        }
+    } else {
+        msg = await msgOrInteraction.channel.send({ embeds: [embed], components: [row] });
+    }
+
+    const collector = msg.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 60000 });
+    collector.on('collect', async i => {
+        if (i.user.id !== userId) return i.reply({ content: '❌ Đây không phải là chuồng thú của bạn!', ephemeral: true });
+        
+        const petId = i.values[0].replace('viewpet_', '');
+        const selectedPet = PET_LIST.find(p => p.id === petId);
+        
+        if (selectedPet) {
+            let color = '#FFFFFF';
+            if (selectedPet.rarity === 'Thường') color = '#AAB7B8';
+            if (selectedPet.rarity === 'Hiếm') color = '#3498DB';
+            if (selectedPet.rarity === 'Cực Hiếm') color = '#9B59B6';
+            if (selectedPet.rarity === 'Thần Thoại') color = '#E74C3C';
+            if (selectedPet.rarity === 'Huyền Thoại') color = '#F1C40F';
+            if (selectedPet.rarity === 'Đấng Sáng Tạo') color = '#00FFFF';
+
+            const petAmount = pets[petId] || 0;
+            const detailEmbed = new EmbedBuilder()
+                .setTitle(`${selectedPet.emoji} ${selectedPet.name}`)
+                .addFields(
+                    { name: '🌟 Độ Hiếm', value: `**${selectedPet.rarity}**`, inline: true },
+                    { name: '💰 Giá Trị', value: `**${selectedPet.price.toLocaleString()} 🪙**`, inline: true },
+                    { name: '📦 Số lượng sở hữu', value: `**${petAmount}** con`, inline: true }
+                )
+                .setColor(color)
+                .setImage(selectedPet.imageUrl);
+            
+            await i.reply({ embeds: [detailEmbed], ephemeral: true });
+        } else {
+            await i.reply({ content: '❌ Lỗi: Không tìm thấy thú cưng này.', ephemeral: true });
+        }
+    });
+    
+    collector.on('end', () => {
+        if (msgOrInteraction.editReply) msgOrInteraction.editReply({ components: [] }).catch(() => {});
+        else if (msg.edit) msg.edit({ components: [] }).catch(() => {});
+    });
 }
 
 async function handleSellPet(userId, msgOrInteraction) {
     const p = getPlayer(userId);
     const pets = p.pets || {};
     
-    const options = [];
+    let ownedPets = [];
     for (const pet of PET_LIST) {
         const amount = pets[pet.id] || 0;
         if (amount > 0) {
-            options.push(new StringSelectMenuOptionBuilder()
-                .setLabel(`Bán ${pet.name} (Có: ${amount})`)
-                .setValue(`sellpet_${pet.id}`)
-                .setDescription(`Giá: ${pet.price.toLocaleString()} 🪙`)
-                .setEmoji(pet.emoji));
+            ownedPets.push({ pet, amount });
         }
     }
     
-    if (options.length === 0) {
+    if (ownedPets.length === 0) {
         const msg = '❌ Bạn không có con thú nào để bán cả!';
         return msgOrInteraction.reply ? msgOrInteraction.reply({ content: msg, ephemeral: true }) : msgOrInteraction.channel.send(msg);
     }
+
+    ownedPets.sort((a, b) => a.pet.price - b.pet.price);
+    
+    const options = ownedPets.slice(0, 23).map(p => 
+        new StringSelectMenuOptionBuilder()
+            .setLabel(`Bán 1 ${p.pet.name} (Có: ${p.amount})`)
+            .setValue(`sellpet_${p.pet.id}`)
+            .setDescription(`Giá: ${p.pet.price.toLocaleString()} 🪙`)
+            .setEmoji(p.pet.emoji)
+    );
     
     options.push(new StringSelectMenuOptionBuilder()
         .setLabel(`Bán Tất Cả (Giữ con mạnh nhất)`)
