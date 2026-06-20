@@ -869,31 +869,15 @@ const MONSTERS = [
     { name: 'Rồng Con', hp: 600, atk: 90, def: 40, exp: 200, coin: 400, emoji: '🐉' }
 ];
 
-const PET_LIST = [
-    { id: 'bulbasaur', name: 'Bulbasaur', rarity: 'Thường', price: 5000, emoji: '🐸', weight: 50 },
-    { id: 'charmander', name: 'Charmander', rarity: 'Thường', price: 5000, emoji: '🦎', weight: 50 },
-    { id: 'squirtle', name: 'Squirtle', rarity: 'Thường', price: 5000, emoji: '🐢', weight: 50 },
-    { id: 'pikachu', name: 'Pikachu', rarity: 'Hiếm', price: 20000, emoji: '⚡', weight: 30 },
-    { id: 'eevee', name: 'Eevee', rarity: 'Hiếm', price: 20000, emoji: '🦊', weight: 30 },
-    { id: 'snorlax', name: 'Snorlax', rarity: 'Hiếm', price: 25000, emoji: '🐻', weight: 25 },
-    { id: 'lapras', name: 'Lapras', rarity: 'Hiếm', price: 25000, emoji: '🦕', weight: 25 },
-    { id: 'charizard', name: 'Charizard', rarity: 'Cực Hiếm', price: 80000, emoji: '🔥', weight: 15 },
-    { id: 'dragonite', name: 'Dragonite', rarity: 'Cực Hiếm', price: 80000, emoji: '🐉', weight: 15 },
-    { id: 'tyranitar', name: 'Tyranitar', rarity: 'Cực Hiếm', price: 85000, emoji: '🦖', weight: 12 },
-    { id: 'garchomp', name: 'Garchomp', rarity: 'Cực Hiếm', price: 85000, emoji: '🦈', weight: 12 },
-    { id: 'lugia', name: 'Lugia', rarity: 'Thần Thoại', price: 300000, emoji: '🌊', weight: 4 },
-    { id: 'mew', name: 'Mew', rarity: 'Thần Thoại', price: 350000, emoji: '🌸', weight: 4 },
-    { id: 'celebi', name: 'Celebi', rarity: 'Thần Thoại', price: 350000, emoji: '🌱', weight: 4 },
-    { id: 'jirachi', name: 'Jirachi', rarity: 'Thần Thoại', price: 350000, emoji: '⭐', weight: 4 },
-    { id: 'rayquaza', name: 'Rayquaza', rarity: 'Huyền Thoại', price: 1000000, emoji: '🌪️', weight: 1 },
-    { id: 'mewtwo', name: 'Mewtwo', rarity: 'Huyền Thoại', price: 1000000, emoji: '🧬', weight: 1 },
-    { id: 'groudon', name: 'Groudon', rarity: 'Huyền Thoại', price: 1000000, emoji: '🌋', weight: 1 },
-    { id: 'kyogre', name: 'Kyogre', rarity: 'Huyền Thoại', price: 1000000, emoji: '🐋', weight: 1 },
-    { id: 'dialga', name: 'Dialga', rarity: 'Huyền Thoại', price: 1000000, emoji: '⏳', weight: 1 },
-    { id: 'palkia', name: 'Palkia', rarity: 'Huyền Thoại', price: 1000000, emoji: '🌌', weight: 1 },
-    { id: 'giratina', name: 'Giratina', rarity: 'Huyền Thoại', price: 1200000, emoji: '🌑', weight: 0.8 },
-    { id: 'arceus', name: 'Arceus', rarity: 'Đấng Sáng Tạo', price: 5000000, emoji: '✨', weight: 0.2 }
-];
+let PET_LIST = [];
+try {
+    PET_LIST = JSON.parse(fs.readFileSync('./pokemon.json', 'utf8'));
+} catch (err) {
+    console.error('Không thể load pokemon.json, dùng danh sách mặc định:', err);
+    PET_LIST = [
+        { id: 'bulbasaur', name: 'Bulbasaur', rarity: 'Thường', price: 5000, emoji: '🐸', weight: 50, imageUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png' }
+    ];
+}
 
 function loadRPG() {
     if (!fs.existsSync(rpgPath)) return {};
@@ -1247,15 +1231,15 @@ async function spawnWildPet(client, manual = false) {
             const channel = client.channels.cache.get(target.channelId);
             if (!channel) continue;
             
-            const RARE_PETS = PET_LIST.filter(p => ['Cực Hiếm', 'Thần Thoại', 'Huyền Thoại', 'Đấng Sáng Tạo'].includes(p.rarity));
-            const totalWeight = RARE_PETS.reduce((sum, pet) => sum + pet.weight, 0);
+            // Lấy từ toàn bộ pool dựa trên tỷ lệ weight
+            const totalWeight = PET_LIST.reduce((sum, pet) => sum + pet.weight, 0);
             let rand = Math.random() * totalWeight;
             let spawnPet = null;
-            for (const pet of RARE_PETS) {
+            for (const pet of PET_LIST) {
                 if (rand < pet.weight) { spawnPet = pet; break; }
                 rand -= pet.weight;
             }
-            if (!spawnPet) spawnPet = RARE_PETS[0];
+            if (!spawnPet) spawnPet = PET_LIST[Math.floor(Math.random() * PET_LIST.length)];
             
             let color = '#FFFFFF';
             if (spawnPet.rarity === 'Thường') color = '#AAB7B8';
@@ -1270,24 +1254,25 @@ async function spawnWildPet(client, manual = false) {
                 ? '🌟 ĐẤNG SÁNG TẠO GIÁNG TRẦN!!!'
                 : spawnPet.rarity === 'Huyền Thoại'
                 ? '🔥 POKEMON HUYỀN THOẠI XUẤT HIỆN!!!'
-                : '✨ POKEMON HIẾM XUẤT HIỆN!';
+                : spawnPet.rarity === 'Cực Hiếm' || spawnPet.rarity === 'Thần Thoại'
+                ? '✨ POKEMON HIẾM XUẤT HIỆN!'
+                : '🐾 POKEMON HOANG DÃ XUẤT HIỆN!';
             const embedDesc = isLegendary
                 ? `⚠️ **CẢNH BÁO KHẨN CẤP!** ⚠️\nMột Pokemon **${spawnPet.rarity}** cực kỳ hiếm vừa xuất hiện!\nĐộ hiếm: **${spawnPet.rarity}** ✨\n\nĐây là cơ hội ngàn năm có một — Hãy bắt ngay trước khi nó biến mất!`
-                : `Một Pokemon vô cùng quý hiếm vừa xuất hiện ở khu vực này!\nĐộ hiếm: **${spawnPet.rarity}**\n\nHãy mau lấy bóng ra bắt nó trước khi nó chạy mất!`;
+                : `Một Pokemon hoang dã vừa xuất hiện ở khu vực này!\nĐộ hiếm: **${spawnPet.rarity}**\n\nHãy mau lấy bóng ra bắt nó trước khi nó chạy mất!`;
             const embed = new EmbedBuilder()
                 .setTitle(embedTitle)
                 .setDescription(embedDesc)
                 .setColor(color)
-                .setImage('attachment://wild_pokemon_spawn.png');
+                .setImage(spawnPet.imageUrl);
                 
             const row = new ActionRowBuilder().addComponents(
                 new ButtonBuilder().setCustomId(`wild_catch_${spawnPet.id}`).setLabel('Ném Bóng').setStyle(ButtonStyle.Success).setEmoji('🎯')
             );
             
-            const attachment = new AttachmentBuilder('./wild_pokemon_spawn.png', { name: 'wild_pokemon_spawn.png' });
             let msgContent = undefined;
             if (config.pokemonRoleId) msgContent = `<@&${config.pokemonRoleId}>`;
-            const msg = await channel.send({ content: msgContent, embeds: [embed], components: [row], files: [attachment] });
+            const msg = await channel.send({ content: msgContent, embeds: [embed], components: [row] });
             activeSpawns.set(msg.id, { guildId: target.guildId || channel.guild.id, channelId: target.channelId, petId: spawnPet.id, active: true, expireTimeout: setTimeout(() => expireSpawn(msg), 1 * 60 * 1000) });
         } catch (e) {
             console.error('Lỗi spawn pet:', e);
