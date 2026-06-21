@@ -20,6 +20,16 @@ const ffmpegPath = require('ffmpeg-static');
 const cron = require('node-cron');
 const WW = require('./werewolf.js');
 
+const play = require('play-dl');
+play.getFreeClientID().then((clientID) => {
+    play.setToken({
+        soundcloud : {
+            client_id : clientID
+        }
+    });
+}).catch(console.error);
+
+
 // Chỉ định đường dẫn FFmpeg cho prism-media (dùng cho @discordjs/voice)
 process.env.FFMPEG_PATH = ffmpegPath;
 
@@ -109,8 +119,32 @@ async function ytdlpGetInfo(url) {
             searchQuery = `${spotInfo.title} ${spotInfo.artist}`;
         }
         
-        // Nếu là link (kể cả soundcloud), dùng yt-dlp để lấy info (hỗ trợ mọi trang)
+        // Nếu là link (kể cả soundcloud), ưu tiên dùng play-dl, fallback yt-dlp
         if (searchQuery.startsWith('http')) {
+            try {
+                const play = require('play-dl');
+                if (searchQuery.includes('soundcloud.com')) {
+                    const soInfo = await play.soundcloud(searchQuery);
+                    return {
+                        title: soInfo.name,
+                        webpage_url: soInfo.url,
+                        duration: soInfo.durationInSec || 0,
+                        thumbnail: soInfo.thumbnail || ''
+                    };
+                } else if (searchQuery.includes('youtube.com') || searchQuery.includes('youtu.be')) {
+                    const ytInfo = await play.video_info(searchQuery);
+                    return {
+                        title: ytInfo.video_details.title,
+                        webpage_url: ytInfo.video_details.url,
+                        duration: ytInfo.video_details.durationInSec || 0,
+                        thumbnail: ytInfo.video_details.thumbnails[0]?.url || ''
+                    };
+                }
+            } catch(e) {
+                console.error('play-dl getInfo error:', e.message);
+            }
+            
+            // Fallback yt-dlp
             const baseArgs = ['--dump-json', '--no-playlist', '--quiet', '--no-warnings'];
             const stdout = await ytdlpExecWithFallback(baseArgs, searchQuery);
             const info = JSON.parse(stdout);
@@ -497,8 +531,22 @@ async function playNext(guildId, textChannel) {
     state.paused = false;
 
     try {
-        const audioStream = ytdlpStream(song.url);
-        const resource = createAudioResource(audioStream, { inlineVolume: true });
+        let resource;
+        try {
+            if (song.url.includes('soundcloud.com') || song.url.includes('youtube.com') || song.url.includes('youtu.be')) {
+                const play = require('play-dl');
+                const stream = await play.stream(song.url);
+                resource = createAudioResource(stream.stream, { inputType: stream.type, inlineVolume: true });
+            } else {
+                const audioStream = ytdlpStream(song.url);
+                resource = createAudioResource(audioStream, { inlineVolume: true });
+            }
+        } catch(err) {
+            console.error('play-dl stream failed, fallback to yt-dlp:', err.message);
+            const audioStream = ytdlpStream(song.url);
+            resource = createAudioResource(audioStream, { inlineVolume: true });
+        }
+
         // Áp dụng âm lượng hiện tại
         resource.volume?.setVolume(state.volume);
         state.resource = resource;
@@ -6012,9 +6060,6 @@ client.on('interactionCreate', async (interaction) => {
             // --- NÚt DẮNG HẲN ---
             else if (interaction.customId === 'music_stop') {
                 state.queue.length = 0;
-                state.player.stop();
-                state.connection?.destroy();
-                musicQueues.delete(interaction.guildId);
                 await interaction.update({
                     embeds: [
                         new EmbedBuilder()
@@ -6023,7 +6068,10 @@ client.on('interactionCreate', async (interaction) => {
                             .setColor('#555555')
                     ],
                     components: []
-                });
+                }).catch(() => {});
+                state.player.stop();
+                state.connection?.destroy();
+                musicQueues.delete(interaction.guildId);
             }
 
             // --- NÚt XEM HÀNG ĐỢI ---
