@@ -3438,6 +3438,39 @@ client.on('messageCreate', async (message) => {
         }
     }
 
+    // --- AUTO MESSAGE FOR SPECIFIC CHANNEL ---
+    if (message.channel.id === '1491623564582064248') {
+        const capoo = message.client.emojis.cache.find(e => e.name === 'capoo_dance')?.toString() || ':capoo_dance:';
+        const emoji116 = message.client.emojis.cache.find(e => e.name === 'emoji_116')?.toString() || ':emoji_116:';
+        const abis = message.client.emojis.cache.find(e => e.name === 'abis_cham2')?.toString() || ':abis_cham2:';
+        
+        const content = `${capoo} **Main legend xin chào ạ** ${capoo}\n` +
+            `${emoji116} Cảm ơn đã tag game vui lòng đợi mọi người vào chơi cùng bạn \n` +
+            `${emoji116} Chỉ cần ghi các chữ **pubg, tft, ggd, lol, steam, val, ff, lq, liên quân, mc, rbl** bot sẽ tag game lên cho bạn \n` +
+            `Xin cảm ơn ạ ${abis}`;
+
+        try {
+            if (client.lastMainLegendMsgId) {
+                const oldMsg = await message.channel.messages.fetch(client.lastMainLegendMsgId).catch(() => null);
+                if (oldMsg) await oldMsg.delete().catch(() => {});
+            } else {
+                const fetched = await message.channel.messages.fetch({ limit: 15 });
+                const oldBotMsgs = fetched.filter(m => m.author.id === client.user.id && m.content.includes('Main legend xin chào ạ'));
+                for (const [id, oldMsg] of oldBotMsgs) {
+                    await oldMsg.delete().catch(() => {});
+                }
+            }
+        } catch (err) {}
+        
+        const newMsg = await message.channel.send({
+            content: content,
+            allowedMentions: { parse: [] } // Tránh tag @everyone hay user/role ngoài ý muốn
+        }).catch(() => null);
+        if (newMsg) {
+            client.lastMainLegendMsgId = newMsg.id;
+        }
+    }
+
     // --- J2C MENTION ALLOW ---
     if (j2cChannels.has(message.channelId)) {
         const ownerId = j2cChannels.get(message.channelId);
