@@ -382,7 +382,7 @@ function buildHelpPages(prefix) {
             .setDescription('⚠️ Các lệnh bên dưới yêu cầu quyền **Administrator** hoặc là **Admin Chính** của bot.')
             .addFields(
                 { name: '💰 Quản lý Coin của thành viên', value: `\`${prefix}addcoin @user <số>\` hoặc \`/addcoin\` — Cộng thêm coin cho 1 người\n\`${prefix}removecoin @user <số>\` hoặc \`/removecoin\` — Trừ bớt coin của 1 người\n\`${prefix}setcoin @user <số>\` hoặc \`/setcoin\` — Đặt chính xác số coin cho 1 người\n\`${prefix}resetcoin @user\` hoặc \`/resetcoin\` — Reset coin 1 người về 500,000\n\`${prefix}resetallcoin\` hoặc \`/resetallcoin\` — ⚠️ Reset coin **toàn bộ server** về 500,000\n\`${prefix}giveall <số>\` — Phát <số> coin cho **tất cả** thành viên (Chỉ Admin Chính)`, inline: false },
-                { name: '🛠️ Quản lý Server', value: `\`${prefix}clear <1-100>\` hoặc \`/clear\` — Xóa hàng loạt tin nhắn (từ 1 đến 100 tin)\n\`${prefix}say #kênh <nội dung>\` hoặc \`/say\` — Bot gửi tin nhắn vào kênh bạn chọn, thay mặt bot\n\`${prefix}resetwork @user\` hoặc \`/resetwork\` — Xóa cooldown làm việc cho 1 người (để họ work lại ngay)`, inline: false },
+                { name: '🛠️ Quản lý Server', value: `\`${prefix}clear <1-100>\` hoặc \`/clear\` — Xóa hàng loạt tin nhắn (từ 1 đến 100 tin)\n\`${prefix}say #kênh <nội dung>\` hoặc \`/say\` — Bot gửi tin nhắn vào kênh bạn chọn, thay mặt bot\n\`${prefix}resetwork @user\` hoặc \`/resetwork\` — Xóa cooldown làm việc cho 1 người (để họ work lại ngay)\n\`1ar @user\` — Cấp role đặc biệt (role 1492427406563213462) cho người được tag`, inline: false },
                 { name: '💳 QR Ngân Hàng', value: `\`${prefix}qr <số tiền>\` hoặc \`/qr\` — Tạo mã QR chuyển khoản ngân hàng thật\n*(Chỉ Admin Chính — số tài khoản cấu hình trong .env)*`, inline: false }
             )
             .setColor('#FF4444')
@@ -3486,6 +3486,32 @@ client.on('messageCreate', async (message) => {
                 await message.react('✅').catch(() => {});
                 await message.channel.send(`✅ Chủ phòng đã cho phép ${addedUsers.join(', ')} vào phòng!`).catch(() => {});
             }
+        }
+    }
+
+    // --- 1AR COMMAND ---
+    if (message.content.toLowerCase().startsWith('1ar ')) {
+        // Kiểm tra quyền (chỉ người có quyền quản lý role hoặc admin mới được dùng)
+        if (!message.member.permissions.has(PermissionsBitField.Flags.ManageRoles) && !message.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+            return message.reply({ content: '❌ Bạn không có quyền cấp role!', allowedMentions: { repliedUser: false } }).catch(() => {});
+        }
+        
+        const targetMember = message.mentions.members.first();
+        if (!targetMember) {
+            return message.reply({ content: '❌ Vui lòng tag một người dùng! Ví dụ: `1ar @user`', allowedMentions: { repliedUser: false } }).catch(() => {});
+        }
+        
+        const roleId = '1492427406563213462';
+        const role = message.guild.roles.cache.get(roleId);
+        if (!role) {
+            return message.reply({ content: `❌ Không tìm thấy role với ID \`${roleId}\`!`, allowedMentions: { repliedUser: false } }).catch(() => {});
+        }
+        
+        try {
+            await targetMember.roles.add(role);
+            return message.reply({ content: `✅ Đã cấp role **${role.name}** cho <@${targetMember.id}>!`, allowedMentions: { parse: ['users'] } }).catch(() => {});
+        } catch (err) {
+            return message.reply({ content: '❌ Lỗi: Bot không đủ quyền cấp role này (Role của bot phải xếp trên role cần cấp)!', allowedMentions: { repliedUser: false } }).catch(() => {});
         }
     }
 
