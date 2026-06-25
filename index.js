@@ -262,7 +262,7 @@ function buildHelpPages(prefix) {
         // Page 0 - Tổng quan
         new EmbedBuilder()
             .setTitle('📖 Trợ Lý Bot — Tổng Quan')
-            .setDescription(`Xin chào! Tôi là **Moonie Bot** 🌙\nBot đa năng: phát nhạc, minigame, kinh tế, RPG, kết hôn, game Ma Sói và nhiều tiện ích khác!\n\n> Prefix hiện tại: **\`${prefix}\`**\n> Bạn có thể dùng **lệnh prefix** (ví dụ \`${prefix}play\`) hoặc **slash command** (ví dụ \`/play\`)\n\n📌 **Cách dùng menu:** Chọn danh mục bên dưới để xem hướng dẫn chi tiết từng nhóm lệnh.`)
+            .setDescription(`Xin chào! Tôi là **Hima Bot** ❄️\nBot đa năng: phát nhạc, minigame, kinh tế, RPG, kết hôn, game Ma Sói và nhiều tiện ích khác!\n\n> Prefix hiện tại: **\`${prefix}\`**\n> Bạn có thể dùng **lệnh prefix** (ví dụ \`${prefix}play\`) hoặc **slash command** (ví dụ \`/play\`)\n\n📌 **Cách dùng menu:** Chọn danh mục bên dưới để xem hướng dẫn chi tiết từng nhóm lệnh.`)
             .addFields(
                 { name: '🎵 Nhạc', value: 'Phát nhạc YT/Spotify/SC', inline: true },
                 { name: '💰 Coin & Game', value: 'Daily, Work, Cờ bạc', inline: true },
@@ -393,7 +393,7 @@ function buildHelpPages(prefix) {
                 { name: `\`${prefix}av [@user]\` hoặc \`/av\``, value: '🖼️ Hiển thị **Avatar** (ảnh đại diện) ở kích thước lớn nhất.\nKèm thông tin: ngày tạo tài khoản Discord, ngày tham gia server.\nKhông tag ai → xem avatar của chính bạn.', inline: false },
                 { name: '📱 Tải Video TikTok (Tự động)', value: 'Chỉ cần **dán link TikTok** vào bất kỳ kênh chat nào, bot sẽ tự động:\n1. Phát hiện link TikTok\n2. Tải video **không watermark**\n3. Gửi video + thông tin (tên tác giả, lượt thích, lượt xem)\n\n✅ Không cần gõ lệnh gì cả!', inline: false },
                 { name: '🎧 Join To Create (J2C) — Tự tạo phòng Voice', value: `Vào kênh voice **"Tạo Phòng"** → Bot tự tạo phòng riêng cho bạn.\n\n**Bảng điều khiển phòng (các nút bấm):**\n📝 **Đổi tên** — Đặt tên phòng theo ý muốn\n👥 **Giới hạn** — Giới hạn số người (0 = không giới hạn)\n👻 **Khóa ẩn** — Ẩn phòng khỏi danh sách (không ai thấy)\n🔒 **Khóa kết nối** — Không ai vào được nữa\n👢 **Kích User** — Chọn và đá 1 người ra khỏi phòng\n👑 **Nhận quyền Chủ phòng** — Nếu chủ phòng rời, người khác có thể nhận quyền\n\n🚫 \`/1an @user\` — Ẩn phòng với 1 người cụ thể (họ không thấy phòng bạn)\n\n💡 **MẸO:** Phòng đang khóa nhưng muốn cho bạn bè vào? **@mention** tên họ vào kênh chat của phòng Voice!`, inline: false },
-                { name: '🔔 Tính năng tự động', value: '• 🎙️ **Thông báo Voice** — Bot báo khi có người vào/rời kênh thoại.\n• 👋 **Chào mừng** — Bot chào mừng thành viên mới tham gia server.\n• 🤖 **Auto-reply** — Bot tự trả lời khi ai gõ: `ping`, `hello`, `moonie`.', inline: false }
+                { name: '🔔 Tính năng tự động', value: '• 🎙️ **Thông báo Voice** — Bot báo khi có người vào/rời kênh thoại.\n• 👋 **Chào mừng** — Bot chào mừng thành viên mới tham gia server.\n• 🤖 **Auto-reply** — Bot tự trả lời khi ai gõ: `ping`, `hello`, `hima`.', inline: false }
             )
             .setColor('#00FF88')
             .setFooter({ text: 'Trang 9/12 • Tiện ích & Voice' })
@@ -558,7 +558,7 @@ async function playNext(guildId, textChannel) {
         if (state.connection && state.connection.joinConfig.channelId) {
             try {
                 await client.rest.put(`/channels/${state.connection.joinConfig.channelId}/voice-status`, {
-                    body: { status: 'Moonie tới đâyyy 💕 (✿◡‿◡)' }
+                    body: { status: 'Hima tới đâyyy 💕 (✿◡‿◡)' }
                 });
             } catch (err) {}
         }
@@ -728,7 +728,7 @@ function addCoins(userId, amount) {
 function addBank(userId, amount) {
     const data = loadCoins();
     if (!data[userId]) data[userId] = { coins: 500000, bank: 0, lastDaily: 0 };
-    data[userId].bank = Math.floor((data[userId].bank || 0) + amount);
+    data[userId].bank = Math.max(0, Math.floor((data[userId].bank || 0) + amount));
     saveCoins(data);
     return data[userId].bank;
 }
@@ -760,7 +760,7 @@ function claimDaily(userId) {
     const bonus = Math.min((streak - 1) * 5000, 50000); // +5000 mỗi ngày, tối đa +50,000
     const totalReward = baseReward + bonus;
 
-    data[userId].coins += totalReward;
+    data[userId].coins = Math.max(0, Math.floor(data[userId].coins + totalReward));
     data[userId].lastDaily = now;
     data[userId].streak = streak;
     saveCoins(data);
@@ -779,30 +779,66 @@ function getLeaderboard() {
         .slice(0, 10);
 }
 
+function formatCoinShort(n) {
+    if (n >= 1e12) return (n / 1e12).toFixed(1).replace(/\.0$/, '') + 'T';
+    if (n >= 1e9) return (n / 1e9).toFixed(1).replace(/\.0$/, '') + 'B';
+    if (n >= 1e6) return (n / 1e6).toFixed(1).replace(/\.0$/, '') + 'M';
+    if (n >= 1e3) return (n / 1e3).toFixed(1).replace(/\.0$/, '') + 'K';
+    return n.toString();
+}
+
 function buildLeaderboardEmbed(client) {
     const lb = getLeaderboard();
     if (!lb.length) return new EmbedBuilder().setTitle('🏆 BẢNG XẾP HẠNG').setDescription('Chưa có ai có tài sản!').setColor('#FFD700');
-    
+
+    const medals = ['🥇', '🥈', '🥉'];
+    const titles = ['ĐẠI TỶ PHÚ', 'Á QUÂN', 'QUÝ TỘC'];
+    const barFull = '▰';
+    const barEmpty = '▱';
+    const maxCoins = lb[0].coins || 1;
+
+    // Build top 3 section
+    let top3Text = '';
+    for (let i = 0; i < Math.min(3, lb.length); i++) {
+        const e = lb[i];
+        const barLen = Math.max(1, Math.round((e.coins / maxCoins) * 10));
+        const bar = barFull.repeat(barLen) + barEmpty.repeat(10 - barLen);
+        top3Text += `${medals[i]} **${titles[i]} TOP ${i + 1}**\n`;
+        top3Text += `╰ <@${e.id}>\n`;
+        top3Text += `╰ 💰 **${e.coins.toLocaleString()}** 🪙\n`;
+        top3Text += `╰ ${bar}\n\n`;
+    }
+
+    // Build top 4-10 section
+    let restText = '';
+    for (let i = 3; i < lb.length; i++) {
+        const e = lb[i];
+        const rankEmoji = ['4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'][i - 3] || `**#${i + 1}**`;
+        restText += `${rankEmoji} <@${e.id}> — **${e.coins.toLocaleString()}** 🪙\n`;
+    }
+
     const embed = new EmbedBuilder()
         .setTitle('🏆 BẢNG XẾP HẠNG ĐẠI GIA 🏆')
-        .setDescription('Top 10 người giàu nhất server (Tiền mặt + Ngân hàng + Đầu tư)\n\n━━━━━━━━━━━━━━━━━━━━━━')
+        .setDescription(
+            `> Top ${lb.length} người giàu nhất server\n` +
+            `> *(Tiền mặt + Ngân hàng + Đầu tư)*\n\n` +
+            `━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+            top3Text
+        )
         .setColor('#FFD700')
         .setThumbnail(client.user.displayAvatarURL());
 
-    lb.forEach((e, i) => {
-        if (i === 0) {
-            embed.addFields({ name: `🥇 ĐẠI TỶ PHÚ TOP 1`, value: `**<@${e.id}>**\n💰 **${e.coins.toLocaleString()}** 🪙`, inline: false });
-        } else if (i === 1) {
-            embed.addFields({ name: `🥈 Á QUÂN TOP 2`, value: `**<@${e.id}>**\n💰 **${e.coins.toLocaleString()}** 🪙`, inline: true });
-        } else if (i === 2) {
-            embed.addFields({ name: `🥉 QUÝ TỘC TOP 3`, value: `**<@${e.id}>**\n💰 **${e.coins.toLocaleString()}** 🪙`, inline: true });
-        } else {
-            if (i === 3) embed.addFields({ name: '\u200b', value: '━━━━━━━━━━━━━━━━━━━━━━', inline: false });
-            embed.addFields({ name: `🏅 Hạng ${i+1}`, value: `<@${e.id}>\n${e.coins.toLocaleString()} 🪙`, inline: true });
-        }
-    });
+    if (restText) {
+        embed.addFields({
+            name: '━━━━━ 🏅 DANH SÁCH TIẾP THEO ━━━━━',
+            value: restText,
+            inline: false
+        });
+    }
 
-    embed.setFooter({ text: 'Cập nhật thời gian thực' }).setTimestamp();
+    const now = new Date();
+    const timeStr = `Hôm nay lúc ${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')} ${now.getHours() >= 12 ? 'CH' : 'SA'}`;
+    embed.setFooter({ text: `Cập nhật thời gian thực • ${timeStr}` }).setTimestamp();
     return embed;
 }
 
@@ -821,7 +857,7 @@ function buildBankEmbed(user) {
         .setColor('#00ffcc')
         .setThumbnail(user.displayAvatarURL())
         .setTimestamp()
-        .setFooter({ text: 'Hệ thống Ngân hàng Moonie 🌙' });
+        .setFooter({ text: 'Hệ thống Ngân hàng Hima ❄️' });
 }
 
 function buildBankButtons(ownerId) {
@@ -877,7 +913,7 @@ async function handleWorkCommand(userId, msgOrInteraction) {
         const randomJobId = jobKeys[Math.floor(Math.random() * jobKeys.length)];
         const job = WORK_JOBS[randomJobId];
         const reward = job.maxR; // Max reward for cheat
-        user.coins += reward;
+        user.coins = Math.max(0, Math.floor((user.coins || 0) + reward));
         saveCoins(data);
         const embedCheat = new EmbedBuilder()
             .setTitle('👑 [CHEAT] Hoàn thành công việc tức thì!')
@@ -890,7 +926,7 @@ async function handleWorkCommand(userId, msgOrInteraction) {
         if (now >= user.workEnd) {
             const reward = user.workReward || 0;
             const jobName = user.workJob || 'Công việc';
-            user.coins += reward;
+            user.coins = Math.max(0, Math.floor((user.coins || 0) + reward));
             user.workEnd = null;
             user.workJob = null;
             user.workReward = null;
@@ -1835,7 +1871,9 @@ const ROB_COOLDOWN = 5 * 60 * 1000; // 5 minutes
 const HEIST_COOLDOWN = 4 * 60 * 60 * 1000; // 4 hours
 
 async function handleDeposit(userId, amount, msgOrInteraction) {
-    const cash = getUserCoins(userId);
+    const data = loadCoins();
+    if (!data[userId]) data[userId] = { coins: 500000, bank: 0, lastDaily: 0 };
+    const cash = data[userId].coins || 0;
     if (amount === 'all') amount = cash;
     else {
         amount = parseInt(amount);
@@ -1843,13 +1881,17 @@ async function handleDeposit(userId, amount, msgOrInteraction) {
     }
     if (cash < amount) return replyMsg(msgOrInteraction, `❌ Bạn không có đủ tiền mặt! (Hiện có: **${cash.toLocaleString()} 🪙**)`);
     
-    addCoins(userId, -amount);
-    addBank(userId, amount);
+    // Atomic: trừ ví và cộng bank trong cùng 1 lượt load/save
+    data[userId].coins = Math.max(0, Math.floor(cash - amount));
+    data[userId].bank = Math.max(0, Math.floor((data[userId].bank || 0) + amount));
+    saveCoins(data);
     return replyMsg(msgOrInteraction, `✅ Đã gửi **${amount.toLocaleString()} 🪙** vào ngân hàng!`);
 }
 
 async function handleWithdraw(userId, amount, msgOrInteraction) {
-    const bank = getUserBank(userId);
+    const data = loadCoins();
+    if (!data[userId]) data[userId] = { coins: 500000, bank: 0, lastDaily: 0 };
+    const bank = data[userId].bank || 0;
     if (amount === 'all') amount = bank;
     else {
         amount = parseInt(amount);
@@ -1857,8 +1899,10 @@ async function handleWithdraw(userId, amount, msgOrInteraction) {
     }
     if (bank < amount) return replyMsg(msgOrInteraction, `❌ Ngân hàng của bạn không đủ tiền! (Hiện có: **${bank.toLocaleString()} 🪙**)`);
     
-    addBank(userId, -amount);
-    addCoins(userId, amount);
+    // Atomic: trừ bank và cộng ví trong cùng 1 lượt load/save
+    data[userId].bank = Math.max(0, Math.floor(bank - amount));
+    data[userId].coins = Math.max(0, Math.floor((data[userId].coins || 0) + amount));
+    saveCoins(data);
     return replyMsg(msgOrInteraction, `✅ Đã rút **${amount.toLocaleString()} 🪙** về ví!`);
 }
 
@@ -1899,8 +1943,8 @@ async function handleRob(userId, targetId, msgOrInteraction) {
     if (success || userId === ADMIN_ID) { // Admin rob always success
         const pct = Math.random() * 0.2 + 0.1; // 10 - 30%
         const stolen = Math.floor(targetCash * pct);
-        data[targetId].coins -= stolen;
-        data[userId].coins = (data[userId].coins || 0) + stolen;
+        data[targetId].coins = Math.max(0, Math.floor((data[targetId].coins || 0) - stolen));
+        data[userId].coins = Math.max(0, Math.floor((data[userId].coins || 0) + stolen));
         saveCoins(data);
         return replyMsg(msgOrInteraction, `🥷 **THÀNH CÔNG!** Bạn đã lẻn vào nhà <@${targetId}> và trộm được **${stolen.toLocaleString()} 🪙**!`);
     } else {
@@ -2731,7 +2775,7 @@ client.giveawaysManager = manager;
 const autoReplies = {
     'ping': 'pong!',
     'hello': 'Xin chào bạn nhé!',
-    'moonie': 'Dạa ~ Moonie nghe nèee 💕 Cậu gọi Moonie có chuyện gì hơm dọ? (✿◡‿◡)'
+    'hima': 'Dạa ~ Hima nghe nèee 💕 Cậu gọi Hima có chuyện gì hơm dọ? (✿◡‿◡)'
 };
 
 // ========================
@@ -3071,7 +3115,7 @@ async function handleGiveAll(userId, amount, msgOrInteraction) {
         let count = 0;
         for (const uid in cData) {
             if (cData[uid].coins !== undefined) {
-                cData[uid].coins += amount;
+                cData[uid].coins = Math.max(0, Math.floor((cData[uid].coins || 0) + amount));
                 count++;
             }
         }
@@ -3221,7 +3265,7 @@ client.once('clientReady', async () => {
                 if (betObj.so === winningNumber) {
                     const prize = betObj.bet * 5;
                     if (!coinsData[betObj.userId]) coinsData[betObj.userId] = { coins: 0, bank: 0 };
-                    coinsData[betObj.userId].coins += prize;
+                    coinsData[betObj.userId].coins = Math.max(0, Math.floor((coinsData[betObj.userId].coins || 0) + prize));
                     winners.push({ userId: betObj.userId, prize: prize });
                 }
             }
@@ -3318,7 +3362,7 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
         if (newState.channelId && oldState.channelId !== newState.channelId) {
             try {
                 await client.rest.put(`/channels/${newState.channelId}/voice-status`, {
-                    body: { status: 'Moonie tới đâyyy 💕 (✿◡‿◡)' }
+                    body: { status: 'Hima tới đâyyy 💕 (✿◡‿◡)' }
                 });
             } catch (error) {
                 // Ignore if missing permissions
@@ -3805,7 +3849,7 @@ client.on('messageCreate', async (message) => {
         if ((data[uid].coins || 0) < 100000) {
             return message.reply('❌ Không đủ tiền! Bạn cần **100,000 🪙** tiền mặt để nộp phạt.');
         }
-        data[uid].coins -= 100000;
+        data[uid].coins = Math.max(0, (data[uid].coins || 0) - 100000);
         data[uid].jailEnd = null;
         saveCoins(data);
         return message.reply('🔓 Bạn đã nộp **100,000 🪙** cho công an và được thả tự do!');
@@ -6669,7 +6713,7 @@ client.on('interactionCreate', async (interaction) => {
         if ((data[uid].coins || 0) < 100000) {
             return interaction.reply({ content: '❌ Không đủ tiền! Bạn cần **100,000 🪙** tiền mặt để nộp phạt.', ephemeral: true });
         }
-        data[uid].coins -= 100000;
+        data[uid].coins = Math.max(0, (data[uid].coins || 0) - 100000);
         data[uid].jailEnd = null;
         saveCoins(data);
         return interaction.reply({ content: '🔓 Bạn đã nộp **100,000 🪙** cho công an và được thả tự do!', ephemeral: false });
