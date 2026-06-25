@@ -730,8 +730,12 @@ function claimDaily(userId) {
 
 function getLeaderboard() {
     const data = loadCoins();
+    const rpgData = loadRPG();
     return Object.entries(data)
-        .map(([id, d]) => ({ id, coins: (d.coins || 0) + (d.bank || 0) }))
+        .map(([id, d]) => {
+            const invest = rpgData[id]?.investAmount || 0;
+            return { id, coins: (d.coins || 0) + (d.bank || 0) + invest };
+        })
         .sort((a, b) => b.coins - a.coins)
         .slice(0, 10);
 }
@@ -742,7 +746,7 @@ function buildLeaderboardEmbed(client) {
     
     const embed = new EmbedBuilder()
         .setTitle('🏆 BẢNG XẾP HẠNG ĐẠI GIA 🏆')
-        .setDescription('Top 10 người giàu nhất server (Bao gồm Tiền mặt + Ngân hàng)\n\n━━━━━━━━━━━━━━━━━━━━━━')
+        .setDescription('Top 10 người giàu nhất server (Tiền mặt + Ngân hàng + Đầu tư)\n\n━━━━━━━━━━━━━━━━━━━━━━')
         .setColor('#FFD700')
         .setThumbnail(client.user.displayAvatarURL());
 
@@ -2002,6 +2006,29 @@ async function handleClaimInvest(userId, msgOrInteraction) {
     return replyMsg(msgOrInteraction, `📊 **KẾT QUẢ ĐẦU TƯ**\n${desc}`);
 }
 
+const QUOTES_THINH = [
+    "Trăng lên đỉnh núi trăng tà, bao giờ mới được một nhà với em?",
+    "Nhà em có bán rượu không, mà nói chuyện với em anh say quá!",
+    "Bầu trời xanh, mây trắng. Anh yêu nắng hay yêu em?",
+    "Anh ơi trái đất dẫu tròn, trốn mà không kỹ là còn gặp em.",
+    "Cá không ăn muối cá ươn. Em không yêu anh thì... anh đi yêu người khác.",
+    "Muốn bình yên thì lên chùa cầu phúc. Muốn hạnh phúc thì đứng đó chờ em.",
+    "Vector chỉ có một chiều. Anh dân chuyên Toán chỉ yêu một người.",
+    "Anh có một siêu năng lực, đó là siêu thích em.",
+    "Covid thì em không dính, nhưng yêu anh thì em dương tính.",
+    "Cho anh một cốc trà đào, tiện cho anh hỏi lối vào tim em?"
+];
+
+const QUE_TINH_DUYEN = [
+    "Đại Cát: Hôm nay tình duyên rực rỡ, crush sẽ chủ động nhắn tin cho bạn!",
+    "Trung Cát: Tình duyên bình ổn, có người đang thầm thương trộm nhớ bạn đấy.",
+    "Tiểu Cát: Có cơ hội gặp gỡ người mới, hãy tích cực ra ngoài nhé.",
+    "Bình Hòa: Chuyện tình cảm hôm nay bình thường, nên tập trung vào sự nghiệp.",
+    "Tiểu Hung: Cẩn thận lời ăn tiếng nói, dễ cãi nhau với người ấy.",
+    "Đại Hung: Hôm nay cẩn thận gặp trap boy/trap girl, tuyệt đối không được lụy tình!",
+    "Đặc Biệt: Thần Cupid đã giương cung, bạn chuẩn bị trúng tiếng sét ái tình đi là vừa!"
+];
+
 const MARRY_RINGS = {
     'grass': { name: 'Nhẫn Cỏ', price: 10000000, emoji: '🌿' },
     'silver': { name: 'Nhẫn Bạc', price: 50000000, emoji: '🥈' },
@@ -2011,6 +2038,11 @@ const MARRY_RINGS = {
 };
 
 async function handleMarry(userId, targetId, msgOrInteraction) {
+    const channel = msgOrInteraction.channel;
+    if (channel && channel.parentId !== '1491627690799927409') {
+        return replyMsg(msgOrInteraction, '❌ Thần Cupid phán rằng: Nghi thức Cầu Hôn thiêng liêng chỉ được thực hiện tại **Lễ Đường** thôi nhé!');
+    }
+
     let finalTargetId = targetId;
 
     if (!finalTargetId) {
@@ -3647,12 +3679,72 @@ client.on('messageCreate', async (message) => {
         }
     }
 
+    // --- SOCIAL LABOR MESSAGE COUNTER ---
+    const uid = message.author.id;
+    const userData = loadCoins()[uid] || {};
+    
+    if (userData.laborCount && userData.laborCount > 0) {
+        if (message.channelId === '1491629719169273956') {
+            if (message.content.includes('@everyone') || message.content.includes('@here')) {
+                message.delete().catch(() => {});
+                message.channel.send(`<@${uid}> 🚫 Không được tag everyone/here trong lúc cải tạo!`).then(m => setTimeout(() => m.delete().catch(()=>null), 5000));
+                return;
+            }
+
+            const cData = loadCoins();
+            if (!cData[uid]) cData[uid] = { coins: 0 };
+            cData[uid].laborCount -= 1;
+            
+            if (cData[uid].laborCount <= 0) {
+                cData[uid].laborCount = 0;
+                saveCoins(cData);
+                message.member.roles.remove('1499243874319601664').catch(console.error);
+                const freedEmbed = new EmbedBuilder()
+                    .setTitle('🎉 PHỤC HỒI NHÂN PHẨM THÀNH CÔNG')
+                    .setDescription(`<@${uid}> đã hoàn thành án lao động xã hội!\n\n> *"Từ nay hãy sống lương thiện, đừng để phải quay lại đây nữa nhé!"*`)
+                    .setColor('#2ECC71')
+                    .setFooter({ text: '⚖️ Hệ thống Tư Pháp' })
+                    .setTimestamp();
+                message.reply({ embeds: [freedEmbed] });
+            } else {
+                saveCoins(cData);
+                if (cData[uid].laborCount % 50 === 0) {
+                    const progressEmbed = new EmbedBuilder()
+                        .setDescription(`⛏️ <@${uid}> đang cải tạo tốt!\n\n📊 Tiến độ: Còn **${cData[uid].laborCount}** tin nhắn nữa.`)
+                        .setColor('#E67E22')
+                        .setFooter({ text: '⚖️ Hệ thống Tư Pháp' });
+                    message.reply({ embeds: [progressEmbed] }).catch(() => {});
+                }
+            }
+        }
+        
+        // Chặn người bị giam xài lệnh bot
+        if (content.startsWith(prefix)) {
+            const jailBlockEmbed = new EmbedBuilder()
+                .setTitle('🚓 BỊ PHẠT LAO ĐỘNG XÃ HỘI')
+                .setDescription(`Bạn đang thụ án cải tạo!\n\n📍 Hãy vào kênh <#1491629719169273956> và spam tin nhắn để giảm án.\n📊 Còn lại: **${userData.laborCount}** tin nhắn`)
+                .setColor('#E74C3C')
+                .setFooter({ text: '⚖️ Hệ thống Tư Pháp • Hoàn thành án phạt để dùng lại lệnh bot' })
+                .setTimestamp();
+            return message.reply({ embeds: [jailBlockEmbed] });
+        }
+        
+        // Bỏ qua không xử lý thêm logic bot nào khác với user này
+        return;
+    }
+
+    // --- LỄ ĐƯỜNG AUTO-REACT ---
+    if (message.channel.parentId === '1491627690799927409' && message.channel.name.includes('thính') && !content.startsWith(prefix)) {
+        if (Math.random() < 0.2) {
+            const emojis = ['❤️', '😍', '🥰', '💘', '💕', '🫶'];
+            message.react(emojis[Math.floor(Math.random() * emojis.length)]).catch(() => {});
+        }
+    }
+
     // --- PREFIX COMMANDS ---
     if (!content.startsWith(prefix)) return;
 
-    // --- JAIL CHECK ---
-    const uid = message.author.id;
-    const userData = loadCoins()[uid] || {};
+    // --- NORMAL JAIL CHECK ---
     if (userData.jailEnd && Date.now() < userData.jailEnd) {
         if (!content.startsWith(`${prefix}nopphat`) && !content.startsWith(`${prefix}bribe`)) {
             const r = userData.jailEnd - Date.now();
@@ -3759,6 +3851,57 @@ client.on('messageCreate', async (message) => {
         saveConfig(config);
         return message.reply(`✅ Đã thiết lập kênh gốc Join to Create tại ${targetChannel}!`);
     }
+
+    // ========================
+    // LAO ĐỘNG XÃ HỘI COMMANDS
+    // ========================
+    if (content.startsWith(`${prefix}jail`)) {
+        if (!message.member.permissions.has(PermissionsBitField.Flags.Administrator)) return message.reply('❌ Chỉ Admin mới có quyền tống giam lao động!');
+        const target = message.mentions.members.first();
+        const args = message.content.split(' ');
+        if (!target) return message.reply(`❌ Cú pháp: \`${prefix}jail @user <số_lần_lao_động>\``);
+        const amount = parseInt(args[2]) || 500;
+        
+        const cData = loadCoins();
+        if (!cData[target.id]) cData[target.id] = { coins: 0 };
+        cData[target.id].laborCount = amount;
+        saveCoins(cData);
+        
+        target.roles.add('1499243874319601664').catch(console.error);
+        const jailEmbed = new EmbedBuilder()
+            .setTitle('⛓️ TỐNG GIAM LAO ĐỘNG XÃ HỘI')
+            .setDescription(`<@${target.id}> đã bị tống vào khu cải tạo!`)
+            .addFields(
+                { name: '📍 Khu vực', value: '<#1491629719169273956>', inline: true },
+                { name: '📊 Số tin nhắn cần spam', value: `**${amount}**`, inline: true }
+            )
+            .setColor('#E74C3C')
+            .setFooter({ text: `⚖️ Phán quyết bởi ${message.author.username}` })
+            .setTimestamp();
+        return message.reply({ embeds: [jailEmbed] });
+    }
+
+    if (content.startsWith(`${prefix}unjail`)) {
+        if (!message.member.permissions.has(PermissionsBitField.Flags.Administrator)) return message.reply('❌ Chỉ Admin mới có quyền ân xá!');
+        const target = message.mentions.members.first();
+        if (!target) return message.reply(`❌ Cú pháp: \`${prefix}unjail @user\``);
+        
+        const cData = loadCoins();
+        if (cData[target.id] && cData[target.id].laborCount) {
+            cData[target.id].laborCount = 0;
+            saveCoins(cData);
+        }
+        target.roles.remove('1499243874319601664').catch(console.error);
+        const unjailEmbed = new EmbedBuilder()
+            .setTitle('🕊️ ÂN XÁ')
+            .setDescription(`<@${target.id}> đã được ân xá và thả khỏi khu lao động xã hội!\n\n> *"Hãy trân trọng cơ hội này và sống tốt hơn."*`)
+            .setColor('#2ECC71')
+            .setFooter({ text: `⚖️ Ân xá bởi ${message.author.username}` })
+            .setTimestamp();
+        return message.reply({ embeds: [unjailEmbed] });
+    }
+
+
 
     // !av
     if (content === `${prefix}av` || content.startsWith(`${prefix}av `)) {
@@ -4096,9 +4239,10 @@ client.on('messageCreate', async (message) => {
         const target = mentioned || message.author;
         const cash = getUserCoins(target.id);
         const bank = getUserBank(target.id);
-        const total = cash + bank;
         const p = getPlayer(target.id);
-        const investMsg = (p.investAmount && p.investAmount > 0) ? `\n📈 **Đang đầu tư:** ${p.investAmount.toLocaleString()} 🪙` : '';
+        const invest = p.investAmount || 0;
+        const total = cash + bank + invest;
+        const investMsg = invest > 0 ? `\n📈 **Đang đầu tư:** ${invest.toLocaleString()} 🪙` : '';
         
         const embed = new EmbedBuilder()
             .setTitle(`💵 Tài sản của ${target.username}`)
@@ -4374,6 +4518,71 @@ client.on('messageCreate', async (message) => {
     }
 
     // ========================
+    // BOT EMOJIS
+    // ========================
+    if (content === `${prefix}botemojis`) {
+        if (!client.application) return message.reply('❌ Bot application chưa được load!');
+        try {
+            const emojis = await client.application.emojis.fetch();
+            if (emojis.size === 0) return message.reply('❌ Bạn chưa upload emoji nào cho bot trên Discord Developer Portal cả!');
+            
+            const emojiList = emojis.map(e => `${e} - \`<:${e.name}:${e.id}>\``).join('\n');
+            const embed = new EmbedBuilder()
+                .setTitle('🌟 Danh sách Emoji của Bot')
+                .setDescription(emojiList.length > 4000 ? emojiList.substring(0, 4000) + '...' : emojiList)
+                .setColor('#FFD700')
+                .setFooter({ text: `Tổng: ${emojis.size} emoji • Dùng !clonebotemojis để copy vào server` })
+                .setTimestamp();
+            return message.reply({ embeds: [embed] });
+        } catch (error) {
+            return message.reply(`❌ Lỗi khi lấy emoji: ${error.message}`);
+        }
+    }
+
+    if (content === `${prefix}clonebotemojis`) {
+        if (!message.member.permissions.has(PermissionsBitField.Flags.Administrator)) return message.reply('❌ Chỉ Admin mới có quyền copy emoji!');
+        if (!client.application) return message.reply('❌ Bot application chưa được load!');
+        
+        try {
+            const emojis = await client.application.emojis.fetch();
+            if (emojis.size === 0) return message.reply('❌ Bot không có emoji nào để copy!');
+            
+            const startEmbed = new EmbedBuilder()
+                .setTitle('⏳ Đang Copy Emoji')
+                .setDescription(`Đang tiến hành copy **${emojis.size}** emoji từ Bot sang Server...\n\n> Quá trình này có thể mất một chút thời gian do giới hạn tốc độ của Discord.`)
+                .setColor('#3498DB')
+                .setTimestamp();
+            await message.reply({ embeds: [startEmbed] });
+            
+            let successCount = 0;
+            let errorCount = 0;
+            
+            for (const [id, emoji] of emojis) {
+                try {
+                    // Discord.js tự động xử lý rate limit nên dùng await trong vòng lặp là an toàn
+                    await message.guild.emojis.create({ attachment: emoji.url, name: emoji.name });
+                    successCount++;
+                } catch (e) {
+                    errorCount++;
+                }
+            }
+            
+            const doneEmbed = new EmbedBuilder()
+                .setTitle('✅ Hoàn Tất Copy Emoji')
+                .addFields(
+                    { name: '✅ Thành công', value: `**${successCount}**`, inline: true },
+                    { name: '❌ Thất bại', value: `**${errorCount}**`, inline: true }
+                )
+                .setColor(errorCount === 0 ? '#2ECC71' : '#E67E22')
+                .setFooter({ text: errorCount > 0 ? 'Thất bại có thể do server đã hết slot chứa emoji' : 'Tất cả emoji đã được copy thành công!' })
+                .setTimestamp();
+            return message.channel.send({ embeds: [doneEmbed] });
+        } catch (error) {
+            return message.reply(`❌ Lỗi hệ thống: ${error.message}`);
+        }
+    }
+
+    // ========================
     // MASSIVE SYSTEMS (Prefix)
     // ========================
     if (content.startsWith(`${prefix}deposit`)) {
@@ -4417,6 +4626,60 @@ client.on('messageCreate', async (message) => {
     }
     if (content === `${prefix}admincheat`) {
         return handleAdminCheat(message.author.id, message);
+    }
+
+    // ========================
+    // LỄ ĐƯỜNG COMMANDS
+    // ========================
+    if (content === `${prefix}thinh`) {
+        const quote = QUOTES_THINH[Math.floor(Math.random() * QUOTES_THINH.length)];
+        const thinhEmbed = new EmbedBuilder()
+            .setTitle('💕 Thần Cupid Gợi Ý Thính')
+            .setDescription(`> *"${quote}"*`)
+            .setColor('#FF69B4')
+            .setFooter({ text: `🏹 Thả thính bởi ${message.author.username}` })
+            .setTimestamp();
+        return message.reply({ embeds: [thinhEmbed] });
+    }
+
+    if (content.startsWith(`${prefix}boitinhyeu`)) {
+        const target = message.mentions.users.first();
+        if (!target) return message.reply(`❌ Cú pháp: \`${prefix}boitinhyeu @user\``);
+        if (target.id === message.author.id) return message.reply('❌ Sao lại đi bói tình yêu với chính mình thế kia?');
+        if (target.bot) return message.reply('❌ Bot chỉ biết làm việc thôi, không biết yêu đâu!');
+        
+        const percent = Math.floor(Math.random() * 101);
+        let phan = '';
+        let barFilled = Math.round(percent / 10);
+        let bar = '💖'.repeat(barFilled) + '🖤'.repeat(10 - barFilled);
+        if (percent >= 90) phan = 'Trời sinh một cặp! Cưới ngay kẻo lỡ! 💍';
+        else if (percent >= 70) phan = 'Rất có tiềm năng, hãy chủ động tiến tới nhé! 🌹';
+        else if (percent >= 50) phan = 'Cũng có chút hy vọng, cần cố gắng nhiều hơn. 🤞';
+        else if (percent >= 30) phan = 'Khá gian nan đấy, chắc chỉ hợp làm bạn bè thôi. 😅';
+        else phan = 'Oan gia ngõ hẹp! Tránh xa nhau ra cho nước nó trong! 💔';
+        
+        const embed = new EmbedBuilder()
+            .setTitle('💘 Cầu Bói Tình Yêu 💘')
+            .setDescription(`<@${message.author.id}> ❤️ <@${target.id}>`)
+            .addFields(
+                { name: '📊 Độ hợp nhau', value: `${bar}\n\n🎯 **${percent}%**`, inline: false },
+                { name: '📜 Thần Cupid phán', value: `*${phan}*`, inline: false }
+            )
+            .setColor(percent >= 70 ? '#FF1493' : percent >= 40 ? '#FFA500' : '#808080')
+            .setFooter({ text: '🏹 Đền Thần Cupid • Kết quả chỉ mang tính giải trí' })
+            .setTimestamp();
+        return message.reply({ embeds: [embed] });
+    }
+
+    if (content === `${prefix}cauduyen`) {
+        const que = QUE_TINH_DUYEN[Math.floor(Math.random() * QUE_TINH_DUYEN.length)];
+        const cauduyenEmbed = new EmbedBuilder()
+            .setTitle('🙏 Rút Quẻ Tình Duyên')
+            .setDescription(`<@${message.author.id}> đã thắp nhang và rút được quẻ:\n\n🎴 **${que}**`)
+            .setColor('#9B59B6')
+            .setFooter({ text: '🏹 Đền Thần Cupid • Mỗi ngày một quẻ, tin hay không là do bạn' })
+            .setTimestamp();
+        return message.reply({ embeds: [cauduyenEmbed] });
     }
 
     // ========================
