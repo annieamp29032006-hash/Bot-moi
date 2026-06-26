@@ -4601,7 +4601,7 @@ client.on('messageCreate', async (message) => {
     }
 
     // ========================
-    // BOT EMOJIS
+    // BOT EMOJIS (Pagination)
     // ========================
     if (content === `${prefix}botemojis`) {
         if (!client.application) return message.reply('❌ Bot application chưa được load!');
@@ -4609,14 +4609,65 @@ client.on('messageCreate', async (message) => {
             const emojis = await client.application.emojis.fetch();
             if (emojis.size === 0) return message.reply('❌ Bạn chưa upload emoji nào cho bot trên Discord Developer Portal cả!');
             
-            const emojiList = emojis.map(e => `${e} - \`<:${e.name}:${e.id}>\``).join('\n');
-            const embed = new EmbedBuilder()
-                .setTitle('🌟 Danh sách Emoji của Bot')
-                .setDescription(emojiList.length > 4000 ? emojiList.substring(0, 4000) + '...' : emojiList)
-                .setColor('#FFD700')
-                .setFooter({ text: `Tổng: ${emojis.size} emoji • Dùng !clonebotemojis để copy vào server` })
-                .setTimestamp();
-            return message.reply({ embeds: [embed] });
+            const emojiArray = [...emojis.values()];
+            const perPage = 25;
+            const totalPages = Math.ceil(emojiArray.length / perPage);
+            let currentPage = 0;
+
+            function buildEmojiPage(page) {
+                const start = page * perPage;
+                const end = Math.min(start + perPage, emojiArray.length);
+                const pageEmojis = emojiArray.slice(start, end);
+                const emojiList = pageEmojis.map((e, i) => {
+                    const prefix_tag = e.animated ? 'a' : '';
+                    return `${start + i + 1}. ${e} — \`<${prefix_tag}:${e.name}:${e.id}>\``;
+                }).join('\n');
+
+                const embed = new EmbedBuilder()
+                    .setTitle('🌟 Danh sách Emoji của Bot')
+                    .setDescription(emojiList)
+                    .setColor('#FFD700')
+                    .setFooter({ text: `Trang ${page + 1}/${totalPages} • Tổng: ${emojiArray.length} emoji • Dùng ${prefix}clonebotemojis để copy vào server` })
+                    .setTimestamp();
+
+                const row = new ActionRowBuilder().addComponents(
+                    new ButtonBuilder()
+                        .setCustomId('botemoji_prev')
+                        .setLabel('◀ Trước')
+                        .setStyle(ButtonStyle.Secondary)
+                        .setDisabled(page === 0),
+                    new ButtonBuilder()
+                        .setCustomId('botemoji_info')
+                        .setLabel(`${page + 1} / ${totalPages}`)
+                        .setStyle(ButtonStyle.Primary)
+                        .setDisabled(true),
+                    new ButtonBuilder()
+                        .setCustomId('botemoji_next')
+                        .setLabel('Sau ▶')
+                        .setStyle(ButtonStyle.Secondary)
+                        .setDisabled(page >= totalPages - 1)
+                );
+                return { embeds: [embed], components: [row] };
+            }
+
+            const reply = await message.reply(buildEmojiPage(0));
+            
+            const collector = reply.createMessageComponentCollector({
+                componentType: ComponentType.Button,
+                time: 120000,
+                filter: (i) => i.user.id === message.author.id
+            });
+
+            collector.on('collect', async (i) => {
+                if (i.customId === 'botemoji_prev' && currentPage > 0) currentPage--;
+                if (i.customId === 'botemoji_next' && currentPage < totalPages - 1) currentPage++;
+                await i.update(buildEmojiPage(currentPage));
+            });
+
+            collector.on('end', () => {
+                reply.edit({ components: [] }).catch(() => {});
+            });
+            return;
         } catch (error) {
             return message.reply(`❌ Lỗi khi lấy emoji: ${error.message}`);
         }
@@ -4630,36 +4681,110 @@ client.on('messageCreate', async (message) => {
             const emojis = await client.application.emojis.fetch();
             if (emojis.size === 0) return message.reply('❌ Bot không có emoji nào để copy!');
             
+            // Lấy danh sách emoji đã có trên server để skip trùng
+            const serverEmojis = await message.guild.emojis.fetch();
+            const existingNames = new Set(serverEmojis.map(e => e.name.toLowerCase()));
+            
+            const emojiArray = [...emojis.values()];
+            const toClone = emojiArray.filter(e => !existingNames.has(e.name.toLowerCase()));
+            const skippedCount = emojiArray.length - toClone.length;
+
+            if (toClone.length === 0) {
+                return message.reply(`✅ Server đã có đủ tất cả **${emojiArray.length}** emoji từ Bot rồi! Không cần copy thêm.`);
+            }
+
+            const estimatedTime = Math.ceil(toClone.length * 2 / 60); // ~2s mỗi emoji
             const startEmbed = new EmbedBuilder()
                 .setTitle('⏳ Đang Copy Emoji')
-                .setDescription(`Đang tiến hành copy **${emojis.size}** emoji từ Bot sang Server...\n\n> Quá trình này có thể mất một chút thời gian do giới hạn tốc độ của Discord.`)
+                .setDescription(
+                    `Đang copy **${toClone.length}** emoji từ Bot sang Server...\n` +
+                    (skippedCount > 0 ? `⏭️ Bỏ qua **${skippedCount}** emoji đã có trên server.\n` : '') +
+                    `⏱️ Ước tính: **~${estimatedTime} phút** (chậm có chủ ý để tránh Discord chặn)\n` +
+                    `\n> Bot sẽ chờ 1.5 giây giữa mỗi emoji và tự động thử lại tối đa 3 lần nếu bị lỗi.`
+                )
                 .setColor('#3498DB')
                 .setTimestamp();
-            await message.reply({ embeds: [startEmbed] });
+            const progressMsg = await message.reply({ embeds: [startEmbed] });
             
             let successCount = 0;
             let errorCount = 0;
+            const failedEmojis = [];
+
+            // Hàm delay
+            const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
             
-            for (const [id, emoji] of emojis) {
-                try {
-                    // Discord.js tự động xử lý rate limit nên dùng await trong vòng lặp là an toàn
-                    await message.guild.emojis.create({ attachment: emoji.url, name: emoji.name });
-                    successCount++;
-                } catch (e) {
-                    errorCount++;
+            for (let i = 0; i < toClone.length; i++) {
+                const emoji = toClone[i];
+                let created = false;
+
+                // Thử tối đa 3 lần với backoff tăng dần
+                for (let attempt = 1; attempt <= 3; attempt++) {
+                    try {
+                        await message.guild.emojis.create({ attachment: emoji.url, name: emoji.name });
+                        successCount++;
+                        created = true;
+                        break;
+                    } catch (e) {
+                        const isRateLimit = e.message?.includes('rate') || e.message?.includes('429') || e.status === 429;
+                        if (isRateLimit && attempt < 3) {
+                            // Rate limited → chờ lâu hơn rồi thử lại
+                            const waitTime = attempt * 3000; // 3s, 6s
+                            console.warn(`[cloneEmoji] Rate limited on "${emoji.name}", retry ${attempt}/3 after ${waitTime}ms...`);
+                            await delay(waitTime);
+                        } else if (attempt < 3) {
+                            // Lỗi khác → thử lại sau 2s
+                            await delay(2000);
+                        } else {
+                            // Hết lượt retry
+                            errorCount++;
+                            failedEmojis.push({ name: emoji.name, reason: e.message || 'Unknown error' });
+                        }
+                    }
+                }
+
+                // Delay 1.5 giây giữa mỗi emoji để tránh rate limit
+                if (i < toClone.length - 1) await delay(1500);
+
+                // Cập nhật tiến độ mỗi 5 emoji
+                if ((i + 1) % 5 === 0 || i === toClone.length - 1) {
+                    const pct = Math.round((i + 1) / toClone.length * 100);
+                    const filled = Math.round(pct / 5);
+                    const progressEmbed = new EmbedBuilder()
+                        .setTitle('⏳ Đang Copy Emoji...')
+                        .setDescription(
+                            `**Tiến độ:** ${i + 1}/${toClone.length} emoji\n` +
+                            `✅ Thành công: **${successCount}** | ❌ Lỗi: **${errorCount}**\n` +
+                            `${'█'.repeat(filled)}${'░'.repeat(20 - filled)} ${pct}%\n` +
+                            `⏱️ Còn lại: ~${Math.ceil((toClone.length - i - 1) * 2 / 60)} phút`
+                        )
+                        .setColor('#3498DB')
+                        .setTimestamp();
+                    await progressMsg.edit({ embeds: [progressEmbed] }).catch(() => {});
                 }
             }
             
+            // Embed kết quả cuối cùng
             const doneEmbed = new EmbedBuilder()
                 .setTitle('✅ Hoàn Tất Copy Emoji')
                 .addFields(
                     { name: '✅ Thành công', value: `**${successCount}**`, inline: true },
-                    { name: '❌ Thất bại', value: `**${errorCount}**`, inline: true }
+                    { name: '❌ Thất bại', value: `**${errorCount}**`, inline: true },
+                    { name: '⏭️ Đã bỏ qua (trùng)', value: `**${skippedCount}**`, inline: true }
                 )
                 .setColor(errorCount === 0 ? '#2ECC71' : '#E67E22')
-                .setFooter({ text: errorCount > 0 ? 'Thất bại có thể do server đã hết slot chứa emoji' : 'Tất cả emoji đã được copy thành công!' })
                 .setTimestamp();
-            return message.channel.send({ embeds: [doneEmbed] });
+
+            // Nếu có emoji lỗi, liệt kê chi tiết
+            if (failedEmojis.length > 0) {
+                let failDetail = failedEmojis.slice(0, 15).map(f => `• **${f.name}**: ${f.reason}`).join('\n');
+                if (failedEmojis.length > 15) failDetail += `\n... và ${failedEmojis.length - 15} emoji khác`;
+                doneEmbed.addFields({ name: '📋 Chi tiết lỗi', value: failDetail, inline: false });
+                doneEmbed.setFooter({ text: 'Lỗi thường do: file quá lớn (>256KB), server hết slot, hoặc tên emoji không hợp lệ' });
+            } else {
+                doneEmbed.setFooter({ text: 'Tất cả emoji đã được copy thành công! 🎉' });
+            }
+
+            return progressMsg.edit({ embeds: [doneEmbed] });
         } catch (error) {
             return message.reply(`❌ Lỗi hệ thống: ${error.message}`);
         }
