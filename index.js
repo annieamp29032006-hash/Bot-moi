@@ -110,12 +110,43 @@ function ytdlpExecWithFallback(baseArgs, query, opts = {}) {
     });
 }
 
+// Resolve SoundCloud short URL (on.soundcloud.com) → full URL
+async function resolveSoundCloudShortUrl(url) {
+    if (!url.includes('on.soundcloud.com')) return url;
+    try {
+        const response = await axios.head(url, { maxRedirects: 5, timeout: 10000 });
+        const resolved = response.request?.res?.responseUrl || response.request?._redirectable?._currentUrl || url;
+        // Loại bỏ query params (tracking) từ URL
+        const clean = resolved.split('?')[0];
+        console.log(`[SoundCloud] Resolved short URL: ${url} → ${clean}`);
+        return clean;
+    } catch (e) {
+        // Nếu axios.head lỗi, thử axios.get với maxRedirects
+        try {
+            const response = await axios.get(url, { maxRedirects: 5, timeout: 10000, validateStatus: () => true });
+            const resolved = response.request?.res?.responseUrl || response.request?._redirectable?._currentUrl || url;
+            const clean = resolved.split('?')[0];
+            console.log(`[SoundCloud] Resolved short URL (fallback): ${url} → ${clean}`);
+            return clean;
+        } catch (e2) {
+            console.error('[SoundCloud] Failed to resolve short URL:', e2.message);
+            return url;
+        }
+    }
+}
+
 async function ytdlpGetInfo(url) {
     try {
         let searchQuery = url;
-        if (url.includes('spotify.com')) {
+
+        // Resolve SoundCloud short URL trước
+        if (url.includes('on.soundcloud.com')) {
+            searchQuery = await resolveSoundCloudShortUrl(url);
+        }
+
+        if (searchQuery.includes('spotify.com')) {
             const { getPreview } = require('spotify-url-info')(fetch);
-            const spotInfo = await getPreview(url);
+            const spotInfo = await getPreview(searchQuery);
             searchQuery = `${spotInfo.title} ${spotInfo.artist}`;
         }
         
@@ -572,7 +603,7 @@ async function playNext(guildId, textChannel) {
     try {
         let resource;
         try {
-            if (song.url.includes('soundcloud.com') || song.url.includes('youtube.com') || song.url.includes('youtu.be')) {
+            if (song.url.includes('soundcloud.com') || song.url.includes('on.soundcloud.com') || song.url.includes('youtube.com') || song.url.includes('youtu.be')) {
                 const play = require('play-dl');
                 const stream = await play.stream(song.url);
                 resource = createAudioResource(stream.stream, { inputType: stream.type, inlineVolume: true });
