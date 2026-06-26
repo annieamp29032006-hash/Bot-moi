@@ -1027,6 +1027,113 @@ const MONSTERS = [
     { name: 'Rồng Con', hp: 600, atk: 90, def: 40, exp: 200, coin: 400, emoji: '🐉' }
 ];
 
+// ========================
+// RPG EXPANSION CONSTANTS
+// ========================
+
+// DUNGEON SYSTEM
+const DUNGEONS = [
+    {
+        id: 'goblin_cave', name: '🏚️ Hang Yêu Tinh', minLevel: 1,
+        floors: [
+            { name: 'Slime Nhầy', hp: 40, atk: 8, def: 3, emoji: '💧' },
+            { name: 'Yêu Tinh Lính', hp: 60, atk: 12, def: 5, emoji: '👺' },
+            { name: 'Yêu Tinh Cung', hp: 50, atk: 18, def: 4, emoji: '🏹' },
+            { name: 'Yêu Tinh Giáp', hp: 80, atk: 15, def: 12, emoji: '🛡️' },
+            { name: 'Sói Canh Gác', hp: 100, atk: 22, def: 8, emoji: '🐺' },
+        ],
+        boss: { name: 'Vua Yêu Tinh', hp: 250, atk: 35, def: 15, emoji: '👹' },
+        rewards: { coin: 5000, exp: 150, chestChance: 0.4, chestType: 'wood' },
+        cooldown: 30 * 60 * 1000
+    },
+    {
+        id: 'magic_tower', name: '🗼 Tháp Ma Thuật', minLevel: 5,
+        floors: [
+            { name: 'Bóng Ma', hp: 120, atk: 30, def: 10, emoji: '👻' },
+            { name: 'Phù Thủy Đen', hp: 150, atk: 40, def: 12, emoji: '🧙' },
+            { name: 'Gollem Đá', hp: 250, atk: 25, def: 30, emoji: '🗿' },
+            { name: 'Rồng Con Lửa', hp: 200, atk: 50, def: 18, emoji: '🐉' },
+            { name: 'Sứ Giả Bóng Tối', hp: 180, atk: 55, def: 20, emoji: '🦇' },
+        ],
+        boss: { name: 'Chúa Tể Bóng Tối', hp: 500, atk: 70, def: 30, emoji: '🌑' },
+        rewards: { coin: 20000, exp: 500, chestChance: 0.6, chestType: 'iron' },
+        cooldown: 30 * 60 * 1000
+    },
+    {
+        id: 'hell_gate', name: '🔥 Cổng Địa Ngục', minLevel: 10,
+        floors: [
+            { name: 'Quỷ Lửa', hp: 300, atk: 60, def: 25, emoji: '👿' },
+            { name: 'Cerberus', hp: 400, atk: 70, def: 30, emoji: '🐕' },
+            { name: 'Tử Thần', hp: 350, atk: 90, def: 20, emoji: '💀' },
+            { name: 'Hydra 3 Đầu', hp: 600, atk: 80, def: 35, emoji: '🐍' },
+            { name: 'Titan Cổ Đại', hp: 500, atk: 100, def: 40, emoji: '⚡' },
+        ],
+        boss: { name: 'Ma Vương Diablo', hp: 1200, atk: 120, def: 50, emoji: '😈' },
+        rewards: { coin: 100000, exp: 2000, chestChance: 0.8, chestType: 'gold' },
+        cooldown: 30 * 60 * 1000
+    }
+];
+
+// CLASS SYSTEM
+const RPG_CLASSES = {
+    warrior: { name: 'Chiến Binh', emoji: '⚔️', desc: '+30% ATK. Chiêu: Cuồng Nộ (x2 DMG 3 lượt)', atkBonus: 0.3, defBonus: 0, hpBonus: 0, coinBonus: 0, skillName: 'Cuồng Nộ', skillEmoji: '💥', skillCD: 3 },
+    knight: { name: 'Hiệp Sĩ', emoji: '🛡️', desc: '+30% DEF, +20% HP. Chiêu: Bất Tử (chặn 100% dmg)', atkBonus: 0, defBonus: 0.3, hpBonus: 0.2, coinBonus: 0, skillName: 'Bất Tử', skillEmoji: '✨', skillCD: 3 },
+    mage: { name: 'Pháp Sư', emoji: '🧙', desc: '+20% ATK, +15% coin hunt. Chiêu: Thiên Thạch (bỏ qua giáp)', atkBonus: 0.2, defBonus: 0, hpBonus: 0, coinBonus: 0.15, skillName: 'Thiên Thạch', skillEmoji: '☄️', skillCD: 5 }
+};
+
+// DAILY QUEST TEMPLATES
+const QUEST_TEMPLATES = [
+    { id: 'hunt_3', desc: '⚔️ Đánh bại 3 con quái', type: 'hunt', target: 3, reward: { coin: 15000, exp: 50 } },
+    { id: 'hunt_5', desc: '⚔️ Đánh bại 5 con quái', type: 'hunt', target: 5, reward: { coin: 30000, exp: 100 } },
+    { id: 'hunt_10', desc: '⚔️ Đánh bại 10 con quái', type: 'hunt', target: 10, reward: { coin: 60000, exp: 200 } },
+    { id: 'catch_1', desc: '🐾 Bắt 1 Pokemon', type: 'catch', target: 1, reward: { coin: 20000, exp: 50 } },
+    { id: 'catch_3', desc: '🐾 Bắt 3 Pokemon', type: 'catch', target: 3, reward: { coin: 50000, exp: 100 } },
+    { id: 'dungeon_1', desc: '🏰 Hoàn thành 1 Dungeon', type: 'dungeon', target: 1, reward: { coin: 40000, exp: 150 } },
+    { id: 'buy_1', desc: '🛒 Mua 1 món đồ từ Shop', type: 'buy', target: 1, reward: { coin: 10000, exp: 30 } },
+    { id: 'pvp_1', desc: '⚔️ Thắng 1 trận PvP', type: 'pvp_win', target: 1, reward: { coin: 50000, exp: 100 } },
+    { id: 'heal_2', desc: '💊 Hồi máu 2 lần', type: 'heal', target: 2, reward: { coin: 10000, exp: 30 } },
+    { id: 'earn_50k', desc: '💰 Kiếm tổng 50,000 coin', type: 'earn_coin', target: 50000, reward: { coin: 25000, exp: 80 } },
+];
+
+const QUEST_COMPLETION_BONUS = { coin: 100000, exp: 200 };
+
+// CHEST DEFINITIONS
+const RPG_CHESTS = {
+    wood: { name: 'Rương Gỗ', emoji: '📦', color: '#8B4513', loot: [
+        { type: 'coin', min: 5000, max: 20000, chance: 0.5 },
+        { type: 'potion', item: 'small_potion', min: 1, max: 3, chance: 0.3 },
+        { type: 'potion', item: 'large_potion', min: 1, max: 2, chance: 0.15 },
+        { type: 'pokeball', item: 'basic_ball', min: 1, max: 3, chance: 0.05 },
+    ]},
+    iron: { name: 'Rương Sắt', emoji: '🗄️', color: '#708090', loot: [
+        { type: 'coin', min: 20000, max: 100000, chance: 0.35 },
+        { type: 'potion', item: 'large_potion', min: 2, max: 5, chance: 0.2 },
+        { type: 'pokeball', item: 'great_ball', min: 1, max: 3, chance: 0.2 },
+        { type: 'weapon', items: ['iron_sword', 'steel_sword'], chance: 0.15 },
+        { type: 'armor', items: ['iron_armor', 'steel_armor'], chance: 0.1 },
+    ]},
+    gold: { name: 'Rương Vàng', emoji: '✨', color: '#FFD700', loot: [
+        { type: 'coin', min: 100000, max: 500000, chance: 0.3 },
+        { type: 'pokeball', item: 'ultra_ball', min: 1, max: 3, chance: 0.2 },
+        { type: 'weapon', items: ['steel_sword', 'diamond_sword'], chance: 0.2 },
+        { type: 'armor', items: ['steel_armor', 'diamond_armor'], chance: 0.15 },
+        { type: 'pokeball', item: 'master_ball', min: 1, max: 1, chance: 0.1 },
+        { type: 'exp', amount: 500, chance: 0.05 },
+    ]},
+    legendary: { name: 'Rương Huyền Thoại', emoji: '👑', color: '#FF4500', loot: [
+        { type: 'coin', min: 500000, max: 2000000, chance: 0.25 },
+        { type: 'weapon', items: ['diamond_sword'], chance: 0.2 },
+        { type: 'armor', items: ['diamond_armor'], chance: 0.2 },
+        { type: 'pokeball', item: 'master_ball', min: 1, max: 3, chance: 0.15 },
+        { type: 'exp', amount: 2000, chance: 0.1 },
+        { type: 'title', titles: ['🔥 Chinh Phục Huyền Thoại', '⭐ Người Được Chọn', '💫 Bất Khả Chiến Bại'], chance: 0.1 },
+    ]}
+};
+
+// POKEMON EVOLUTION MAP (id -> evolves_to, requires candy)
+const EVOLUTION_MAP = {};
+// Tự build từ PET_LIST sau khi load (xem bên dưới)
+
 let PET_LIST = [];
 try {
     PET_LIST = JSON.parse(fs.readFileSync('./pokemon.json', 'utf8'));
@@ -1063,7 +1170,20 @@ function getPlayer(userId) {
             pets: {},
             partner: null,
             investAmount: 0,
-            investTime: 0
+            investTime: 0,
+            // RPG Expansion
+            rpgClass: null,
+            classChangedAt: 0,
+            dailyQuests: [],
+            questsLastReset: 0,
+            dungeonClears: 0,
+            lastDungeon: 0,
+            chests: { wood: 0, iron: 0, gold: 0, legendary: 0 },
+            pvpWins: 0,
+            pvpLosses: 0,
+            lastPvp: 0,
+            titles: [],
+            candy: 0
         };
         saveRPG(data);
     } else {
@@ -1073,6 +1193,19 @@ function getPlayer(userId) {
         if (data[userId].partner === undefined) { data[userId].partner = null; changed = true; }
         if (data[userId].investAmount === undefined) { data[userId].investAmount = 0; changed = true; }
         if (data[userId].investTime === undefined) { data[userId].investTime = 0; changed = true; }
+        // Migrate new RPG fields
+        if (data[userId].rpgClass === undefined) { data[userId].rpgClass = null; changed = true; }
+        if (data[userId].classChangedAt === undefined) { data[userId].classChangedAt = 0; changed = true; }
+        if (data[userId].dailyQuests === undefined) { data[userId].dailyQuests = []; changed = true; }
+        if (data[userId].questsLastReset === undefined) { data[userId].questsLastReset = 0; changed = true; }
+        if (data[userId].dungeonClears === undefined) { data[userId].dungeonClears = 0; changed = true; }
+        if (data[userId].lastDungeon === undefined) { data[userId].lastDungeon = 0; changed = true; }
+        if (data[userId].chests === undefined) { data[userId].chests = { wood: 0, iron: 0, gold: 0, legendary: 0 }; changed = true; }
+        if (data[userId].pvpWins === undefined) { data[userId].pvpWins = 0; changed = true; }
+        if (data[userId].pvpLosses === undefined) { data[userId].pvpLosses = 0; changed = true; }
+        if (data[userId].lastPvp === undefined) { data[userId].lastPvp = 0; changed = true; }
+        if (data[userId].titles === undefined) { data[userId].titles = []; changed = true; }
+        if (data[userId].candy === undefined) { data[userId].candy = 0; changed = true; }
         if (changed) saveRPG(data);
     }
     return data[userId];
@@ -1081,20 +1214,21 @@ function getPlayer(userId) {
 function updatePlayer(userId, updater) {
     const data = loadRPG();
     if (!data[userId]) {
-        getPlayer(userId); // will create and save
-        Object.assign(data, loadRPG()); // reload to get the newly created user
+        getPlayer(userId);
+        Object.assign(data, loadRPG());
     }
     updater(data[userId]);
-    // Check level up
+    // Check level up (có thể lên nhiều cấp liên tiếp)
     let p = data[userId];
-    const expNeeded = p.level * 100;
-    if (p.exp >= expNeeded) {
-        p.exp -= expNeeded;
+    let leveledUp = false;
+    while (p.exp >= p.level * 100) {
+        p.exp -= p.level * 100;
         p.level++;
         p.maxHp += 20;
         p.hp = p.maxHp;
         p.baseAtk += 3;
         p.baseDef += 2;
+        leveledUp = true;
     }
     saveRPG(data);
     return data[userId];
@@ -1103,9 +1237,55 @@ function updatePlayer(userId, updater) {
 function getPlayerStats(p) {
     let atk = p.baseAtk;
     let def = p.baseDef;
-    if (p.weapon) atk += RPG_ITEMS.weapons[p.weapon].atk;
-    if (p.armor) def += RPG_ITEMS.armors[p.armor].def;
-    return { atk, def };
+    let maxHp = p.maxHp;
+    if (p.weapon && RPG_ITEMS.weapons[p.weapon]) atk += RPG_ITEMS.weapons[p.weapon].atk;
+    if (p.armor && RPG_ITEMS.armors[p.armor]) def += RPG_ITEMS.armors[p.armor].def;
+    // Class bonuses
+    if (p.rpgClass && RPG_CLASSES[p.rpgClass]) {
+        const cls = RPG_CLASSES[p.rpgClass];
+        atk = Math.floor(atk * (1 + cls.atkBonus));
+        def = Math.floor(def * (1 + cls.defBonus));
+        maxHp = Math.floor(maxHp * (1 + cls.hpBonus));
+    }
+    return { atk, def, maxHp };
+}
+
+// Quest progress tracking
+function trackQuestProgress(userId, type, amount = 1) {
+    const data = loadRPG();
+    if (!data[userId] || !data[userId].dailyQuests) return;
+    let changed = false;
+    for (const q of data[userId].dailyQuests) {
+        if (q.type === type && !q.claimed) {
+            q.progress = (q.progress || 0) + amount;
+            changed = true;
+        }
+    }
+    if (changed) saveRPG(data);
+}
+
+// Generate daily quests
+function generateDailyQuests(userId) {
+    const p = getPlayer(userId);
+    const now = Date.now();
+    const today = new Date().setHours(0, 0, 0, 0);
+    
+    if (p.questsLastReset >= today && p.dailyQuests.length > 0) return p.dailyQuests;
+    
+    // Pick 3 random unique quests
+    const shuffled = [...QUEST_TEMPLATES].sort(() => Math.random() - 0.5);
+    const selected = shuffled.slice(0, 3).map(q => ({
+        ...q,
+        progress: 0,
+        claimed: false
+    }));
+    
+    updatePlayer(userId, dp => {
+        dp.dailyQuests = selected;
+        dp.questsLastReset = now;
+    });
+    
+    return selected;
 }
 
 function buildProfileEmbed(user) {
@@ -1189,8 +1369,9 @@ function buildProfileEmbed(user) {
         { name: '🎂 Ngày sinh', value: bdayText, inline: true },
         { name: '\u200b', value: '\u200b', inline: true },
         { name: '\u200b', value: '\u200b', inline: true },
-        { name: '🔰 RPG (Nhập Vai)', value: `Cấp: **${pData.level}** (${pData.exp}/${pData.level*100} EXP)\nMáu: ❤️ **${pData.hp}/${pData.maxHp}**\nSức mạnh: ⚔️ **${stats.atk}** | 🛡️ **${stats.def}**`, inline: true },
+        { name: '🔰 RPG (Nhập Vai)', value: `Cấp: **${pData.level}** (${pData.exp}/${pData.level*100} EXP)\nMáu: ❤️ **${pData.hp}/${stats.maxHp || pData.maxHp}**\nSức mạnh: ⚔️ **${stats.atk}** | 🛡️ **${stats.def}**${pData.rpgClass && RPG_CLASSES[pData.rpgClass] ? `\nClass: ${RPG_CLASSES[pData.rpgClass].emoji} **${RPG_CLASSES[pData.rpgClass].name}**` : ''}`, inline: true },
         { name: '🎒 Túi Đồ', value: `Vũ khí: ${wName}\nÁo giáp: ${aName}\nBình máu: 🧪x${smallPot} | 🧴x${largePot}`, inline: true },
+        { name: '📊 Thành Tích', value: `🏰 Dungeon: **${pData.dungeonClears || 0}** lần\n⚔️ PvP: **${pData.pvpWins || 0}W**/${pData.pvpLosses || 0}L\n🍬 Candy: **${pData.candy || 0}**`, inline: true },
         { name: '🐾 Thú Cưng', value: petsText, inline: false }
     ).setTimestamp();
 
@@ -1343,6 +1524,7 @@ async function handleShop(userId, msgOrInteraction) {
 
                 let msgContent = `✅ Bạn đã mua **${item.emoji} ${item.name}** thành công! Số dư: **${getUserCoins(userId).toLocaleString()} 🪙**`;
                 if (type === 'ring') msgContent += `\n> Dùng lệnh \`/marry\` để cầu hôn với nhẫn này!`;
+                trackQuestProgress(userId, 'buy', 1);
 
                 return i.reply({ content: msgContent, ephemeral: true });
             } else {
@@ -1527,6 +1709,7 @@ async function handleCatchPet(userId, msgOrInteraction) {
         dp.lastCatch = now;
         dp.pets[caughtPet.id] = (dp.pets[caughtPet.id] || 0) + 1;
     });
+    trackQuestProgress(userId, 'catch', 1);
     
     let color = '#FFFFFF';
     if (caughtPet.rarity === 'Thường') color = '#AAB7B8';
@@ -1895,6 +2078,650 @@ async function awaitConfirmation(msgOrInteraction, userId, promptText, onConfirm
             await confirmMsg.edit({ content: '⏳ Giao dịch đã hết hạn xác nhận.', components: [] }).catch(()=>{});
         }
     }
+}
+// ========================
+// RPG EXPANSION HANDLERS
+// ========================
+
+// --- DUNGEON SYSTEM ---
+async function handleDungeon(userId, msgOrInteraction) {
+    const p = getPlayer(userId);
+    if (p.hp <= 0) return replyMsg(msgOrInteraction, '❌ Bạn đã hết máu! Dùng `/heal` trước.');
+
+    const now = Date.now();
+    if (now - p.lastDungeon < 30 * 60 * 1000) {
+        const mins = Math.ceil((30 * 60 * 1000 - (now - p.lastDungeon)) / 60000);
+        return replyMsg(msgOrInteraction, `⏳ Dungeon đang hồi phục! Quay lại sau **${mins} phút**.`);
+    }
+
+    // Build dungeon selection
+    const options = DUNGEONS.map(d => 
+        new StringSelectMenuOptionBuilder()
+            .setLabel(d.name.replace(/[^\w\sÀ-ỹ]/g, '').trim())
+            .setValue(d.id)
+            .setDescription(`Cấp tối thiểu: Lv.${d.minLevel} | Thưởng: ${d.rewards.coin.toLocaleString()} 🪙`)
+            .setEmoji(d.id === 'goblin_cave' ? '🏚️' : d.id === 'magic_tower' ? '🗼' : '🔥')
+    );
+
+    const embed = new EmbedBuilder()
+        .setTitle('🏰 CHỌN DUNGEON')
+        .setDescription(`**${p.level >= 10 ? '🔥' : p.level >= 5 ? '🗼' : '🏚️'} Cấp độ của bạn: Lv.${p.level}**\n\n` +
+            DUNGEONS.map(d => {
+                const locked = p.level < d.minLevel;
+                return `${locked ? '🔒' : '✅'} **${d.name}** (Lv.${d.minLevel}+)\n> Thưởng: ${d.rewards.coin.toLocaleString()} 🪙 + ${d.rewards.exp} EXP\n> Boss: ${d.boss.emoji} ${d.boss.name}`;
+            }).join('\n\n'))
+        .setColor('#E67E22')
+        .setFooter({ text: 'Cooldown: 30 phút | Mỗi dungeon có 5 tầng + 1 Boss' });
+
+    const row = new ActionRowBuilder().addComponents(
+        new StringSelectMenuBuilder().setCustomId(`dungeon_select_${userId}`).setPlaceholder('🏰 Chọn Dungeon...').addOptions(options)
+    );
+
+    let msg;
+    if (msgOrInteraction.isChatInputCommand?.()) {
+        await msgOrInteraction.reply({ embeds: [embed], components: [row] });
+        msg = await msgOrInteraction.fetchReply();
+    } else {
+        msg = await msgOrInteraction.reply({ embeds: [embed], components: [row] });
+    }
+
+    const collector = msg.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 30000 });
+    collector.on('collect', async i => {
+        if (i.user.id !== userId) return i.reply({ content: '❌ Đây không phải lượt của bạn!', ephemeral: true });
+        
+        const dungeonId = i.values[0];
+        const dungeon = DUNGEONS.find(d => d.id === dungeonId);
+        if (!dungeon) return i.reply({ content: '❌ Dungeon không tồn tại!', ephemeral: true });
+        if (p.level < dungeon.minLevel) return i.reply({ content: `❌ Cần tối thiểu **Lv.${dungeon.minLevel}** để vào ${dungeon.name}!`, ephemeral: true });
+
+        collector.stop();
+        await i.deferUpdate();
+
+        // Simulate dungeon combat
+        const stats = getPlayerStats(p);
+        let playerHp = p.hp;
+        const combatLog = [];
+        let cleared = true;
+        let floorReached = 0;
+
+        // Fight through floors
+        for (let f = 0; f < dungeon.floors.length; f++) {
+            const monster = dungeon.floors[f];
+            let mHp = monster.hp;
+            const pDmg = Math.max(1, stats.atk - monster.def);
+            const mDmg = Math.max(1, monster.atk - stats.def);
+            let rounds = 0;
+
+            while (mHp > 0 && playerHp > 0 && rounds < 20) {
+                mHp -= pDmg;
+                if (mHp <= 0) break;
+                playerHp -= mDmg;
+                rounds++;
+            }
+
+            if (playerHp <= 0) {
+                combatLog.push(`❌ Tầng ${f + 1}: ${monster.emoji} **${monster.name}** đã hạ gục bạn!`);
+                cleared = false;
+                floorReached = f + 1;
+                break;
+            }
+            combatLog.push(`✅ Tầng ${f + 1}: Đánh bại ${monster.emoji} **${monster.name}** (HP còn: ${playerHp})`);
+            floorReached = f + 1;
+        }
+
+        // Boss fight
+        let bossDefeated = false;
+        if (cleared && playerHp > 0) {
+            const boss = dungeon.boss;
+            let bHp = boss.hp;
+            const pDmg = Math.max(1, stats.atk - boss.def);
+            const bDmg = Math.max(1, boss.atk - stats.def);
+            let rounds = 0;
+
+            while (bHp > 0 && playerHp > 0 && rounds < 30) {
+                bHp -= pDmg;
+                if (bHp <= 0) break;
+                playerHp -= bDmg;
+                rounds++;
+            }
+
+            if (playerHp <= 0) {
+                combatLog.push(`\n💀 **BOSS** ${boss.emoji} **${boss.name}** đã hạ gục bạn!`);
+                cleared = false;
+            } else {
+                combatLog.push(`\n🏆 **BOSS** Đánh bại ${boss.emoji} **${boss.name}**!`);
+                bossDefeated = true;
+            }
+        }
+
+        // Calculate rewards
+        let coinReward = Math.floor(dungeon.rewards.coin * (floorReached / dungeon.floors.length));
+        let expReward = Math.floor(dungeon.rewards.exp * (floorReached / dungeon.floors.length));
+        if (bossDefeated) {
+            coinReward = dungeon.rewards.coin;
+            expReward = dungeon.rewards.exp;
+        }
+
+        // Chest drop
+        let chestDropped = null;
+        if (bossDefeated && Math.random() < dungeon.rewards.chestChance) {
+            chestDropped = dungeon.rewards.chestType;
+            // Small chance for legendary
+            if (Math.random() < 0.005) chestDropped = 'legendary';
+        }
+
+        // Update player
+        updatePlayer(userId, dp => {
+            dp.hp = Math.max(0, playerHp);
+            dp.lastDungeon = now;
+            dp.exp += expReward;
+            if (bossDefeated) dp.dungeonClears = (dp.dungeonClears || 0) + 1;
+            if (chestDropped) dp.chests[chestDropped] = (dp.chests[chestDropped] || 0) + 1;
+        });
+        addCoins(userId, coinReward);
+
+        if (bossDefeated) trackQuestProgress(userId, 'dungeon', 1);
+
+        // Build result embed
+        const resultEmbed = new EmbedBuilder()
+            .setTitle(bossDefeated ? `🏆 ${dungeon.name} — HOÀN THÀNH!` : `💀 ${dungeon.name} — THẤT BẠI`)
+            .setDescription(combatLog.join('\n'))
+            .addFields(
+                { name: '💰 Coin', value: `+${coinReward.toLocaleString()} 🪙`, inline: true },
+                { name: '⭐ EXP', value: `+${expReward}`, inline: true },
+                { name: '❤️ HP còn lại', value: `${Math.max(0, playerHp)}/${p.maxHp}`, inline: true }
+            )
+            .setColor(bossDefeated ? '#2ECC71' : '#E74C3C')
+            .setTimestamp();
+
+        if (chestDropped) {
+            const chest = RPG_CHESTS[chestDropped];
+            resultEmbed.addFields({ name: '🎁 Rương Drop!', value: `${chest.emoji} **${chest.name}** — Dùng \`/openbox\` để mở!`, inline: false });
+        }
+
+        await i.editReply({ embeds: [resultEmbed], components: [] });
+    });
+
+    collector.on('end', (_, reason) => {
+        if (reason === 'time') msg.edit({ components: [] }).catch(() => {});
+    });
+}
+
+// --- PVP SYSTEM ---
+async function handlePvP(userId, targetId, bet, msgOrInteraction) {
+    if (userId === targetId) return replyMsg(msgOrInteraction, '❌ Bạn không thể tự đánh chính mình!');
+    
+    const p1 = getPlayer(userId);
+    const p2 = getPlayer(targetId);
+    
+    if (p1.hp <= 0) return replyMsg(msgOrInteraction, '❌ Bạn đã hết máu! Dùng `/heal` trước.');
+    if (p2.hp <= 0) return replyMsg(msgOrInteraction, '❌ Đối thủ đã hết máu, không thể PvP!');
+    
+    const now = Date.now();
+    if (now - p1.lastPvp < 5 * 60 * 1000) {
+        const secs = Math.ceil((5 * 60 * 1000 - (now - p1.lastPvp)) / 1000);
+        return replyMsg(msgOrInteraction, `⏳ PvP cooldown! Đợi **${secs}s** nữa.`);
+    }
+
+    if (getUserCoins(userId) < bet) return replyMsg(msgOrInteraction, `❌ Bạn không đủ **${bet.toLocaleString()} 🪙**!`);
+    if (getUserCoins(targetId) < bet) return replyMsg(msgOrInteraction, `❌ Đối thủ không đủ **${bet.toLocaleString()} 🪙**!`);
+
+    const s1 = getPlayerStats(p1);
+    const s2 = getPlayerStats(p2);
+    const c1 = p1.rpgClass ? RPG_CLASSES[p1.rpgClass] : null;
+    const c2 = p2.rpgClass ? RPG_CLASSES[p2.rpgClass] : null;
+
+    const challengeEmbed = new EmbedBuilder()
+        .setTitle('⚔️ THÁCH ĐẤU PVP ⚔️')
+        .setDescription(
+            `<@${userId}> thách đấu <@${targetId}>!\n\n` +
+            `💰 **Mức cược:** ${bet.toLocaleString()} 🪙\n\n` +
+            `**Người thách đấu:**\n` +
+            `> Lv.${p1.level} ${c1 ? c1.emoji : '👤'} | ⚔️ ${s1.atk} | 🛡️ ${s1.def} | ❤️ ${p1.hp}\n` +
+            `**Đối thủ:**\n` +
+            `> Lv.${p2.level} ${c2 ? c2.emoji : '👤'} | ⚔️ ${s2.atk} | 🛡️ ${s2.def} | ❤️ ${p2.hp}`
+        )
+        .setColor('#E74C3C');
+
+    const row = new ActionRowBuilder().addComponents(
+        new ButtonBuilder().setCustomId(`pvp_accept_${userId}_${targetId}_${bet}`).setLabel('⚔️ Chấp nhận').setStyle(ButtonStyle.Success),
+        new ButtonBuilder().setCustomId(`pvp_decline_${userId}_${targetId}`).setLabel('❌ Từ chối').setStyle(ButtonStyle.Danger)
+    );
+
+    const reply = await replyMsg(msgOrInteraction, { content: `<@${targetId}>, bạn có lời thách đấu PvP!`, embeds: [challengeEmbed], components: [row] });
+    
+    // PvP accept/decline is handled in interactionCreate button handler
+}
+
+function executePvPBattle(p1Data, p2Data) {
+    const s1 = getPlayerStats(p1Data);
+    const s2 = getPlayerStats(p2Data);
+    
+    let hp1 = p1Data.hp;
+    let hp2 = p2Data.hp;
+    const log = [];
+    let round = 0;
+
+    while (hp1 > 0 && hp2 > 0 && round < 15) {
+        round++;
+        // Player 1 attacks
+        let dmg1 = Math.max(1, s1.atk - s2.def);
+        const crit1 = Math.random() < 0.2;
+        if (crit1) dmg1 = Math.floor(dmg1 * 2);
+        hp2 -= dmg1;
+        log.push(`⚔️ R${round}: P1 ${crit1 ? '💥CHÍ MẠNG ' : ''}→ **${dmg1}** dmg (HP2: ${Math.max(0, hp2)})`);
+
+        if (hp2 <= 0) break;
+
+        // Player 2 attacks
+        let dmg2 = Math.max(1, s2.atk - s1.def);
+        const crit2 = Math.random() < 0.2;
+        if (crit2) dmg2 = Math.floor(dmg2 * 2);
+        hp1 -= dmg2;
+        log.push(`🛡️ R${round}: P2 ${crit2 ? '💥CHÍ MẠNG ' : ''}→ **${dmg2}** dmg (HP1: ${Math.max(0, hp1)})`);
+    }
+
+    return { hp1: Math.max(0, hp1), hp2: Math.max(0, hp2), log, winner: hp1 > hp2 ? 1 : hp2 > hp1 ? 2 : 0 };
+}
+
+// --- DAILY QUEST SYSTEM ---
+async function handleQuest(userId, msgOrInteraction) {
+    const quests = generateDailyQuests(userId);
+    
+    const allCompleted = quests.every(q => q.progress >= q.target);
+    const allClaimed = quests.every(q => q.claimed);
+    
+    let questText = quests.map((q, i) => {
+        const done = q.progress >= q.target;
+        const claimed = q.claimed;
+        const icon = claimed ? '✅' : done ? '🟢' : '🔴';
+        const progress = q.type === 'earn_coin' 
+            ? `${Math.min(q.progress, q.target).toLocaleString()}/${q.target.toLocaleString()}`
+            : `${Math.min(q.progress, q.target)}/${q.target}`;
+        return `${icon} **${q.desc}** — ${progress}\n> Thưởng: ${q.reward.coin.toLocaleString()} 🪙 + ${q.reward.exp} EXP${claimed ? ' *(Đã nhận)*' : ''}`;
+    }).join('\n\n');
+
+    if (allCompleted && !allClaimed) {
+        questText += `\n\n🎉 **BONUS HOÀN THÀNH TẤT CẢ:** +${QUEST_COMPLETION_BONUS.coin.toLocaleString()} 🪙 + ${QUEST_COMPLETION_BONUS.exp} EXP`;
+    }
+
+    const embed = new EmbedBuilder()
+        .setTitle('🎯 Nhiệm Vụ Hàng Ngày')
+        .setDescription(questText)
+        .setColor(allClaimed ? '#2ECC71' : '#3498DB')
+        .setFooter({ text: 'Nhiệm vụ reset lúc 0:00 mỗi ngày' })
+        .setTimestamp();
+
+    const components = [];
+    if (!allClaimed) {
+        const hasClaimable = quests.some(q => q.progress >= q.target && !q.claimed);
+        if (hasClaimable) {
+            components.push(new ActionRowBuilder().addComponents(
+                new ButtonBuilder().setCustomId(`quest_claim_${userId}`).setLabel('🎁 Nhận Thưởng').setStyle(ButtonStyle.Success)
+            ));
+        }
+    }
+
+    let msg;
+    if (msgOrInteraction.isChatInputCommand?.()) {
+        await msgOrInteraction.reply({ embeds: [embed], components });
+        msg = await msgOrInteraction.fetchReply();
+    } else {
+        msg = await replyMsg(msgOrInteraction, { embeds: [embed], components });
+    }
+
+    if (components.length === 0) return;
+
+    const collector = msg.createMessageComponentCollector({ componentType: ComponentType.Button, time: 30000 });
+    collector.on('collect', async i => {
+        if (i.user.id !== userId) return i.reply({ content: '❌ Đây không phải nhiệm vụ của bạn!', ephemeral: true });
+        
+        let totalCoin = 0, totalExp = 0;
+        updatePlayer(userId, dp => {
+            for (const q of dp.dailyQuests) {
+                if (q.progress >= q.target && !q.claimed) {
+                    totalCoin += q.reward.coin;
+                    totalExp += q.reward.exp;
+                    q.claimed = true;
+                }
+            }
+            if (dp.dailyQuests.every(q => q.claimed)) {
+                totalCoin += QUEST_COMPLETION_BONUS.coin;
+                totalExp += QUEST_COMPLETION_BONUS.exp;
+            }
+            dp.exp += totalExp;
+        });
+        addCoins(userId, totalCoin);
+
+        await i.update({
+            embeds: [new EmbedBuilder()
+                .setTitle('🎁 Nhận Thưởng Nhiệm Vụ')
+                .setDescription(`Bạn đã nhận:\n💰 **+${totalCoin.toLocaleString()} 🪙**\n⭐ **+${totalExp} EXP**`)
+                .setColor('#2ECC71').setTimestamp()
+            ],
+            components: []
+        });
+    });
+}
+
+// --- CLASS SYSTEM ---
+async function handleClass(userId, msgOrInteraction) {
+    const p = getPlayer(userId);
+    
+    if (p.level < 5) return replyMsg(msgOrInteraction, `❌ Bạn cần đạt **Lv.5** để chọn class! (Hiện tại: Lv.${p.level})`);
+
+    const currentClass = p.rpgClass ? RPG_CLASSES[p.rpgClass] : null;
+    
+    let desc = currentClass 
+        ? `Class hiện tại: ${currentClass.emoji} **${currentClass.name}**\n> ${currentClass.desc}\n\n🔄 Đổi class tốn **5,000,000 🪙**. Chọn class mới:`
+        : '🆓 Bạn chưa chọn class! Hãy chọn miễn phí lần đầu:';
+
+    const options = Object.entries(RPG_CLASSES).map(([id, cls]) => 
+        new StringSelectMenuOptionBuilder()
+            .setLabel(`${cls.name}`)
+            .setValue(id)
+            .setDescription(cls.desc.substring(0, 100))
+            .setEmoji(cls.emoji)
+    );
+
+    const embed = new EmbedBuilder()
+        .setTitle('🏅 Chọn Class Nhân Vật')
+        .setDescription(desc + '\n\n' + Object.entries(RPG_CLASSES).map(([id, cls]) => 
+            `${cls.emoji} **${cls.name}**\n> ${cls.desc}`
+        ).join('\n\n'))
+        .setColor('#9B59B6')
+        .setFooter({ text: `Cấp: Lv.${p.level}` });
+
+    const row = new ActionRowBuilder().addComponents(
+        new StringSelectMenuBuilder().setCustomId(`class_select_${userId}`).setPlaceholder('🏅 Chọn Class...').addOptions(options)
+    );
+
+    let msg;
+    if (msgOrInteraction.isChatInputCommand?.()) {
+        await msgOrInteraction.reply({ embeds: [embed], components: [row] });
+        msg = await msgOrInteraction.fetchReply();
+    } else {
+        msg = await replyMsg(msgOrInteraction, { embeds: [embed], components: [row] });
+    }
+
+    const collector = msg.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 30000 });
+    collector.on('collect', async i => {
+        if (i.user.id !== userId) return i.reply({ content: '❌ Không phải lượt của bạn!', ephemeral: true });
+
+        const classId = i.values[0];
+        const cls = RPG_CLASSES[classId];
+        const currentP = getPlayer(userId);
+
+        if (currentP.rpgClass === classId) return i.reply({ content: `❌ Bạn đã là **${cls.name}** rồi!`, ephemeral: true });
+
+        // Nếu đã có class → phải trả phí
+        if (currentP.rpgClass) {
+            const changeCost = 5000000;
+            if (getUserCoins(userId) < changeCost) return i.reply({ content: `❌ Không đủ **${changeCost.toLocaleString()} 🪙** để đổi class!`, ephemeral: true });
+            addCoins(userId, -changeCost);
+        }
+
+        updatePlayer(userId, dp => {
+            dp.rpgClass = classId;
+            dp.classChangedAt = Date.now();
+        });
+
+        await i.update({
+            embeds: [new EmbedBuilder()
+                .setTitle(`${cls.emoji} Chuyển Class thành công!`)
+                .setDescription(`Bạn đã trở thành **${cls.name}**!\n\n> ${cls.desc}\n\nChiêu đặc biệt: **${cls.skillEmoji} ${cls.skillName}**`)
+                .setColor('#2ECC71').setTimestamp()
+            ],
+            components: []
+        });
+    });
+}
+
+// --- CHEST/LOOT SYSTEM ---
+async function handleOpenBox(userId, msgOrInteraction) {
+    const p = getPlayer(userId);
+    const chests = p.chests || {};
+    
+    const hasChests = Object.values(chests).some(v => v > 0);
+    if (!hasChests) return replyMsg(msgOrInteraction, '❌ Bạn không có rương nào! Hoàn thành Dungeon để nhận rương.');
+
+    const options = [];
+    for (const [type, count] of Object.entries(chests)) {
+        if (count > 0 && RPG_CHESTS[type]) {
+            const chest = RPG_CHESTS[type];
+            options.push(new StringSelectMenuOptionBuilder()
+                .setLabel(`${chest.name} (x${count})`)
+                .setValue(type)
+                .setDescription(`Mở 1 ${chest.name}`)
+                .setEmoji(chest.emoji));
+        }
+    }
+
+    if (options.length === 0) return replyMsg(msgOrInteraction, '❌ Bạn không có rương nào!');
+
+    const embed = new EmbedBuilder()
+        .setTitle('🎁 Kho Rương')
+        .setDescription(Object.entries(chests).filter(([t, c]) => c > 0 && RPG_CHESTS[t]).map(([t, c]) => {
+            const ch = RPG_CHESTS[t];
+            return `${ch.emoji} **${ch.name}**: ${c} cái`;
+        }).join('\n'))
+        .setColor('#FFD700')
+        .setFooter({ text: 'Chọn rương để mở!' });
+
+    const row = new ActionRowBuilder().addComponents(
+        new StringSelectMenuBuilder().setCustomId(`openbox_select_${userId}`).setPlaceholder('🎁 Chọn rương...').addOptions(options)
+    );
+
+    let msg;
+    if (msgOrInteraction.isChatInputCommand?.()) {
+        await msgOrInteraction.reply({ embeds: [embed], components: [row] });
+        msg = await msgOrInteraction.fetchReply();
+    } else {
+        msg = await replyMsg(msgOrInteraction, { embeds: [embed], components: [row] });
+    }
+
+    const collector = msg.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 30000 });
+    collector.on('collect', async i => {
+        if (i.user.id !== userId) return i.reply({ content: '❌ Không phải rương của bạn!', ephemeral: true });
+
+        const chestType = i.values[0];
+        const chestDef = RPG_CHESTS[chestType];
+        const curPlayer = getPlayer(userId);
+
+        if (!curPlayer.chests[chestType] || curPlayer.chests[chestType] <= 0) {
+            return i.reply({ content: '❌ Hết rương loại này rồi!', ephemeral: true });
+        }
+
+        // Roll loot
+        const rand = Math.random();
+        let cumChance = 0;
+        let loot = null;
+        for (const item of chestDef.loot) {
+            cumChance += item.chance;
+            if (rand <= cumChance) { loot = item; break; }
+        }
+        if (!loot) loot = chestDef.loot[0];
+
+        let lootText = '';
+        updatePlayer(userId, dp => {
+            dp.chests[chestType]--;
+
+            if (loot.type === 'coin') {
+                const amount = Math.floor(Math.random() * (loot.max - loot.min + 1) + loot.min);
+                addCoins(userId, amount);
+                lootText = `💰 **${amount.toLocaleString()} Coin**`;
+            } else if (loot.type === 'potion' || loot.type === 'pokeball') {
+                const amount = Math.floor(Math.random() * (loot.max - loot.min + 1) + loot.min);
+                dp.inventory[loot.item] = (dp.inventory[loot.item] || 0) + amount;
+                const itemName = RPG_ITEMS.potions[loot.item]?.name || RPG_ITEMS.pokeballs[loot.item]?.name || loot.item;
+                lootText = `🧪 **${amount}x ${itemName}**`;
+            } else if (loot.type === 'weapon') {
+                const item = loot.items[Math.floor(Math.random() * loot.items.length)];
+                dp.weapon = item;
+                lootText = `⚔️ **${RPG_ITEMS.weapons[item].name}** (Tự động trang bị!)`;
+            } else if (loot.type === 'armor') {
+                const item = loot.items[Math.floor(Math.random() * loot.items.length)];
+                dp.armor = item;
+                lootText = `🛡️ **${RPG_ITEMS.armors[item].name}** (Tự động trang bị!)`;
+            } else if (loot.type === 'exp') {
+                dp.exp += loot.amount;
+                lootText = `⭐ **+${loot.amount} EXP**`;
+            } else if (loot.type === 'title') {
+                const title = loot.titles[Math.floor(Math.random() * loot.titles.length)];
+                if (!dp.titles.includes(title)) dp.titles.push(title);
+                lootText = `🏅 Danh hiệu: **${title}**`;
+            }
+        });
+
+        const resultEmbed = new EmbedBuilder()
+            .setTitle(`${chestDef.emoji} Mở ${chestDef.name}`)
+            .setDescription(`🎉 Bạn nhận được:\n\n${lootText}`)
+            .setColor(chestDef.color)
+            .setTimestamp();
+
+        await i.update({ embeds: [resultEmbed], components: [] });
+    });
+}
+
+// --- POKEMON EVOLUTION ---
+async function handleEvolve(userId, msgOrInteraction) {
+    const p = getPlayer(userId);
+    const pets = p.pets || {};
+
+    // Build evolution options from owned pets that have evolutions
+    const evolveOptions = [];
+    for (const pet of PET_LIST) {
+        if (!pets[pet.id] || pets[pet.id] <= 0) continue;
+        // Check if this pet has an evolution (next in the evolution chain)
+        const nextEvo = PET_LIST.find(np => np.evolvesFrom === pet.id);
+        if (nextEvo) {
+            const candyCost = nextEvo.evolveCandyCost || 3;
+            evolveOptions.push({ from: pet, to: nextEvo, candyCost, owned: pets[pet.id] });
+        }
+    }
+
+    if (evolveOptions.length === 0) {
+        // Nếu không có evolve option, cho bán duplicate lấy candy
+        const dupes = [];
+        for (const pet of PET_LIST) {
+            if (pets[pet.id] && pets[pet.id] > 1) dupes.push({ pet, count: pets[pet.id] - 1 });
+        }
+        
+        let desc = '🍬 **Candy:** ' + (p.candy || 0) + '\n\n';
+        if (dupes.length > 0) {
+            desc += '💡 Bạn có thể **chuyển Pokemon dư thành Candy** để tiến hóa!\n\n';
+            desc += dupes.slice(0, 10).map(d => `${d.pet.emoji} ${d.pet.name}: ${d.count} con dư → **${d.count} candy**`).join('\n');
+            
+            const convertRow = new ActionRowBuilder().addComponents(
+                new ButtonBuilder().setCustomId(`convert_candy_${userId}`).setLabel('🍬 Chuyển tất cả dư thành Candy').setStyle(ButtonStyle.Success)
+            );
+            
+            const embed = new EmbedBuilder()
+                .setTitle('🔄 Tiến Hóa Pokemon')
+                .setDescription(desc + '\n\n*Chưa có Pokemon nào có thể tiến hóa. Hệ thống tiến hóa sẽ mở rộng khi thêm chuỗi tiến hóa vào pokemon.json!*')
+                .setColor('#9B59B6');
+
+            return replyMsg(msgOrInteraction, { embeds: [embed], components: [convertRow] });
+        }
+        
+        return replyMsg(msgOrInteraction, `🍬 **Candy:** ${p.candy || 0}\n\n❌ Bạn chưa có Pokemon nào có thể tiến hóa hoặc dư để chuyển thành candy.\n> Bắt nhiều duplicate Pokemon rồi dùng \`/evolve\` để chuyển thành candy!`);
+    }
+
+    const options = evolveOptions.slice(0, 25).map(opt => 
+        new StringSelectMenuOptionBuilder()
+            .setLabel(`${opt.from.name} → ${opt.to.name}`)
+            .setValue(`evolve_${opt.from.id}_${opt.to.id}`)
+            .setDescription(`Cần: ${opt.candyCost} candy (Bạn có: ${p.candy || 0})`)
+            .setEmoji(opt.from.emoji)
+    );
+
+    const embed = new EmbedBuilder()
+        .setTitle('🔄 Tiến Hóa Pokemon')
+        .setDescription(`🍬 **Candy:** ${p.candy || 0}\n\n` + evolveOptions.map(opt =>
+            `${opt.from.emoji} **${opt.from.name}** → ${opt.to.emoji} **${opt.to.name}** (${opt.candyCost} candy)`
+        ).join('\n'))
+        .setColor('#9B59B6');
+
+    const row = new ActionRowBuilder().addComponents(
+        new StringSelectMenuBuilder().setCustomId(`evolve_select_${userId}`).setPlaceholder('🔄 Chọn Pokemon để tiến hóa...').addOptions(options)
+    );
+
+    return replyMsg(msgOrInteraction, { embeds: [embed], components: [row] });
+}
+
+// --- RPG LEADERBOARD ---
+async function handleRpgTop(userId, msgOrInteraction) {
+    const data = loadRPG();
+    const cData = loadCoins();
+    
+    const players = Object.entries(data).map(([id, p]) => {
+        const stats = getPlayerStats(p);
+        const petCount = p.pets ? Object.values(p.pets).reduce((s, v) => s + v, 0) : 0;
+        const petTypes = p.pets ? Object.keys(p.pets).filter(k => p.pets[k] > 0).length : 0;
+        return { id, ...p, totalPower: stats.atk + stats.def + p.level * 10, petCount, petTypes };
+    });
+
+    let currentTab = 'level';
+    const tabLabels = { level: '🔰 Top Level', power: '💪 Top Sức Mạnh', dungeon: '🏰 Top Dungeon', pokemon: '🐾 Top Pokemon', pvp: '⚔️ Top PvP' };
+
+    function buildTopEmbed(tab) {
+        let sorted, desc;
+        const rankEmojis = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'];
+
+        if (tab === 'level') {
+            sorted = [...players].sort((a, b) => b.level - a.level || b.exp - a.exp).slice(0, 10);
+            desc = sorted.map((p, i) => `${rankEmojis[i]} <@${p.id}> — **Lv.${p.level}** (${p.exp} EXP)`).join('\n');
+        } else if (tab === 'power') {
+            sorted = [...players].sort((a, b) => b.totalPower - a.totalPower).slice(0, 10);
+            desc = sorted.map((p, i) => `${rankEmojis[i]} <@${p.id}> — ⚡ **${p.totalPower}** sức mạnh`).join('\n');
+        } else if (tab === 'dungeon') {
+            sorted = [...players].sort((a, b) => (b.dungeonClears || 0) - (a.dungeonClears || 0)).slice(0, 10);
+            desc = sorted.map((p, i) => `${rankEmojis[i]} <@${p.id}> — 🏰 **${p.dungeonClears || 0}** lần clear`).join('\n');
+        } else if (tab === 'pokemon') {
+            sorted = [...players].sort((a, b) => b.petTypes - a.petTypes || b.petCount - a.petCount).slice(0, 10);
+            desc = sorted.map((p, i) => `${rankEmojis[i]} <@${p.id}> — 🐾 **${p.petTypes}** loại (**${p.petCount}** con)`).join('\n');
+        } else if (tab === 'pvp') {
+            sorted = [...players].sort((a, b) => (b.pvpWins || 0) - (a.pvpWins || 0)).slice(0, 10);
+            desc = sorted.map((p, i) => `${rankEmojis[i]} <@${p.id}> — ⚔️ **${p.pvpWins || 0}W** / ${p.pvpLosses || 0}L`).join('\n');
+        }
+
+        return new EmbedBuilder()
+            .setTitle(`🏆 Bảng Xếp Hạng RPG — ${tabLabels[tab]}`)
+            .setDescription(desc || '*Chưa có dữ liệu*')
+            .setColor('#FFD700')
+            .setTimestamp();
+    }
+
+    function buildTabRow() {
+        return new ActionRowBuilder().addComponents(
+            new ButtonBuilder().setCustomId('rpgtop_level').setLabel('🔰 Level').setStyle(currentTab === 'level' ? ButtonStyle.Primary : ButtonStyle.Secondary),
+            new ButtonBuilder().setCustomId('rpgtop_power').setLabel('💪 Power').setStyle(currentTab === 'power' ? ButtonStyle.Primary : ButtonStyle.Secondary),
+            new ButtonBuilder().setCustomId('rpgtop_dungeon').setLabel('🏰 Dungeon').setStyle(currentTab === 'dungeon' ? ButtonStyle.Primary : ButtonStyle.Secondary),
+            new ButtonBuilder().setCustomId('rpgtop_pokemon').setLabel('🐾 Pokemon').setStyle(currentTab === 'pokemon' ? ButtonStyle.Primary : ButtonStyle.Secondary),
+            new ButtonBuilder().setCustomId('rpgtop_pvp').setLabel('⚔️ PvP').setStyle(currentTab === 'pvp' ? ButtonStyle.Primary : ButtonStyle.Secondary)
+        );
+    }
+
+    let msg;
+    if (msgOrInteraction.isChatInputCommand?.()) {
+        await msgOrInteraction.reply({ embeds: [buildTopEmbed(currentTab)], components: [buildTabRow()] });
+        msg = await msgOrInteraction.fetchReply();
+    } else {
+        msg = await replyMsg(msgOrInteraction, { embeds: [buildTopEmbed(currentTab)], components: [buildTabRow()] });
+    }
+
+    const collector = msg.createMessageComponentCollector({ componentType: ComponentType.Button, time: 120000 });
+    collector.on('collect', async i => {
+        const tab = i.customId.replace('rpgtop_', '');
+        if (tabLabels[tab]) {
+            currentTab = tab;
+            await i.update({ embeds: [buildTopEmbed(tab)], components: [buildTabRow()] });
+        }
+    });
+
+    collector.on('end', () => {
+        msg.edit({ components: [] }).catch(() => {});
+    });
 }
 
 const ADMIN_ID = process.env.ADMIN_ID || '1204627726254997546';
@@ -3093,7 +3920,31 @@ const slashCommands = [
     new SlashCommandBuilder()
         .setName('1an')
         .setDescription('Ẩn phòng Voice hiện tại của bạn đối với một người cụ thể.')
-        .addUserOption(o => o.setName('user').setDescription('Người bạn muốn ẩn phòng').setRequired(true))
+        .addUserOption(o => o.setName('user').setDescription('Người bạn muốn ẩn phòng').setRequired(true)),
+    // --- RPG EXPANSION ---
+    new SlashCommandBuilder()
+        .setName('dungeon')
+        .setDescription('🏰 Vào Dungeon đánh quái nhiều tầng + Boss.'),
+    new SlashCommandBuilder()
+        .setName('pvp')
+        .setDescription('⚔️ Thách đấu PvP 1v1 với người chơi khác.')
+        .addUserOption(o => o.setName('user').setDescription('Đối thủ').setRequired(true))
+        .addIntegerOption(o => o.setName('bet').setDescription('Số coin cược').setRequired(true).setMinValue(100)),
+    new SlashCommandBuilder()
+        .setName('quest')
+        .setDescription('🎯 Xem nhiệm vụ hàng ngày và nhận thưởng.'),
+    new SlashCommandBuilder()
+        .setName('class')
+        .setDescription('🏅 Chọn hoặc đổi class nhân vật (Lv.5+).'),
+    new SlashCommandBuilder()
+        .setName('openbox')
+        .setDescription('🎁 Mở rương nhận vật phẩm.'),
+    new SlashCommandBuilder()
+        .setName('evolve')
+        .setDescription('🔄 Tiến hóa Pokemon hoặc chuyển dư thành candy.'),
+    new SlashCommandBuilder()
+        .setName('rpgtop')
+        .setDescription('🏆 Bảng xếp hạng RPG (Level, Power, Dungeon, Pokemon, PvP).')
 ].map(command => command.toJSON());
 
 // ========================
@@ -5092,15 +5943,55 @@ client.on('messageCreate', async (message) => {
         }
         
         updatePlayer(uid, dp => { dp.hp = pHp; dp.lastHunt = now; dp.exp += m.exp; });
-        addCoins(uid, m.coin);
+        // Class coin bonus
+        let coinGain = m.coin;
+        const pClass = p.rpgClass && RPG_CLASSES[p.rpgClass] ? RPG_CLASSES[p.rpgClass] : null;
+        if (pClass && pClass.coinBonus) coinGain = Math.floor(coinGain * (1 + pClass.coinBonus));
+        addCoins(uid, coinGain);
+        // Chest drop
+        let huntChestMsg = '';
+        if (Math.random() < 0.02) {
+            updatePlayer(uid, dp => { dp.chests.wood = (dp.chests.wood || 0) + 1; });
+            huntChestMsg = '\n🎁 Drop: **📦 Rương Gỗ**! Dùng `!openbox` để mở.';
+        }
+        trackQuestProgress(uid, 'hunt', 1);
+        trackQuestProgress(uid, 'earn_coin', coinGain);
         const nP = getPlayer(uid);
         
-        return message.reply({ embeds: [new EmbedBuilder().setTitle(`⚔️ Chiến thắng **${m.name}** ${m.emoji}`).setDescription(`Sau trận chiến, bạn còn lại **❤️ ${pHp}/${p.maxHp} HP**.\nNhận được: **+${m.exp} EXP** và **+${m.coin} 🪙**\nCấp độ hiện tại: **Lv. ${nP.level}**`).setColor('#00FF00')] });
+        return message.reply({ embeds: [new EmbedBuilder().setTitle(`⚔️ Chiến thắng **${m.name}** ${m.emoji}`).setDescription(`Sau trận chiến, bạn còn lại **❤️ ${pHp}/${p.maxHp} HP**.\nNhận được: **+${m.exp} EXP** và **+${coinGain} 🪙**${pClass && pClass.coinBonus ? ` (bonus ${pClass.emoji})` : ''}\nCấp độ hiện tại: **Lv. ${nP.level}**${huntChestMsg}`).setColor('#00FF00')] });
     }
 
     // !shop
     if (content === `${prefix}shop` || content === `${prefix}sh`) {
         return handleShop(message.author.id, message);
+    }
+
+    // RPG EXPANSION PREFIX COMMANDS
+    if (content === `${prefix}dungeon` || content === `${prefix}dg`) {
+        return handleDungeon(message.author.id, message);
+    }
+    if (content.startsWith(`${prefix}pvp `)) {
+        const args = content.slice(prefix.length + 4).trim().split(/\s+/);
+        const target = message.mentions.users.first();
+        const bet = parseInt(args[1] || args[0]);
+        if (!target) return message.reply('❌ Vui lòng tag người chơi! VD: `!pvp @user 1000`');
+        if (!bet || bet < 100) return message.reply('❌ Số tiền cược tối thiểu là 100!');
+        return handlePvP(message.author.id, target.id, bet, message);
+    }
+    if (content === `${prefix}quest` || content === `${prefix}nv`) {
+        return handleQuest(message.author.id, message);
+    }
+    if (content === `${prefix}class`) {
+        return handleClass(message.author.id, message);
+    }
+    if (content === `${prefix}openbox` || content === `${prefix}ob`) {
+        return handleOpenBox(message.author.id, message);
+    }
+    if (content === `${prefix}evolve` || content === `${prefix}ev`) {
+        return handleEvolve(message.author.id, message);
+    }
+    if (content === `${prefix}rpgtop` || content === `${prefix}rt`) {
+        return handleRpgTop(message.author.id, message);
     }
 
     // !inv
@@ -5160,6 +6051,7 @@ client.on('messageCreate', async (message) => {
         const uid = message.author.id;
         const p = getPlayer(uid);
         if (p.hp >= p.maxHp) return message.reply('✅ Máu của bạn đã đầy!');
+        trackQuestProgress(uid, 'heal', 1);
         
         // Use potion first
         let healed = false;
@@ -5767,8 +6659,106 @@ client.on('interactionCreate', async (interaction) => {
         }
 
         // =============================================
-        // MA SÓI — LOBBY BUTTONS
+        // PVP BUTTONS
         // =============================================
+        if (cid.startsWith('pvp_accept_')) {
+            const parts = cid.split('_');
+            const challengerId = parts[2];
+            const targetId = parts[3];
+            const bet = parseInt(parts[4]);
+            
+            if (interaction.user.id !== targetId) return interaction.reply({ content: '❌ Bạn không phải người được thách đấu!', ephemeral: true });
+            
+            if (getUserCoins(challengerId) < bet) return interaction.reply({ content: '❌ Người thách đấu không còn đủ tiền!', ephemeral: true });
+            if (getUserCoins(targetId) < bet) return interaction.reply({ content: '❌ Bạn không đủ tiền!', ephemeral: true });
+            
+            addCoins(challengerId, -bet);
+            addCoins(targetId, -bet);
+            
+            const p1 = getPlayer(challengerId);
+            const p2 = getPlayer(targetId);
+            
+            const result = executePvPBattle(p1, p2);
+            
+            let winnerId, loserId;
+            if (result.winner === 1) { winnerId = challengerId; loserId = targetId; }
+            else if (result.winner === 2) { winnerId = targetId; loserId = challengerId; }
+            else { winnerId = null; loserId = null; } // Draw
+            
+            const now = Date.now();
+            if (winnerId) {
+                addCoins(winnerId, bet * 2);
+                updatePlayer(winnerId, dp => { dp.pvpWins = (dp.pvpWins || 0) + 1; dp.lastPvp = now; });
+                updatePlayer(loserId, dp => { dp.pvpLosses = (dp.pvpLosses || 0) + 1; dp.lastPvp = now; });
+                trackQuestProgress(winnerId, 'pvp_win', 1);
+            } else {
+                addCoins(challengerId, bet);
+                addCoins(targetId, bet);
+                updatePlayer(challengerId, dp => { dp.lastPvp = now; });
+                updatePlayer(targetId, dp => { dp.lastPvp = now; });
+            }
+            
+            // Update HP after battle
+            updatePlayer(challengerId, dp => { dp.hp = Math.max(1, result.winner === 1 ? result.hp1 : result.hp1); });
+            updatePlayer(targetId, dp => { dp.hp = Math.max(1, result.winner === 2 ? result.hp2 : result.hp2); });
+            
+            const battleLog = result.log.length > 10 
+                ? result.log.slice(0, 5).join('\n') + '\n... *' + (result.log.length - 10) + ' lượt khác* ...\n' + result.log.slice(-5).join('\n')
+                : result.log.join('\n');
+            
+            const resultEmbed = new EmbedBuilder()
+                .setTitle('⚔️ KẾT QUẢ PVP ⚔️')
+                .setDescription(
+                    `<@${challengerId}> **VS** <@${targetId}>\n\n` +
+                    battleLog + '\n\n' +
+                    (winnerId 
+                        ? `🏆 **<@${winnerId}> THẮNG!** Nhận **${(bet * 2).toLocaleString()} 🪙**`
+                        : `🤝 **HÒA!** Cả hai nhận lại tiền cược.`)
+                )
+                .setColor(winnerId === challengerId ? '#2ECC71' : winnerId === targetId ? '#E74C3C' : '#95A5A6')
+                .setTimestamp();
+            
+            return interaction.update({ embeds: [resultEmbed], components: [] });
+        }
+        
+        if (cid.startsWith('pvp_decline_')) {
+            const parts = cid.split('_');
+            const targetId = parts[3];
+            if (interaction.user.id !== targetId) return interaction.reply({ content: '❌ Bạn không phải người được thách đấu!', ephemeral: true });
+            return interaction.update({ content: `❌ <@${targetId}> đã từ chối PvP.`, embeds: [], components: [] });
+        }
+
+        // =============================================
+        // CANDY CONVERSION BUTTON
+        // =============================================
+        if (cid.startsWith('convert_candy_')) {
+            const ownerId = cid.replace('convert_candy_', '');
+            if (interaction.user.id !== ownerId) return interaction.reply({ content: '❌ Không phải của bạn!', ephemeral: true });
+            
+            let totalCandy = 0;
+            updatePlayer(ownerId, dp => {
+                for (const pet of PET_LIST) {
+                    if (dp.pets[pet.id] && dp.pets[pet.id] > 1) {
+                        const dupeCount = dp.pets[pet.id] - 1;
+                        totalCandy += dupeCount;
+                        dp.pets[pet.id] = 1;
+                    }
+                }
+                dp.candy = (dp.candy || 0) + totalCandy;
+            });
+            
+            if (totalCandy === 0) return interaction.reply({ content: '❌ Không có Pokemon dư để chuyển!', ephemeral: true });
+            
+            const p = getPlayer(ownerId);
+            return interaction.update({
+                embeds: [new EmbedBuilder()
+                    .setTitle('🍬 Chuyển thành Candy!')
+                    .setDescription(`Đã chuyển **${totalCandy}** Pokemon dư thành candy!\n\n🍬 Candy hiện tại: **${p.candy}**`)
+                    .setColor('#9B59B6').setTimestamp()
+                ],
+                components: []
+            });
+        }
         if (cid.startsWith('ww_join_') || cid.startsWith('ww_start_') || cid.startsWith('ww_cancel_')) {
             const guildId = cid.split('_').slice(2).join('_');
             const game = WW.WW_GAMES.get(guildId);
@@ -7531,9 +8521,22 @@ client.on('interactionCreate', async (interaction) => {
         }
         
         updatePlayer(uid, dp => { dp.hp = pHp; dp.lastHunt = now; dp.exp += m.exp; });
-        addCoins(uid, m.coin);
+        // Class coin bonus
+        let coinGain = m.coin;
+        const pClass = p.rpgClass && RPG_CLASSES[p.rpgClass] ? RPG_CLASSES[p.rpgClass] : null;
+        if (pClass && pClass.coinBonus) coinGain = Math.floor(coinGain * (1 + pClass.coinBonus));
+        addCoins(uid, coinGain);
+        // Chest drop chance from hunt (small)
+        let huntChestMsg = '';
+        if (Math.random() < 0.02) { // 2% chance
+            updatePlayer(uid, dp => { dp.chests.wood = (dp.chests.wood || 0) + 1; });
+            huntChestMsg = '\n🎁 Drop: **📦 Rương Gỗ**! Dùng `/openbox` để mở.';
+        }
+        // Quest tracking
+        trackQuestProgress(uid, 'hunt', 1);
+        trackQuestProgress(uid, 'earn_coin', coinGain);
         const nP = getPlayer(uid);
-        return interaction.reply({ embeds: [new EmbedBuilder().setTitle(`⚔️ Chiến thắng **${m.name}** ${m.emoji}`).setDescription(`Còn lại **❤️ ${pHp}/${p.maxHp} HP**.\nNhận: **+${m.exp} EXP** và **+${m.coin} 🪙**\nCấp độ: **Lv. ${nP.level}**`).setColor('#00FF00')] });
+        return interaction.reply({ embeds: [new EmbedBuilder().setTitle(`⚔️ Chiến thắng **${m.name}** ${m.emoji}`).setDescription(`Còn lại **❤️ ${pHp}/${p.maxHp} HP**.\nNhận: **+${m.exp} EXP** và **+${coinGain} 🪙**${pClass && pClass.coinBonus ? ` (bonus ${pClass.emoji})` : ''}\nCấp độ: **Lv. ${nP.level}**${huntChestMsg}`).setColor('#00FF00')] });
     }
 
     if (commandName === 'shop') {
@@ -7555,6 +8558,7 @@ client.on('interactionCreate', async (interaction) => {
         const uid = interaction.user.id;
         const p = getPlayer(uid);
         if (p.hp >= p.maxHp) return interaction.reply({ content: '✅ Máu của bạn đã đầy!', ephemeral: true });
+        trackQuestProgress(uid, 'heal', 1);
         
         let healed = false;
         if (p.inventory.large_potion > 0) {
@@ -7575,6 +8579,33 @@ client.on('interactionCreate', async (interaction) => {
         addCoins(uid, -healCost);
         updatePlayer(uid, dp => { dp.hp = dp.maxHp; });
         return interaction.reply(`🏥 Trả **${healCost} 🪙** bơm đầy máu! **❤️ ${p.maxHp}/${p.maxHp}**`);
+    }
+
+    // ========================
+    // RPG EXPANSION COMMANDS
+    // ========================
+    if (commandName === 'dungeon') {
+        return handleDungeon(interaction.user.id, interaction);
+    }
+    if (commandName === 'pvp') {
+        const target = interaction.options.getUser('user');
+        const bet = interaction.options.getInteger('bet');
+        return handlePvP(interaction.user.id, target.id, bet, interaction);
+    }
+    if (commandName === 'quest') {
+        return handleQuest(interaction.user.id, interaction);
+    }
+    if (commandName === 'class') {
+        return handleClass(interaction.user.id, interaction);
+    }
+    if (commandName === 'openbox') {
+        return handleOpenBox(interaction.user.id, interaction);
+    }
+    if (commandName === 'evolve') {
+        return handleEvolve(interaction.user.id, interaction);
+    }
+    if (commandName === 'rpgtop') {
+        return handleRpgTop(interaction.user.id, interaction);
     }
 
     // ========================
