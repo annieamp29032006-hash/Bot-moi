@@ -446,7 +446,7 @@ function buildHelpPages(prefix) {
             .setFooter({ text: 'Trang 10/13 • Tiện ích & Voice' })
             .setTimestamp(),
 
-        // Page 9 - Tù & Lao Động Xã Hội
+        // Page 10 - Tù & Lao Động Xã Hội
         new EmbedBuilder()
             .setTitle('⛓️ Tù & Lao Động Xã Hội')
             .setDescription('Hệ thống phạt cải tạo dành cho những thành viên vi phạm nội quy.')
@@ -459,7 +459,7 @@ function buildHelpPages(prefix) {
             .setFooter({ text: 'Trang 11/13 • Tù & LĐXH' })
             .setTimestamp(),
 
-        // Page 8 - Admin Quản lý
+        // Page 11 - Admin Quản lý
         new EmbedBuilder()
             .setTitle('🔧 Quản Lý (Admin)')
             .setDescription('⚠️ Các lệnh bên dưới yêu cầu quyền **Administrator** hoặc là **Admin Chính** của bot.')
@@ -472,7 +472,7 @@ function buildHelpPages(prefix) {
             .setFooter({ text: 'Trang 12/13 • Admin Quản Lý' })
             .setTimestamp(),
 
-        // Page 9 - Admin Hệ thống
+        // Page 12 - Admin Hệ thống
         new EmbedBuilder()
             .setTitle('⚙️ Hệ Thống & Cài Đặt (Admin)')
             .setDescription('Quản lý sự kiện, cài đặt tính năng bot và đặc quyền Admin Chính.')
