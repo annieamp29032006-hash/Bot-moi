@@ -298,7 +298,8 @@ function buildHelpPages(prefix) {
                 { name: '🎵 Nhạc', value: 'Phát nhạc YT/Spotify/SC', inline: true },
                 { name: '💰 Coin & Game', value: 'Daily, Work, Cờ bạc', inline: true },
                 { name: '🏦 Ngân Hàng', value: 'Gửi/Rút, Đầu tư, Cướp', inline: true },
-                { name: '⚔️ RPG', value: 'Săn quái, Pokemon, PvP', inline: true },
+                { name: '⚔️ RPG Cơ Bản', value: 'Săn quái, Pokemon, Shop', inline: true },
+                { name: '🏰 RPG Nâng Cao', value: 'Dungeon, PvP, Quest, Class', inline: true },
                 { name: '💍 Kết Hôn', value: 'Mua nhẫn, Cầu hôn', inline: true },
                 { name: '💘 Lễ Đường', value: 'Thính, Bói, Cầu duyên', inline: true },
                 { name: '🐺 Ma Sói', value: 'Game đối kháng nhóm', inline: true },
@@ -309,7 +310,7 @@ function buildHelpPages(prefix) {
                 { name: '\u200b', value: '\u200b', inline: true }
             )
             .setColor('#5865F2')
-            .setFooter({ text: `Trang 1/12 • Chọn danh mục bên dưới` })
+            .setFooter({ text: `Trang 1/13 • Chọn danh mục bên dưới` })
             .setTimestamp(),
 
         // Page 1 - Nhạc
@@ -327,7 +328,7 @@ function buildHelpPages(prefix) {
                 { name: '💡 Mẹo hữu ích', value: '• Chỉ **người gọi lệnh /play** mới điều khiển được bảng nút nhạc.\n• Bot tự rời kênh sau **30 giây** nếu hết bài trong hàng đợi.\n• Âm lượng có thể chỉnh từ **0% đến 200%** qua nút 🔉/🔊.', inline: false }
             )
             .setColor('#FF0000')
-            .setFooter({ text: 'Trang 2/12 • Nhạc' })
+            .setFooter({ text: 'Trang 2/13 • Nhạc' })
             .setTimestamp(),
 
         // Page 2 - Coin & Minigame
@@ -344,7 +345,7 @@ function buildHelpPages(prefix) {
                 { name: `\`${prefix}noitu\` hoặc \`/noitu\``, value: '🧠 Nối Từ Nhiều Người: Chơi nối từ ghép 2 tiếng với nhau.\n• Thưởng **1,000 🪙** cho mỗi từ đúng hợp lệ.\n• Không được nối 2 lần liên tiếp. Hết 60 giây kết thúc game.\n\`' + prefix + 'stopnoitu\` — Dừng game sớm.', inline: false }
             )
             .setColor('#FFD700')
-            .setFooter({ text: 'Trang 3/12 • Coin & Minigame' })
+            .setFooter({ text: 'Trang 3/13 • Coin & Minigame' })
             .setTimestamp(),
 
         // Page 3 - Ngân hàng & Đầu tư
@@ -360,23 +361,38 @@ function buildHelpPages(prefix) {
                 { name: '💡 Mẹo quan trọng', value: '• Tiền trong **bank** an toàn, không bị mất khi thua cờ bạc!\n• Nhưng tiền bank **có thể bị cướp** bởi người khác qua lệnh `robbank`.\n• Bị tù → không dùng được bất kỳ lệnh nào ngoài `nopphat`.', inline: false }
             )
             .setColor('#2ECC71')
-            .setFooter({ text: 'Trang 4/12 • Ngân Hàng & Đầu Tư' })
+            .setFooter({ text: 'Trang 4/13 • Ngân Hàng & Đầu Tư' })
             .setTimestamp(),
 
-        // Page 4 - RPG Nhập vai
+        // Page 4 - RPG Nhập vai (Cơ bản)
         new EmbedBuilder()
-            .setTitle('⚔️ Nhập vai RPG & Pokemon')
+            .setTitle('⚔️ Nhập vai RPG — Cơ Bản')
             .setDescription('Hệ thống cày cuốc đánh quái, nâng cấp nhân vật, mua trang bị và săn bắt Pokemon!')
             .addFields(
-                { name: '🗡️ HỆ THỐNG NHÂN VẬT', value: `\`${prefix}pr [@user]\` hoặc \`/profile\` — Xem hồ sơ: Level, HP, ATK, DEF, EXP, trang bị đang mang, trạng thái hôn nhân.\n\`${prefix}hu\` hoặc \`/hunt\` — Đi săn quái vật để nhận EXP + coin. Quái càng mạnh → thưởng càng lớn.\n\`${prefix}heal\` hoặc \`/heal\` — Hồi phục HP bằng coin (cần khi HP thấp sau khi đánh quái).`, inline: false },
+                { name: '🗡️ HỆ THỐNG NHÂN VẬT', value: `\`${prefix}pr [@user]\` hoặc \`/profile\` — Xem hồ sơ: Level, HP, ATK, DEF, EXP, trang bị, class, PvP.\n\`${prefix}hu\` hoặc \`/hunt\` — Đi săn quái vật để nhận EXP + coin. Quái càng mạnh → thưởng càng lớn.\n\`${prefix}heal\` hoặc \`/heal\` — Hồi phục HP bằng bình máu hoặc coin.`, inline: false },
                 { name: '🎒 TRANG BỊ & CỬA HÀNG', value: `\`${prefix}i\` hoặc \`/inv\` — Xem túi đồ (vũ khí, giáp, nhẫn, bóng Pokemon...)\n\`${prefix}sh\` hoặc \`/shop\` — Cửa hàng có nhiều tab:\n• ⚔️ **Vũ khí** — Tăng sát thương khi đánh quái\n• 🛡️ **Giáp** — Tăng phòng thủ, giảm sát thương nhận\n• 🔮 **Bóng Pokemon** — Mua bóng để bắt Pokemon hoang dã\n• 💍 **Nhẫn** — Dùng để cầu hôn`, inline: false },
                 { name: '🐾 HỆ THỐNG POKEMON', value: `\`${prefix}cp\` hoặc \`/catchpet\` — Bắt Pokemon hoang dã (cần có bóng trong túi)\n\`${prefix}p\` hoặc \`/pets\` — Xem chuồng thú cưng của bạn\n\`${prefix}sp\` hoặc \`/sellpet\` — Bán Pokemon lấy coin\n\`${prefix}pb @user <cược>\` hoặc \`/petbattle\` — Thách đấu Pokemon với người khác\n\`${prefix}pt @user\` hoặc \`/ptrade\` — Trao đổi Pokemon 1:1 với người khác\n\n🌟 **Pokemon hoang dã** sẽ tự xuất hiện ngẫu nhiên (1–2 tiếng/lần). Nhấn nút **Ném Bóng** để bắt!`, inline: false }
             )
             .setColor('#E67E22')
-            .setFooter({ text: 'Trang 5/12 • RPG Nhập vai' })
+            .setFooter({ text: 'Trang 5/13 • RPG Cơ Bản' })
             .setTimestamp(),
 
-        // Page 5 - Kết hôn
+        // Page 5 - RPG Nâng Cao (MỚI)
+        new EmbedBuilder()
+            .setTitle('🏰 RPG Nâng Cao — Dungeon, PvP, Quest & Class')
+            .setDescription('Hệ thống RPG mở rộng: Dungeon nhiều tầng, PvP 1v1, nhiệm vụ hàng ngày, chọn class và mở rương!')
+            .addFields(
+                { name: '🏰 DUNGEON (Phụt Bản)', value: `\`${prefix}dg\` hoặc \`/dungeon\` — Vào dungeon đánh quái nhiều tầng + Boss cuối\n• **3 Dungeon:** Hang Yêu Tinh (Lv.1), Tháp Ma Thuật (Lv.5), Cổng Địa Ngục (Lv.10)\n• Mỗi dungeon có **5 tầng + 1 Boss** — Hạ boss drop **Rương**!\n• Cooldown: 30 phút`, inline: false },
+                { name: '⚔️ PVP ĐẤU TRƯỜNG', value: `\`${prefix}pvp @user <cược>\` hoặc \`/pvp\` — Thách đấu 1v1 nhân vật RPG\n• Dùng stat thật (ATK, DEF, HP + trang bị + class)\n• 20% chance đòn chí mạng x2 DMG\n• Người thắng nhận coin cược x2 • Cooldown: 5 phút`, inline: false },
+                { name: '🎯 NHIỆM VỤ HÀNG NGÀY', value: `\`${prefix}nv\` hoặc \`/quest\` — Xem & nhận thưởng nhiệm vụ\n• 3 nhiệm vụ ngẫu nhiên mỗi ngày (đánh quái, bắt pet, PvP...)\n• Hoàn thành cả 3 → **BONUS 100K 🪙 + 200 EXP**\n• Tự động tracking, reset lúc 0:00`, inline: false },
+                { name: '🏅 CLASS NHÂN VẬT', value: `\`${prefix}class\` hoặc \`/class\` — Chọn/đổi class (Lv.5+)\n• ⚔️ **Chiến Binh** — +30% ATK\n• 🛡️ **Hiệp Sĩ** — +30% DEF, +20% HP\n• 🧙 **Pháp Sư** — +20% ATK, +15% coin hunt\n• Đổi class: 5M 🪙 (lần đầu miễn phí)`, inline: false },
+                { name: '🎁 RƯƠNG & TIẾN HÓA & TOP', value: `\`${prefix}ob\` hoặc \`/openbox\` — Mở rương nhận loot (vũ khí, giáp, coin, danh hiệu...)\n\`${prefix}ev\` hoặc \`/evolve\` — Chuyển Pokemon dư thành 🍬 Candy để tiến hóa\n\`${prefix}rt\` hoặc \`/rpgtop\` — Bảng xếp hạng RPG (Level, Power, Dungeon, Pokemon, PvP)`, inline: false }
+            )
+            .setColor('#9B59B6')
+            .setFooter({ text: 'Trang 6/13 • RPG Nâng Cao' })
+            .setTimestamp(),
+
+        // Page 6 - Kết hôn
         new EmbedBuilder()
             .setTitle('💍 Hệ Thống Kết Hôn')
             .setDescription('Mua nhẫn, cầu hôn người ấy, xem bạn đời và ly hôn khi cần!')
@@ -385,10 +401,10 @@ function buildHelpPages(prefix) {
                 { name: '📜 Lệnh kết hôn', value: `\`${prefix}marry @user\` — Cầu hôn (chọn nhẫn)\n\`${prefix}marry\` — Cầu hôn ngẫu nhiên\n\`${prefix}divorce\` — Ly hôn (phí 1M 🪙)\n\n⚠️ *Phải cầu hôn tại khu Lễ Đường!*`, inline: false }
             )
             .setColor('#FF69B4')
-            .setFooter({ text: 'Trang 6/12 • Kết Hôn' })
+            .setFooter({ text: 'Trang 7/13 • Kết Hôn' })
             .setTimestamp(),
 
-        // Page 6 - Lễ Đường
+        // Page 7 - Lễ Đường
         new EmbedBuilder()
             .setTitle('💘 Lễ Đường — Thính & Cầu Duyên')
             .setDescription('Khu vực linh thiêng dành cho chuyện tình cảm! Bot sẽ tự động thả react tim ở kênh **#thính**.')
@@ -399,10 +415,10 @@ function buildHelpPages(prefix) {
                 { name: '🏹 Auto-React kênh #thính', value: 'Bot có 20% tỷ lệ tự thả emoji tim ❤️😍💘 vào mỗi tin nhắn trong kênh thính.', inline: false }
             )
             .setColor('#FF1493')
-            .setFooter({ text: 'Trang 7/12 • Lễ Đường' })
+            .setFooter({ text: 'Trang 8/13 • Lễ Đường' })
             .setTimestamp(),
 
-        // Page 6 - Game Ma Sói
+        // Page 8 - Game Ma Sói
         new EmbedBuilder()
             .setTitle('🐺 Game Ma Sói (Werewolf)')
             .setDescription('Tổ chức game Ma Sói ngay trong Discord! Trò chơi suy luận và đối kháng nhiều người.')
@@ -413,10 +429,10 @@ function buildHelpPages(prefix) {
                 { name: '🏆 Phần thưởng', value: '• 🏅 Tham gia: **+10,000 🪙** (cho tất cả)\n• 🎉 Thắng phe Dân: **+100,000 🪙**\n• 🐺 Thắng phe Sói: **+300,000 🪙**', inline: false }
             )
             .setColor('#34495E')
-            .setFooter({ text: 'Trang 8/12 • Game Ma Sói' })
+            .setFooter({ text: 'Trang 9/13 • Game Ma Sói' })
             .setTimestamp(),
 
-        // Page 7 - Tiện ích User
+        // Page 9 - Tiện ích User
         new EmbedBuilder()
             .setTitle('📱 Tiện Ích & Voice (J2C)')
             .setDescription('Các tính năng tự động, công cụ tiện lợi và hệ thống tự tạo phòng Voice.')
@@ -427,7 +443,7 @@ function buildHelpPages(prefix) {
                 { name: '🔔 Tính năng tự động', value: '• 🎙️ **Thông báo Voice** — Bot báo khi có người vào/rời kênh thoại.\n• 👋 **Chào mừng** — Bot chào mừng thành viên mới tham gia server.\n• 🤖 **Auto-reply** — Bot tự trả lời khi ai gõ: `ping`, `hello`, `hima`.', inline: false }
             )
             .setColor('#00FF88')
-            .setFooter({ text: 'Trang 9/12 • Tiện ích & Voice' })
+            .setFooter({ text: 'Trang 10/13 • Tiện ích & Voice' })
             .setTimestamp(),
 
         // Page 9 - Tù & Lao Động Xã Hội
@@ -440,7 +456,7 @@ function buildHelpPages(prefix) {
                 { name: '📋 Cơ chế hoạt động', value: '• User bị giam sẽ bị **gắn role Tù** và **không dùng được lệnh bot**.\n• Phải vào kênh cải tạo chỉ định và **spam tin nhắn** cho đủ số lượng.\n• Cứ mỗi **50 tin** sẽ có thông báo tiến độ.\n• Khi đủ → tự động gỡ role và trả tự do.\n• Tin nhắn chứa `@everyone`/`@here` bị **xóa ngay** và không tính.', inline: false }
             )
             .setColor('#E74C3C')
-            .setFooter({ text: 'Trang 10/12 • Tù & LĐXH' })
+            .setFooter({ text: 'Trang 11/13 • Tù & LĐXH' })
             .setTimestamp(),
 
         // Page 8 - Admin Quản lý
@@ -453,7 +469,7 @@ function buildHelpPages(prefix) {
                 { name: '💳 QR Ngân Hàng', value: `\`${prefix}qr <số tiền>\` — Tạo mã QR chuyển khoản ngân hàng thật *(Admin Chính)*`, inline: false }
             )
             .setColor('#FF4444')
-            .setFooter({ text: 'Trang 11/12 • Admin Quản Lý' })
+            .setFooter({ text: 'Trang 12/13 • Admin Quản Lý' })
             .setTimestamp(),
 
         // Page 9 - Admin Hệ thống
@@ -468,7 +484,7 @@ function buildHelpPages(prefix) {
                 { name: '😀 Quản lý Emoji Bot', value: `\`${prefix}botemojis\` — Xem danh sách emoji đã upload cho bot\n\`${prefix}clonebotemojis\` — Copy toàn bộ emoji bot vào server *(Admin)*`, inline: false }
             )
             .setColor('#9B59B6')
-            .setFooter({ text: 'Trang 12/12 • Admin Hệ thống' })
+            .setFooter({ text: 'Trang 13/13 • Admin Hệ thống' })
             .setTimestamp()
     ];
 }
@@ -482,14 +498,15 @@ function buildHelpMenu() {
             new StringSelectMenuOptionBuilder().setLabel('🎵 Nhạc').setValue('1').setDescription('YouTube, Spotify, SoundCloud').setEmoji('🎵'),
             new StringSelectMenuOptionBuilder().setLabel('💰 Coin & Game').setValue('2').setDescription('Daily, Work, Cờ bạc, Nối từ').setEmoji('💰'),
             new StringSelectMenuOptionBuilder().setLabel('🏦 Ngân Hàng').setValue('3').setDescription('Bank, Đầu tư, Cướp bank').setEmoji('🏦'),
-            new StringSelectMenuOptionBuilder().setLabel('⚔️ RPG').setValue('4').setDescription('Săn quái, Pokemon, Shop').setEmoji('⚔️'),
-            new StringSelectMenuOptionBuilder().setLabel('💍 Kết Hôn').setValue('5').setDescription('Nhẫn, Cầu hôn, Ly hôn').setEmoji('💍'),
-            new StringSelectMenuOptionBuilder().setLabel('💘 Lễ Đường').setValue('6').setDescription('Thính, Bói tình yêu, Cầu duyên').setEmoji('💘'),
-            new StringSelectMenuOptionBuilder().setLabel('🐺 Ma Sói').setValue('7').setDescription('Game đối kháng nhóm').setEmoji('🐺'),
-            new StringSelectMenuOptionBuilder().setLabel('📱 Tiện Ích').setValue('8').setDescription('Avatar, TikTok, J2C, Voice').setEmoji('📱'),
-            new StringSelectMenuOptionBuilder().setLabel('⛓️ Tù & LĐXH').setValue('9').setDescription('Jail, Unjail, Cải tạo').setEmoji('⛓️'),
-            new StringSelectMenuOptionBuilder().setLabel('🔧 Admin: Quản lý').setValue('10').setDescription('Coin, Server, QR').setEmoji('🔧'),
-            new StringSelectMenuOptionBuilder().setLabel('⚙️ Admin: Hệ thống').setValue('11').setDescription('Giveaway, Cheat, Emoji').setEmoji('⚙️')
+            new StringSelectMenuOptionBuilder().setLabel('⚔️ RPG Cơ Bản').setValue('4').setDescription('Săn quái, Pokemon, Shop').setEmoji('⚔️'),
+            new StringSelectMenuOptionBuilder().setLabel('🏰 RPG Nâng Cao').setValue('5').setDescription('Dungeon, PvP, Quest, Class').setEmoji('🏰'),
+            new StringSelectMenuOptionBuilder().setLabel('💍 Kết Hôn').setValue('6').setDescription('Nhẫn, Cầu hôn, Ly hôn').setEmoji('💍'),
+            new StringSelectMenuOptionBuilder().setLabel('💘 Lễ Đường').setValue('7').setDescription('Thính, Bói tình yêu, Cầu duyên').setEmoji('💘'),
+            new StringSelectMenuOptionBuilder().setLabel('🐺 Ma Sói').setValue('8').setDescription('Game đối kháng nhóm').setEmoji('🐺'),
+            new StringSelectMenuOptionBuilder().setLabel('📱 Tiện Ích').setValue('9').setDescription('Avatar, TikTok, J2C, Voice').setEmoji('📱'),
+            new StringSelectMenuOptionBuilder().setLabel('⛓️ Tù & LĐXH').setValue('10').setDescription('Jail, Unjail, Cải tạo').setEmoji('⛓️'),
+            new StringSelectMenuOptionBuilder().setLabel('🔧 Admin: Quản lý').setValue('11').setDescription('Coin, Server, QR').setEmoji('🔧'),
+            new StringSelectMenuOptionBuilder().setLabel('⚙️ Admin: Hệ thống').setValue('12').setDescription('Giveaway, Cheat, Emoji').setEmoji('⚙️')
         );
 }
 
