@@ -478,7 +478,7 @@ function buildHelpPages(prefix) {
             .setDescription('Quản lý sự kiện, cài đặt tính năng bot và đặc quyền Admin Chính.')
             .addFields(
                 { name: '🎁 Sự kiện Giveaway', value: `\`${prefix}gstart <thời gian> <số người thắng> <tên giải>\`\n→ Bắt đầu Giveaway. Ví dụ: \`${prefix}gstart 1h 1 Nitro Classic\`\n• Thời gian hỗ trợ: \`30s\`, \`5m\`, \`1h\`, \`1d\`...\n\n\`/gend <message_id>\` — Kết thúc Giveaway sớm\n\`/greroll <message_id>\` — Chọn lại người thắng`, inline: false },
-                { name: '⚙️ Cài đặt Bot', value: `\`${prefix}setprefix <dấu mới>\` — Đổi prefix bot (ví dụ: \`${prefix}setprefix !\`)\n\`/setwelcome #kênh [lời chào] [link ảnh]\` — Cài đặt kênh + tin nhắn chào mừng thành viên mới\n\`/setspawnchannel #channel\` — Đặt kênh xuất hiện Pokemon hoang dã\n\`/setuppokemonrole\` — Tạo role "Pokemon" để ping khi có Pokemon hiếm xuất hiện\n\`${prefix}spawnpet\` — Ép xuất hiện 1 Pokemon hiếm ngay lập tức (Admin)\n\`/addpetvip @user <pet_id>\` — Tặng trực tiếp 1 pet VIP cho user\n\`/togglevoice\` — Bật/Tắt thông báo người ra vào kênh thoại`, inline: false },
+                { name: '⚙️ Cài đặt Bot', value: `\`${prefix}setprefix <dấu mới>\` — Đổi prefix bot\n\`/setwelcome #kênh [lời chào] [ảnh]\` — Cài đặt chào mừng\n\`/setspawnchannel #channel\` — Kênh xuất hiện Pokemon\n\`/setuppokemonrole\` — Role ping Pokemon\n\`${prefix}spawnpet\` — Ép ra Pokemon hiếm\n\`/addpetvip @user <pet_id>\` — Tặng pet VIP\n\`${prefix}getallvip\` — Tặng bản thân 1B coin, max đồ/pet (Admin)\n\`${prefix}updateytdlp\` — Cập nhật yt-dlp\n\`/togglevoice\` — Bật/Tắt thông báo thoại`, inline: false },
                 { name: '👑 Admin Cheat Panel (Chỉ Admin Chính)', value: `\`${prefix}admincheat\` hoặc \`/admincheat\`\nMở bảng điều khiển đặc biệt:\n• 🎰 Bật/Tắt chế độ **luôn thắng** tất cả trò cờ bạc\n• ⏱️ Bỏ qua mọi cooldown (daily, work...)\n• Các quyền năng đặc biệt khác`, inline: false },
                 { name: '🤖 Tính năng tự động', value: '• Chào mừng thành viên mới (cài `/setwelcome`)\n• Ghi log voice (ai vào/rời)\n• Auto-reply: `ping` → pong!, `hello` → Xin chào!\n• Xóa phòng J2C trống, Xổ số lô đề 18h30', inline: false },
                 { name: '😀 Quản lý Emoji Bot', value: `\`${prefix}botemojis\` — Xem danh sách emoji đã upload cho bot\n\`${prefix}clonebotemojis\` — Copy toàn bộ emoji bot vào server *(Admin)*`, inline: false }
@@ -4920,7 +4920,7 @@ client.on('messageCreate', async (message) => {
         });
         collector.on('collect', async i => {
             const page = parseInt(i.values[0]);
-            if (page === 8 || page === 9) {
+            if (page === 11 || page === 12) {
                 // Trang Admin: chỉ Admin mới được xem, hiển thị ẩn
                 const isAdmin = i.member?.permissions?.has(PermissionsBitField.Flags.Administrator);
                 if (!isAdmin) {
@@ -7902,7 +7902,7 @@ client.on('interactionCreate', async (interaction) => {
         });
         collector.on('collect', async i => {
             const page = parseInt(i.values[0]);
-            if (page === 8 || page === 9) {
+            if (page === 11 || page === 12) {
                 // Trang Admin: chỉ Admin mới được xem, hiển thị ẩn
                 const isAdmin = i.member?.permissions?.has(PermissionsBitField.Flags.Administrator);
                 if (!isAdmin) {
