@@ -1038,6 +1038,8 @@ const RPG_ITEMS = {
         'demon_horn': { name: 'Sừng Quỷ', emoji: '👿', price: 50000 },
         'wood_log': { name: 'Gỗ Sồi', emoji: '🪵', price: 1000 },
         'herb': { name: 'Thảo Dược', emoji: '🌿', price: 2000 },
+        'mega_stone': { name: 'Đá Mega', emoji: '🔮', price: 200000 },
+        'z_crystal': { name: 'Đá Tuyệt Kỹ Z', emoji: '💠', price: 250000 },
         'gold_ore': { name: 'Quặng Vàng', emoji: '🪙', price: 15000 },
         'fire_crystal': { name: 'Tinh Thể Lửa', emoji: '🔥', price: 20000 },
         'ice_gem': { name: 'Băng Ngọc', emoji: '🧊', price: 30000 },
@@ -1459,6 +1461,14 @@ function getPlayerStats(p) {
         totalDefBonus += cls.defBonus;
         totalHpBonus += cls.hpBonus;
     }
+    
+    // Ring bonuses (only if married and equipped ring)
+    if (p.partner && p.equippedRing && MARRY_RINGS[p.equippedRing]) {
+        const ring = MARRY_RINGS[p.equippedRing];
+        atk += ring.atkBonus || 0;
+        def += ring.defBonus || 0;
+        maxHp += ring.hpBonus || 0;
+    }
 
     atk = Math.floor(atk * (1 + totalAtkBonus));
     def = Math.floor(def * (1 + totalDefBonus));
@@ -1639,18 +1649,27 @@ function buildShopEmbed(tab) {
             .setThumbnail('https://cdn-icons-png.flaticon.com/512/833/833472.png')
             .setFooter({ text: 'Chọn nhẫn từ menu bên dưới để mua' });
     }
+    if (tab === 'farm') {
+        return new EmbedBuilder()
+            .setTitle('🏡 Cửa Hàng Nông Trại')
+            .setDescription('Mua hạt giống hoặc mở rộng thêm ô đất trồng cây!\n> 💰 Giá sẽ tự động trừ vào Coin của bạn!')
+            .setColor('#F39C12')
+            .setThumbnail('https://cdn-icons-png.flaticon.com/512/3063/3063822.png')
+            .setFooter({ text: 'Chọn món đồ từ menu bên dưới để mua' });
+    }
     return new EmbedBuilder()
         .setTitle('🛒 Cửa Hàng RPG')
         .setDescription('Vui lòng chọn danh mục và món đồ bạn muốn mua.\n\n> 💰 Giá sẽ tự động trừ vào Coin của bạn!')
         .setColor('#3498DB')
-        .setFooter({ text: 'Chọn tab ở trên để xem Nhẫn kết hôn' });
+        .setFooter({ text: 'Chọn tab ở trên để xem danh mục khác' });
 }
 
 function buildShopCategoryRow() {
     return new ActionRowBuilder().addComponents(
         new ButtonBuilder().setCustomId('shop_tab_rpg').setLabel('⚔️ Trang Bị RPG').setStyle(ButtonStyle.Primary),
         new ButtonBuilder().setCustomId('shop_tab_pet').setLabel('🐾 Bắt Pet').setStyle(ButtonStyle.Success),
-        new ButtonBuilder().setCustomId('shop_tab_ring').setLabel('💍 Nhẫn Kết Hôn').setStyle(ButtonStyle.Secondary)
+        new ButtonBuilder().setCustomId('shop_tab_ring').setLabel('💍 Nhẫn Kết Hôn').setStyle(ButtonStyle.Secondary),
+        new ButtonBuilder().setCustomId('shop_tab_farm').setLabel('🏡 Nông Trại').setStyle(ButtonStyle.Warning)
     );
 }
 
@@ -1678,6 +1697,23 @@ function buildShopSelectRow(tab) {
         }
         return new ActionRowBuilder().addComponents(
             new StringSelectMenuBuilder().setCustomId('rpg_shop_select').setPlaceholder('💍 Chọn nhẫn muốn mua...').addOptions(options)
+        );
+    }
+    if (tab === 'farm') {
+        for (const [k, v] of Object.entries(RPG_ITEMS.seeds)) {
+            options.push(new StringSelectMenuOptionBuilder()
+                .setLabel(`${v.name}`)
+                .setValue(`seed_${k}`)
+                .setDescription(`Giá: ${v.price.toLocaleString()} 🪙`)
+                .setEmoji(v.emoji));
+        }
+        options.push(new StringSelectMenuOptionBuilder()
+            .setLabel(`Mở rộng đất`)
+            .setValue(`farm_expand`)
+            .setDescription(`Mở thêm 1 ô đất`)
+            .setEmoji('🌍'));
+        return new ActionRowBuilder().addComponents(
+            new StringSelectMenuBuilder().setCustomId('rpg_shop_select').setPlaceholder('🏡 Chọn món đồ muốn mua...').addOptions(options)
         );
     }
     // RPG tab
@@ -1715,9 +1751,10 @@ async function handleShop(userId, msgOrInteraction) {
         if (i.user.id !== userId) return i.reply({ content: '❌ Cửa hàng này không phải của bạn!', ephemeral: true });
 
         // Tab buttons
-        if (i.customId === 'shop_tab_rpg' || i.customId === 'shop_tab_ring' || i.customId === 'shop_tab_pet') {
+        if (i.customId === 'shop_tab_rpg' || i.customId === 'shop_tab_ring' || i.customId === 'shop_tab_pet' || i.customId === 'shop_tab_farm') {
             if (i.customId === 'shop_tab_ring') currentTab = 'ring';
             else if (i.customId === 'shop_tab_pet') currentTab = 'pet';
+            else if (i.customId === 'shop_tab_farm') currentTab = 'farm';
             else currentTab = 'rpg';
             const newEmbed = buildShopEmbed(currentTab);
             const newCatRow = buildShopCategoryRow();
@@ -1728,6 +1765,18 @@ async function handleShop(userId, msgOrInteraction) {
         // Select menu purchase
         if (i.customId === 'rpg_shop_select') {
             const val = i.values[0];
+            
+            if (val === 'farm_expand') {
+                const p = getPlayer(userId);
+                if (!p.farm) p.farm = { slots: 3, plants: {} };
+                if (p.farm.slots >= 10) return i.reply({ content: `❌ Bạn đã mở rộng tối đa ô đất!`, ephemeral: true });
+                const expandCost = p.farm.slots * 10000;
+                if (getUserCoins(userId) < expandCost) return i.reply({ content: `❌ Bạn cần **${expandCost.toLocaleString()} 🪙** để mở rộng!`, ephemeral: true });
+                addCoins(userId, -expandCost);
+                updatePlayer(userId, dp => { if(!dp.farm) dp.farm = { slots: 3, plants: {} }; dp.farm.slots += 1; });
+                return i.reply({ content: `✅ Đã mở rộng Nông trại lên **${p.farm.slots + 1}** ô đất! (Trừ ${expandCost.toLocaleString()} 🪙)`, ephemeral: true });
+            }
+
             const firstUnderscore = val.indexOf('_');
             const type = val.substring(0, firstUnderscore);
             const itemCode = val.substring(firstUnderscore + 1);
@@ -2339,25 +2388,53 @@ async function handleGather(userId, msgOrInteraction, args) {
     const p = getPlayer(userId);
     const now = Date.now();
     
-    // Cooldown 5 mins
-    if (now - (p.lastGather || 0) < 5 * 60 * 1000) {
-        const mins = Math.ceil((5 * 60 * 1000 - (now - p.lastGather)) / 60000);
-        return replyMsg(msgOrInteraction, `⏳ Khu vực đang hồi tài nguyên! Hãy quay lại sau **${mins} phút**.`);
-    }
-
-    const regionKey = args[1] ? args[1].toLowerCase() : null;
-    if (!regionKey || !REGIONS[regionKey]) {
-        let regionsText = Object.keys(REGIONS).map(k => {
+    const isChangeCommand = args[1] && args[1].toLowerCase() === 'change';
+    
+    if (isChangeCommand || !p.selectedRegion) {
+        const options = Object.keys(REGIONS).map(k => {
             const r = REGIONS[k];
-            const locked = p.level < r.minLevel ? ' 🔒 (Yêu cầu Lv.'+r.minLevel+')' : '';
-            return `\`${k}\` - ${r.emoji} ${r.name}${locked}`;
-        }).join('\n');
-        return replyMsg(msgOrInteraction, `🌍 **Các khu vực thu thập:**\n${regionsText}\n\n👉 *Cú pháp: \`!gather <mã_khu_vực>\`*`);
+            const locked = p.level < r.minLevel;
+            const dropsStr = r.drops.map(d => RPG_ITEMS.materials[d]?.name || d).join(', ');
+            return new StringSelectMenuOptionBuilder()
+                .setLabel(r.name)
+                .setValue(k)
+                .setDescription(locked ? `🔒 Yêu cầu Lv.${r.minLevel}` : `✅ Rơi: ${dropsStr}`)
+                .setEmoji(r.emoji);
+        });
+
+        const row = new ActionRowBuilder().addComponents(
+            new StringSelectMenuBuilder()
+                .setCustomId(`gather_region_select_${userId}`)
+                .setPlaceholder('🌍 Chọn khu vực thu thập...')
+                .addOptions(options)
+        );
+
+        const currentRegionName = p.selectedRegion && REGIONS[p.selectedRegion] ? REGIONS[p.selectedRegion].name : 'Chưa chọn';
+        const embed = new EmbedBuilder()
+            .setTitle('🌍 Chọn Khu Vực Thu Thập')
+            .setDescription(`Hãy chọn một khu vực từ menu bên dưới để bắt đầu farm tại đó.\nKhu vực hiện tại: **${currentRegionName}**`)
+            .setColor('#2ECC71');
+
+        return replyMsg(msgOrInteraction, { embeds: [embed], components: [row] });
     }
 
+    // Cooldown 1 min
+    if (now - (p.lastGather || 0) < 60 * 1000) {
+        const secs = Math.ceil((60 * 1000 - (now - p.lastGather)) / 1000);
+        
+        // If it's a button interaction, we can reply ephemerally so we don't spam
+        if (msgOrInteraction.isButton && msgOrInteraction.isButton()) {
+            return msgOrInteraction.reply({ content: `⏳ Khu vực đang hồi tài nguyên! Hãy nhấn lại sau **${secs} giây**.`, ephemeral: true });
+        }
+        return replyMsg(msgOrInteraction, `⏳ Khu vực đang hồi tài nguyên! Hãy quay lại sau **${secs} giây**.`);
+    }
+
+    const regionKey = p.selectedRegion;
     const r = REGIONS[regionKey];
+    if (!r) return replyMsg(msgOrInteraction, `❌ Khu vực không hợp lệ! Hãy dùng lệnh \`!gather change\`.`);
+    
     if (p.level < r.minLevel) {
-        return replyMsg(msgOrInteraction, `❌ Bạn cần đạt **Cấp ${r.minLevel}** để tới ${r.emoji} **${r.name}**!`);
+        return replyMsg(msgOrInteraction, `❌ Bạn cần đạt **Cấp ${r.minLevel}** để tới ${r.emoji} **${r.name}**! (Đổi khu vực bằng \`!gather change\`)`);
     }
 
     // Determine drop
@@ -2382,23 +2459,47 @@ async function handleGather(userId, msgOrInteraction, args) {
     const itemDef = RPG_ITEMS.materials[droppedItem];
     const embed = new EmbedBuilder()
         .setTitle(`${r.emoji} Thu thập tại ${r.name}`)
-        .setDescription(`Bạn đã cất công tìm kiếm và thu được:\n\n💎 **${itemDef.emoji} ${itemDef.name} x${dropQty}**\n⭐ **+15 EXP**`)
+        .setDescription(`Bạn đã cất công tìm kiếm và thu được:\n\n💎 **${itemDef.emoji} ${itemDef.name} x${dropQty}**\n⭐ **+15 EXP**\n\n*(Khu vực hiện tại: ${r.name} - Đổi khu vực: \`!gather change\`)*`)
         .setColor('#2ECC71');
 
-    return replyMsg(msgOrInteraction, { embeds: [embed] });
+    const row = new ActionRowBuilder().addComponents(
+        new ButtonBuilder().setCustomId(`gather_again_${userId}`).setLabel('🔁 Tiếp Tục Thu Thập').setStyle(ButtonStyle.Primary)
+    );
+
+    if (msgOrInteraction.isButton && msgOrInteraction.isButton()) {
+        return msgOrInteraction.update({ embeds: [embed], components: [row] });
+    }
+    return replyMsg(msgOrInteraction, { embeds: [embed], components: [row] });
 }
 
 async function handleCraft(userId, msgOrInteraction, args) {
     const p = getPlayer(userId);
-    const itemId = args[1] ? args[1].toLowerCase() : null;
+    const itemId = args && args[1] ? args[1].toLowerCase() : null;
     
     if (!itemId || !CRAFTING_RECIPES[itemId]) {
-        let text = '🛠️ **BẢNG CHẾ TẠO**\n*Sử dụng lệnh: `!craft <mã_đồ>`*\n\n';
+        const embed = new EmbedBuilder()
+            .setTitle('🛠️ Lò Rèn & Chế Tạo')
+            .setDescription('Chọn món đồ bạn muốn chế tạo từ menu bên dưới.\nBạn có thể nhấp chọn để xem yêu cầu nguyên liệu.')
+            .setColor('#E67E22');
+            
+        const options = [];
         for (const [k, v] of Object.entries(CRAFTING_RECIPES)) {
             const reqs = Object.entries(v.req).map(([mat, qty]) => `${RPG_ITEMS.materials[mat]?.emoji || ''}${qty}`).join(', ');
-            text += `**${v.emoji} ${v.name}** (\`${k}\`)\n└ 🪙 ${v.coin.toLocaleString()} | 📦 ${reqs}\n`;
+            options.push(new StringSelectMenuOptionBuilder()
+                .setLabel(`${v.name}`)
+                .setValue(`craft_${k}`)
+                .setDescription(`🪙 ${v.coin.toLocaleString()} | 📦 ${reqs}`)
+                .setEmoji(v.emoji));
         }
-        return replyMsg(msgOrInteraction, text);
+        
+        const row = new ActionRowBuilder().addComponents(
+            new StringSelectMenuBuilder()
+                .setCustomId(`craft_select_${userId}`)
+                .setPlaceholder('🔨 Chọn món đồ muốn chế tạo...')
+                .addOptions(options.slice(0, 25))
+        );
+        
+        return replyMsg(msgOrInteraction, { embeds: [embed], components: [row] });
     }
 
     const recipe = CRAFTING_RECIPES[itemId];
@@ -2438,9 +2539,8 @@ async function handleCraft(userId, msgOrInteraction, args) {
 }
 
 // --- FARMING SYSTEM ---
-async function handleFarmCommand(userId, msgOrInteraction, args) {
+async function handleFarmCommand(userId, msgOrInteraction) {
     const p = getPlayer(userId);
-    const subCmd = args[1] ? args[1].toLowerCase() : 'view';
     const now = Date.now();
     
     if (!p.farm) {
@@ -2448,119 +2548,35 @@ async function handleFarmCommand(userId, msgOrInteraction, args) {
         p.farm = { slots: 3, plants: {} };
     }
 
-    if (subCmd === 'view') {
-        const embed = new EmbedBuilder().setTitle('🏡 Nông Trại Của Bạn').setColor('#2ECC71');
-        let desc = `**Số ô đất:** ${p.farm.slots}\n\n`;
-        for (let i = 1; i <= p.farm.slots; i++) {
-            const plant = p.farm.plants[i];
-            if (!plant) {
-                desc += `[Ô ${i}] 🟫 Đất trống\n`;
-            } else {
-                const seedDef = RPG_ITEMS.seeds[plant.seed];
-                const elapsed = now - plant.plantedAt;
-                if (elapsed >= seedDef.growTime) {
-                    desc += `[Ô ${i}] ${RPG_ITEMS.crops[seedDef.yieldItem].emoji} **${RPG_ITEMS.crops[seedDef.yieldItem].name}** (Đã chín! Có thể thu hoạch)\n`;
-                } else {
-                    const remainMins = Math.ceil((seedDef.growTime - elapsed) / 60000);
-                    desc += `[Ô ${i}] 🌱 **${seedDef.name}** (Còn ${remainMins} phút)\n`;
-                }
-            }
-        }
-        desc += `\n*Lệnh:* \`!farm plant <ô> <hạt>\`, \`!farm harvest <ô|all>\`, \`!farm shop\``;
-        embed.setDescription(desc);
-        return replyMsg(msgOrInteraction, { embeds: [embed] });
-    }
-    
-    if (subCmd === 'shop') {
-        let text = '🛒 **CỬA HÀNG NÔNG TRẠI**\n*Sử dụng: \`!farm buy <mã_hạt>\` hoặc \`!farm expand\` để mua thêm đất*\n\n';
-        for (const [k, v] of Object.entries(RPG_ITEMS.seeds)) {
-            text += `${v.emoji} **${v.name}** (\`${k}\`) - Giá: ${v.price.toLocaleString()} 🪙\n`;
-        }
-        const expandCost = p.farm.slots >= 10 ? 'MAX' : (p.farm.slots * 10000).toLocaleString() + ' 🪙';
-        text += `\n Mở rộng ô đất tiếp theo: **${expandCost}**`;
-        return replyMsg(msgOrInteraction, text);
-    }
-    
-    if (subCmd === 'buy') {
-        const seedId = args[2] ? args[2].toLowerCase() : null;
-        if (!seedId || !RPG_ITEMS.seeds[seedId]) return replyMsg(msgOrInteraction, `❌ Mã hạt giống không hợp lệ! Xem \`!farm shop\``);
-        const seedDef = RPG_ITEMS.seeds[seedId];
-        if (getUserCoins(userId) < seedDef.price) return replyMsg(msgOrInteraction, `❌ Bạn không đủ **${seedDef.price.toLocaleString()} 🪙**!`);
-        addCoins(userId, -seedDef.price);
-        updatePlayer(userId, dp => { dp.inventory[seedId] = (dp.inventory[seedId] || 0) + 1; });
-        return replyMsg(msgOrInteraction, `✅ Đã mua thành công 1 ${seedDef.emoji} **${seedDef.name}**!`);
-    }
-    
-    if (subCmd === 'expand') {
-        if (p.farm.slots >= 10) return replyMsg(msgOrInteraction, `❌ Bạn đã mở rộng tối đa ô đất!`);
-        const expandCost = p.farm.slots * 10000;
-        if (getUserCoins(userId) < expandCost) return replyMsg(msgOrInteraction, `❌ Bạn cần **${expandCost.toLocaleString()} 🪙** để mở rộng!`);
-        addCoins(userId, -expandCost);
-        updatePlayer(userId, dp => { dp.farm.slots += 1; });
-        return replyMsg(msgOrInteraction, `✅ Đã mở rộng Nông trại lên **${p.farm.slots + 1}** ô đất!`);
-    }
-    
-    if (subCmd === 'plant') {
-        const slotStr = args[2];
-        const seedId = args[3] ? args[3].toLowerCase() : null;
-        if (!slotStr || isNaN(slotStr) || !seedId) return replyMsg(msgOrInteraction, `❌ Cú pháp: \`!farm plant <số_ô> <mã_hạt>\``);
-        const slot = parseInt(slotStr);
-        if (slot < 1 || slot > p.farm.slots) return replyMsg(msgOrInteraction, `❌ Ô đất không hợp lệ (Bạn có ${p.farm.slots} ô).`);
-        if (p.farm.plants[slot]) return replyMsg(msgOrInteraction, `❌ Ô đất số ${slot} đã có cây!`);
-        
-        if (!p.inventory[seedId] || p.inventory[seedId] <= 0 || !RPG_ITEMS.seeds[seedId]) {
-            return replyMsg(msgOrInteraction, `❌ Bạn không có hạt giống này trong túi!`);
-        }
-        
-        updatePlayer(userId, dp => {
-            dp.inventory[seedId] -= 1;
-            if (dp.inventory[seedId] <= 0) delete dp.inventory[seedId];
-            dp.farm.plants[slot] = { seed: seedId, plantedAt: now };
-        });
-        const seedDef = RPG_ITEMS.seeds[seedId];
-        return replyMsg(msgOrInteraction, `✅ Đã gieo ${seedDef.emoji} **${seedDef.name}** vào Ô số ${slot}. Cần ${Math.ceil(seedDef.growTime/60000)} phút để thu hoạch.`);
-    }
-    
-    if (subCmd === 'harvest') {
-        const slotStr = args[2];
-        if (!slotStr) return replyMsg(msgOrInteraction, `❌ Cú pháp: \`!farm harvest <số_ô/all>\``);
-        
-        let harvestedCount = 0;
-        let harvestText = '';
-        let totalExp = 0;
-        
-        const doHarvest = (slot) => {
-            const plant = p.farm.plants[slot];
-            if (!plant) return;
-            const seedDef = RPG_ITEMS.seeds[plant.seed];
-            if (now - plant.plantedAt >= seedDef.growTime) {
-                const yieldAmt = Math.floor(Math.random() * 2) + 1; // 1-2 items
-                const cropId = seedDef.yieldItem;
-                const cropDef = RPG_ITEMS.crops[cropId];
-                updatePlayer(userId, dp => {
-                    delete dp.farm.plants[slot];
-                    dp.inventory[cropId] = (dp.inventory[cropId] || 0) + yieldAmt;
-                    dp.exp += 20; // 20 exp per harvest
-                });
-                harvestedCount++;
-                totalExp += 20;
-                harvestText += `[Ô ${slot}] Nhận ${cropDef.emoji} **${cropDef.name}** x${yieldAmt}\n`;
-            }
-        };
-
-        if (slotStr.toLowerCase() === 'all') {
-            for (let i = 1; i <= p.farm.slots; i++) doHarvest(i);
+    const embed = new EmbedBuilder().setTitle('🏡 Nông Trại Của Bạn').setColor('#2ECC71');
+    let desc = `**Số ô đất:** ${p.farm.slots}\n\n`;
+    for (let i = 1; i <= p.farm.slots; i++) {
+        const plant = p.farm.plants[i];
+        if (!plant) {
+            desc += `[Ô ${i}] 🟫 Đất trống\n`;
         } else {
-            const slot = parseInt(slotStr);
-            if (slot >= 1 && slot <= p.farm.slots) doHarvest(slot);
+            const seedDef = RPG_ITEMS.seeds[plant.seed];
+            const elapsed = now - plant.plantedAt;
+            if (elapsed >= seedDef.growTime) {
+                desc += `[Ô ${i}] ${RPG_ITEMS.crops[seedDef.yieldItem].emoji} **${RPG_ITEMS.crops[seedDef.yieldItem].name}** (Đã chín! Có thể thu hoạch)\n`;
+            } else {
+                const remainMins = Math.ceil((seedDef.growTime - elapsed) / 60000);
+                desc += `[Ô ${i}] 🌱 **${seedDef.name}** (Còn ${remainMins} phút)\n`;
+            }
         }
-        
-        if (harvestedCount === 0) return replyMsg(msgOrInteraction, `❌ Không có cây nào chín để thu hoạch ở ô này!`);
-        
-        return replyMsg(msgOrInteraction, `🌾 **THU HOẠCH THÀNH CÔNG**\n${harvestText}\n⭐ Nhận được **+${totalExp} EXP**!`);
     }
-    
-    return replyMsg(msgOrInteraction, `❌ Lệnh Nông Trại không hợp lệ! Xem \`!farm\``);
+    embed.setDescription(desc);
+
+    const row = new ActionRowBuilder().addComponents(
+        new ButtonBuilder().setCustomId(`farm_plant_${userId}`).setLabel('🌱 Gieo Hạt').setStyle(ButtonStyle.Success),
+        new ButtonBuilder().setCustomId(`farm_harvest_all_${userId}`).setLabel('🌾 Thu Hoạch Nhanh').setStyle(ButtonStyle.Primary),
+        new ButtonBuilder().setCustomId(`farm_refresh_${userId}`).setLabel('🔄 Làm Mới').setStyle(ButtonStyle.Secondary)
+    );
+
+    if (msgOrInteraction.isButton && msgOrInteraction.isButton()) {
+        return msgOrInteraction.update({ embeds: [embed], components: [row] });
+    }
+    return replyMsg(msgOrInteraction, { embeds: [embed], components: [row] });
 }
 
 // --- DUNGEON SYSTEM ---
@@ -3070,57 +3086,53 @@ async function handleEvolve(userId, msgOrInteraction) {
     const p = getPlayer(userId);
     const pets = p.pets || {};
 
-    // Build evolution options from owned pets that have evolutions
     const evolveOptions = [];
     for (const pet of PET_LIST) {
         if (!pets[pet.id] || pets[pet.id] <= 0) continue;
-        // Check if this pet has an evolution (next in the evolution chain)
         const nextEvo = PET_LIST.find(np => np.evolvesFrom === pet.id);
         if (nextEvo) {
-            const candyCost = nextEvo.evolveCandyCost || 3;
-            evolveOptions.push({ from: pet, to: nextEvo, candyCost, owned: pets[pet.id] });
+            evolveOptions.push({ from: pet, to: nextEvo, owned: pets[pet.id] });
         }
     }
 
     if (evolveOptions.length === 0) {
-        // Nếu không có evolve option, cho bán duplicate lấy candy
         const dupes = [];
         for (const pet of PET_LIST) {
             if (pets[pet.id] && pets[pet.id] > 1) dupes.push({ pet, count: pets[pet.id] - 1 });
         }
         
-        let desc = '🍬 **Candy:** ' + (p.candy || 0) + '\n\n';
+        let desc = '❌ Bạn chưa có Pokemon nào có thể tiến hóa.\n\n';
         if (dupes.length > 0) {
-            desc += '💡 Bạn có thể **chuyển Pokemon dư thành Candy** để tiến hóa!\n\n';
-            desc += dupes.slice(0, 10).map(d => `${d.pet.emoji} ${d.pet.name}: ${d.count} con dư → **${d.count} candy**`).join('\n');
+            desc += '💡 Bạn có Pokemon dư, bạn có thể **bán thú cưng dư để lấy Vàng**!\n\n';
+            desc += dupes.slice(0, 10).map(d => `${d.pet.emoji} ${d.pet.name}: ${d.count} con dư → **+${((d.count * (d.pet.price || 1000)) / 2).toLocaleString()} 🪙**`).join('\n');
             
             const convertRow = new ActionRowBuilder().addComponents(
-                new ButtonBuilder().setCustomId(`convert_candy_${userId}`).setLabel('🍬 Chuyển tất cả dư thành Candy').setStyle(ButtonStyle.Success)
+                new ButtonBuilder().setCustomId(`sell_dupe_pets_${userId}`).setLabel('💰 Bán Tất Cả Thú Dư').setStyle(ButtonStyle.Success)
             );
             
             const embed = new EmbedBuilder()
                 .setTitle('🔄 Tiến Hóa Pokemon')
-                .setDescription(desc + '\n\n*Chưa có Pokemon nào có thể tiến hóa. Hệ thống tiến hóa sẽ mở rộng khi thêm chuỗi tiến hóa vào pokemon.json!*')
+                .setDescription(desc)
                 .setColor('#9B59B6');
 
             return replyMsg(msgOrInteraction, { embeds: [embed], components: [convertRow] });
         }
         
-        return replyMsg(msgOrInteraction, `🍬 **Candy:** ${p.candy || 0}\n\n❌ Bạn chưa có Pokemon nào có thể tiến hóa hoặc dư để chuyển thành candy.\n> Bắt nhiều duplicate Pokemon rồi dùng \`/evolve\` để chuyển thành candy!`);
+        return replyMsg(msgOrInteraction, `❌ Bạn chưa có Pokemon nào có thể tiến hóa hoặc dư để bán.\n> Hãy bắt thêm Pokemon và quay lại sau!`);
     }
 
     const options = evolveOptions.slice(0, 25).map(opt => 
         new StringSelectMenuOptionBuilder()
             .setLabel(`${opt.from.name} → ${opt.to.name}`)
             .setValue(`evolve_${opt.from.id}_${opt.to.id}`)
-            .setDescription(`Cần: ${opt.candyCost} candy (Bạn có: ${p.candy || 0})`)
+            .setDescription(`Miễn phí Kẹo! (Sở hữu: ${opt.owned})`)
             .setEmoji(opt.from.emoji)
     );
 
     const embed = new EmbedBuilder()
         .setTitle('🔄 Tiến Hóa Pokemon')
-        .setDescription(`🍬 **Candy:** ${p.candy || 0}\n\n` + evolveOptions.map(opt =>
-            `${opt.from.emoji} **${opt.from.name}** → ${opt.to.emoji} **${opt.to.name}** (${opt.candyCost} candy)`
+        .setDescription(`Tiến hóa **hoàn toàn miễn phí**!\n\n` + evolveOptions.map(opt =>
+            `${opt.from.emoji} **${opt.from.name}** → ${opt.to.emoji} **${opt.to.name}**`
         ).join('\n'))
         .setColor('#9B59B6');
 
@@ -3129,6 +3141,91 @@ async function handleEvolve(userId, msgOrInteraction) {
     );
 
     return replyMsg(msgOrInteraction, { embeds: [embed], components: [row] });
+}
+
+// --- POKE SOLO ---
+async function handlePokeSolo(userId, msgOrInteraction) {
+    const p = getPlayer(userId);
+    const pets = p.pets || {};
+    
+    // Find strongest pet
+    let bestPet = null;
+    let maxPrice = -1;
+    for (const pet of PET_LIST) {
+        if (pets[pet.id] && pets[pet.id] > 0 && (pet.price || 0) > maxPrice) {
+            maxPrice = pet.price || 0;
+            bestPet = pet;
+        }
+    }
+    
+    if (!bestPet) {
+        return replyMsg(msgOrInteraction, '❌ Bạn chưa có Pokemon nào! Hãy dùng lệnh `/catchpet` để bắt Pokemon trước.');
+    }
+    
+    // Cooldown 15 mins
+    const now = Date.now();
+    if (now - (p.lastPokeSolo || 0) < 15 * 60 * 1000) {
+        const mins = Math.ceil((15 * 60 * 1000 - (now - p.lastPokeSolo)) / 60000);
+        return replyMsg(msgOrInteraction, `⏳ Thú cưng của bạn đang nghỉ ngơi! Hãy quay lại sau **${mins} phút**.`);
+    }
+    
+    // Random wild pokemon
+    const wildPet = PET_LIST[Math.floor(Math.random() * PET_LIST.length)];
+    
+    const pPower = bestPet.price || 1000;
+    const wildPower = (wildPet.price || 1000) * (Math.random() * 1.5 + 0.5); // Random modifier
+    
+    updatePlayer(userId, dp => {
+        dp.lastPokeSolo = now;
+    });
+    
+    const win = pPower >= wildPower;
+    
+    const embed = new EmbedBuilder()
+        .setTitle('⚔️ Poke Solo - Trận Chiến Sinh Tử')
+        .setDescription(`Bạn cử **${bestPet.emoji} ${bestPet.name}** (Sức mạnh: ${pPower.toLocaleString()}) đi khám phá...\nĐụng độ **${wildPet.emoji} ${wildPet.name}** Hoang Dã (Sức mạnh: ${Math.floor(wildPower).toLocaleString()})!`)
+        .setColor(win ? '#2ECC71' : '#E74C3C');
+        
+    if (!win) {
+        embed.addFields({ name: 'Thất bại!', value: `Thú cưng của bạn đã bị đánh bại và bỏ chạy về! 😭` });
+        return replyMsg(msgOrInteraction, { embeds: [embed] });
+    }
+    
+    // Win
+    let rewardText = `Thú cưng của bạn đã đánh bại đối thủ và mang về chiến lợi phẩm! 🎉\n\n`;
+    
+    let droppedMega = false;
+    let droppedZ = false;
+    
+    const randDrop = Math.random();
+    if (randDrop < 0.05) {
+        droppedMega = true;
+    } else if (randDrop < 0.10) {
+        droppedZ = true;
+    }
+    
+    const coinReward = Math.floor(Math.random() * 10000) + 5000;
+    addCoins(userId, coinReward);
+    rewardText += `💰 **+${coinReward.toLocaleString()} 🪙**\n`;
+    
+    updatePlayer(userId, dp => {
+        if (droppedMega) dp.inventory['mega_stone'] = (dp.inventory['mega_stone'] || 0) + 1;
+        if (droppedZ) dp.inventory['z_crystal'] = (dp.inventory['z_crystal'] || 0) + 1;
+        dp.exp += 50;
+    });
+    
+    rewardText += `⭐ **+50 EXP**\n`;
+    
+    if (droppedMega) {
+        rewardText += `🔮 **Nhặt được: 1x Đá Mega!**\n`;
+    }
+    if (droppedZ) {
+        rewardText += `💠 **Nhặt được: 1x Đá Tuyệt Kỹ Z!**\n`;
+    }
+    
+    embed.addFields({ name: 'Chiến Thắng!', value: rewardText });
+    
+    return replyMsg(msgOrInteraction, { embeds: [embed] });
 }
 
 // --- RPG LEADERBOARD ---
@@ -3469,11 +3566,11 @@ const QUE_TINH_DUYEN = [
 ];
 
 const MARRY_RINGS = {
-    'grass': { name: 'Nhẫn Cỏ', price: 10000000, emoji: '🌿' },
-    'silver': { name: 'Nhẫn Bạc', price: 50000000, emoji: '🥈' },
-    'gold': { name: 'Nhẫn Vàng', price: 200000000, emoji: '🥇' },
-    'diamond': { name: 'Nhẫn Kim Cương', price: 500000000, emoji: '💎' },
-    'infinity': { name: 'Nhẫn Vô Cực', price: 1000000000, emoji: '👑' }
+    'grass': { name: 'Nhẫn Cỏ', price: 10000000, emoji: '🌿', atkBonus: 10, defBonus: 10, hpBonus: 50 },
+    'silver': { name: 'Nhẫn Bạc', price: 50000000, emoji: '🥈', atkBonus: 50, defBonus: 50, hpBonus: 200 },
+    'gold': { name: 'Nhẫn Vàng', price: 200000000, emoji: '🥇', atkBonus: 150, defBonus: 150, hpBonus: 500 },
+    'diamond': { name: 'Nhẫn Kim Cương', price: 500000000, emoji: '💎', atkBonus: 300, defBonus: 300, hpBonus: 1000 },
+    'infinity': { name: 'Nhẫn Vô Cực', price: 1000000000, emoji: '👑', atkBonus: 800, defBonus: 800, hpBonus: 3000 }
 };
 
 async function handleMarry(userId, targetId, msgOrInteraction) {
@@ -4371,6 +4468,12 @@ const slashCommands = [
         .setDefaultMemberPermissions(PermissionsBitField.Flags.Administrator)
         .addUserOption(o => o.setName('user').setDescription('Người dùng').setRequired(true))
         .addIntegerOption(o => o.setName('amount').setDescription('Số lượng coin mới').setRequired(true).setMinValue(0)),
+    new SlashCommandBuilder()
+        .setName('gather')
+        .setDescription('🌍 Mở Menu hoặc thu thập tài nguyên tại Khu Vực đã chọn.'),
+    new SlashCommandBuilder()
+        .setName('pokesolo')
+        .setDescription('⚔️ Mang thú cưng mạnh nhất của bạn đi solo với Pokemon hoang dã!'),
     new SlashCommandBuilder()
         .setName('resetcoin')
         .setDescription('🛠️ (Admin) Reset số coin và ngân hàng của người dùng về mặc định.')
@@ -5403,17 +5506,15 @@ client.on('messageCreate', async (message) => {
         
         const pData = getPlayer(uid);
         if (!pData.pets[petId] || pData.pets[petId] <= 0) return message.reply('❌ Bạn không sở hữu thú cưng này!');
-        if ((pData.candy || 0) < evoData.candy) return message.reply(`❌ Bạn không đủ kẹo 🍬! Cần **${evoData.candy}** kẹo để tiến hóa. Bạn đang có **${pData.candy || 0}** kẹo.`);
         
         updatePlayer(uid, p => {
-            p.candy -= evoData.candy;
             p.pets[petId] -= 1;
             if (p.pets[petId] <= 0) delete p.pets[petId];
             p.pets[evoData.to] = (p.pets[evoData.to] || 0) + 1;
         });
         
         const nextPet = PET_LIST.find(p => p.id === evoData.to) || { name: evoData.to, emoji: '✨' };
-        return message.reply(`🌟 Tèn ten ten tén! Thú cưng của bạn đã tiến hóa thành công **${nextPet.emoji} ${nextPet.name}**!`);
+        return message.reply(`🌟 Tèn ten ten tén! Thú cưng của bạn đã tiến hóa thành công **${nextPet.emoji} ${nextPet.name}**! (Miễn phí Kẹo)`);
     }
 
     // Đổi prefix
@@ -6642,6 +6743,9 @@ client.on('messageCreate', async (message) => {
         const args = content.split(/\s+/);
         return handleGather(message.author.id, message, args);
     }
+    if (content === `${prefix}pokesolo`) {
+        return handlePokeSolo(message.author.id, message);
+    }
     if (content.startsWith(`${prefix}craft`) || content.startsWith(`${prefix}cr `) || content === `${prefix}cr`) {
         const args = content.split(/\s+/);
         return handleCraft(message.author.id, message, args);
@@ -6651,41 +6755,50 @@ client.on('messageCreate', async (message) => {
         const itemId = args[1] ? args[1].toLowerCase() : null;
         if (!itemId) return message.reply(`❌ Cú pháp: \`!equip <mã_trang_bị>\`\n*(Bạn có thể xem mã trong bảng !craft hoặc !inv)*`);
         
-        const p = getPlayer(message.author.id);
-        if (!p.inventory[itemId] || p.inventory[itemId] <= 0) {
-            return message.reply(`❌ Bạn không có sẵn món đồ này trong túi!`);
-        }
-        
         let type = null;
         if (RPG_ITEMS.weapons[itemId]) type = 'weapon';
         else if (RPG_ITEMS.armors[itemId]) type = 'armor';
         else if (RPG_ITEMS.artifacts[itemId]) type = 'artifact';
+        else if (MARRY_RINGS[itemId]) type = 'ring';
         
         if (!type) return message.reply(`❌ Trang bị không hợp lệ!`);
+        
+        const p = getPlayer(message.author.id);
+        if (type === 'ring') {
+            if (!p.partner) return message.reply(`❌ Bạn phải kết hôn mới được đeo nhẫn!`);
+            if (!p.rings || !p.rings[itemId] || p.rings[itemId] <= 0) {
+                return message.reply(`❌ Bạn không sở hữu chiếc nhẫn này!`);
+            }
+        } else {
+            if (!p.inventory[itemId] || p.inventory[itemId] <= 0) {
+                return message.reply(`❌ Bạn không có sẵn món đồ này trong túi!`);
+            }
+        }
         
         updatePlayer(message.author.id, dp => {
             if (type === 'weapon') dp.weapon = itemId;
             else if (type === 'armor') dp.armor = itemId;
             else if (type === 'artifact') dp.artifact = itemId;
+            else if (type === 'ring') dp.equippedRing = itemId;
         });
         
-        const typeName = type === 'weapon' ? 'Vũ Khí' : (type === 'armor' ? 'Áo Giáp' : 'Trang Sức');
-        const itemName = RPG_ITEMS[`${type}s`][itemId].name;
-        const emoji = RPG_ITEMS[`${type}s`][itemId].emoji;
+        const typeName = type === 'weapon' ? 'Vũ Khí' : (type === 'armor' ? 'Áo Giáp' : (type === 'ring' ? 'Nhẫn Cưới' : 'Trang Sức'));
+        const itemDef = type === 'ring' ? MARRY_RINGS[itemId] : RPG_ITEMS[`${type}s`][itemId];
         
-        return message.reply(`✅ Đã mặc **${typeName}** mới: ${emoji} **${itemName}**!`);
+        return message.reply(`✅ Đã mặc **${typeName}** mới: ${itemDef.emoji} **${itemDef.name}**!`);
     }
     if (content.startsWith(`${prefix}unequip`) || content.startsWith(`${prefix}uneq `)) {
         const args = content.split(/\s+/);
         const typeArg = args[1] ? args[1].toLowerCase() : null;
-        if (!['weapon', 'armor', 'artifact'].includes(typeArg)) {
-            return message.reply(`❌ Cú pháp: \`!unequip <weapon|armor|artifact>\``);
+        if (!['weapon', 'armor', 'artifact', 'ring'].includes(typeArg)) {
+            return message.reply(`❌ Cú pháp: \`!unequip <weapon|armor|artifact|ring>\``);
         }
         
         updatePlayer(message.author.id, dp => {
             if (typeArg === 'weapon') dp.weapon = null;
             else if (typeArg === 'armor') dp.armor = null;
             else if (typeArg === 'artifact') dp.artifact = null;
+            else if (typeArg === 'ring') dp.equippedRing = null;
         });
         
         return message.reply(`✅ Đã tháo trang bị ô **${typeArg}**!`);
@@ -7145,6 +7258,178 @@ client.on('interactionCreate', async (interaction) => {
                 
             return interaction.reply({ embeds: [embed], components: [buttons], ephemeral: true });
         }
+
+        if (interaction.isStringSelectMenu() && cid.startsWith('gather_region_select_')) {
+            const ownerId = cid.replace('gather_region_select_', '');
+            if (interaction.user.id !== ownerId) {
+                return interaction.reply({ content: '❌ Đây không phải là menu của bạn!', ephemeral: true });
+            }
+            const selectedRegion = interaction.values[0];
+            updatePlayer(ownerId, dp => {
+                dp.selectedRegion = selectedRegion;
+            });
+            return interaction.update({ content: `✅ Đã chọn khu vực **${REGIONS[selectedRegion].name}** làm nơi farm! Gõ lệnh \`!gather\` để bắt đầu thu thập.`, embeds: [], components: [] });
+        }
+        
+        if (interaction.isStringSelectMenu() && cid.startsWith('craft_select_')) {
+            const ownerId = cid.replace('craft_select_', '');
+            if (interaction.user.id !== ownerId) {
+                return interaction.reply({ content: '❌ Đây không phải là menu của bạn!', ephemeral: true });
+            }
+            
+            const val = interaction.values[0];
+            const itemId = val.replace('craft_', '');
+            
+            const modal = new ModalBuilder()
+                .setCustomId(`craft_buy_modal_${itemId}`)
+                .setTitle(`Chế tạo số lượng lớn`);
+            
+            const amountInput = new TextInputBuilder()
+                .setCustomId('craft_amount_input')
+                .setLabel('Số lượng muốn rèn')
+                .setStyle(TextInputStyle.Short)
+                .setPlaceholder('Nhập số nguyên lớn hơn 0...')
+                .setValue('1')
+                .setRequired(true);
+            
+            modal.addComponents(new ActionRowBuilder().addComponents(amountInput));
+            return interaction.showModal(modal);
+        }
+        
+        // =============================================
+        // FARM INTERACTION HANDLERS
+        // =============================================
+        if (cid.startsWith('gather_again_')) {
+            const ownerId = cid.replace('gather_again_', '');
+            if (interaction.user.id !== ownerId) return interaction.reply({ content: '❌ Đây không phải là hành động của bạn!', ephemeral: true });
+            return handleGather(ownerId, interaction, ['gather']);
+        }
+
+        if (cid.startsWith('farm_refresh_')) {
+            const ownerId = cid.replace('farm_refresh_', '');
+            if (interaction.user.id !== ownerId) return interaction.reply({ content: '❌ Nông trại này không phải của bạn!', ephemeral: true });
+            return handleFarmCommand(ownerId, interaction);
+        }
+
+        if (cid.startsWith('farm_harvest_all_')) {
+            const ownerId = cid.replace('farm_harvest_all_', '');
+            if (interaction.user.id !== ownerId) return interaction.reply({ content: '❌ Nông trại này không phải của bạn!', ephemeral: true });
+            const p = getPlayer(ownerId);
+            const now = Date.now();
+            let harvestedCount = 0;
+            let harvestText = '';
+            let totalExp = 0;
+            
+            for (let i = 1; i <= p.farm.slots; i++) {
+                const plant = p.farm.plants[i];
+                if (!plant) continue;
+                const seedDef = RPG_ITEMS.seeds[plant.seed];
+                if (now - plant.plantedAt >= seedDef.growTime) {
+                    const yieldAmt = Math.floor(Math.random() * 2) + 1; // 1-2 items
+                    const cropId = seedDef.yieldItem;
+                    const cropDef = RPG_ITEMS.crops[cropId];
+                    updatePlayer(ownerId, dp => {
+                        delete dp.farm.plants[i];
+                        dp.inventory[cropId] = (dp.inventory[cropId] || 0) + yieldAmt;
+                        dp.exp += 20; // 20 exp per harvest
+                    });
+                    harvestedCount++;
+                    totalExp += 20;
+                    harvestText += `[Ô ${i}] Nhận ${cropDef.emoji} **${cropDef.name}** x${yieldAmt}\n`;
+                }
+            }
+            
+            if (harvestedCount === 0) return interaction.reply({ content: `❌ Không có cây nào chín để thu hoạch!`, ephemeral: true });
+            await interaction.reply({ content: `🌾 **THU HOẠCH THÀNH CÔNG**\n${harvestText}\n⭐ Nhận được **+${totalExp} EXP**!`, ephemeral: true });
+            return handleFarmCommand(ownerId, interaction); // Refresh the UI
+        }
+
+        if (cid.startsWith('farm_plant_') && !cid.startsWith('farm_plant_seed_') && !cid.startsWith('farm_plant_slot_')) {
+            const ownerId = cid.replace('farm_plant_', '');
+            if (interaction.user.id !== ownerId) return interaction.reply({ content: '❌ Nông trại này không phải của bạn!', ephemeral: true });
+            
+            const p = getPlayer(ownerId);
+            const options = [];
+            for (const [k, v] of Object.entries(p.inventory)) {
+                if (RPG_ITEMS.seeds[k]) {
+                    const seedDef = RPG_ITEMS.seeds[k];
+                    options.push(new StringSelectMenuOptionBuilder()
+                        .setLabel(`${seedDef.name} (SL: ${v})`)
+                        .setValue(`farmseed_${k}`)
+                        .setDescription(`Thời gian lớn: ${Math.ceil(seedDef.growTime/60000)} phút`)
+                        .setEmoji(seedDef.emoji));
+                }
+            }
+            if (options.length === 0) return interaction.reply({ content: '❌ Bạn không có hạt giống nào trong túi! Hãy vào cửa hàng mua.', ephemeral: true });
+            
+            const row = new ActionRowBuilder().addComponents(
+                new StringSelectMenuBuilder()
+                    .setCustomId(`farm_plant_seed_${ownerId}`)
+                    .setPlaceholder('Chọn hạt giống muốn trồng...')
+                    .addOptions(options.slice(0, 25))
+            );
+            return interaction.reply({ content: '🌱 Vui lòng chọn hạt giống muốn gieo:', components: [row], ephemeral: true });
+        }
+
+        if (cid.startsWith('farm_plant_seed_')) {
+            const ownerId = cid.replace('farm_plant_seed_', '');
+            if (interaction.user.id !== ownerId) return interaction.reply({ content: '❌ Hành động không hợp lệ!', ephemeral: true });
+            
+            const seedId = interaction.values[0].replace('farmseed_', '');
+            const p = getPlayer(ownerId);
+            
+            const options = [];
+            for (let i = 1; i <= p.farm.slots; i++) {
+                if (!p.farm.plants[i]) {
+                    options.push(new StringSelectMenuOptionBuilder()
+                        .setLabel(`Ô Đất ${i}`)
+                        .setValue(`farmslot_${i}_${seedId}`)
+                        .setDescription(`Ô đất trống`));
+                }
+            }
+            
+            if (options.length === 0) return interaction.update({ content: '❌ Tất cả các ô đất đều đã được gieo hạt!', components: [] });
+            
+            const row = new ActionRowBuilder().addComponents(
+                new StringSelectMenuBuilder()
+                    .setCustomId(`farm_plant_slot_${ownerId}`)
+                    .setPlaceholder('Chọn ô đất trống...')
+                    .addOptions(options)
+            );
+            return interaction.update({ content: `🌱 Bạn đã chọn ${RPG_ITEMS.seeds[seedId].emoji} **${RPG_ITEMS.seeds[seedId].name}**. Hãy chọn ô đất muốn gieo:`, components: [row] });
+        }
+
+        if (cid.startsWith('farm_plant_slot_')) {
+            const ownerId = cid.replace('farm_plant_slot_', '');
+            if (interaction.user.id !== ownerId) return interaction.reply({ content: '❌ Hành động không hợp lệ!', ephemeral: true });
+            
+            const val = interaction.values[0];
+            const valParts = val.replace('farmslot_', '').split('_');
+            const slot = parseInt(valParts[0]);
+            const seedId = valParts.slice(1).join('_');
+            
+            const p = getPlayer(ownerId);
+            if (!p.inventory[seedId] || p.inventory[seedId] <= 0) return interaction.update({ content: '❌ Bạn đã hết hạt giống này!', components: [] });
+            if (p.farm.plants[slot]) return interaction.update({ content: '❌ Ô đất này đã có cây trồng!', components: [] });
+            
+            updatePlayer(ownerId, dp => {
+                dp.inventory[seedId] -= 1;
+                if (dp.inventory[seedId] <= 0) delete dp.inventory[seedId];
+                dp.farm.plants[slot] = { seed: seedId, plantedAt: Date.now() };
+            });
+            
+            const seedDef = RPG_ITEMS.seeds[seedId];
+            await interaction.update({ content: `✅ Đã gieo ${seedDef.emoji} **${seedDef.name}** vào Ô số ${slot}! Cần ${Math.ceil(seedDef.growTime/60000)} phút để chín.`, components: [] });
+            
+            // To properly refresh without conflict, we fetch a new interaction or send a new message.
+            // Since we updated the previous message, handleFarmCommand needs to just reply or edit the original
+            // However handleFarmCommand takes msgOrInteraction. If we pass interaction, it might try to reply/update again.
+            // Let's just edit the original command message if possible, or send a new ephemeral msg to update.
+            // Using handleFarmCommand(ownerId, interaction) will fail if we already called update().
+            // Wait, I can pass a dummy object to handleFarmCommand and it'll send a new message if it's not a button.
+            // But we already have the UI up there. Instead of auto-refresh, let's leave it to user to hit refresh.
+            return;
+        }
         
         if (interaction.isButton() && (cid.startsWith('invuse_') || cid.startsWith('invsell_') || cid.startsWith('invsellall_'))) {
             const uid = interaction.user.id;
@@ -7588,32 +7873,58 @@ client.on('interactionCreate', async (interaction) => {
         }
 
         // =============================================
-        // CANDY CONVERSION BUTTON
+        // EVOLVE & SELL DUPE PETS
         // =============================================
-        if (cid.startsWith('convert_candy_')) {
-            const ownerId = cid.replace('convert_candy_', '');
+        if (interaction.isStringSelectMenu() && cid.startsWith('evolve_select_')) {
+            const ownerId = cid.replace('evolve_select_', '');
+            if (interaction.user.id !== ownerId) return interaction.reply({ content: '❌ Không phải menu của bạn!', ephemeral: true });
+            
+            const val = interaction.values[0]; // evolve_fromId_toId
+            const parts = val.split('_');
+            const fromId = parts[1];
+            const toId = parts[2];
+            
+            const pData = getPlayer(ownerId);
+            if (!pData.pets[fromId] || pData.pets[fromId] <= 0) {
+                return interaction.reply({ content: '❌ Bạn không sở hữu thú cưng này!', ephemeral: true });
+            }
+            
+            updatePlayer(ownerId, dp => {
+                dp.pets[fromId] -= 1;
+                if (dp.pets[fromId] <= 0) delete dp.pets[fromId];
+                dp.pets[toId] = (dp.pets[toId] || 0) + 1;
+            });
+            
+            const nextPet = PET_LIST.find(p => p.id === toId) || { name: toId, emoji: '✨' };
+            return interaction.update({ content: `🌟 Tèn ten ten tén! Thú cưng của bạn đã tiến hóa thành công **${nextPet.emoji} ${nextPet.name}**!`, embeds: [], components: [] });
+        }
+
+        if (cid.startsWith('sell_dupe_pets_')) {
+            const ownerId = cid.replace('sell_dupe_pets_', '');
             if (interaction.user.id !== ownerId) return interaction.reply({ content: '❌ Không phải của bạn!', ephemeral: true });
             
-            let totalCandy = 0;
+            let totalCoinEarned = 0;
+            let soldCount = 0;
             updatePlayer(ownerId, dp => {
                 for (const pet of PET_LIST) {
                     if (dp.pets[pet.id] && dp.pets[pet.id] > 1) {
                         const dupeCount = dp.pets[pet.id] - 1;
-                        totalCandy += dupeCount;
+                        soldCount += dupeCount;
+                        totalCoinEarned += (dupeCount * (pet.price || 1000)) / 2;
                         dp.pets[pet.id] = 1;
                     }
                 }
-                dp.candy = (dp.candy || 0) + totalCandy;
             });
             
-            if (totalCandy === 0) return interaction.reply({ content: '❌ Không có Pokemon dư để chuyển!', ephemeral: true });
+            if (soldCount === 0) return interaction.reply({ content: '❌ Không có Pokemon dư để bán!', ephemeral: true });
             
-            const p = getPlayer(ownerId);
+            addCoins(ownerId, totalCoinEarned);
+            
             return interaction.update({
                 embeds: [new EmbedBuilder()
-                    .setTitle('🍬 Chuyển thành Candy!')
-                    .setDescription(`Đã chuyển **${totalCandy}** Pokemon dư thành candy!\n\n🍬 Candy hiện tại: **${p.candy}**`)
-                    .setColor('#9B59B6').setTimestamp()
+                    .setTitle('💰 Đã bán thú cưng dư!')
+                    .setDescription(`Đã bán **${soldCount}** Pokemon dư và nhận được **${totalCoinEarned.toLocaleString()} 🪙**!`)
+                    .setColor('#F1C40F').setTimestamp()
                 ],
                 components: []
             });
@@ -7915,8 +8226,8 @@ client.on('interactionCreate', async (interaction) => {
                 } else {
                     addCoins(senderId, -ring.price);
                 }
-                updatePlayer(senderId, dp => dp.partner = targetId);
-                updatePlayer(targetId, dp => dp.partner = senderId);
+                updatePlayer(senderId, dp => { dp.partner = targetId; dp.equippedRing = ringId; });
+                updatePlayer(targetId, dp => { dp.partner = senderId; dp.equippedRing = ringId; });
                 
                 await interaction.update({ components: [] });
                 const attach = new AttachmentBuilder('./assets/marriage_accept.png', { name: 'marriage_accept.png' });
@@ -8663,6 +8974,56 @@ client.on('interactionCreate', async (interaction) => {
             await interaction.update({ embeds: [embed], components: buildBankButtons(ownerId) });
             return interaction.followUp({ content: `✅ Đã rút **${finalAmount.toLocaleString()} 🪙** về ví tiền mặt thành công!`, ephemeral: true });
         }
+        if (interaction.customId.startsWith('craft_buy_modal_')) {
+            const itemId = interaction.customId.replace('craft_buy_modal_', '');
+            const amountStr = interaction.fields.getTextInputValue('craft_amount_input').trim();
+            const amount = parseInt(amountStr);
+            
+            if (isNaN(amount) || amount <= 0) {
+                return interaction.reply({ content: '❌ Số lượng không hợp lệ! Vui lòng nhập số lớn hơn 0.', ephemeral: true });
+            }
+            
+            const recipe = CRAFTING_RECIPES[itemId];
+            if (!recipe) return interaction.reply({ content: '❌ Món đồ không tồn tại!', ephemeral: true });
+            
+            const userId = interaction.user.id;
+            const p = getPlayer(userId);
+            
+            const totalCoin = recipe.coin * amount;
+            if (getUserCoins(userId) < totalCoin) {
+                return interaction.reply({ content: `❌ Bạn không đủ tiền! Cần **${totalCoin.toLocaleString()} 🪙** để rèn ${amount} món này.`, ephemeral: true });
+            }
+            
+            for (const [mat, qty] of Object.entries(recipe.req)) {
+                const totalMatReq = qty * amount;
+                if (!p.inventory[mat] || p.inventory[mat] < totalMatReq) {
+                    const matDef = RPG_ITEMS.materials[mat];
+                    return interaction.reply({ content: `❌ Bạn thiếu **${matDef.emoji} ${matDef.name}** (Cần ${totalMatReq}, có ${p.inventory[mat] || 0}).`, ephemeral: true });
+                }
+            }
+            
+            addCoins(userId, -totalCoin);
+            updatePlayer(userId, dp => {
+                for (const [mat, qty] of Object.entries(recipe.req)) {
+                    dp.inventory[mat] -= (qty * amount);
+                    if (dp.inventory[mat] <= 0) delete dp.inventory[mat];
+                }
+                dp.inventory[itemId] = (dp.inventory[itemId] || 0) + amount;
+                if (amount === 1) { // Only auto-equip if crafting 1
+                    if (recipe.type === 'weapon') dp.weapon = itemId;
+                    else if (recipe.type === 'armor') dp.armor = itemId;
+                    else if (recipe.type === 'artifact') dp.artifact = itemId;
+                }
+            });
+            
+            const embed = new EmbedBuilder()
+                .setTitle('🛠️ Chế Tạo Thành Công!')
+                .setDescription(`Bạn đã rèn thành công **${amount}x ${recipe.emoji} ${recipe.name}**!\nTổng chi phí: **${totalCoin.toLocaleString()} 🪙**`)
+                .setColor('#F1C40F');
+                
+            return interaction.reply({ embeds: [embed], ephemeral: true });
+        }
+
         if (interaction.customId.startsWith('shop_buy_modal_')) {
             const parts = interaction.customId.replace('shop_buy_modal_', '').split('_');
             const type = parts[0];
@@ -8678,6 +9039,7 @@ client.on('interactionCreate', async (interaction) => {
             if (type === 'ring') item = MARRY_RINGS[itemCode];
             else if (type === 'potion') item = RPG_ITEMS.potions[itemCode];
             else if (type === 'pokeball') item = RPG_ITEMS.pokeballs[itemCode];
+            else if (type === 'seed') item = RPG_ITEMS.seeds[itemCode];
             
             if (!item) return interaction.reply({ content: '❌ Món đồ không tồn tại!', ephemeral: true });
             
@@ -9465,6 +9827,12 @@ client.on('interactionCreate', async (interaction) => {
     }
     if (commandName === 'rpgtop') {
         return handleRpgTop(interaction.user.id, interaction);
+    }
+    if (commandName === 'gather') {
+        return handleGather(interaction.user.id, interaction, [commandName]);
+    }
+    if (commandName === 'pokesolo') {
+        return handlePokeSolo(interaction.user.id, interaction);
     }
 
     // ========================
