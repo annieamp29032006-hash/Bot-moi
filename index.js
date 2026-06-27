@@ -6104,6 +6104,28 @@ client.on('messageCreate', async (message) => {
         return handleWorkCommand(message.author.id, message);
     }
 
+    // !thinh
+    if (content === `${prefix}thinh`) {
+        let thinhList = QUOTES_THINH; // Fallback
+        try {
+            const thinhData = fs.readFileSync(path.join(__dirname, 'thinh_genz.txt'), 'utf8');
+            const parsed = thinhData.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+            if (parsed.length > 0) thinhList = parsed;
+        } catch (e) {}
+
+        const quote = thinhList[Math.floor(Math.random() * thinhList.length)];
+        const img = IMAGES_THINH[Math.floor(Math.random() * IMAGES_THINH.length)];
+        const thinhEmbed = new EmbedBuilder()
+            .setTitle('💘 Thần Cupid Gợi Ý Thính')
+            .setDescription(`> *"${quote}"*`)
+            .setColor('#FF69B4')
+            .setThumbnail(message.author.displayAvatarURL({ dynamic: true }))
+            .setImage(img)
+            .setFooter({ text: `💞 Thả thính bởi ${message.author.username}` })
+            .setTimestamp();
+        return message.reply({ embeds: [thinhEmbed] });
+    }
+
     // !catchpet
     if (content === `${prefix}catchpet` || content === `${prefix}catch` || content === `${prefix}cp`) {
         return handleCatchPet(message.author.id, message);
