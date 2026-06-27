@@ -20,6 +20,7 @@ const ffmpegPath = require('ffmpeg-static');
 const cron = require('node-cron');
 const WW = require('./werewolf.js');
 
+const BANNED_USERS = ['1141650026049830963'];
 const play = require('play-dl');
 play.getFreeClientID().then((clientID) => {
     play.setToken({
@@ -1669,7 +1670,7 @@ function buildShopCategoryRow() {
         new ButtonBuilder().setCustomId('shop_tab_rpg').setLabel('⚔️ Trang Bị RPG').setStyle(ButtonStyle.Primary),
         new ButtonBuilder().setCustomId('shop_tab_pet').setLabel('🐾 Bắt Pet').setStyle(ButtonStyle.Success),
         new ButtonBuilder().setCustomId('shop_tab_ring').setLabel('💍 Nhẫn Kết Hôn').setStyle(ButtonStyle.Secondary),
-        new ButtonBuilder().setCustomId('shop_tab_farm').setLabel('🏡 Nông Trại').setStyle(ButtonStyle.Warning)
+        new ButtonBuilder().setCustomId('shop_tab_farm').setLabel('🏡 Nông Trại').setStyle(ButtonStyle.Danger)
     );
 }
 
@@ -5005,6 +5006,7 @@ const TIKTOK_REGEX = /https?:\/\/(www\.|vm\.|vt\.)?tiktok\.com\/[^\s]+/gi;
 
 client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
+    if (BANNED_USERS.includes(message.author.id)) return;
 
     // --- ANTI-PING EVERYONE TRONG DANH MỤC CỤ THỂ ---
     if (message.channel.parentId === '1465200188866953450') {
@@ -7189,6 +7191,8 @@ function giveawayMessages() {
 // INTERACTION HANDLER
 // ========================
 client.on('interactionCreate', async (interaction) => {
+    if (BANNED_USERS.includes(interaction.user.id)) return;
+    
     // --- JAIL CHECK ---
     const uid = interaction.user.id;
     const userData = loadCoins()[uid] || {};
@@ -10001,5 +10005,16 @@ if (!token || token === 'YOUR_DISCORD_BOT_TOKEN_HERE') {
 } else {
     client.login(token);
 }
+
+// Anti-crash system
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});
+process.on('uncaughtException', (err) => {
+    console.error('Uncaught Exception:', err);
+});
+process.on('uncaughtExceptionMonitor', (err, origin) => {
+    console.error('Uncaught Exception Monitor:', err, origin);
+});
 
 
