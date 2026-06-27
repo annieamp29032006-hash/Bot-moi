@@ -386,6 +386,7 @@ function buildHelpPages(prefix) {
                 { name: '⚔️ PVP ĐẤU TRƯỜNG', value: `\`${prefix}pvp @user <cược>\` hoặc \`/pvp\` — Thách đấu 1v1 nhân vật RPG\n• Dùng stat thật (ATK, DEF, HP + trang bị + class)\n• 20% chance đòn chí mạng x2 DMG\n• Người thắng nhận coin cược x2 • Cooldown: 5 phút`, inline: false },
                 { name: '🎯 NHIỆM VỤ HÀNG NGÀY', value: `\`${prefix}nv\` hoặc \`/quest\` — Xem & nhận thưởng nhiệm vụ\n• 3 nhiệm vụ ngẫu nhiên mỗi ngày (đánh quái, bắt pet, PvP...)\n• Hoàn thành cả 3 → **BONUS 100K 🪙 + 200 EXP**\n• Tự động tracking, reset lúc 0:00`, inline: false },
                 { name: '🏅 CLASS NHÂN VẬT', value: `\`${prefix}class\` hoặc \`/class\` — Chọn/đổi class (Lv.5+)\n• ⚔️ **Chiến Binh** — +30% ATK\n• 🛡️ **Hiệp Sĩ** — +30% DEF, +20% HP\n• 🧙 **Pháp Sư** — +20% ATK, +15% coin hunt\n• Đổi class: 5M 🪙 (lần đầu miễn phí)`, inline: false },
+                { name: '🐉 RAID BOSS & CRAFTING', value: `\`${prefix}spawnraid\` — Dùng vật liệu gọi Boss Thế Giới\n\`${prefix}raid\` — Tham gia đánh Boss Thế Giới để nhận thưởng khủng\n\`${prefix}craft\` — Chế tạo vũ khí/giáp từ vật liệu đánh Boss/Hunt`, inline: false },
                 { name: '🎁 RƯƠNG & TIẾN HÓA & TOP', value: `\`${prefix}ob\` hoặc \`/openbox\` — Mở rương nhận loot (vũ khí, giáp, coin, danh hiệu...)\n\`${prefix}ev\` hoặc \`/evolve\` — Chuyển Pokemon dư thành 🍬 Candy để tiến hóa\n\`${prefix}rt\` hoặc \`/rpgtop\` — Bảng xếp hạng RPG (Level, Power, Dungeon, Pokemon, PvP)`, inline: false }
             )
             .setColor('#9B59B6')
@@ -1015,17 +1016,25 @@ const RPG_ITEMS = {
         'wood_sword': { name: 'Kiếm Gỗ', atk: 5, price: 250000, emoji: '🗡️' },
         'iron_sword': { name: 'Kiếm Sắt', atk: 15, price: 1000000, emoji: '⚔️' },
         'steel_sword': { name: 'Kiếm Thép', atk: 30, price: 3000000, emoji: '🤺' },
-        'diamond_sword': { name: 'Kiếm Kim Cương', atk: 70, price: 10000000, emoji: '💠' }
+        'diamond_sword': { name: 'Kiếm Kim Cương', atk: 70, price: 10000000, emoji: '💠' },
+        'mythic_sword': { name: 'Kiếm Thần Thoại', atk: 150, price: 50000000, emoji: '🗡️✨' }
     },
     armors: {
         'leather_armor': { name: 'Giáp Da', def: 5, price: 500000, emoji: '🦺' },
         'iron_armor': { name: 'Giáp Sắt', def: 15, price: 1500000, emoji: '🛡️' },
         'steel_armor': { name: 'Giáp Thép', def: 30, price: 4000000, emoji: '🦾' },
-        'diamond_armor': { name: 'Giáp Kim Cương', def: 70, price: 15000000, emoji: '💎' }
+        'diamond_armor': { name: 'Giáp Kim Cương', def: 70, price: 15000000, emoji: '💎' },
+        'mythic_armor': { name: 'Giáp Thần Thoại', def: 150, price: 50000000, emoji: '🛡️✨' }
     },
     potions: {
         'small_potion': { name: 'Bình Máu Nhỏ', heal: 50, price: 10000, emoji: '🧪' },
         'large_potion': { name: 'Bình Máu Lớn', heal: 150, price: 50000, emoji: '💊' }
+    },
+    materials: {
+        'iron_ore': { name: 'Quặng Sắt', emoji: '🪨', price: 5000 },
+        'dragon_scale': { name: 'Vảy Rồng', emoji: '🐲', price: 25000 },
+        'magic_dust': { name: 'Bụi Ma Thuật', emoji: '✨', price: 10000 },
+        'demon_horn': { name: 'Sừng Quỷ', emoji: '👿', price: 50000 }
     },
     pokeballs: {
         'basic_ball': { name: 'Bóng Thường', catchRate: 0.3, price: 10000, emoji: '🔴' },
@@ -1148,8 +1157,77 @@ const RPG_CHESTS = {
 };
 
 // POKEMON EVOLUTION MAP (id -> evolves_to, requires candy)
-const EVOLUTION_MAP = {};
-// Tự build từ PET_LIST sau khi load (xem bên dưới)
+const EVOLUTION_MAP = {
+    'bulbasaur': { to: 'ivysaur', candy: 10 },
+    'ivysaur': { to: 'venusaur', candy: 25 },
+    'charmander': { to: 'charmeleon', candy: 10 },
+    'charmeleon': { to: 'charizard', candy: 25 },
+    'squirtle': { to: 'wartortle', candy: 10 },
+    'wartortle': { to: 'blastoise', candy: 25 },
+    'caterpie': { to: 'metapod', candy: 5 },
+    'metapod': { to: 'butterfree', candy: 15 },
+    'weedle': { to: 'kakuna', candy: 5 },
+    'kakuna': { to: 'beedrill', candy: 15 },
+    'pidgey': { to: 'pidgeotto', candy: 10 },
+    'pidgeotto': { to: 'pidgeot', candy: 25 },
+    'rattata': { to: 'raticate', candy: 15 },
+    'ekans': { to: 'arbok', candy: 15 },
+    'pikachu': { to: 'raichu', candy: 20 },
+    'sandshrew': { to: 'sandslash', candy: 15 },
+    'nidoran-f': { to: 'nidorina', candy: 10 },
+    'nidorina': { to: 'nidoqueen', candy: 25 },
+    'nidoran-m': { to: 'nidorino', candy: 10 },
+    'nidorino': { to: 'nidoking', candy: 25 },
+    'clefairy': { to: 'clefable', candy: 20 },
+    'vulpix': { to: 'ninetales', candy: 20 },
+    'jigglypuff': { to: 'wigglytuff', candy: 20 },
+    'zubat': { to: 'golbat', candy: 15 },
+    'oddish': { to: 'gloom', candy: 10 },
+    'gloom': { to: 'vileplume', candy: 25 },
+    'paras': { to: 'parasect', candy: 15 },
+    'venonat': { to: 'venomoth', candy: 15 },
+    'diglett': { to: 'dugtrio', candy: 15 },
+    'meowth': { to: 'persian', candy: 15 },
+    'psyduck': { to: 'golduck', candy: 15 },
+    'mankey': { to: 'primeape', candy: 15 },
+    'growlithe': { to: 'arcanine', candy: 20 },
+    'poliwag': { to: 'poliwhirl', candy: 10 },
+    'poliwhirl': { to: 'poliwrath', candy: 25 },
+    'abra': { to: 'kadabra', candy: 10 },
+    'kadabra': { to: 'alakazam', candy: 25 },
+    'machop': { to: 'machoke', candy: 10 },
+    'machoke': { to: 'machamp', candy: 25 },
+    'bellsprout': { to: 'weepinbell', candy: 10 },
+    'weepinbell': { to: 'victreebel', candy: 25 },
+    'tentacool': { to: 'tentacruel', candy: 15 },
+    'geodude': { to: 'graveler', candy: 10 },
+    'graveler': { to: 'golem', candy: 25 },
+    'ponyta': { to: 'rapidash', candy: 15 },
+    'slowpoke': { to: 'slowbro', candy: 15 },
+    'magnemite': { to: 'magneton', candy: 15 },
+    'doduo': { to: 'dodrio', candy: 15 },
+    'seel': { to: 'dewgong', candy: 15 },
+    'grimer': { to: 'muk', candy: 15 }
+};
+
+const CRAFTING_RECIPES = {
+    'mythic_sword': {
+        name: 'Kiếm Thần Thoại',
+        type: 'weapon',
+        emoji: '🗡️✨',
+        atk: 150,
+        req: { iron_ore: 10, dragon_scale: 2, magic_dust: 5, demon_horn: 1 },
+        coin: 5000000
+    },
+    'mythic_armor': {
+        name: 'Giáp Thần Thoại',
+        type: 'armor',
+        emoji: '🛡️✨',
+        def: 150,
+        req: { iron_ore: 15, dragon_scale: 3, magic_dust: 2, demon_horn: 1 },
+        coin: 5000000
+    }
+};
 
 let PET_LIST = [];
 try {
@@ -1355,10 +1433,19 @@ function buildProfileEmbed(user) {
         }
     }
 
+    let profileColor = '#9B59B6';
+    if (pData.rpgClass && RPG_CLASSES[pData.rpgClass]) {
+        if (pData.rpgClass === 'warrior') profileColor = '#E74C3C';
+        else if (pData.rpgClass === 'mage') profileColor = '#3498DB';
+        else if (pData.rpgClass === 'assassin') profileColor = '#2ECC71';
+        else if (pData.rpgClass === 'archer') profileColor = '#F1C40F';
+        else if (pData.rpgClass === 'healer') profileColor = '#FFB6C1';
+    }
+
     const embed = new EmbedBuilder()
-        .setTitle(`👤 Hồ Sơ Toàn Diện: ${user.username}`)
-        .setColor('#9B59B6')
-        .setThumbnail(user.displayAvatarURL())
+        .setTitle(`👤 Hồ Sơ Nhập Vai: ${user.username}`)
+        .setColor(profileColor)
+        .setThumbnail(user.displayAvatarURL({ dynamic: true, size: 512 }))
         .addFields(
             { name: '💰 Tài Sản', value: `Tiền mặt: **${coins.toLocaleString()} 🪙**\nNgân hàng: **${bank.toLocaleString()} 🪙**`, inline: true },
             { name: '🔥 Hoạt Động', value: `Điểm danh: **${streak}** ngày\nCông việc: ${jobText}`, inline: true },
@@ -1411,6 +1498,7 @@ function buildShopEmbed(tab) {
                 }))
             )
             .setColor('#2ECC71')
+            .setThumbnail('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png')
             .setFooter({ text: 'Chọn bóng từ menu bên dưới để mua' });
     }
     if (tab === 'ring') {
@@ -1425,6 +1513,7 @@ function buildShopEmbed(tab) {
                 }))
             )
             .setColor('#FF69B4')
+            .setThumbnail('https://cdn-icons-png.flaticon.com/512/833/833472.png')
             .setFooter({ text: 'Chọn nhẫn từ menu bên dưới để mua' });
     }
     return new EmbedBuilder()
@@ -2706,6 +2795,7 @@ async function handleRpgTop(userId, msgOrInteraction) {
             .setTitle(`🏆 Bảng Xếp Hạng RPG — ${tabLabels[tab]}`)
             .setDescription(desc || '*Chưa có dữ liệu*')
             .setColor('#FFD700')
+            .setThumbnail('https://cdn-icons-png.flaticon.com/512/3113/3113054.png')
             .setTimestamp();
     }
 
@@ -2974,7 +3064,22 @@ const QUOTES_THINH = [
     "Vector chỉ có một chiều. Anh dân chuyên Toán chỉ yêu một người.",
     "Anh có một siêu năng lực, đó là siêu thích em.",
     "Covid thì em không dính, nhưng yêu anh thì em dương tính.",
-    "Cho anh một cốc trà đào, tiện cho anh hỏi lối vào tim em?"
+    "Cho anh một cốc trà đào, tiện cho anh hỏi lối vào tim em?",
+    "Nắng nơi em nắng hoài không tắt, yêu anh rồi yêu mãi không thôi.",
+    "Bồ công anh bay khi có gió. Em chỉ cười vì ở đó có anh.",
+    "Nhờ có nắng mới thấy hoàng hôn. Nhờ có anh mới thấy bình yên.",
+    "Nếu trái tim em là một nhà tù, anh xin nguyện bị kết án chung thân.",
+    "Trái tim em đang bật đèn xanh, mà sao anh mãi đạp phanh thế này?",
+    "Người ta thì thích hoàng hôn, còn em thì thích hôn anh cơ."
+];
+
+const IMAGES_THINH = [
+    "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExdW5pOTk5eGRnNmV0b2FyeTB6dXV4Mm5lOWg3cnAwaGR1Z202enhybSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/26BRv0ThflsHCIChy/giphy.gif",
+    "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExeGJyMXFmbXZwbzNpd3pkaTRtbndxODRoc3UybmN3ZnI3amZ3ZGhyZCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3CCXHZWV6F6O9VQ7FL/giphy.gif",
+    "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNmQ1cXZiMTB3Mjd1bHh5dndmNHhwbGR6dHJ5cm9xMzQ4YnVtbXV6ZiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/MDJ9IbxxvDUQM/giphy.gif",
+    "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExMjMzdWhvOTcxd2I3ODk0cXA4czEzb3FqNzNjdWZvNGcwaDN3OWgybSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/LqO7P1Wk3J2bC/giphy.gif",
+    "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbDVqNzFnOHIycmF2bzI0bmN0bnYxdnExaHJ3cmI2Ym9oZjAzaHRuNSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/osjgQPWRx3cac/giphy.gif",
+    "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExZjIyZXY5d3g2NWQyeWg3OW9mNXRzOTkycGhpMXZ1aGNpdjlvcnFmNSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/gSotjtzJaI2OQ/giphy.gif"
 ];
 
 const QUE_TINH_DUYEN = [
@@ -4030,6 +4135,7 @@ const vnDictionary = new Set();
 const noituGames = new Map();
 let noituMatchCounter = 0;
 const globalUsedWords = new Map();
+global.RAID_BOSS = null; // { name, hp, maxHp, atk, def, emoji, participants: Map<userId, damage>, endTime }
 const j2cPath = path.join(__dirname, 'j2c.json');
 function loadJ2C() {
     if (!fs.existsSync(j2cPath)) return {};
@@ -4794,6 +4900,176 @@ client.on('messageCreate', async (message) => {
         clearTimeout(game.timeout);
         noituGames.delete(message.channelId);
         return message.reply('🛑 Trò chơi Nối Từ đã kết thúc.').catch(() => {});
+    }
+
+    // --- RPG EXPANSION COMMANDS ---
+    if (content === `${prefix}spawnraid`) {
+        if (!message.member.permissions.has(PermissionsBitField.Flags.Administrator)) return message.reply('❌ Chỉ admin mới được gọi Raid Boss!');
+        if (global.RAID_BOSS) return message.reply('❌ Đã có Raid Boss xuất hiện rồi!');
+        global.RAID_BOSS = {
+            name: 'Ma Vương Ánh Sáng Mù Lòa',
+            hp: 50000,
+            maxHp: 50000,
+            atk: 500,
+            def: 200,
+            emoji: '👹',
+            participants: new Map(),
+            endTime: Date.now() + 60 * 60 * 1000 // 1 hour
+        };
+        const embed = new EmbedBuilder()
+            .setTitle('🚨 CẢNH BÁO: RAID BOSS ĐÃ XUẤT HIỆN 🚨')
+            .setDescription(`**${global.RAID_BOSS.emoji} ${global.RAID_BOSS.name}** đã giáng trần!\n\n> 🩸 Máu: **${global.RAID_BOSS.maxHp.toLocaleString()}**\n> ⚔️ Tấn công: **${global.RAID_BOSS.atk}**\n\nTất cả người chơi hãy dùng lệnh \`${prefix}raid\` để tấn công Boss! Kẻ kết liễu hoặc gây sát thương cao nhất sẽ nhận được phần thưởng khổng lồ!`)
+            .setColor('#FF0000')
+            .setImage('https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExcDdvMnAwaGFwa3RwbzlkdzIzZ3Rza2g0NThwa3BxanIxbWhpYWl3ciZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/LwsCiZPppEIJIIGmO1/giphy.gif');
+        return message.channel.send({ content: '@everyone', embeds: [embed] });
+    }
+
+    if (content === `${prefix}raid`) {
+        if (!global.RAID_BOSS) return message.reply('❌ Không có Raid Boss nào đang xuất hiện!');
+        if (Date.now() > global.RAID_BOSS.endTime) {
+            global.RAID_BOSS = null;
+            return message.reply('⏳ Raid Boss đã bỏ đi vì hết thời gian!');
+        }
+        const pData = getPlayer(uid);
+        const stats = getPlayerStats(pData);
+        
+        if (pData.level < 5) return message.reply('❌ Bạn cần đạt ít nhất Level 5 để tham gia Raid Boss!');
+        
+        if (pData.lastRaid && Date.now() - pData.lastRaid < 5 * 60 * 1000) {
+            const r = 5 * 60 * 1000 - (Date.now() - pData.lastRaid);
+            return message.reply(`⏳ Đang hồi sức! Hãy quay lại sau **${Math.ceil(r/1000)}s** nữa.`);
+        }
+
+        let dmg = Math.max(1, stats.atk - Math.floor(global.RAID_BOSS.def / 10));
+        if (Math.random() < 0.2) dmg = Math.floor(dmg * 1.5);
+        
+        global.RAID_BOSS.hp -= dmg;
+        pData.lastRaid = Date.now();
+        updatePlayer(uid, p => p.lastRaid = pData.lastRaid);
+
+        let playerDmg = global.RAID_BOSS.participants.get(uid) || 0;
+        global.RAID_BOSS.participants.set(uid, playerDmg + dmg);
+
+        if (global.RAID_BOSS.hp <= 0) {
+            const bossName = global.RAID_BOSS.name;
+            const participants = global.RAID_BOSS.participants;
+            global.RAID_BOSS = null;
+
+            const sorted = Array.from(participants.entries()).sort((a, b) => b[1] - a[1]);
+            const cData = loadCoins();
+            const rData = loadRPG();
+            
+            let rewardText = '';
+            sorted.forEach(([playerId, damage], index) => {
+                if (!cData[playerId]) cData[playerId] = { coins: 0, bank: 0 };
+                if (!rData[playerId]) rData[playerId] = getPlayer(playerId);
+                
+                let coinReward = 0;
+
+                if (index === 0) {
+                    coinReward = 1000000;
+                    rData[playerId].chests.legendary = (rData[playerId].chests.legendary || 0) + 1;
+                    rewardText += `🥇 <@${playerId}>: **${damage.toLocaleString()}** DMG ➡️ 1,000,000 🪙 + 1 Rương Huyền Thoại\n`;
+                } else if (index === 1) {
+                    coinReward = 500000;
+                    rData[playerId].chests.gold = (rData[playerId].chests.gold || 0) + 1;
+                    rewardText += `🥈 <@${playerId}>: **${damage.toLocaleString()}** DMG ➡️ 500,000 🪙 + 1 Rương Vàng\n`;
+                } else if (index === 2) {
+                    coinReward = 250000;
+                    rData[playerId].chests.iron = (rData[playerId].chests.iron || 0) + 1;
+                    rewardText += `🥉 <@${playerId}>: **${damage.toLocaleString()}** DMG ➡️ 250,000 🪙 + 1 Rương Sắt\n`;
+                } else {
+                    coinReward = 50000;
+                    rewardText += `🏅 <@${playerId}>: **${damage.toLocaleString()}** DMG ➡️ 50,000 🪙\n`;
+                }
+                cData[playerId].coins = (cData[playerId].coins || 0) + coinReward;
+            });
+            
+            saveCoins(cData);
+            saveRPG(rData);
+
+            const embed = new EmbedBuilder()
+                .setTitle(`🏆 RAID BOSS ĐÃ BỊ TIÊU DIỆT!`)
+                .setDescription(`**${bossName}** đã bị đánh bại bởi sức mạnh đoàn kết của toàn server!\nNgười tung đòn kết liễu: <@${uid}>\n\n**BẢNG XẾP HẠNG SÁT THƯƠNG:**\n${rewardText}`)
+                .setColor('#FFD700');
+            return message.reply({ embeds: [embed] });
+        } else {
+            return message.reply(`⚔️ Bạn đã chém **${global.RAID_BOSS.name}** gây ra **${dmg.toLocaleString()}** sát thương!\n🩸 Máu Boss còn lại: **${global.RAID_BOSS.hp.toLocaleString()} / ${global.RAID_BOSS.maxHp.toLocaleString()}**`);
+        }
+    }
+
+    if (content === `${prefix}craft`) {
+        const pData = getPlayer(uid);
+        let desc = 'Sử dụng nguyên liệu để chế tạo đồ cực phẩm!\nCú pháp: `!craft <id>`\n\n**Kho nguyên liệu của bạn:**\n';
+        for (const [matKey, mat] of Object.entries(RPG_ITEMS.materials)) {
+            desc += `${mat.emoji} ${mat.name}: ${pData.inventory[matKey] || 0}\n`;
+        }
+        desc += '\n**Công thức chế tạo:**\n';
+        
+        for (const [key, item] of Object.entries(CRAFTING_RECIPES)) {
+            const reqTexts = Object.entries(item.req).map(([matKey, qty]) => `${RPG_ITEMS.materials[matKey].emoji} ${qty}`).join(' + ');
+            desc += `**${key}**: ${item.emoji} ${item.name} (Phí: ${item.coin.toLocaleString()} 🪙)\n> Yêu cầu: ${reqTexts}\n\n`;
+        }
+        
+        const embed = new EmbedBuilder()
+            .setTitle('🛠️ Bàn Chế Tạo (Crafting)')
+            .setDescription(desc)
+            .setColor('#E67E22');
+        return message.reply({ embeds: [embed] });
+    }
+
+    if (content.startsWith(`${prefix}craft `)) {
+        const itemKey = message.content.split(' ')[1];
+        if (!CRAFTING_RECIPES[itemKey]) return message.reply('❌ Món đồ này không tồn tại trong danh sách chế tạo!');
+        
+        const recipe = CRAFTING_RECIPES[itemKey];
+        const pData = getPlayer(uid);
+        const cData = loadCoins();
+        const userCoins = cData[uid] ? (cData[uid].coins || 0) : 0;
+        
+        if (userCoins < recipe.coin) return message.reply(`❌ Bạn không đủ **${recipe.coin.toLocaleString()} 🪙** để chế tạo!`);
+        
+        for (const [matKey, qty] of Object.entries(recipe.req)) {
+            const userQty = pData.inventory[matKey] || 0;
+            if (userQty < qty) {
+                return message.reply(`❌ Bạn không đủ nguyên liệu **${RPG_ITEMS.materials[matKey].name}**! (Cần ${qty}, đang có ${userQty})`);
+            }
+        }
+        
+        updatePlayer(uid, p => {
+            for (const [matKey, qty] of Object.entries(recipe.req)) {
+                p.inventory[matKey] -= qty;
+            }
+            if (recipe.type === 'weapon') p.weapon = itemKey;
+            if (recipe.type === 'armor') p.armor = itemKey;
+        });
+        
+        cData[uid].coins -= recipe.coin;
+        saveCoins(cData);
+        
+        return message.reply(`✨ KENG KENG KENG! Bạn đã chế tạo thành công **${recipe.emoji} ${recipe.name}** cực phẩm! Lực chiến tăng vọt!`);
+    }
+
+    if (content.startsWith(`${prefix}evolve `)) {
+        const petId = message.content.split(' ')[1];
+        if (!petId) return message.reply(`❌ Vui lòng nhập ID thú cưng! Ví dụ: \`${prefix}evolve charmander\``);
+        
+        const evoData = EVOLUTION_MAP[petId];
+        if (!evoData) return message.reply('❌ Thú cưng này không thể tiến hóa hoặc ID không đúng!');
+        
+        const pData = getPlayer(uid);
+        if (!pData.pets[petId] || pData.pets[petId] <= 0) return message.reply('❌ Bạn không sở hữu thú cưng này!');
+        if ((pData.candy || 0) < evoData.candy) return message.reply(`❌ Bạn không đủ kẹo 🍬! Cần **${evoData.candy}** kẹo để tiến hóa. Bạn đang có **${pData.candy || 0}** kẹo.`);
+        
+        updatePlayer(uid, p => {
+            p.candy -= evoData.candy;
+            p.pets[petId] -= 1;
+            if (p.pets[petId] <= 0) delete p.pets[petId];
+            p.pets[evoData.to] = (p.pets[evoData.to] || 0) + 1;
+        });
+        
+        const nextPet = PET_LIST.find(p => p.id === evoData.to) || { name: evoData.to, emoji: '✨' };
+        return message.reply(`🌟 Tèn ten ten tén! Thú cưng của bạn đã tiến hóa thành công **${nextPet.emoji} ${nextPet.name}**!`);
     }
 
     // Đổi prefix
@@ -5740,10 +6016,13 @@ client.on('messageCreate', async (message) => {
     // ========================
     if (content === `${prefix}thinh`) {
         const quote = QUOTES_THINH[Math.floor(Math.random() * QUOTES_THINH.length)];
+        const img = IMAGES_THINH[Math.floor(Math.random() * IMAGES_THINH.length)];
         const thinhEmbed = new EmbedBuilder()
             .setTitle('💕 Thần Cupid Gợi Ý Thính')
             .setDescription(`> *"${quote}"*`)
             .setColor('#FF69B4')
+            .setThumbnail(message.author.displayAvatarURL({ dynamic: true }))
+            .setImage(img)
             .setFooter({ text: `🏹 Thả thính bởi ${message.author.username}` })
             .setTimestamp();
         return message.reply({ embeds: [thinhEmbed] });
@@ -5768,6 +6047,7 @@ client.on('messageCreate', async (message) => {
         const embed = new EmbedBuilder()
             .setTitle('💘 Cầu Bói Tình Yêu 💘')
             .setDescription(`<@${message.author.id}> ❤️ <@${target.id}>`)
+            .setThumbnail(target.displayAvatarURL({ dynamic: true }))
             .addFields(
                 { name: '📊 Độ hợp nhau', value: `${bar}\n\n🎯 **${percent}%**`, inline: false },
                 { name: '📜 Thần Cupid phán', value: `*${phan}*`, inline: false }
@@ -5775,6 +6055,9 @@ client.on('messageCreate', async (message) => {
             .setColor(percent >= 70 ? '#FF1493' : percent >= 40 ? '#FFA500' : '#808080')
             .setFooter({ text: '🏹 Đền Thần Cupid • Kết quả chỉ mang tính giải trí' })
             .setTimestamp();
+            
+        if (percent >= 80) embed.setImage('https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExdW5pOTk5eGRnNmV0b2FyeTB6dXV4Mm5lOWg3cnAwaGR1Z202enhybSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/26BRv0ThflsHCIChy/giphy.gif');
+        
         return message.reply({ embeds: [embed] });
     }
 
@@ -5783,7 +6066,9 @@ client.on('messageCreate', async (message) => {
         const cauduyenEmbed = new EmbedBuilder()
             .setTitle('🙏 Rút Quẻ Tình Duyên')
             .setDescription(`<@${message.author.id}> đã thắp nhang và rút được quẻ:\n\n🎴 **${que}**`)
-            .setColor('#9B59B6')
+            .setColor('#E74C3C')
+            .setThumbnail(message.author.displayAvatarURL({ dynamic: true }))
+            .setImage('https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExMjMzdWhvOTcxd2I3ODk0cXA4czEzb3FqNzNjdWZvNGcwaDN3OWgybSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/LqO7P1Wk3J2bC/giphy.gif')
             .setFooter({ text: '🏹 Đền Thần Cupid • Mỗi ngày một quẻ, tin hay không là do bạn' })
             .setTimestamp();
         return message.reply({ embeds: [cauduyenEmbed] });
@@ -5956,7 +6241,12 @@ client.on('messageCreate', async (message) => {
         
         if (pHp <= 0) {
             updatePlayer(uid, dp => { dp.hp = 0; dp.lastHunt = now; dp.exp = Math.max(0, dp.exp - Math.floor(m.exp/2)); });
-            return message.reply({ embeds: [new EmbedBuilder().setTitle('☠️ Tử trận').setDescription(`Bạn bị **${m.name}** ${m.emoji} đánh bại!\nChỉ số quái: ⚔️ ${m.atk} | 🛡️ ${m.def}\nMất một ít EXP. Hãy dùng \`!heal\`.`).setColor('#FF0000')] });
+            return message.reply({ embeds: [new EmbedBuilder()
+                .setTitle('☠️ TỬ TRẬN')
+                .setDescription(`Bạn bị **${m.name}** ${m.emoji} đánh bại!\nChỉ số quái: ⚔️ ${m.atk} | 🛡️ ${m.def}\nMất một ít EXP. Hãy dùng \`!heal\`.`)
+                .setColor('#8B0000')
+                .setThumbnail(message.author.displayAvatarURL({ dynamic: true }))
+            ] });
         }
         
         updatePlayer(uid, dp => { dp.hp = pHp; dp.lastHunt = now; dp.exp += m.exp; });
@@ -5971,11 +6261,31 @@ client.on('messageCreate', async (message) => {
             updatePlayer(uid, dp => { dp.chests.wood = (dp.chests.wood || 0) + 1; });
             huntChestMsg = '\n🎁 Drop: **📦 Rương Gỗ**! Dùng `!openbox` để mở.';
         }
+        
+        // Material drop
+        let matDropMsg = '';
+        if (Math.random() < 0.3) {
+            const matKeys = Object.keys(RPG_ITEMS.materials);
+            const dropMat = matKeys[Math.floor(Math.random() * matKeys.length)];
+            const dropQty = Math.floor(Math.random() * 2) + 1;
+            updatePlayer(uid, dp => { 
+                dp.inventory[dropMat] = (dp.inventory[dropMat] || 0) + dropQty; 
+            });
+            const matData = RPG_ITEMS.materials[dropMat];
+            matDropMsg = `\n💎 Nhặt được: **${matData.emoji} ${matData.name} x${dropQty}**`;
+        }
+
         trackQuestProgress(uid, 'hunt', 1);
         trackQuestProgress(uid, 'earn_coin', coinGain);
         const nP = getPlayer(uid);
         
-        return message.reply({ embeds: [new EmbedBuilder().setTitle(`⚔️ Chiến thắng **${m.name}** ${m.emoji}`).setDescription(`Sau trận chiến, bạn còn lại **❤️ ${pHp}/${p.maxHp} HP**.\nNhận được: **+${m.exp} EXP** và **+${coinGain} 🪙**${pClass && pClass.coinBonus ? ` (bonus ${pClass.emoji})` : ''}\nCấp độ hiện tại: **Lv. ${nP.level}**${huntChestMsg}`).setColor('#00FF00')] });
+        const huntEmbed = new EmbedBuilder()
+            .setTitle(`⚔️ Chiến thắng **${m.name}** ${m.emoji}`)
+            .setDescription(`Sau trận chiến, bạn còn lại **❤️ ${pHp}/${p.maxHp} HP**.\nNhận được: **+${m.exp} EXP** và **+${coinGain} 🪙**${pClass && pClass.coinBonus ? ` (bonus ${pClass.emoji})` : ''}\nCấp độ hiện tại: **Lv. ${nP.level}**${huntChestMsg}${matDropMsg}`)
+            .setColor('#2ECC71')
+            .setThumbnail(message.author.displayAvatarURL({ dynamic: true }));
+            
+        return message.reply({ embeds: [huntEmbed] });
     }
 
     // !shop
@@ -6013,8 +6323,13 @@ client.on('messageCreate', async (message) => {
 
     // !inv
     if (content === `${prefix}inv` || content === `${prefix}i`) {
-        const p = getPlayer(message.author.id);
-        const embed = new EmbedBuilder().setTitle(`🎒 Túi Đồ của ${message.author.username}`).setColor('#F1C40F');
+        const uid = message.author.id;
+        const p = getPlayer(uid);
+        const embed = new EmbedBuilder()
+            .setTitle(`🎒 Túi Đồ của ${message.author.username}`)
+            .setColor('#F1C40F')
+            .setThumbnail(message.author.displayAvatarURL({ dynamic: true }))
+            .setFooter({ text: 'Sử dụng menu bên dưới để tương tác với đồ vật!' });
         
         let equipText = '';
         if (p.weapon) {
@@ -6027,12 +6342,21 @@ client.on('messageCreate', async (message) => {
         }
         embed.addFields({ name: 'Trang Bị', value: equipText || 'Chưa trang bị gì.', inline: false });
         
+        const options = [];
+        
         const items = [];
         if (p.inventory) {
             for (const [k, v] of Object.entries(p.inventory)) {
                 if (v > 0) {
-                    let item = RPG_ITEMS.potions[k] || RPG_ITEMS.pokeballs[k];
-                    if (item) items.push(`${item.emoji} **${item.name}**: ${v}`);
+                    let item = RPG_ITEMS.potions[k] || RPG_ITEMS.pokeballs[k] || RPG_ITEMS.materials[k];
+                    if (item) {
+                        items.push(`${item.emoji || ''} **${item.name}**: ${v}`);
+                        options.push(new StringSelectMenuOptionBuilder()
+                            .setLabel(`${item.name} (x${v})`)
+                            .setValue(`invitem_${k}`)
+                            .setDescription(`Giá bán: ${(item.price * 0.5).toLocaleString()} 🪙/cái`)
+                        );
+                    }
                 }
             }
         }
@@ -6055,12 +6379,29 @@ client.on('messageCreate', async (message) => {
         if (p.pets) {
             for (const petInfo of PET_LIST) {
                 const amount = p.pets[petInfo.id] || 0;
-                if (amount > 0) petsList.push(`${petInfo.emoji} **${petInfo.name}**: ${amount}`);
+                if (amount > 0) {
+                    petsList.push(`${petInfo.emoji || ''} **${petInfo.name}**: ${amount}`);
+                    options.push(new StringSelectMenuOptionBuilder()
+                        .setLabel(`${petInfo.name} (x${amount})`)
+                        .setValue(`invitem_${petInfo.id}`)
+                        .setDescription(`Giá bán: ${(petInfo.price * 0.5).toLocaleString()} 🪙/con`)
+                    );
+                }
             }
         }
-        embed.addFields({ name: 'Thú Cưng', value: petsList.length ? petsList.join(', ') : 'Chưa có con nào. Dùng `!cp`.', inline: false });
+        embed.addFields({ name: 'Thú Cưng', value: petsList.length ? petsList.join(', ') : 'Chưa có con nào.', inline: false });
         
-        return message.reply({ embeds: [embed] });
+        const finalOptions = options.slice(0, 25);
+        let components = [];
+        if (finalOptions.length > 0) {
+            const selectMenu = new StringSelectMenuBuilder()
+                .setCustomId(`inv_select_${uid}`)
+                .setPlaceholder('Chọn vật phẩm để sử dụng hoặc bán...')
+                .addOptions(finalOptions);
+            components.push(new ActionRowBuilder().addComponents(selectMenu));
+        }
+        
+        return message.reply({ embeds: [embed], components });
     }
 
     // !heal
@@ -6357,6 +6698,107 @@ client.on('interactionCreate', async (interaction) => {
     // === MESSAGE COMPONENT (BUTTONS & MENUS) ===
     if (interaction.isMessageComponent()) {
         const cid = interaction.customId;
+
+        // INVENTORY INTERACTIVE SYSTEM
+        if (interaction.isStringSelectMenu() && cid.startsWith('inv_select_')) {
+            const ownerId = cid.replace('inv_select_', '');
+            if (interaction.user.id !== ownerId) {
+                return interaction.reply({ content: '❌ Đây không phải là túi đồ của bạn!', ephemeral: true });
+            }
+            
+            const selectedVal = interaction.values[0];
+            const itemId = selectedVal.replace('invitem_', '');
+            
+            let itemDef = null;
+            if (RPG_ITEMS.potions[itemId]) itemDef = RPG_ITEMS.potions[itemId];
+            else if (RPG_ITEMS.pokeballs[itemId]) itemDef = RPG_ITEMS.pokeballs[itemId];
+            else if (RPG_ITEMS.materials[itemId]) itemDef = RPG_ITEMS.materials[itemId];
+            else itemDef = PET_LIST.find(p => p.id === itemId);
+            
+            if (!itemDef) return interaction.reply({ content: '❌ Không tìm thấy vật phẩm này!', ephemeral: true });
+            
+            const isPotion = !!RPG_ITEMS.potions[itemId];
+            
+            const buttons = new ActionRowBuilder();
+            
+            if (isPotion) {
+                buttons.addComponents(
+                    new ButtonBuilder().setCustomId(`invuse_${itemId}`).setLabel('Sử dụng 1 cái').setStyle(ButtonStyle.Success).setEmoji('✨')
+                );
+            }
+            
+            buttons.addComponents(
+                new ButtonBuilder().setCustomId(`invsell_${itemId}`).setLabel('Bán 1 cái').setStyle(ButtonStyle.Primary).setEmoji('💰'),
+                new ButtonBuilder().setCustomId(`invsellall_${itemId}`).setLabel('Bán Tất Cả').setStyle(ButtonStyle.Danger).setEmoji('💸')
+            );
+            
+            const sellPrice = Math.floor((itemDef.price || 0) * 0.5);
+            
+            const embed = new EmbedBuilder()
+                .setTitle(`Tương tác: ${itemDef.emoji || ''} ${itemDef.name}`)
+                .setDescription(`Bạn muốn làm gì với vật phẩm này?\n> Giá bán lại: **${sellPrice.toLocaleString()} 🪙 / cái**`)
+                .setColor('#3498DB');
+                
+            if (itemDef.imageUrl) {
+                embed.setThumbnail(itemDef.imageUrl);
+            }
+                
+            return interaction.reply({ embeds: [embed], components: [buttons], ephemeral: true });
+        }
+        
+        if (interaction.isButton() && (cid.startsWith('invuse_') || cid.startsWith('invsell_') || cid.startsWith('invsellall_'))) {
+            const uid = interaction.user.id;
+            const p = getPlayer(uid);
+            
+            let action = '';
+            let itemId = '';
+            if (cid.startsWith('invuse_')) { action = 'use'; itemId = cid.replace('invuse_', ''); }
+            if (cid.startsWith('invsell_')) { action = 'sell'; itemId = cid.replace('invsell_', ''); }
+            if (cid.startsWith('invsellall_')) { action = 'sellall'; itemId = cid.replace('invsellall_', ''); }
+            
+            let itemDef = RPG_ITEMS.potions[itemId] || RPG_ITEMS.pokeballs[itemId] || RPG_ITEMS.materials[itemId] || PET_LIST.find(pt => pt.id === itemId);
+            if (!itemDef) return interaction.reply({ content: '❌ Lỗi: Vật phẩm không tồn tại.', ephemeral: true });
+            
+            const isPet = !!PET_LIST.find(pt => pt.id === itemId);
+            let userQty = isPet ? (p.pets[itemId] || 0) : (p.inventory[itemId] || 0);
+            
+            if (userQty <= 0) return interaction.reply({ content: `❌ Bạn không còn **${itemDef.name}** nào trong túi!`, ephemeral: true });
+            
+            if (action === 'use') {
+                if (RPG_ITEMS.potions[itemId]) {
+                    if (p.hp >= p.maxHp) return interaction.reply({ content: '✅ Máu của bạn đã đầy!', ephemeral: true });
+                    const healAmount = RPG_ITEMS.potions[itemId].heal;
+                    updatePlayer(uid, dp => { 
+                        dp.hp = Math.min(dp.maxHp, dp.hp + healAmount); 
+                        dp.inventory[itemId]--; 
+                    });
+                    const np = getPlayer(uid);
+                    return interaction.update({ content: `💊 Đã sử dụng **${itemDef.name}**! Sinh lực hiện tại: **❤️ ${np.hp}/${np.maxHp}**`, embeds: [], components: [] });
+                }
+            }
+            
+            if (action === 'sell' || action === 'sellall') {
+                const sellQty = action === 'sellall' ? userQty : 1;
+                const sellPrice = Math.floor((itemDef.price || 0) * 0.5) * sellQty;
+                
+                updatePlayer(uid, dp => {
+                    if (isPet) {
+                        dp.pets[itemId] -= sellQty;
+                        if (dp.pets[itemId] <= 0) delete dp.pets[itemId];
+                    } else {
+                        dp.inventory[itemId] -= sellQty;
+                        if (dp.inventory[itemId] <= 0) delete dp.inventory[itemId];
+                    }
+                });
+                
+                const cData = loadCoins();
+                if (!cData[uid]) cData[uid] = { coins: 0 };
+                cData[uid].coins += sellPrice;
+                saveCoins(cData);
+                
+                return interaction.update({ content: `💰 Đã bán **x${sellQty} ${itemDef.name}** và nhận được **${sellPrice.toLocaleString()} 🪙**!`, embeds: [], components: [] });
+            }
+        }
 
         // =============================================
         // JOIN TO CREATE BUTTONS
