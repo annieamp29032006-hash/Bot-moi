@@ -386,8 +386,9 @@ function buildHelpPages(prefix) {
                 { name: '⚔️ PVP ĐẤU TRƯỜNG', value: `\`${prefix}pvp @user <cược>\` hoặc \`/pvp\` — Thách đấu 1v1 nhân vật RPG\n• Dùng stat thật (ATK, DEF, HP + trang bị + class)\n• 20% chance đòn chí mạng x2 DMG\n• Người thắng nhận coin cược x2 • Cooldown: 5 phút`, inline: false },
                 { name: '🎯 NHIỆM VỤ HÀNG NGÀY', value: `\`${prefix}nv\` hoặc \`/quest\` — Xem & nhận thưởng nhiệm vụ\n• 3 nhiệm vụ ngẫu nhiên mỗi ngày (đánh quái, bắt pet, PvP...)\n• Hoàn thành cả 3 → **BONUS 100K 🪙 + 200 EXP**\n• Tự động tracking, reset lúc 0:00`, inline: false },
                 { name: '🏅 CLASS NHÂN VẬT', value: `\`${prefix}class\` hoặc \`/class\` — Chọn/đổi class (Lv.5+)\n• ⚔️ **Chiến Binh** — +30% ATK\n• 🛡️ **Hiệp Sĩ** — +30% DEF, +20% HP\n• 🧙 **Pháp Sư** — +20% ATK, +15% coin hunt\n• Đổi class: 5M 🪙 (lần đầu miễn phí)`, inline: false },
-                { name: '🐉 RAID BOSS & CRAFTING', value: `\`${prefix}spawnraid\` — Dùng vật liệu gọi Boss Thế Giới\n\`${prefix}raid\` — Tham gia đánh Boss Thế Giới để nhận thưởng khủng\n\`${prefix}craft\` — Chế tạo vũ khí/giáp từ vật liệu đánh Boss/Hunt`, inline: false },
-                { name: '🎁 RƯƠNG & TIẾN HÓA & TOP', value: `\`${prefix}ob\` hoặc \`/openbox\` — Mở rương nhận loot (vũ khí, giáp, coin, danh hiệu...)\n\`${prefix}ev\` hoặc \`/evolve\` — Chuyển Pokemon dư thành 🍬 Candy để tiến hóa\n\`${prefix}rt\` hoặc \`/rpgtop\` — Bảng xếp hạng RPG (Level, Power, Dungeon, Pokemon, PvP)`, inline: false }
+                { name: '🐲 RAID BOSS & CHẾ TẠO', value: `\`${prefix}spawnraid\` — Dùng vật liệu gọi Boss Thế Giới\n\`${prefix}raid\` — Tham gia đánh Boss Thế Giới để nhận thưởng khủng\n\`${prefix}gather\` (\`${prefix}g\`) — Thu thập nguyên liệu theo khu vực\n\`${prefix}craft\` (\`${prefix}cr\`) — Chế tạo vũ khí/giáp từ vật liệu đánh Boss/Hunt\n\`${prefix}equip\` (\`${prefix}eq\`) / \`${prefix}unequip\` (\`${prefix}uneq\`) — Mặc/Tháo trang bị`, inline: false },
+                { name: '🎁 RƯƠNG & TIẾN HÓA & TOP', value: `\`${prefix}ob\` hoặc \`/openbox\` — Mở rương nhận loot (vũ khí, giáp, coin, danh hiệu...)\n\`${prefix}ev\` hoặc \`/evolve\` — Chuyển Pokemon dư thành 🍬 Candy để tiến hóa\n\`${prefix}rt\` hoặc \`/rpgtop\` — Bảng xếp hạng RPG (Level, Power, Dungeon, Pokemon, PvP)`, inline: false },
+                { name: '🌾 NÔNG TRẠI (FARM)', value: `\`${prefix}farm\` (\`${prefix}f\`) — Quản lý Nông Trại cá nhân\n• \`${prefix}f shop\` — Mua hạt giống\n• \`${prefix}f plant <ô> <hạt>\` — Trồng cây\n• \`${prefix}f harvest all\` — Thu hoạch\n• \`${prefix}f expand\` — Mua thêm ô đất`, inline: false }
             )
             .setColor('#9B59B6')
             .setFooter({ text: 'Trang 6/13 • RPG Nâng Cao' })
@@ -1034,13 +1035,39 @@ const RPG_ITEMS = {
         'iron_ore': { name: 'Quặng Sắt', emoji: '🪨', price: 5000 },
         'dragon_scale': { name: 'Vảy Rồng', emoji: '🐲', price: 25000 },
         'magic_dust': { name: 'Bụi Ma Thuật', emoji: '✨', price: 10000 },
-        'demon_horn': { name: 'Sừng Quỷ', emoji: '👿', price: 50000 }
+        'demon_horn': { name: 'Sừng Quỷ', emoji: '👿', price: 50000 },
+        'wood_log': { name: 'Gỗ Sồi', emoji: '🪵', price: 1000 },
+        'herb': { name: 'Thảo Dược', emoji: '🌿', price: 2000 },
+        'gold_ore': { name: 'Quặng Vàng', emoji: '🪙', price: 15000 },
+        'fire_crystal': { name: 'Tinh Thể Lửa', emoji: '🔥', price: 20000 },
+        'ice_gem': { name: 'Băng Ngọc', emoji: '🧊', price: 30000 },
+        'water_soul': { name: 'Linh Hồn Nước', emoji: '💧', price: 35000 },
+        'void_shard': { name: 'Mảnh Vỡ Không Gian', emoji: '🌌', price: 80000 },
+        'obsidian': { name: 'Hắc Diện Thạch', emoji: '⬛', price: 100000 }
+    },
+    artifacts: {
+        'ring_of_power': { name: 'Nhẫn Sức Mạnh', emoji: '💍', atkBonus: 0.10, defBonus: 0, hpBonus: 0, price: 500000 },
+        'amulet_of_defense': { name: 'Dây Chuyền Hộ Mệnh', emoji: '📿', atkBonus: 0, defBonus: 0.10, hpBonus: 0, price: 500000 },
+        'gem_of_life': { name: 'Ngọc Sinh Lực', emoji: '💎', atkBonus: 0, defBonus: 0, hpBonus: 0.20, price: 800000 },
+        'hero_badge': { name: 'Huy Hiệu Dũng Sĩ', emoji: '🎖️', atkBonus: 0.15, defBonus: 0.15, hpBonus: 0, price: 2000000 }
     },
     pokeballs: {
         'basic_ball': { name: 'Bóng Thường', catchRate: 0.3, price: 10000, emoji: '🔴' },
         'great_ball': { name: 'Bóng Siêu Cấp', catchRate: 0.5, price: 50000, emoji: '🔵' },
         'ultra_ball': { name: 'Bóng Tối Thượng', catchRate: 0.8, price: 200000, emoji: '🟡' },
         'master_ball': { name: 'Bóng Vô Cực', catchRate: 1.0, price: 1000000, emoji: '🟣' }
+    },
+    seeds: {
+        'wheat_seed': { name: 'Hạt giống Lúa Mì', emoji: '🌱', growTime: 5 * 60 * 1000, yieldItem: 'wheat', price: 1000 },
+        'carrot_seed': { name: 'Hạt giống Cà Rốt', emoji: '🥕', growTime: 30 * 60 * 1000, yieldItem: 'carrot', price: 5000 },
+        'tomato_seed': { name: 'Hạt giống Cà Chua', emoji: '🍅', growTime: 120 * 60 * 1000, yieldItem: 'tomato', price: 15000 },
+        'magic_seed': { name: 'Hạt giống Cây Thần', emoji: '🌳', growTime: 12 * 60 * 60 * 1000, yieldItem: 'magic_leaf', price: 100000 }
+    },
+    crops: {
+        'wheat': { name: 'Lúa Mì', emoji: '🌾', price: 2000 },
+        'carrot': { name: 'Cà Rốt', emoji: '🥕', price: 12000 },
+        'tomato': { name: 'Cà Chua', emoji: '🍅', price: 40000 },
+        'magic_leaf': { name: 'Lá Cây Thần', emoji: '🍃', price: 300000 }
     }
 };
 
@@ -1050,7 +1077,11 @@ const MONSTERS = [
     { name: 'Sói Hoang', hp: 100, atk: 25, def: 10, exp: 40, coin: 80, emoji: '🐺' },
     { name: 'Chiến Binh Orc', hp: 200, atk: 40, def: 20, exp: 80, coin: 150, emoji: '👹' },
     { name: 'Hồn Ma', hp: 350, atk: 60, def: 15, exp: 120, coin: 250, emoji: '👻' },
-    { name: 'Rồng Con', hp: 600, atk: 90, def: 40, exp: 200, coin: 400, emoji: '🐉' }
+    { name: 'Rồng Con', hp: 600, atk: 90, def: 40, exp: 200, coin: 400, emoji: '🐉' },
+    { name: 'Golem Dung Nham', hp: 1000, atk: 120, def: 80, exp: 350, coin: 800, emoji: '🪨' },
+    { name: 'Ma Sói Đột Biến', hp: 1500, atk: 180, def: 60, exp: 500, coin: 1200, emoji: '🐺🌑' },
+    { name: 'Tinh Linh Băng', hp: 1200, atk: 250, def: 50, exp: 600, coin: 1500, emoji: '🧊' },
+    { name: 'Rồng Hư Không', hp: 3000, atk: 400, def: 150, exp: 1500, coin: 5000, emoji: '🌌🐉' }
 ];
 
 // ========================
@@ -1097,8 +1128,42 @@ const DUNGEONS = [
         boss: { name: 'Ma Vương Diablo', hp: 1200, atk: 120, def: 50, emoji: '😈' },
         rewards: { coin: 100000, exp: 2000, chestChance: 0.8, chestType: 'gold' },
         cooldown: 30 * 60 * 1000
+    },
+    {
+        id: 'frozen_ruins', name: '❄️ Tàn Tích Băng Giá', minLevel: 15,
+        floors: [
+            { name: 'Slime Băng', hp: 500, atk: 80, def: 40, emoji: '💧' },
+            { name: 'Sói Tuyết', hp: 700, atk: 100, def: 50, emoji: '🐺' },
+            { name: 'Người Đá Băng', hp: 1000, atk: 90, def: 100, emoji: '🗿' },
+            { name: 'Phù Thủy Băng', hp: 800, atk: 150, def: 60, emoji: '🧙' },
+            { name: 'Kỵ Sĩ Rồng Tuyết', hp: 1500, atk: 200, def: 80, emoji: '🐎' },
+        ],
+        boss: { name: 'Rồng Băng Mắt Xanh', hp: 3500, atk: 300, def: 120, emoji: '🐉❄️' },
+        rewards: { coin: 250000, exp: 5000, chestChance: 1.0, chestType: 'legendary' },
+        cooldown: 60 * 60 * 1000
+    },
+    {
+        id: 'nightmare_realm', name: '🌑 Lãnh Địa Ác Mộng', minLevel: 20,
+        floors: [
+            { name: 'Bóng Ma Khóc', hp: 1000, atk: 200, def: 80, emoji: '👻' },
+            { name: 'Kỵ Sĩ Địa Ngục', hp: 2000, atk: 250, def: 150, emoji: '🐎🔥' },
+            { name: 'Tử Thần Cổ Đại', hp: 2500, atk: 350, def: 100, emoji: '💀' },
+            { name: 'Quái Vật Hỗn Mang', hp: 3000, atk: 400, def: 200, emoji: '🐙' },
+            { name: 'Sứ Giả Tận Thế', hp: 4000, atk: 450, def: 180, emoji: '🦇' },
+        ],
+        boss: { name: 'Quỷ Vương Hủy Diệt', hp: 8000, atk: 600, def: 300, emoji: '👿👑' },
+        rewards: { coin: 1000000, exp: 12000, chestChance: 1.0, chestType: 'legendary' },
+        cooldown: 120 * 60 * 1000
     }
 ];
+
+const REGIONS = {
+    'rung_sau': { id: 'rung_sau', name: 'Khu Rừng Yên Bình', minLevel: 1, emoji: '🌲', drops: ['wood_log', 'herb'], chances: [0.7, 0.3] },
+    'hang_dong': { id: 'hang_dong', name: 'Hang Động Gió Hú', minLevel: 5, emoji: '🦇', drops: ['iron_ore', 'magic_dust'], chances: [0.6, 0.4] },
+    'nui_lua': { id: 'nui_lua', name: 'Núi Lửa Cổ Đại', minLevel: 10, emoji: '🌋', drops: ['gold_ore', 'fire_crystal'], chances: [0.5, 0.5] },
+    'dao_bang': { id: 'dao_bang', name: 'Đảo Băng Giá', minLevel: 15, emoji: '🧊', drops: ['ice_gem', 'water_soul'], chances: [0.5, 0.5] },
+    'hu_khong': { id: 'hu_khong', name: 'Hư Không', minLevel: 20, emoji: '🌌', drops: ['void_shard', 'obsidian', 'dragon_scale', 'demon_horn'], chances: [0.3, 0.3, 0.2, 0.2] }
+};
 
 // CLASS SYSTEM
 const RPG_CLASSES = {
@@ -1211,21 +1276,53 @@ const EVOLUTION_MAP = {
 };
 
 const CRAFTING_RECIPES = {
+    'iron_sword': {
+        name: 'Kiếm Sắt', type: 'weapon', emoji: '⚔️', atk: 15,
+        req: { iron_ore: 5, wood_log: 2 }, coin: 10000
+    },
+    'steel_sword': {
+        name: 'Kiếm Thép', type: 'weapon', emoji: '🤺', atk: 30,
+        req: { iron_ore: 15, gold_ore: 2, magic_dust: 1 }, coin: 50000
+    },
+    'diamond_sword': {
+        name: 'Kiếm Kim Cương', type: 'weapon', emoji: '💠', atk: 70,
+        req: { iron_ore: 50, gold_ore: 20, magic_dust: 10, dragon_scale: 1 }, coin: 500000
+    },
     'mythic_sword': {
-        name: 'Kiếm Thần Thoại',
-        type: 'weapon',
-        emoji: '🗡️✨',
-        atk: 150,
-        req: { iron_ore: 10, dragon_scale: 2, magic_dust: 5, demon_horn: 1 },
-        coin: 5000000
+        name: 'Kiếm Thần Thoại', type: 'weapon', emoji: '🗡️✨', atk: 150,
+        req: { iron_ore: 100, dragon_scale: 5, magic_dust: 20, demon_horn: 2, void_shard: 1 }, coin: 2000000
+    },
+    'iron_armor': {
+        name: 'Giáp Sắt', type: 'armor', emoji: '🛡️', def: 15,
+        req: { iron_ore: 8 }, coin: 15000
+    },
+    'steel_armor': {
+        name: 'Giáp Thép', type: 'armor', emoji: '🦾', def: 30,
+        req: { iron_ore: 20, gold_ore: 5 }, coin: 60000
+    },
+    'diamond_armor': {
+        name: 'Giáp Kim Cương', type: 'armor', emoji: '💎', def: 70,
+        req: { iron_ore: 60, gold_ore: 25, magic_dust: 15 }, coin: 600000
     },
     'mythic_armor': {
-        name: 'Giáp Thần Thoại',
-        type: 'armor',
-        emoji: '🛡️✨',
-        def: 150,
-        req: { iron_ore: 15, dragon_scale: 3, magic_dust: 2, demon_horn: 1 },
-        coin: 5000000
+        name: 'Giáp Thần Thoại', type: 'armor', emoji: '🛡️✨', def: 150,
+        req: { iron_ore: 120, dragon_scale: 5, magic_dust: 25, demon_horn: 2, obsidian: 1 }, coin: 2500000
+    },
+    'ring_of_power': {
+        name: 'Nhẫn Sức Mạnh', type: 'artifact', emoji: '💍',
+        req: { gold_ore: 10, magic_dust: 10, fire_crystal: 2 }, coin: 100000
+    },
+    'amulet_of_defense': {
+        name: 'Dây Chuyền Hộ Mệnh', type: 'artifact', emoji: '📿',
+        req: { gold_ore: 10, magic_dust: 10, ice_gem: 2 }, coin: 100000
+    },
+    'gem_of_life': {
+        name: 'Ngọc Sinh Lực', type: 'artifact', emoji: '💎',
+        req: { gold_ore: 20, water_soul: 5, herb: 50 }, coin: 200000
+    },
+    'hero_badge': {
+        name: 'Huy Hiệu Dũng Sĩ', type: 'artifact', emoji: '🎖️',
+        req: { demon_horn: 1, dragon_scale: 2, void_shard: 1, obsidian: 1 }, coin: 1000000
     }
 };
 
@@ -1258,9 +1355,10 @@ function getPlayer(userId) {
             level: 1, exp: 0, 
             hp: 100, maxHp: 100,
             baseAtk: 10, baseDef: 5,
-            weapon: null, armor: null,
+            weapon: null, armor: null, artifact: null,
             inventory: { small_potion: 0, large_potion: 0 },
             lastHunt: 0,
+            lastGather: 0,
             lastCatch: 0,
             pets: {},
             partner: null,
@@ -1283,6 +1381,9 @@ function getPlayer(userId) {
         saveRPG(data);
     } else {
         let changed = false;
+        if (data[userId].artifact === undefined) { data[userId].artifact = null; changed = true; }
+        if (data[userId].lastGather === undefined) { data[userId].lastGather = 0; changed = true; }
+        if (data[userId].farm === undefined) { data[userId].farm = { slots: 3, plants: {} }; changed = true; }
         if (!data[userId].pets) { data[userId].pets = {}; changed = true; }
         if (data[userId].lastCatch === undefined) { data[userId].lastCatch = 0; changed = true; }
         if (data[userId].partner === undefined) { data[userId].partner = null; changed = true; }
@@ -1335,13 +1436,34 @@ function getPlayerStats(p) {
     let maxHp = p.maxHp;
     if (p.weapon && RPG_ITEMS.weapons[p.weapon]) atk += RPG_ITEMS.weapons[p.weapon].atk;
     if (p.armor && RPG_ITEMS.armors[p.armor]) def += RPG_ITEMS.armors[p.armor].def;
-    // Class bonuses
+    
+    let artifactAtkBonus = 0;
+    let artifactDefBonus = 0;
+    let artifactHpBonus = 0;
+    
+    if (p.artifact && RPG_ITEMS.artifacts[p.artifact]) {
+        const art = RPG_ITEMS.artifacts[p.artifact];
+        artifactAtkBonus += art.atkBonus || 0;
+        artifactDefBonus += art.defBonus || 0;
+        artifactHpBonus += art.hpBonus || 0;
+    }
+
+    // Class bonuses + Artifact bonuses
+    let totalAtkBonus = artifactAtkBonus;
+    let totalDefBonus = artifactDefBonus;
+    let totalHpBonus = artifactHpBonus;
+
     if (p.rpgClass && RPG_CLASSES[p.rpgClass]) {
         const cls = RPG_CLASSES[p.rpgClass];
-        atk = Math.floor(atk * (1 + cls.atkBonus));
-        def = Math.floor(def * (1 + cls.defBonus));
-        maxHp = Math.floor(maxHp * (1 + cls.hpBonus));
+        totalAtkBonus += cls.atkBonus;
+        totalDefBonus += cls.defBonus;
+        totalHpBonus += cls.hpBonus;
     }
+
+    atk = Math.floor(atk * (1 + totalAtkBonus));
+    def = Math.floor(def * (1 + totalDefBonus));
+    maxHp = Math.floor(maxHp * (1 + totalHpBonus));
+    
     return { atk, def, maxHp };
 }
 
@@ -1409,6 +1531,7 @@ function buildProfileEmbed(user) {
 
     const wName = pData.weapon ? RPG_ITEMS.weapons[pData.weapon].name : 'Tay không';
     const aName = pData.armor ? RPG_ITEMS.armors[pData.armor].name : 'Đồ vải';
+    const artName = pData.artifact ? RPG_ITEMS.artifacts[pData.artifact].name : 'Chưa đeo';
     const smallPot = pData.inventory?.small_potion || 0;
     const largePot = pData.inventory?.large_potion || 0;
 
@@ -1474,7 +1597,7 @@ function buildProfileEmbed(user) {
         { name: '\u200b', value: '\u200b', inline: true },
         { name: '\u200b', value: '\u200b', inline: true },
         { name: '🔰 RPG (Nhập Vai)', value: `Cấp: **${pData.level}** (${pData.exp}/${pData.level*100} EXP)\nMáu: ❤️ **${pData.hp}/${stats.maxHp || pData.maxHp}**\nSức mạnh: ⚔️ **${stats.atk}** | 🛡️ **${stats.def}**${pData.rpgClass && RPG_CLASSES[pData.rpgClass] ? `\nClass: ${RPG_CLASSES[pData.rpgClass].emoji} **${RPG_CLASSES[pData.rpgClass].name}**` : ''}`, inline: true },
-        { name: '🎒 Túi Đồ', value: `Vũ khí: ${wName}\nÁo giáp: ${aName}\nBình máu: 🧪x${smallPot} | 🧴x${largePot}`, inline: true },
+        { name: '🎒 Túi Đồ', value: `Vũ khí: ${wName}\nÁo giáp: ${aName}\nTrang sức: ${artName}\nBình máu: 🧪x${smallPot} | 🧴x${largePot}`, inline: true },
         { name: '📊 Thành Tích', value: `🏰 Dungeon: **${pData.dungeonClears || 0}** lần\n⚔️ PvP: **${pData.pvpWins || 0}W**/${pData.pvpLosses || 0}L\n🍬 Candy: **${pData.candy || 0}**`, inline: true },
         { name: '🐾 Thú Cưng', value: petsText, inline: false }
     ).setTimestamp();
@@ -1620,6 +1743,7 @@ async function handleShop(userId, msgOrInteraction) {
 
                 addCoins(userId, -item.price);
                 updatePlayer(userId, p => {
+                    p.inventory[itemCode] = (p.inventory[itemCode] || 0) + 1;
                     if (type === 'weapon') p.weapon = itemCode;
                     else if (type === 'armor') p.armor = itemCode;
                     else if (type === 'ring') {
@@ -1847,23 +1971,45 @@ async function handlePets(userId, msgOrInteraction) {
     const p = getPlayer(userId);
     const pets = p.pets || {};
     
-    let desc = [];
     const ownedPets = [];
     for (const pet of PET_LIST) {
         const amount = pets[pet.id] || 0;
         if (amount > 0) {
-            desc.push(`${pet.emoji} **${pet.name}** (${pet.rarity}): ${amount} con`);
             ownedPets.push({ pet, amount });
         }
     }
     
-    const embed = new EmbedBuilder()
-        .setTitle('🏕️ Chuồng Thú Cưng')
-        .setColor('#2ECC71')
-        .setDescription(desc.length > 0 ? desc.join('\n') : 'Chuồng thú của bạn đang trống trơn! Hãy dùng lệnh `!catch` để bắt thêm.');
-        
     if (ownedPets.length === 0) {
-        return msgOrInteraction.reply ? msgOrInteraction.reply({ embeds: [embed] }) : msgOrInteraction.channel.send({ embeds: [embed] });
+        const emptyEmbed = new EmbedBuilder()
+            .setTitle('🏕️ Chuồng Thú Cưng')
+            .setColor('#2ECC71')
+            .setDescription('Chuồng thú của bạn đang trống trơn! Hãy dùng lệnh `/catchpet` hoặc ném bóng vào pokemon hoang dã để bắt thêm.');
+        return msgOrInteraction.reply ? msgOrInteraction.reply({ embeds: [emptyEmbed] }) : msgOrInteraction.channel.send({ embeds: [emptyEmbed] });
+    }
+
+    // Sort by price (strength) descending
+    ownedPets.sort((a, b) => (b.pet.price || 0) - (a.pet.price || 0));
+    
+    const strongest = ownedPets[0];
+    
+    const embed = new EmbedBuilder()
+        .setTitle(`🏕️ Chuồng Thú Cưng của bạn`)
+        .setColor('#F1C40F')
+        .addFields({ name: '👑 Thú Cưng Mạnh Nhất', value: `${strongest.pet.emoji} **${strongest.pet.name}**\nĐộ hiếm: **${strongest.pet.rarity}** | Sức mạnh: **${(strongest.pet.price||0).toLocaleString()}**\n*(Sở hữu: ${strongest.amount} con)*`, inline: false });
+        
+    if (strongest.pet.imageUrl) {
+        embed.setThumbnail(strongest.pet.imageUrl);
+    }
+    
+    const rarities = {};
+    for (const op of ownedPets) {
+        const r = op.pet.rarity || 'Thường';
+        if (!rarities[r]) rarities[r] = [];
+        rarities[r].push(`${op.pet.emoji} **${op.pet.name}** (x${op.amount})`);
+    }
+    
+    for (const [rarity, pList] of Object.entries(rarities)) {
+        embed.addFields({ name: `💎 ${rarity} (${pList.length} loài)`, value: pList.join(', '), inline: false });
     }
 
     ownedPets.sort((a, b) => b.pet.price - a.pet.price);
@@ -2188,6 +2334,234 @@ async function awaitConfirmation(msgOrInteraction, userId, promptText, onConfirm
 // ========================
 // RPG EXPANSION HANDLERS
 // ========================
+
+async function handleGather(userId, msgOrInteraction, args) {
+    const p = getPlayer(userId);
+    const now = Date.now();
+    
+    // Cooldown 5 mins
+    if (now - (p.lastGather || 0) < 5 * 60 * 1000) {
+        const mins = Math.ceil((5 * 60 * 1000 - (now - p.lastGather)) / 60000);
+        return replyMsg(msgOrInteraction, `⏳ Khu vực đang hồi tài nguyên! Hãy quay lại sau **${mins} phút**.`);
+    }
+
+    const regionKey = args[1] ? args[1].toLowerCase() : null;
+    if (!regionKey || !REGIONS[regionKey]) {
+        let regionsText = Object.keys(REGIONS).map(k => {
+            const r = REGIONS[k];
+            const locked = p.level < r.minLevel ? ' 🔒 (Yêu cầu Lv.'+r.minLevel+')' : '';
+            return `\`${k}\` - ${r.emoji} ${r.name}${locked}`;
+        }).join('\n');
+        return replyMsg(msgOrInteraction, `🌍 **Các khu vực thu thập:**\n${regionsText}\n\n👉 *Cú pháp: \`!gather <mã_khu_vực>\`*`);
+    }
+
+    const r = REGIONS[regionKey];
+    if (p.level < r.minLevel) {
+        return replyMsg(msgOrInteraction, `❌ Bạn cần đạt **Cấp ${r.minLevel}** để tới ${r.emoji} **${r.name}**!`);
+    }
+
+    // Determine drop
+    const rand = Math.random();
+    let cumChance = 0;
+    let droppedItem = r.drops[0];
+    for (let i = 0; i < r.drops.length; i++) {
+        cumChance += r.chances[i];
+        if (rand <= cumChance) {
+            droppedItem = r.drops[i];
+            break;
+        }
+    }
+
+    const dropQty = Math.floor(Math.random() * 3) + 1; // 1-3 items
+    updatePlayer(userId, dp => {
+        dp.lastGather = now;
+        dp.inventory[droppedItem] = (dp.inventory[droppedItem] || 0) + dropQty;
+        dp.exp += 15; // Small exp for gathering
+    });
+
+    const itemDef = RPG_ITEMS.materials[droppedItem];
+    const embed = new EmbedBuilder()
+        .setTitle(`${r.emoji} Thu thập tại ${r.name}`)
+        .setDescription(`Bạn đã cất công tìm kiếm và thu được:\n\n💎 **${itemDef.emoji} ${itemDef.name} x${dropQty}**\n⭐ **+15 EXP**`)
+        .setColor('#2ECC71');
+
+    return replyMsg(msgOrInteraction, { embeds: [embed] });
+}
+
+async function handleCraft(userId, msgOrInteraction, args) {
+    const p = getPlayer(userId);
+    const itemId = args[1] ? args[1].toLowerCase() : null;
+    
+    if (!itemId || !CRAFTING_RECIPES[itemId]) {
+        let text = '🛠️ **BẢNG CHẾ TẠO**\n*Sử dụng lệnh: `!craft <mã_đồ>`*\n\n';
+        for (const [k, v] of Object.entries(CRAFTING_RECIPES)) {
+            const reqs = Object.entries(v.req).map(([mat, qty]) => `${RPG_ITEMS.materials[mat]?.emoji || ''}${qty}`).join(', ');
+            text += `**${v.emoji} ${v.name}** (\`${k}\`)\n└ 🪙 ${v.coin.toLocaleString()} | 📦 ${reqs}\n`;
+        }
+        return replyMsg(msgOrInteraction, text);
+    }
+
+    const recipe = CRAFTING_RECIPES[itemId];
+    
+    // Check coins
+    if (getUserCoins(userId) < recipe.coin) {
+        return replyMsg(msgOrInteraction, `❌ Bạn cần **${recipe.coin.toLocaleString()} 🪙** để rèn vật phẩm này!`);
+    }
+    
+    // Check materials
+    for (const [mat, qty] of Object.entries(recipe.req)) {
+        if (!p.inventory[mat] || p.inventory[mat] < qty) {
+            const matDef = RPG_ITEMS.materials[mat];
+            return replyMsg(msgOrInteraction, `❌ Bạn thiếu nguyên liệu **${matDef.emoji} ${matDef.name}** (Cần ${qty}, có ${p.inventory[mat] || 0}).`);
+        }
+    }
+    
+    // Process crafting
+    addCoins(userId, -recipe.coin);
+    updatePlayer(userId, dp => {
+        for (const [mat, qty] of Object.entries(recipe.req)) {
+            dp.inventory[mat] -= qty;
+            if (dp.inventory[mat] <= 0) delete dp.inventory[mat];
+        }
+        dp.inventory[itemId] = (dp.inventory[itemId] || 0) + 1;
+        if (recipe.type === 'weapon') dp.weapon = itemId;
+        else if (recipe.type === 'armor') dp.armor = itemId;
+        else if (recipe.type === 'artifact') dp.artifact = itemId;
+    });
+    
+    const embed = new EmbedBuilder()
+        .setTitle('🛠️ Chế Tạo Thành Công!')
+        .setDescription(`Bạn đã rèn thành công **${recipe.emoji} ${recipe.name}**!\nTrang bị đã được **tự động mặc** lên người.`)
+        .setColor('#F1C40F');
+        
+    return replyMsg(msgOrInteraction, { embeds: [embed] });
+}
+
+// --- FARMING SYSTEM ---
+async function handleFarmCommand(userId, msgOrInteraction, args) {
+    const p = getPlayer(userId);
+    const subCmd = args[1] ? args[1].toLowerCase() : 'view';
+    const now = Date.now();
+    
+    if (!p.farm) {
+        updatePlayer(userId, dp => { dp.farm = { slots: 3, plants: {} }; });
+        p.farm = { slots: 3, plants: {} };
+    }
+
+    if (subCmd === 'view') {
+        const embed = new EmbedBuilder().setTitle('🏡 Nông Trại Của Bạn').setColor('#2ECC71');
+        let desc = `**Số ô đất:** ${p.farm.slots}\n\n`;
+        for (let i = 1; i <= p.farm.slots; i++) {
+            const plant = p.farm.plants[i];
+            if (!plant) {
+                desc += `[Ô ${i}] 🟫 Đất trống\n`;
+            } else {
+                const seedDef = RPG_ITEMS.seeds[plant.seed];
+                const elapsed = now - plant.plantedAt;
+                if (elapsed >= seedDef.growTime) {
+                    desc += `[Ô ${i}] ${RPG_ITEMS.crops[seedDef.yieldItem].emoji} **${RPG_ITEMS.crops[seedDef.yieldItem].name}** (Đã chín! Có thể thu hoạch)\n`;
+                } else {
+                    const remainMins = Math.ceil((seedDef.growTime - elapsed) / 60000);
+                    desc += `[Ô ${i}] 🌱 **${seedDef.name}** (Còn ${remainMins} phút)\n`;
+                }
+            }
+        }
+        desc += `\n*Lệnh:* \`!farm plant <ô> <hạt>\`, \`!farm harvest <ô|all>\`, \`!farm shop\``;
+        embed.setDescription(desc);
+        return replyMsg(msgOrInteraction, { embeds: [embed] });
+    }
+    
+    if (subCmd === 'shop') {
+        let text = '🛒 **CỬA HÀNG NÔNG TRẠI**\n*Sử dụng: \`!farm buy <mã_hạt>\` hoặc \`!farm expand\` để mua thêm đất*\n\n';
+        for (const [k, v] of Object.entries(RPG_ITEMS.seeds)) {
+            text += `${v.emoji} **${v.name}** (\`${k}\`) - Giá: ${v.price.toLocaleString()} 🪙\n`;
+        }
+        const expandCost = p.farm.slots >= 10 ? 'MAX' : (p.farm.slots * 10000).toLocaleString() + ' 🪙';
+        text += `\n Mở rộng ô đất tiếp theo: **${expandCost}**`;
+        return replyMsg(msgOrInteraction, text);
+    }
+    
+    if (subCmd === 'buy') {
+        const seedId = args[2] ? args[2].toLowerCase() : null;
+        if (!seedId || !RPG_ITEMS.seeds[seedId]) return replyMsg(msgOrInteraction, `❌ Mã hạt giống không hợp lệ! Xem \`!farm shop\``);
+        const seedDef = RPG_ITEMS.seeds[seedId];
+        if (getUserCoins(userId) < seedDef.price) return replyMsg(msgOrInteraction, `❌ Bạn không đủ **${seedDef.price.toLocaleString()} 🪙**!`);
+        addCoins(userId, -seedDef.price);
+        updatePlayer(userId, dp => { dp.inventory[seedId] = (dp.inventory[seedId] || 0) + 1; });
+        return replyMsg(msgOrInteraction, `✅ Đã mua thành công 1 ${seedDef.emoji} **${seedDef.name}**!`);
+    }
+    
+    if (subCmd === 'expand') {
+        if (p.farm.slots >= 10) return replyMsg(msgOrInteraction, `❌ Bạn đã mở rộng tối đa ô đất!`);
+        const expandCost = p.farm.slots * 10000;
+        if (getUserCoins(userId) < expandCost) return replyMsg(msgOrInteraction, `❌ Bạn cần **${expandCost.toLocaleString()} 🪙** để mở rộng!`);
+        addCoins(userId, -expandCost);
+        updatePlayer(userId, dp => { dp.farm.slots += 1; });
+        return replyMsg(msgOrInteraction, `✅ Đã mở rộng Nông trại lên **${p.farm.slots + 1}** ô đất!`);
+    }
+    
+    if (subCmd === 'plant') {
+        const slotStr = args[2];
+        const seedId = args[3] ? args[3].toLowerCase() : null;
+        if (!slotStr || isNaN(slotStr) || !seedId) return replyMsg(msgOrInteraction, `❌ Cú pháp: \`!farm plant <số_ô> <mã_hạt>\``);
+        const slot = parseInt(slotStr);
+        if (slot < 1 || slot > p.farm.slots) return replyMsg(msgOrInteraction, `❌ Ô đất không hợp lệ (Bạn có ${p.farm.slots} ô).`);
+        if (p.farm.plants[slot]) return replyMsg(msgOrInteraction, `❌ Ô đất số ${slot} đã có cây!`);
+        
+        if (!p.inventory[seedId] || p.inventory[seedId] <= 0 || !RPG_ITEMS.seeds[seedId]) {
+            return replyMsg(msgOrInteraction, `❌ Bạn không có hạt giống này trong túi!`);
+        }
+        
+        updatePlayer(userId, dp => {
+            dp.inventory[seedId] -= 1;
+            if (dp.inventory[seedId] <= 0) delete dp.inventory[seedId];
+            dp.farm.plants[slot] = { seed: seedId, plantedAt: now };
+        });
+        const seedDef = RPG_ITEMS.seeds[seedId];
+        return replyMsg(msgOrInteraction, `✅ Đã gieo ${seedDef.emoji} **${seedDef.name}** vào Ô số ${slot}. Cần ${Math.ceil(seedDef.growTime/60000)} phút để thu hoạch.`);
+    }
+    
+    if (subCmd === 'harvest') {
+        const slotStr = args[2];
+        if (!slotStr) return replyMsg(msgOrInteraction, `❌ Cú pháp: \`!farm harvest <số_ô/all>\``);
+        
+        let harvestedCount = 0;
+        let harvestText = '';
+        let totalExp = 0;
+        
+        const doHarvest = (slot) => {
+            const plant = p.farm.plants[slot];
+            if (!plant) return;
+            const seedDef = RPG_ITEMS.seeds[plant.seed];
+            if (now - plant.plantedAt >= seedDef.growTime) {
+                const yieldAmt = Math.floor(Math.random() * 2) + 1; // 1-2 items
+                const cropId = seedDef.yieldItem;
+                const cropDef = RPG_ITEMS.crops[cropId];
+                updatePlayer(userId, dp => {
+                    delete dp.farm.plants[slot];
+                    dp.inventory[cropId] = (dp.inventory[cropId] || 0) + yieldAmt;
+                    dp.exp += 20; // 20 exp per harvest
+                });
+                harvestedCount++;
+                totalExp += 20;
+                harvestText += `[Ô ${slot}] Nhận ${cropDef.emoji} **${cropDef.name}** x${yieldAmt}\n`;
+            }
+        };
+
+        if (slotStr.toLowerCase() === 'all') {
+            for (let i = 1; i <= p.farm.slots; i++) doHarvest(i);
+        } else {
+            const slot = parseInt(slotStr);
+            if (slot >= 1 && slot <= p.farm.slots) doHarvest(slot);
+        }
+        
+        if (harvestedCount === 0) return replyMsg(msgOrInteraction, `❌ Không có cây nào chín để thu hoạch ở ô này!`);
+        
+        return replyMsg(msgOrInteraction, `🌾 **THU HOẠCH THÀNH CÔNG**\n${harvestText}\n⭐ Nhận được **+${totalExp} EXP**!`);
+    }
+    
+    return replyMsg(msgOrInteraction, `❌ Lệnh Nông Trại không hợp lệ! Xem \`!farm\``);
+}
 
 // --- DUNGEON SYSTEM ---
 async function handleDungeon(userId, msgOrInteraction) {
@@ -2663,10 +3037,12 @@ async function handleOpenBox(userId, msgOrInteraction) {
                 lootText = `🧪 **${amount}x ${itemName}**`;
             } else if (loot.type === 'weapon') {
                 const item = loot.items[Math.floor(Math.random() * loot.items.length)];
+                dp.inventory[item] = (dp.inventory[item] || 0) + 1;
                 dp.weapon = item;
                 lootText = `⚔️ **${RPG_ITEMS.weapons[item].name}** (Tự động trang bị!)`;
             } else if (loot.type === 'armor') {
                 const item = loot.items[Math.floor(Math.random() * loot.items.length)];
+                dp.inventory[item] = (dp.inventory[item] || 0) + 1;
                 dp.armor = item;
                 lootText = `🛡️ **${RPG_ITEMS.armors[item].name}** (Tự động trang bị!)`;
             } else if (loot.type === 'exp') {
@@ -5018,38 +5394,6 @@ client.on('messageCreate', async (message) => {
         return message.reply({ embeds: [embed] });
     }
 
-    if (content.startsWith(`${prefix}craft `)) {
-        const itemKey = message.content.split(' ')[1];
-        if (!CRAFTING_RECIPES[itemKey]) return message.reply('❌ Món đồ này không tồn tại trong danh sách chế tạo!');
-        
-        const recipe = CRAFTING_RECIPES[itemKey];
-        const pData = getPlayer(uid);
-        const cData = loadCoins();
-        const userCoins = cData[uid] ? (cData[uid].coins || 0) : 0;
-        
-        if (userCoins < recipe.coin) return message.reply(`❌ Bạn không đủ **${recipe.coin.toLocaleString()} 🪙** để chế tạo!`);
-        
-        for (const [matKey, qty] of Object.entries(recipe.req)) {
-            const userQty = pData.inventory[matKey] || 0;
-            if (userQty < qty) {
-                return message.reply(`❌ Bạn không đủ nguyên liệu **${RPG_ITEMS.materials[matKey].name}**! (Cần ${qty}, đang có ${userQty})`);
-            }
-        }
-        
-        updatePlayer(uid, p => {
-            for (const [matKey, qty] of Object.entries(recipe.req)) {
-                p.inventory[matKey] -= qty;
-            }
-            if (recipe.type === 'weapon') p.weapon = itemKey;
-            if (recipe.type === 'armor') p.armor = itemKey;
-        });
-        
-        cData[uid].coins -= recipe.coin;
-        saveCoins(cData);
-        
-        return message.reply(`✨ KENG KENG KENG! Bạn đã chế tạo thành công **${recipe.emoji} ${recipe.name}** cực phẩm! Lực chiến tăng vọt!`);
-    }
-
     if (content.startsWith(`${prefix}evolve `)) {
         const petId = message.content.split(' ')[1];
         if (!petId) return message.reply(`❌ Vui lòng nhập ID thú cưng! Ví dụ: \`${prefix}evolve charmander\``);
@@ -6294,8 +6638,64 @@ client.on('messageCreate', async (message) => {
     }
 
     // RPG EXPANSION PREFIX COMMANDS
+    if (content.startsWith(`${prefix}gather`) || content.startsWith(`${prefix}g `) || content === `${prefix}g`) {
+        const args = content.split(/\s+/);
+        return handleGather(message.author.id, message, args);
+    }
+    if (content.startsWith(`${prefix}craft`) || content.startsWith(`${prefix}cr `) || content === `${prefix}cr`) {
+        const args = content.split(/\s+/);
+        return handleCraft(message.author.id, message, args);
+    }
+    if (content.startsWith(`${prefix}equip`) || content.startsWith(`${prefix}eq `)) {
+        const args = content.split(/\s+/);
+        const itemId = args[1] ? args[1].toLowerCase() : null;
+        if (!itemId) return message.reply(`❌ Cú pháp: \`!equip <mã_trang_bị>\`\n*(Bạn có thể xem mã trong bảng !craft hoặc !inv)*`);
+        
+        const p = getPlayer(message.author.id);
+        if (!p.inventory[itemId] || p.inventory[itemId] <= 0) {
+            return message.reply(`❌ Bạn không có sẵn món đồ này trong túi!`);
+        }
+        
+        let type = null;
+        if (RPG_ITEMS.weapons[itemId]) type = 'weapon';
+        else if (RPG_ITEMS.armors[itemId]) type = 'armor';
+        else if (RPG_ITEMS.artifacts[itemId]) type = 'artifact';
+        
+        if (!type) return message.reply(`❌ Trang bị không hợp lệ!`);
+        
+        updatePlayer(message.author.id, dp => {
+            if (type === 'weapon') dp.weapon = itemId;
+            else if (type === 'armor') dp.armor = itemId;
+            else if (type === 'artifact') dp.artifact = itemId;
+        });
+        
+        const typeName = type === 'weapon' ? 'Vũ Khí' : (type === 'armor' ? 'Áo Giáp' : 'Trang Sức');
+        const itemName = RPG_ITEMS[`${type}s`][itemId].name;
+        const emoji = RPG_ITEMS[`${type}s`][itemId].emoji;
+        
+        return message.reply(`✅ Đã mặc **${typeName}** mới: ${emoji} **${itemName}**!`);
+    }
+    if (content.startsWith(`${prefix}unequip`) || content.startsWith(`${prefix}uneq `)) {
+        const args = content.split(/\s+/);
+        const typeArg = args[1] ? args[1].toLowerCase() : null;
+        if (!['weapon', 'armor', 'artifact'].includes(typeArg)) {
+            return message.reply(`❌ Cú pháp: \`!unequip <weapon|armor|artifact>\``);
+        }
+        
+        updatePlayer(message.author.id, dp => {
+            if (typeArg === 'weapon') dp.weapon = null;
+            else if (typeArg === 'armor') dp.armor = null;
+            else if (typeArg === 'artifact') dp.artifact = null;
+        });
+        
+        return message.reply(`✅ Đã tháo trang bị ô **${typeArg}**!`);
+    }
     if (content === `${prefix}dungeon` || content === `${prefix}dg`) {
         return handleDungeon(message.author.id, message);
+    }
+    if (content.startsWith(`${prefix}farm`) || content.startsWith(`${prefix}f `) || content === `${prefix}f`) {
+        const args = content.split(/\s+/);
+        return handleFarmCommand(message.author.id, message, args);
     }
     if (content.startsWith(`${prefix}pvp `)) {
         const args = content.slice(prefix.length + 4).trim().split(/\s+/);
@@ -6340,6 +6740,10 @@ client.on('messageCreate', async (message) => {
             const a = RPG_ITEMS.armors[p.armor];
             if (a) equipText += `🛡️ **Áo giáp:** ${a.emoji} ${a.name} (+${a.def} Def)\n`;
         }
+        if (p.artifact) {
+            const art = RPG_ITEMS.artifacts[p.artifact];
+            if (art) equipText += `${art.emoji} **Trang sức:** ${art.name}\n`;
+        }
         embed.addFields({ name: 'Trang Bị', value: equipText || 'Chưa trang bị gì.', inline: false });
         
         const options = [];
@@ -6348,7 +6752,7 @@ client.on('messageCreate', async (message) => {
         if (p.inventory) {
             for (const [k, v] of Object.entries(p.inventory)) {
                 if (v > 0) {
-                    let item = RPG_ITEMS.potions[k] || RPG_ITEMS.pokeballs[k] || RPG_ITEMS.materials[k];
+                    let item = RPG_ITEMS.potions[k] || RPG_ITEMS.pokeballs[k] || RPG_ITEMS.materials[k] || RPG_ITEMS.weapons?.[k] || RPG_ITEMS.armors?.[k] || RPG_ITEMS.artifacts?.[k] || RPG_ITEMS.seeds?.[k] || RPG_ITEMS.crops?.[k];
                     if (item) {
                         items.push(`${item.emoji || ''} **${item.name}**: ${v}`);
                         options.push(new StringSelectMenuOptionBuilder()
@@ -6709,11 +7113,7 @@ client.on('interactionCreate', async (interaction) => {
             const selectedVal = interaction.values[0];
             const itemId = selectedVal.replace('invitem_', '');
             
-            let itemDef = null;
-            if (RPG_ITEMS.potions[itemId]) itemDef = RPG_ITEMS.potions[itemId];
-            else if (RPG_ITEMS.pokeballs[itemId]) itemDef = RPG_ITEMS.pokeballs[itemId];
-            else if (RPG_ITEMS.materials[itemId]) itemDef = RPG_ITEMS.materials[itemId];
-            else itemDef = PET_LIST.find(p => p.id === itemId);
+            let itemDef = RPG_ITEMS.potions[itemId] || RPG_ITEMS.pokeballs[itemId] || RPG_ITEMS.materials[itemId] || RPG_ITEMS.weapons?.[itemId] || RPG_ITEMS.armors?.[itemId] || RPG_ITEMS.artifacts?.[itemId] || RPG_ITEMS.seeds?.[itemId] || RPG_ITEMS.crops?.[itemId] || PET_LIST.find(p => p.id === itemId);
             
             if (!itemDef) return interaction.reply({ content: '❌ Không tìm thấy vật phẩm này!', ephemeral: true });
             
@@ -6756,7 +7156,7 @@ client.on('interactionCreate', async (interaction) => {
             if (cid.startsWith('invsell_')) { action = 'sell'; itemId = cid.replace('invsell_', ''); }
             if (cid.startsWith('invsellall_')) { action = 'sellall'; itemId = cid.replace('invsellall_', ''); }
             
-            let itemDef = RPG_ITEMS.potions[itemId] || RPG_ITEMS.pokeballs[itemId] || RPG_ITEMS.materials[itemId] || PET_LIST.find(pt => pt.id === itemId);
+            let itemDef = RPG_ITEMS.potions[itemId] || RPG_ITEMS.pokeballs[itemId] || RPG_ITEMS.materials[itemId] || RPG_ITEMS.weapons?.[itemId] || RPG_ITEMS.armors?.[itemId] || RPG_ITEMS.artifacts?.[itemId] || RPG_ITEMS.seeds?.[itemId] || RPG_ITEMS.crops?.[itemId] || PET_LIST.find(pt => pt.id === itemId);
             if (!itemDef) return interaction.reply({ content: '❌ Lỗi: Vật phẩm không tồn tại.', ephemeral: true });
             
             const isPet = !!PET_LIST.find(pt => pt.id === itemId);
