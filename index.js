@@ -1018,14 +1018,14 @@ const RPG_ITEMS = {
         'iron_sword': { name: 'Kiếm Sắt', atk: 15, price: 1000000, emoji: '⚔️' },
         'steel_sword': { name: 'Kiếm Thép', atk: 30, price: 3000000, emoji: '🤺' },
         'diamond_sword': { name: 'Kiếm Kim Cương', atk: 70, price: 10000000, emoji: '💠' },
-        'mythic_sword': { name: 'Kiếm Thần Thoại', atk: 150, price: 50000000, emoji: '🗡️✨' }
+        'mythic_sword': { name: 'Kiếm Thần Thoại', atk: 150, price: 50000000, emoji: '🔱' }
     },
     armors: {
         'leather_armor': { name: 'Giáp Da', def: 5, price: 500000, emoji: '🦺' },
         'iron_armor': { name: 'Giáp Sắt', def: 15, price: 1500000, emoji: '🛡️' },
         'steel_armor': { name: 'Giáp Thép', def: 30, price: 4000000, emoji: '🦾' },
         'diamond_armor': { name: 'Giáp Kim Cương', def: 70, price: 15000000, emoji: '💎' },
-        'mythic_armor': { name: 'Giáp Thần Thoại', def: 150, price: 50000000, emoji: '🛡️✨' }
+        'mythic_armor': { name: 'Giáp Thần Thoại', def: 150, price: 50000000, emoji: '🔰' }
     },
     potions: {
         'small_potion': { name: 'Bình Máu Nhỏ', heal: 50, price: 10000, emoji: '🧪' },
@@ -1291,7 +1291,7 @@ const CRAFTING_RECIPES = {
         req: { iron_ore: 50, gold_ore: 20, magic_dust: 10, dragon_scale: 1 }, coin: 500000
     },
     'mythic_sword': {
-        name: 'Kiếm Thần Thoại', type: 'weapon', emoji: '🗡️✨', atk: 150,
+        name: 'Kiếm Thần Thoại', type: 'weapon', emoji: '🔱', atk: 150,
         req: { iron_ore: 100, dragon_scale: 5, magic_dust: 20, demon_horn: 2, void_shard: 1 }, coin: 2000000
     },
     'iron_armor': {
@@ -1307,7 +1307,7 @@ const CRAFTING_RECIPES = {
         req: { iron_ore: 60, gold_ore: 25, magic_dust: 15 }, coin: 600000
     },
     'mythic_armor': {
-        name: 'Giáp Thần Thoại', type: 'armor', emoji: '🛡️✨', def: 150,
+        name: 'Giáp Thần Thoại', type: 'armor', emoji: '🔰', def: 150,
         req: { iron_ore: 120, dragon_scale: 5, magic_dust: 25, demon_horn: 2, obsidian: 1 }, coin: 2500000
     },
     'ring_of_power': {
@@ -3527,24 +3527,17 @@ async function handleClaimInvest(userId, msgOrInteraction) {
     return replyMsg(msgOrInteraction, `📊 **KẾT QUẢ ĐẦU TƯ**\n${desc}`);
 }
 
-const QUOTES_THINH = [
-    "Trăng lên đỉnh núi trăng tà, bao giờ mới được một nhà với em?",
-    "Nhà em có bán rượu không, mà nói chuyện với em anh say quá!",
-    "Bầu trời xanh, mây trắng. Anh yêu nắng hay yêu em?",
-    "Anh ơi trái đất dẫu tròn, trốn mà không kỹ là còn gặp em.",
-    "Cá không ăn muối cá ươn. Em không yêu anh thì... anh đi yêu người khác.",
-    "Muốn bình yên thì lên chùa cầu phúc. Muốn hạnh phúc thì đứng đó chờ em.",
-    "Vector chỉ có một chiều. Anh dân chuyên Toán chỉ yêu một người.",
-    "Anh có một siêu năng lực, đó là siêu thích em.",
-    "Covid thì em không dính, nhưng yêu anh thì em dương tính.",
-    "Cho anh một cốc trà đào, tiện cho anh hỏi lối vào tim em?",
-    "Nắng nơi em nắng hoài không tắt, yêu anh rồi yêu mãi không thôi.",
-    "Bồ công anh bay khi có gió. Em chỉ cười vì ở đó có anh.",
-    "Nhờ có nắng mới thấy hoàng hôn. Nhờ có anh mới thấy bình yên.",
-    "Nếu trái tim em là một nhà tù, anh xin nguyện bị kết án chung thân.",
-    "Trái tim em đang bật đèn xanh, mà sao anh mãi đạp phanh thế này?",
-    "Người ta thì thích hoàng hôn, còn em thì thích hôn anh cơ."
-];
+let QUOTES_THINH = [];
+try {
+    const thinhData = fs.readFileSync(path.join(__dirname, 'thinh_genz.txt'), 'utf8');
+    QUOTES_THINH = thinhData.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+} catch (e) {
+    console.error('Không thể đọc file thinh_genz.txt:', e);
+    QUOTES_THINH = [
+        "Muốn bình yên thì lên chùa cầu phúc. Muốn hạnh phúc thì đứng đó chờ em.",
+        "Anh ơi gió lạnh cận kề, bao nhiêu lớp áo không bằng love em."
+    ];
+}
 
 const IMAGES_THINH = [
     "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExdW5pOTk5eGRnNmV0b2FyeTB6dXV4Mm5lOWg3cnAwaGR1Z202enhybSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/26BRv0ThflsHCIChy/giphy.gif",
