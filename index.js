@@ -20,6 +20,8 @@ const ffmpegPath = require('ffmpeg-static');
 const cron = require('node-cron');
 const WW = require('./werewolf.js');
 
+const voiceJoinTimes = new Map();
+
 const BANNED_USERS = ['1141650026049830963'];
 const play = require('play-dl');
 play.getFreeClientID().then((clientID) => {
@@ -1274,51 +1276,51 @@ const EVOLUTION_MAP = {
 const CRAFTING_RECIPES = {
     'iron_sword': {
         name: 'Kiếm Sắt', type: 'weapon', emoji: '⚔️', atk: 15,
-        req: { iron_ore: 5, wood_log: 2 }, coin: 10000
+        req: { iron_ore: 25, wood_log: 10 }, coin: 10000
     },
     'steel_sword': {
         name: 'Kiếm Thép', type: 'weapon', emoji: '🤺', atk: 30,
-        req: { iron_ore: 15, gold_ore: 2, magic_dust: 1 }, coin: 50000
+        req: { iron_ore: 75, gold_ore: 10, magic_dust: 5 }, coin: 50000
     },
     'diamond_sword': {
         name: 'Kiếm Kim Cương', type: 'weapon', emoji: '💠', atk: 70,
-        req: { iron_ore: 50, gold_ore: 20, magic_dust: 10, dragon_scale: 1 }, coin: 500000
+        req: { iron_ore: 250, gold_ore: 100, magic_dust: 50, dragon_scale: 5 }, coin: 500000
     },
     'mythic_sword': {
         name: 'Kiếm Thần Thoại', type: 'weapon', emoji: '🔱', atk: 150,
-        req: { iron_ore: 100, dragon_scale: 5, magic_dust: 20, demon_horn: 2, void_shard: 1 }, coin: 2000000
+        req: { iron_ore: 500, dragon_scale: 25, magic_dust: 100, demon_horn: 10, void_shard: 5 }, coin: 2000000
     },
     'iron_armor': {
         name: 'Giáp Sắt', type: 'armor', emoji: '🛡️', def: 15,
-        req: { iron_ore: 8 }, coin: 15000
+        req: { iron_ore: 40 }, coin: 15000
     },
     'steel_armor': {
         name: 'Giáp Thép', type: 'armor', emoji: '🦾', def: 30,
-        req: { iron_ore: 20, gold_ore: 5 }, coin: 60000
+        req: { iron_ore: 100, gold_ore: 25 }, coin: 60000
     },
     'diamond_armor': {
         name: 'Giáp Kim Cương', type: 'armor', emoji: '💎', def: 70,
-        req: { iron_ore: 60, gold_ore: 25, magic_dust: 15 }, coin: 600000
+        req: { iron_ore: 300, gold_ore: 125, magic_dust: 75 }, coin: 600000
     },
     'mythic_armor': {
         name: 'Giáp Thần Thoại', type: 'armor', emoji: '🔰', def: 150,
-        req: { iron_ore: 120, dragon_scale: 5, magic_dust: 25, demon_horn: 2, obsidian: 1 }, coin: 2500000
+        req: { iron_ore: 600, dragon_scale: 25, magic_dust: 125, demon_horn: 10, obsidian: 5 }, coin: 2500000
     },
     'ring_of_power': {
         name: 'Nhẫn Sức Mạnh', type: 'artifact', emoji: '💍',
-        req: { gold_ore: 10, magic_dust: 10, fire_crystal: 2 }, coin: 100000
+        req: { gold_ore: 50, magic_dust: 50, fire_crystal: 10 }, coin: 100000
     },
     'amulet_of_defense': {
         name: 'Dây Chuyền Hộ Mệnh', type: 'artifact', emoji: '📿',
-        req: { gold_ore: 10, magic_dust: 10, ice_gem: 2 }, coin: 100000
+        req: { gold_ore: 50, magic_dust: 50, ice_gem: 10 }, coin: 100000
     },
     'gem_of_life': {
         name: 'Ngọc Sinh Lực', type: 'artifact', emoji: '💎',
-        req: { gold_ore: 20, water_soul: 5, herb: 50 }, coin: 200000
+        req: { gold_ore: 100, water_soul: 25, herb: 250 }, coin: 200000
     },
     'hero_badge': {
         name: 'Huy Hiệu Dũng Sĩ', type: 'artifact', emoji: '🎖️',
-        req: { demon_horn: 1, dragon_scale: 2, void_shard: 1, obsidian: 1 }, coin: 1000000
+        req: { demon_horn: 5, dragon_scale: 10, void_shard: 5, obsidian: 5 }, coin: 1000000
     }
 };
 
@@ -1360,6 +1362,8 @@ function getPlayer(userId) {
             partner: null,
             investAmount: 0,
             investTime: 0,
+            messageCount: 0,
+            voiceTime: 0,
             // RPG Expansion
             rpgClass: null,
             classChangedAt: 0,
@@ -1385,6 +1389,8 @@ function getPlayer(userId) {
         if (data[userId].partner === undefined) { data[userId].partner = null; changed = true; }
         if (data[userId].investAmount === undefined) { data[userId].investAmount = 0; changed = true; }
         if (data[userId].investTime === undefined) { data[userId].investTime = 0; changed = true; }
+        if (data[userId].messageCount === undefined) { data[userId].messageCount = 0; changed = true; }
+        if (data[userId].voiceTime === undefined) { data[userId].voiceTime = 0; changed = true; }
         // Migrate new RPG fields
         if (data[userId].rpgClass === undefined) { data[userId].rpgClass = null; changed = true; }
         if (data[userId].classChangedAt === undefined) { data[userId].classChangedAt = 0; changed = true; }
@@ -1509,6 +1515,18 @@ function generateDailyQuests(userId) {
     return selected;
 }
 
+function formatVoiceTime(seconds) {
+    if (!seconds) return '0s';
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = Math.floor(seconds % 60);
+    let parts = [];
+    if (h > 0) parts.push(`${h}h`);
+    if (m > 0) parts.push(`${m}m`);
+    if (s > 0 || parts.length === 0) parts.push(`${s}s`);
+    return parts.join(' ');
+}
+
 function buildProfileEmbed(user) {
     const uid = user.id;
     const cData = loadCoins();
@@ -1569,42 +1587,44 @@ function buildProfileEmbed(user) {
         else if (pData.rpgClass === 'healer') profileColor = '#FFB6C1';
     }
 
-    const embed = new EmbedBuilder()
-        .setTitle(`👤 Hồ Sơ Nhập Vai: ${user.username}`)
-        .setColor(profileColor)
-        .setThumbnail(user.displayAvatarURL({ dynamic: true, size: 512 }))
-        .addFields(
-            { name: '💰 Tài Sản', value: `Tiền mặt: **${coins.toLocaleString()} 🪙**\nNgân hàng: **${bank.toLocaleString()} 🪙**`, inline: true },
-            { name: '🔥 Hoạt Động', value: `Điểm danh: **${streak}** ngày\nCông việc: ${jobText}`, inline: true },
-            { name: '💍 Hôn Nhân', value: marryText, inline: false }
-        );
-
     let attachment = null;
     let bdayText = 'Chưa cài đặt';
+    let isBirthday = false;
+
+    const msgCount = pData.messageCount || 0;
+    const vTime = pData.voiceTime || 0;
+
     if (pData.birthday) {
         bdayText = `**${pData.birthday}**`;
         const today = new Date();
         const d = today.getDate().toString().padStart(2, '0');
         const m = (today.getMonth() + 1).toString().padStart(2, '0');
         if (`${d}/${m}` === pData.birthday) {
-            embed.setTitle(`🎉 CHÚC MỪNG SINH NHẬT ${user.username.toUpperCase()} 🎉`);
-            embed.setColor('#FF69B4');
+            isBirthday = true;
             try {
                 attachment = new AttachmentBuilder('./birthday.png', { name: 'birthday.png' });
-                embed.setImage('attachment://birthday.png');
             } catch (e) {}
         }
     }
 
-    embed.addFields(
-        { name: '🎂 Ngày sinh', value: bdayText, inline: true },
-        { name: '\u200b', value: '\u200b', inline: true },
-        { name: '\u200b', value: '\u200b', inline: true },
-        { name: '🔰 RPG (Nhập Vai)', value: `Cấp: **${pData.level}** (${pData.exp}/${pData.level*100} EXP)\nMáu: ❤️ **${pData.hp}/${stats.maxHp || pData.maxHp}**\nSức mạnh: ⚔️ **${stats.atk}** | 🛡️ **${stats.def}**${pData.rpgClass && RPG_CLASSES[pData.rpgClass] ? `\nClass: ${RPG_CLASSES[pData.rpgClass].emoji} **${RPG_CLASSES[pData.rpgClass].name}**` : ''}`, inline: true },
-        { name: '🎒 Túi Đồ', value: `Vũ khí: ${wName}\nÁo giáp: ${aName}\nTrang sức: ${artName}\nBình máu: 🧪x${smallPot} | 🧴x${largePot}`, inline: true },
-        { name: '📊 Thành Tích', value: `🏰 Dungeon: **${pData.dungeonClears || 0}** lần\n⚔️ PvP: **${pData.pvpWins || 0}W**/${pData.pvpLosses || 0}L\n🍬 Candy: **${pData.candy || 0}**`, inline: true },
-        { name: '🐾 Thú Cưng', value: petsText, inline: false }
-    ).setTimestamp();
+    const embed = new EmbedBuilder()
+        .setTitle(isBirthday ? `🎉 CHÚC MỪNG SINH NHẬT ${user.username.toUpperCase()} 🎉` : `👤 Hồ Sơ Nhập Vai: ${user.username}`)
+        .setColor(isBirthday ? '#FF69B4' : profileColor)
+        .setThumbnail(user.displayAvatarURL({ dynamic: true, size: 512 }))
+        .addFields(
+            { name: '🔰 Thông Tin Cơ Bản', value: `Cấp độ: **${pData.level}** (${pData.exp}/${pData.level*100} EXP)\nSinh nhật: ${bdayText}\nHôn nhân: ${marryText}`, inline: false },
+            { name: '💰 Tài Sản & Hoạt Động', value: `Ví: **${coins.toLocaleString()} 🪙**\nNgân hàng: **${bank.toLocaleString()} 🪙**\nCông việc: ${jobText}`, inline: true },
+            { name: '🔥 Tương Tác', value: `💬 Tin nhắn: **${msgCount.toLocaleString()}**\n🎤 Thoại: **${formatVoiceTime(vTime)}**`, inline: true },
+            { name: '⚔️ Chỉ Số RPG', value: `Máu: ❤️ **${pData.hp} / ${stats.maxHp || pData.maxHp}**\nSát thương: 🗡️ **${stats.atk}**\nPhòng thủ: 🛡️ **${stats.def}**${pData.rpgClass && RPG_CLASSES[pData.rpgClass] ? `\nClass: ${RPG_CLASSES[pData.rpgClass].emoji} **${RPG_CLASSES[pData.rpgClass].name}**` : ''}`, inline: true },
+            { name: '🎒 Trang Bị', value: `Vũ khí: ${wName}\nÁo giáp: ${aName}\nTrang sức: ${artName}\nBình máu: 🧪x${smallPot} | 🧴x${largePot}`, inline: true },
+            { name: '📊 Thành Tích', value: `Điểm danh: **${streak}** ngày\n🏰 Dungeon: **${pData.dungeonClears || 0}** lần\n⚔️ PvP: **${pData.pvpWins || 0}W** - **${pData.pvpLosses || 0}L**`, inline: true },
+            { name: '🐾 Thú Cưng', value: petsText, inline: false }
+        )
+        .setTimestamp();
+        
+    if (isBirthday && attachment) {
+        embed.setImage('attachment://birthday.png');
+    }
 
     return { embed, attachment };
 }
@@ -2412,16 +2432,16 @@ async function handleGather(userId, msgOrInteraction, args) {
         return replyMsg(msgOrInteraction, { embeds: [embed], components: [row] });
     }
 
-    // Cooldown 1 min
-    if (now - (p.lastGather || 0) < 60 * 1000) {
-        const secs = Math.ceil((60 * 1000 - (now - p.lastGather)) / 1000);
-        
-        // If it's a button interaction, we can reply ephemerally so we don't spam
-        if (msgOrInteraction.isButton && msgOrInteraction.isButton()) {
-            return msgOrInteraction.reply({ content: `⏳ Khu vực đang hồi tài nguyên! Hãy nhấn lại sau **${secs} giây**.`, ephemeral: true });
-        }
-        return replyMsg(msgOrInteraction, `⏳ Khu vực đang hồi tài nguyên! Hãy quay lại sau **${secs} giây**.`);
-    }
+    // Cooldown 1 min (Removed to allow continuous gathering)
+    // if (now - (p.lastGather || 0) < 60 * 1000) {
+    //     const secs = Math.ceil((60 * 1000 - (now - p.lastGather)) / 1000);
+    //     
+    //     // If it's a button interaction, we can reply ephemerally so we don't spam
+    //     if (msgOrInteraction.isButton && msgOrInteraction.isButton()) {
+    //         return msgOrInteraction.reply({ content: `⏳ Khu vực đang hồi tài nguyên! Hãy nhấn lại sau **${secs} giây**.`, ephemeral: true });
+    //     }
+    //     return replyMsg(msgOrInteraction, `⏳ Khu vực đang hồi tài nguyên! Hãy quay lại sau **${secs} giây**.`);
+    // }
 
     const regionKey = p.selectedRegion;
     const r = REGIONS[regionKey];
@@ -4825,6 +4845,22 @@ client.on('guildMemberAdd', async (member) => {
 // VOICE STATE - NOTIFY
 // ========================
 client.on('voiceStateUpdate', async (oldState, newState) => {
+    const userId = newState.member?.user?.id || oldState.member?.user?.id;
+    if (userId && !newState.member?.user?.bot) {
+        if (!oldState.channelId && newState.channelId) {
+            voiceJoinTimes.set(userId, Date.now());
+        } else if (oldState.channelId && !newState.channelId) {
+            const joinTime = voiceJoinTimes.get(userId);
+            if (joinTime) {
+                const diffSecs = (Date.now() - joinTime) / 1000;
+                updatePlayer(userId, p => {
+                    p.voiceTime = (p.voiceTime || 0) + diffSecs;
+                });
+                voiceJoinTimes.delete(userId);
+            }
+        }
+    }
+
     // LUÔN LUÔN xử lý việc xóa phòng J2C nếu có người/bot rời đi và phòng trống
     if (oldState.channelId) {
         const oldChannel = oldState.channel;
@@ -5013,6 +5049,10 @@ const TIKTOK_REGEX = /https?:\/\/(www\.|vm\.|vt\.)?tiktok\.com\/[^\s]+/gi;
 client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
     if (BANNED_USERS.includes(message.author.id)) return;
+
+    updatePlayer(message.author.id, p => {
+        p.messageCount = (p.messageCount || 0) + 1;
+    });
 
     // --- ANTI-PING EVERYONE TRONG DANH MỤC CỤ THỂ ---
     if (message.channel.parentId === '1465200188866953450') {
