@@ -645,6 +645,7 @@ async function playNext(guildId, textChannel) {
 
         resource.playStream.on('error', (err) => {
             console.error('Lỗi resource playStream:', err);
+            textChannel?.send(`❌ Lỗi stream: ${err.message}`);
         });
 
         if (!state.player) {
@@ -658,6 +659,7 @@ async function playNext(guildId, textChannel) {
 
             state.player.on('error', (err) => {
                 console.error('Lỗi audio player:', err);
+                textChannel?.send(`❌ Lỗi phát nhạc: ${err.message}`);
                 state.queue.shift();
                 playNext(guildId, textChannel);
             });
