@@ -618,7 +618,8 @@ async function playNext(guildId, textChannel) {
         let resource;
         try {
             if (song.isAttachment) {
-                resource = createAudioResource(song.url, { inlineVolume: true });
+                const response = await axios({ url: song.url, method: 'GET', responseType: 'stream' });
+                resource = createAudioResource(response.data, { inlineVolume: true });
             } else if (song.url.includes('soundcloud.com') || song.url.includes('on.soundcloud.com') || song.url.includes('youtube.com') || song.url.includes('youtu.be')) {
                 const play = require('play-dl');
                 const stream = await play.stream(song.url);
@@ -628,9 +629,10 @@ async function playNext(guildId, textChannel) {
                 resource = createAudioResource(audioStream, { inlineVolume: true });
             }
         } catch(err) {
-            console.error('play-dl stream failed, fallback to yt-dlp:', err.message);
+            console.error('play-dl or stream failed, fallback to yt-dlp:', err.message);
             if (song.isAttachment) {
-                resource = createAudioResource(song.url, { inlineVolume: true });
+                const response = await axios({ url: song.url, method: 'GET', responseType: 'stream' });
+                resource = createAudioResource(response.data, { inlineVolume: true });
             } else {
                 const audioStream = ytdlpStream(song.url);
                 resource = createAudioResource(audioStream, { inlineVolume: true });
