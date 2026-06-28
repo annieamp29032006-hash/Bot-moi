@@ -4679,8 +4679,11 @@ client.once('clientReady', async () => {
     ];
     let statusIndex = 0;
     setInterval(() => {
-        // type 4 = Custom, type 0 = Playing, type 2 = Listening, type 3 = Watching
-        client.user.setActivity(statuses[statusIndex], { type: 4 }); 
+        // type 1 = Streaming. Cần kèm theo 1 link twitch hoặc youtube hợp lệ thì Discord mới hiện màu tím (Đang stream)
+        client.user.setActivity(statuses[statusIndex], { 
+            type: 1, 
+            url: "https://www.twitch.tv/discord" 
+        }); 
         statusIndex = (statusIndex + 1) % statuses.length;
     }, 5000);
 
