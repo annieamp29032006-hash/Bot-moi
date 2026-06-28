@@ -389,7 +389,7 @@ function buildHelpPages(prefix) {
                 { name: '⚔️ PVP ĐẤU TRƯỜNG', value: `\`${prefix}pvp @user <cược>\` hoặc \`/pvp\` — Thách đấu 1v1 nhân vật RPG\n• Dùng stat thật (ATK, DEF, HP + trang bị + class)\n• 20% chance đòn chí mạng x2 DMG\n• Người thắng nhận coin cược x2 • Cooldown: 5 phút`, inline: false },
                 { name: '🎯 NHIỆM VỤ HÀNG NGÀY', value: `\`${prefix}nv\` hoặc \`/quest\` — Xem & nhận thưởng nhiệm vụ\n• 3 nhiệm vụ ngẫu nhiên mỗi ngày (đánh quái, bắt pet, PvP...)\n• Hoàn thành cả 3 → **BONUS 100K 🪙 + 200 EXP**\n• Tự động tracking, reset lúc 0:00`, inline: false },
                 { name: '🏅 CLASS NHÂN VẬT', value: `\`${prefix}class\` hoặc \`/class\` — Chọn/đổi class (Lv.5+)\n• ⚔️ **Chiến Binh** — +30% ATK\n• 🛡️ **Hiệp Sĩ** — +30% DEF, +20% HP\n• 🧙 **Pháp Sư** — +20% ATK, +15% coin hunt\n• Đổi class: 5M 🪙 (lần đầu miễn phí)`, inline: false },
-                { name: '🐲 RAID BOSS & CHẾ TẠO', value: `\`${prefix}spawnraid\` — Dùng vật liệu gọi Boss Thế Giới\n\`${prefix}raid\` — Tham gia đánh Boss Thế Giới để nhận thưởng khủng\n\`${prefix}gather\` (\`${prefix}g\`) — Thu thập nguyên liệu theo khu vực\n\`${prefix}craft\` (\`${prefix}cr\`) — Chế tạo vũ khí/giáp từ vật liệu đánh Boss/Hunt\n\`${prefix}equip\` (\`${prefix}eq\`) / \`${prefix}unequip\` (\`${prefix}uneq\`) — Mặc/Tháo trang bị`, inline: false },
+                { name: '🐲 RAID BOSS & CHẾ TẠO', value: `\`${prefix}spawnraid\` — Dùng vật liệu gọi Boss Thế Giới\n\`${prefix}raid\` — Tham gia đánh Boss Thế Giới để nhận thưởng khủng\n\`${prefix}setuprpg\` — Đăng ký Role thông báo Raid Boss\n\`${prefix}gather\` (\`${prefix}g\`) — Thu thập nguyên liệu theo khu vực\n\`${prefix}craft\` (\`${prefix}cr\`) — Chế tạo vũ khí/giáp từ vật liệu đánh Boss/Hunt\n\`${prefix}equip\` (\`${prefix}eq\`) / \`${prefix}unequip\` (\`${prefix}uneq\`) — Mặc/Tháo trang bị`, inline: false },
                 { name: '🎁 RƯƠNG & TIẾN HÓA & TOP', value: `\`${prefix}ob\` hoặc \`/openbox\` — Mở rương nhận loot (vũ khí, giáp, coin, danh hiệu...)\n\`${prefix}ev\` hoặc \`/evolve\` — Chuyển Pokemon dư thành 🍬 Candy để tiến hóa\n\`${prefix}rt\` hoặc \`/rpgtop\` — Bảng xếp hạng RPG (Level, Power, Dungeon, Pokemon, PvP)`, inline: false },
                 { name: '🌾 NÔNG TRẠI (FARM)', value: `\`${prefix}farm\` (\`${prefix}f\`) — Quản lý Nông Trại cá nhân\n• \`${prefix}f shop\` — Mua hạt giống\n• \`${prefix}f plant <ô> <hạt>\` — Trồng cây\n• \`${prefix}f harvest all\` — Thu hoạch\n• \`${prefix}f expand\` — Mua thêm ô đất`, inline: false }
             )
@@ -5423,15 +5423,50 @@ client.on('messageCreate', async (message) => {
     }
 
     // --- RPG EXPANSION COMMANDS ---
+    if (content === `${prefix}setuprpg`) {
+        if (message.author.id !== ADMIN_ID) 
+            return message.reply('❌ Lệnh này chỉ dành riêng cho Chủ Bot!');
+        
+        let role = message.guild.roles.cache.find(r => r.name.toLowerCase() === 'rpg player');
+        if (!role) {
+            try {
+                role = await message.guild.roles.create({
+                    name: 'RPG Player',
+                    color: '#FFA500',
+                    mentionable: true,
+                    reason: 'Role cho tính năng thông báo RPG (Raid Boss)'
+                });
+            } catch (err) {
+                return message.reply('❌ Bot không có đủ quyền để tạo role. Vui lòng cấp quyền `Manage Roles` cho bot.');
+            }
+        }
+        
+        const config = loadConfig();
+        config.rpgRoleId = role.id;
+        saveConfig(config);
+        
+        const embed = new EmbedBuilder()
+            .setTitle('⚔️ Đăng Ký Nhận Thông Báo RPG')
+            .setDescription('Bấm vào nút bên dưới để nhận (hoặc hủy) role **RPG Player**.\nBạn sẽ được tag mỗi khi Raid Boss xuất hiện để không bỏ lỡ phần thưởng!')
+            .setColor('#FFA500');
+            
+        const row = new ActionRowBuilder().addComponents(
+            new ButtonBuilder().setCustomId('get_rpg_role').setLabel('Nhận / Hủy Role RPG').setStyle(ButtonStyle.Success).setEmoji('⚔️')
+        );
+        
+        await message.channel.send({ embeds: [embed], components: [row] });
+        return message.reply('✅ Đã cài đặt thành công role RPG và gửi bảng đăng ký!');
+    }
+
     if (content === `${prefix}spawnraid`) {
         if (!message.member.permissions.has(PermissionsBitField.Flags.Administrator)) return message.reply('❌ Chỉ admin mới được gọi Raid Boss!');
         if (global.RAID_BOSS) return message.reply('❌ Đã có Raid Boss xuất hiện rồi!');
         global.RAID_BOSS = {
             name: 'Ma Vương Ánh Sáng Mù Lòa',
-            hp: 50000,
-            maxHp: 50000,
-            atk: 500,
-            def: 200,
+            hp: 500000,
+            maxHp: 500000,
+            atk: 1500,
+            def: 600,
             emoji: '👹',
             participants: new Map(),
             endTime: Date.now() + 60 * 60 * 1000 // 1 hour
