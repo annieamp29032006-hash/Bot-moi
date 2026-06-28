@@ -4661,26 +4661,26 @@ client.once('clientReady', async () => {
     console.log(`✅ Bot đã đăng nhập với tên: ${client.user.tag}`);
     
     const statuses = [
-        "💙 Welcome to UTEHY Admissions 2026 | K26",
-        "🎓 Chào mừng K26 đến với UTEHY!",
-        "📚 UTEHY Admissions • Tuyển sinh 2026",
-        "🚀 K26 | Hành trình đại học bắt đầu",
-        "💬 Hỗ trợ tuyển sinh UTEHY 24/7",
-        "🌟 UTEHY K26 | Your Future Starts Here",
-        "🎯 Chọn UTEHY • Chọn tương lai",
-        "💙 Dream Big • Study at UTEHY",
-        "📩 UTEHY K26 | Luôn sẵn sàng hỗ trợ",
-        "✨ Welcome Future UTEHY Students",
-        "🎓 UTEHY | Nơi khởi đầu thành công",
-        "📖 Admissions Open • K26 • 2026",
-        "🌸 K26 | Chạm tới ước mơ cùng UTEHY",
-        "💡 UTEHY Admissions | Ask Me Anything",
-        "🚀 Ready for UTEHY? Let's Go!",
-        "💙 Hành trình K26 bắt đầu từ đây",
-        "🎉 UTEHY K26 | Welcome Home",
-        "📚 Learn Today • Lead Tomorrow • UTEHY",
-        "🎯 UTEHY 2026 | Kết nối đam mê, kiến tạo tương lai",
-        "🤖 Moonie Bot | Đồng hành cùng mùa tuyển sinh K26"
+        "🤖 Hima | Đồng hành cùng Tuyển sinh UTEHY K26 💙",
+        "💙 Hima • Welcome to UTEHY Admissions 2026",
+        "🎓 Hima | Chào mừng K26 đến với UTEHY!",
+        "📚 Hima | Hỗ trợ tuyển sinh UTEHY 24/7",
+        "🌸 Hima • Your UTEHY Admissions Assistant",
+        "✨ Hima | Future Starts Here",
+        "🚀 Hima • Cùng bạn chinh phục UTEHY K26",
+        "💬 Hima | Hỏi gì cũng biết về tuyển sinh!",
+        "🎯 Hima • Đồng hành cùng sĩ tử 2026",
+        "📩 Hima | Luôn sẵn sàng hỗ trợ bạn",
+        "💙 Hima • Kết nối ước mơ đến UTEHY",
+        "🎓 Hima | Admissions Made Easy",
+        "🌟 Hima • Chào đón Tân sinh viên K26",
+        "📖 Hima | Tuyển sinh UTEHY 2026",
+        "🚀 Hima • Your Journey Begins Here",
+        "💙 Hima | Vì một K26 rực rỡ",
+        "✨ Hima • Let's Join UTEHY Together",
+        "🎉 Hima | Welcome Future UTEHY Students",
+        "🌈 Hima • Nơi mọi câu hỏi đều có lời giải",
+        "🤖 Hima | Luôn bên bạn trên hành trình vào UTEHY"
     ];
     let statusIndex = 0;
     setInterval(() => {
