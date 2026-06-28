@@ -592,20 +592,12 @@ function buildMusicControls(paused = false, volume = 1.0, loop = false) {
 async function playNext(guildId, textChannel) {
     const state = getQueue(guildId);
     if (!state.queue.length) {
-        // Xóa panel điều khiển cũ nếu có
         if (state.controlMsg) {
             state.controlMsg.edit({ components: [] }).catch(() => {});
             state.controlMsg = null;
         }
-        if (state.connection) {
-            setTimeout(() => {
-                const s = getQueue(guildId);
-                if (!s.queue.length) {
-                    s.connection?.destroy();
-                    musicQueues.delete(guildId);
-                }
-            }, 30000);
-        }
+        
+        // Cập nhật trạng thái bot khi hết nhạc
         if (state.connection && state.connection.joinConfig.channelId) {
             try {
                 await client.rest.put(`/channels/${state.connection.joinConfig.channelId}/voice-status`, {
@@ -613,7 +605,7 @@ async function playNext(guildId, textChannel) {
                 });
             } catch (err) {}
         }
-        textChannel?.send('✅ Đã phát hết danh sách nhạc! Bot sẽ rời kênh sau 30 giây.');
+        textChannel?.send('✅ Đã phát hết danh sách nhạc! Bot sẽ tiếp tục treo trong kênh 24/24.');
         return;
     }
 
