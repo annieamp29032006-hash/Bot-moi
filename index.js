@@ -342,7 +342,7 @@ function buildHelpPages(prefix) {
                 { name: `\`${prefix}bal [@user]\` hoặc \`/balance\``, value: '💵 Xem số dư coin (ví + bank) của bạn hoặc người khác.', inline: true },
                 { name: `\`${prefix}give @user <số>\` hoặc \`/give\``, value: '🎁 Tặng coin từ ví của bạn cho người khác.', inline: true },
                 { name: `\`${prefix}top\` hoặc \`/top\``, value: '🏆 Bảng xếp hạng Top 10 người giàu nhất server.', inline: true },
-                { name: '🎲 CÁC TRÒ CHƠI CỜ BẠC', value: `\`${prefix}tx <cược>\` — **Tài Xỉu**: Đoán tài/xỉu, thắng x2 tiền cược.\n\`${prefix}bc <cược>\` — **Bầu Cua**: Chọn con vật, trúng nhận x2.\n\`${prefix}bj <cược>\` — **Blackjack**: Xì Dách, thắng x2 (Blackjack x2.5).\n\`${prefix}guess <cược>\` — **Đoán số**: Đoán số 1–100, trúng nhận **x3**.\n\`${prefix}lode <số 00-99> <cược>\` — **Lô đề**: Xổ số 18h30 hằng ngày, trúng **x5**.`, inline: false },
+                { name: '🎲 CÁC TRÒ CHƠI CỜ BẠC', value: `\`${prefix}tx <cược>\` — **Tài Xỉu**: Đoán tài/xỉu, thắng x2 tiền cược.\n\`${prefix}bc <cược>\` — **Bầu Cua**: Chọn con vật, trúng nhận x2.\n\`${prefix}bj <cược>\` — **Blackjack**: Xì Dách, thắng x2 (Blackjack x2.5).\n\`${prefix}lode <số 00-99> <cược>\` — **Lô đề**: Xổ số 18h30 hằng ngày, trúng **x5**.`, inline: false },
                 { name: `\`${prefix}noitu\` hoặc \`/noitu\``, value: '🧠 Nối Từ Nhiều Người: Chơi nối từ ghép 2 tiếng với nhau.\n• Thưởng **1,000 🪙** cho mỗi từ đúng hợp lệ.\n• Không được nối 2 lần liên tiếp. Hết 60 giây kết thúc game.\n\`' + prefix + 'stopnoitu\` — Dừng game sớm.', inline: false }
             )
             .setColor('#FFD700')
@@ -1030,7 +1030,8 @@ const RPG_ITEMS = {
     },
     potions: {
         'small_potion': { name: 'Bình Máu Nhỏ', heal: 50, price: 10000, emoji: '🧪' },
-        'large_potion': { name: 'Bình Máu Lớn', heal: 150, price: 50000, emoji: '💊' }
+        'large_potion': { name: 'Bình Máu Lớn', heal: 150, price: 50000, emoji: '💊' },
+        'xp_potion': { name: 'Bình EXP', heal: 0, exp: 500, price: 20000, emoji: '🔮' }
     },
     materials: {
         'iron_ore': { name: 'Quặng Sắt', emoji: '🪨', price: 5000 },
@@ -4187,11 +4188,6 @@ function dealerPlay(game) {
 }
 
 // ========================
-// NUMBER GUESSING GAME
-// ========================
-const guessGames = new Map(); // userId -> { secret, attempts, bet, maxAttempts }
-
-// ========================
 // BOT CLIENT
 // ========================
 const client = new Client({
@@ -4386,10 +4382,6 @@ const slashCommands = [
         .setDescription('🃏 Chơi Blackjack cược coin.')
         .addStringOption(o => o.setName('bet').setDescription('Số coin cược (hoặc gõ "all")').setRequired(true)),
     new SlashCommandBuilder()
-        .setName('guess')
-        .setDescription('🎯 Đoán số 1-100, thắng coin.')
-        .addStringOption(o => o.setName('bet').setDescription('Số coin cược (hoặc gõ "all")').setRequired(true)),
-    new SlashCommandBuilder()
         .setName('lode')
         .setDescription('💸 Đánh lô đề (đoán số 00-99), trúng x5 coin cược.')
         .addStringOption(o => o.setName('so').setDescription('Số muốn đánh (00-99)').setRequired(true))
@@ -4450,6 +4442,12 @@ const slashCommands = [
         .setDefaultMemberPermissions(PermissionsBitField.Flags.Administrator)
         .addUserOption(o => o.setName('user').setDescription('Người dùng').setRequired(true))
         .addIntegerOption(o => o.setName('amount').setDescription('Số lượng coin').setRequired(true).setMinValue(1)),
+    new SlashCommandBuilder()
+        .setName('addxp')
+        .setDescription('🛠️ (Admin) Thêm EXP cho người dùng.')
+        .setDefaultMemberPermissions(PermissionsBitField.Flags.Administrator)
+        .addUserOption(o => o.setName('user').setDescription('Người dùng').setRequired(true))
+        .addIntegerOption(o => o.setName('amount').setDescription('Số lượng EXP').setRequired(true).setMinValue(1)),
     new SlashCommandBuilder()
         .setName('removecoin')
         .setDescription('🛠️ (Admin) Trừ coin của người dùng.')
@@ -5407,12 +5405,14 @@ client.on('messageCreate', async (message) => {
         const pData = getPlayer(uid);
         const stats = getPlayerStats(pData);
         
-        if (pData.level < 5) return message.reply('❌ Bạn cần đạt ít nhất Level 5 để tham gia Raid Boss!');
+        // Bỏ giới hạn level 5 để mọi người đều có thể đánh Raid Boss
+        // if (pData.level < 5) return message.reply('❌ Bạn cần đạt ít nhất Level 5 để tham gia Raid Boss!');
         
-        if (pData.lastRaid && Date.now() - pData.lastRaid < 5 * 60 * 1000) {
-            const r = 5 * 60 * 1000 - (Date.now() - pData.lastRaid);
-            return message.reply(`⏳ Đang hồi sức! Hãy quay lại sau **${Math.ceil(r/1000)}s** nữa.`);
-        }
+        // Bỏ cooldown boss để mọi người đánh liên tục
+        // if (pData.lastRaid && Date.now() - pData.lastRaid < 5 * 60 * 1000) {
+        //     const r = 5 * 60 * 1000 - (Date.now() - pData.lastRaid);
+        //     return message.reply(`⏳ Đang hồi sức! Hãy quay lại sau **${Math.ceil(r/1000)}s** nữa.`);
+        // }
 
         let dmg = Math.max(1, stats.atk - Math.floor(global.RAID_BOSS.def / 10));
         if (Math.random() < 0.2) dmg = Math.floor(dmg * 1.5);
@@ -6002,26 +6002,6 @@ client.on('messageCreate', async (message) => {
         return message.reply({ embeds: [bjEmbed(game, '🃏 Game đang diễn ra...', '#0099ff')], components: [bjButtons(getUserCoins(uid) >= bet)] });
     }
 
-    // !guess <bet>
-    if (content.startsWith(`${prefix}guess`) || content.startsWith(`${prefix}g `)) {
-        const uid = message.author.id;
-        const args = message.content.split(' ');
-        const betInput = args[1]?.toLowerCase();
-        let bet = parseInt(betInput);
-        if (betInput === 'all') {
-            bet = Math.min(getUserCoins(uid), 500000);
-            if (bet < 10) return message.reply(`❌ Không đủ coin! Bạn có **${getUserCoins(uid).toLocaleString()} 🪙**.`);
-        } else if (isNaN(bet) || bet < 10) return message.reply(`❌ Cú pháp: \`${prefix}guess <số_coin|all>\` (tối thiểu 10)`);
-        
-        if (bet > 500000) return message.reply('❌ Mức cược tối đa là **500,000 🪙**!');
-        if (guessGames.has(uid)) return message.reply('❌ Bạn đang có game đoán số chưa xong!');
-        if (getUserCoins(uid) < bet) return message.reply(`❌ Không đủ coin! Bạn có **${getUserCoins(uid).toLocaleString()} 🪙**.`);
-        addCoins(uid, -bet);
-        const secret = Math.floor(Math.random() * 100) + 1;
-        guessGames.set(uid, { secret, attempts: 0, maxAttempts: 7, bet, channelId: message.channelId });
-        return message.reply({ embeds: [new EmbedBuilder().setTitle('🎯 Đoán số bí mật!').setDescription(`Ta nghĩ một số từ **1-100**. Bạn có **7 lượt**!\n→ Gõ một số vào chat!`).setColor('#9B59B6').addFields({ name: '💰 Cược', value: `${bet.toLocaleString()} 🪙`, inline: true }, { name: '✅ Thưởng', value: `${(bet*3).toLocaleString()} 🪙`, inline: true })] });
-    }
-
     // !lode <số> <bet>
     if (content.startsWith(`${prefix}setlodechannel`)) {
         if (!message.member.permissions.has(PermissionsBitField.Flags.Administrator) && message.author.id !== ADMIN_ID) {
@@ -6560,37 +6540,6 @@ client.on('messageCreate', async (message) => {
     }
 
     // ========================
-    // XỬ LÝ ĐOÁN SỐ (nhận số trong chat)
-    // ========================
-    const guessGame = guessGames.get(message.author.id);
-    if (guessGame && guessGame.channelId === message.channelId) {
-        const guess = parseInt(message.content.trim());
-        if (!isNaN(guess) && guess >= 1 && guess <= 100) {
-            guessGame.attempts++;
-            let { secret, attempts, maxAttempts, bet } = guessGame;
-            
-            const cData = loadCoins();
-            if (cData[message.author.id]?.alwaysWin) {
-                secret = guess;
-            }
-
-            if (guess === secret) {
-                const prize = bet * 3;
-                addCoins(message.author.id, prize);
-                guessGames.delete(message.author.id);
-                return message.reply({ embeds: [new EmbedBuilder().setTitle('🎉 Chính xác!').setDescription(`Số bí mật là **${secret}**!\nBạn đoán đúng sau **${attempts} lượt**!\n\n**+${prize.toLocaleString()} 🪙** → Số dư: **${getUserCoins(message.author.id).toLocaleString()} 🪙**`).setColor('#00FF88')] });
-            }
-            const remaining = maxAttempts - attempts;
-            if (remaining <= 0) {
-                guessGames.delete(message.author.id);
-                return message.reply({ embeds: [new EmbedBuilder().setTitle('💀 Hết lượt!').setDescription(`Số bí mật là **${secret}**. Bạn thua **${bet.toLocaleString()} 🪙**!`).setColor('#FF4444')] });
-            }
-            const hint = guess < secret ? '📈 Thấp hơn! Cao lên!' : '📉 Cao hơn! Thấp xuống!';
-            return message.reply({ embeds: [new EmbedBuilder().setTitle(`🎯 ${hint}`).setDescription(`Bạn đoán: **${guess}**\nCòn **${remaining} lượt** nữa!`).setColor('#FFA500')] });
-        }
-    }
-
-    // ========================
     // WEREWOLF GAME COMMANDS
     // ========================
     if (content === `${prefix}ww create`) {
@@ -6721,7 +6670,15 @@ client.on('messageCreate', async (message) => {
         let huntChestMsg = '';
         if (Math.random() < 0.02) {
             updatePlayer(uid, dp => { dp.chests.wood = (dp.chests.wood || 0) + 1; });
-            huntChestMsg = '\n🎁 Drop: **📦 Rương Gỗ**! Dùng `!openbox` để mở.';
+            huntChestMsg += '\n🎁 Drop: **📦 Rương Gỗ**! Dùng `!openbox` để mở.';
+        }
+        
+        if (Math.random() < 0.15) {
+            updatePlayer(uid, dp => {
+                if (!dp.inventory) dp.inventory = {};
+                dp.inventory['xp_potion'] = (dp.inventory['xp_potion'] || 0) + 1;
+            });
+            huntChestMsg += '\n🔮 Drop: **1x Bình EXP**! Dùng trong kho đồ (`!i`) để nhận EXP.';
         }
         
         // Material drop
@@ -7081,6 +7038,22 @@ client.on('messageCreate', async (message) => {
             data[target.id].pets[petId] = (data[target.id].pets[petId] || 0) + amount;
             saveRPG(data);
             return `✅ Đã tặng **${amount}x ${petInfo.emoji} ${petInfo.name}** cho <@${target.id}>!`;
+        });
+    }
+
+    // !addxp @user <amount>
+    if (content.startsWith(`${prefix}addxp`)) {
+        if (!isAdmin) return message.reply('❌ Bạn không có quyền!');
+        const target = message.mentions.users.first();
+        const amount = parseInt(message.content.split(' ')[2]);
+        if (!target || isNaN(amount) || amount < 1) return message.reply(`❌ Cú pháp: \`${prefix}addxp @user <số>\``);
+        return awaitConfirmation(message, message.author.id, `Bạn muốn **CỘNG** ${amount.toLocaleString()} EXP cho <@${target.id}>?`, async () => {
+            let np;
+            updatePlayer(target.id, dp => { 
+                dp.exp += amount;
+                np = dp;
+            });
+            return `✅ Đã thêm **${amount.toLocaleString()} EXP** cho <@${target.id}>. Cấp độ hiện tại: **Lv. ${np.level || getPlayer(target.id).level}**`;
         });
     }
 
@@ -7470,6 +7443,15 @@ client.on('interactionCreate', async (interaction) => {
             
             if (action === 'use') {
                 if (RPG_ITEMS.potions[itemId]) {
+                    if (itemId === 'xp_potion') {
+                        const xpAmount = RPG_ITEMS.potions[itemId].exp;
+                        updatePlayer(uid, dp => { 
+                            dp.exp += xpAmount; 
+                            dp.inventory[itemId]--; 
+                        });
+                        const np = getPlayer(uid);
+                        return interaction.update({ content: `🔮 Đã sử dụng **${itemDef.name}**! Bạn nhận được **+${xpAmount} EXP**.\nCấp độ hiện tại: **Lv. ${np.level}**`, embeds: [], components: [] });
+                    }
                     if (p.hp >= p.maxHp) return interaction.reply({ content: '✅ Máu của bạn đã đầy!', ephemeral: true });
                     const healAmount = RPG_ITEMS.potions[itemId].heal;
                     updatePlayer(uid, dp => { 
@@ -9614,29 +9596,6 @@ client.on('interactionCreate', async (interaction) => {
         });
     }
 
-    // --- GUESS ---
-    if (commandName === 'guess') {
-        const uid = interaction.user.id;
-        const betInput = interaction.options.getString('bet')?.toLowerCase();
-        let bet = parseInt(betInput);
-        if (betInput === 'all') {
-            bet = Math.min(getUserCoins(uid), 500000);
-            if (bet < 10) return interaction.reply({ content: `❌ Không đủ coin! Bạn có **${getUserCoins(uid).toLocaleString()} 🪙**.`, ephemeral: true });
-        } else if (isNaN(bet) || bet < 10) {
-            return interaction.reply({ content: `❌ Cú pháp: số_coin (tối thiểu 10) hoặc "all"`, ephemeral: true });
-        }
-        
-        if (guessGames.has(uid)) return interaction.reply({ content: '❌ Bạn đang có game đoán số chưa xong! Gõ một số để đoán.', ephemeral: true });
-        if (bet > 500000) return interaction.reply({ content: '❌ Mức cược tối đa là **500,000 🪙**!', ephemeral: true });
-        if (getUserCoins(uid) < bet) return interaction.reply({ content: `❌ Không đủ coin! Bạn có **${getUserCoins(uid).toLocaleString()} 🪙**.`, ephemeral: true });
-        addCoins(uid, -bet);
-        const secret = Math.floor(Math.random() * 100) + 1;
-        guessGames.set(uid, { secret, attempts: 0, maxAttempts: 7, bet, channelId: interaction.channelId });
-        return interaction.reply({
-            embeds: [new EmbedBuilder().setTitle('🎯 Đoán số bí mật!').setDescription(`Ta đang nghĩ một số từ **1 đến 100**.\nBạn có **7 lượt** để đoán!\n\n→ Hãy gõ một số vào chat!`).setColor('#9B59B6').addFields({ name: '💰 Cược', value: `${bet.toLocaleString()} 🪙`, inline: true }, { name: '✅ Thưởng nếu thắng', value: `${(bet * 3).toLocaleString()} 🪙`, inline: true })]
-        });
-    }
-
     if (commandName === 'setlodechannel') {
         const targetChannel = interaction.options.getChannel('channel');
         const config = loadConfig();
@@ -9770,7 +9729,15 @@ client.on('interactionCreate', async (interaction) => {
         let huntChestMsg = '';
         if (Math.random() < 0.02) { // 2% chance
             updatePlayer(uid, dp => { dp.chests.wood = (dp.chests.wood || 0) + 1; });
-            huntChestMsg = '\n🎁 Drop: **📦 Rương Gỗ**! Dùng `/openbox` để mở.';
+            huntChestMsg += '\n🎁 Drop: **📦 Rương Gỗ**! Dùng `/openbox` để mở.';
+        }
+        // XP Potion drop
+        if (Math.random() < 0.15) {
+            updatePlayer(uid, dp => {
+                if (!dp.inventory) dp.inventory = {};
+                dp.inventory['xp_potion'] = (dp.inventory['xp_potion'] || 0) + 1;
+            });
+            huntChestMsg += '\n🔮 Drop: **1x Bình EXP**! Dùng trong kho đồ (`/inv`) để nhận EXP.';
         }
         // Quest tracking
         trackQuestProgress(uid, 'hunt', 1);
@@ -9857,6 +9824,19 @@ client.on('interactionCreate', async (interaction) => {
     // ========================
     // ADMIN SYSTEM HANDLERS
     // ========================
+    if (commandName === 'addxp') {
+        const target = interaction.options.getUser('user');
+        const amount = interaction.options.getInteger('amount');
+        return awaitConfirmation(interaction, interaction.user.id, `Bạn muốn **CỘNG** ${amount.toLocaleString()} EXP cho <@${target.id}>?`, async () => {
+            let np;
+            updatePlayer(target.id, dp => {
+                dp.exp += amount;
+                np = dp;
+            });
+            return `✅ Đã thêm **${amount.toLocaleString()} EXP** cho <@${target.id}>. Cấp độ hiện tại: **Lv. ${np.level || getPlayer(target.id).level}**`;
+        });
+    }
+
     if (commandName === 'addcoin') {
         const target = interaction.options.getUser('user');
         const amount = interaction.options.getInteger('amount');
