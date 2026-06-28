@@ -4495,6 +4495,9 @@ const slashCommands = [
         .setName('setuppokemonrole')
         .setDescription('👑 [Chủ Bot] Tạo Role Pokemon và gửi tin nhắn để user nhận role.'),
     new SlashCommandBuilder()
+        .setName('setuprpgrole')
+        .setDescription('👑 [Chủ Bot] Tạo Role RPG và gửi tin nhắn để user nhận role.'),
+    new SlashCommandBuilder()
         .setName('setwelcome')
         .setDescription('🛠️ (Admin) Cài đặt hệ thống chào mừng (kênh, tin nhắn, ảnh).')
         .setDefaultMemberPermissions(PermissionsBitField.Flags.Administrator)
@@ -5393,7 +5396,10 @@ client.on('messageCreate', async (message) => {
             .setDescription(`**${global.RAID_BOSS.emoji} ${global.RAID_BOSS.name}** đã giáng trần!\n\n> 🩸 Máu: **${global.RAID_BOSS.maxHp.toLocaleString()}**\n> ⚔️ Tấn công: **${global.RAID_BOSS.atk}**\n\nTất cả người chơi hãy dùng lệnh \`${prefix}raid\` để tấn công Boss! Kẻ kết liễu hoặc gây sát thương cao nhất sẽ nhận được phần thưởng khổng lồ!`)
             .setColor('#FF0000')
             .setImage('https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExcDdvMnAwaGFwa3RwbzlkdzIzZ3Rza2g0NThwa3BxanIxbWhpYWl3ciZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/LwsCiZPppEIJIIGmO1/giphy.gif');
-        return message.channel.send({ content: '@everyone', embeds: [embed] });
+        const config = loadConfig();
+        let msgContent = '';
+        if (config.rpgRoleId) msgContent = `<@&${config.rpgRoleId}>`;
+        return message.channel.send({ content: msgContent, embeds: [embed] });
     }
 
     if (content === `${prefix}raid`) {
@@ -7635,6 +7641,30 @@ client.on('interactionCreate', async (interaction) => {
         }
 
         // =============================================
+        // RPG ROLE BUTTON
+        // =============================================
+        if (cid === 'get_rpg_role') {
+            const config = loadConfig();
+            const roleId = config.rpgRoleId;
+            if (!roleId) return interaction.reply({ content: '❌ Hệ thống chưa cài đặt role.', ephemeral: true });
+            
+            const role = interaction.guild.roles.cache.get(roleId);
+            if (!role) return interaction.reply({ content: '❌ Role không tồn tại hoặc đã bị xóa.', ephemeral: true });
+            
+            try {
+                if (interaction.member.roles.cache.has(roleId)) {
+                    await interaction.member.roles.remove(roleId);
+                    return interaction.reply({ content: '✅ Bạn đã **hủy** role RPG!', ephemeral: true });
+                } else {
+                    await interaction.member.roles.add(roleId);
+                    return interaction.reply({ content: '✅ Bạn đã **nhận** role RPG!', ephemeral: true });
+                }
+            } catch (err) {
+                return interaction.reply({ content: '❌ Bot không đủ quyền để cấp role cho bạn.', ephemeral: true });
+            }
+        }
+
+        // =============================================
         // WILD PET SYSTEM BUTTONS
         // =============================================
         if (cid.startsWith('wild_catch_')) {
@@ -9417,6 +9447,41 @@ client.on('interactionCreate', async (interaction) => {
         
         await interaction.channel.send({ embeds: [embed], components: [row] });
         return interaction.reply({ content: '✅ Đã cài đặt thành công role Pokemon và gửi bảng đăng ký!', ephemeral: true });
+    }
+
+    if (commandName === 'setuprpgrole') {
+        if (interaction.user.id !== ADMIN_ID) 
+            return interaction.reply({ content: '❌ Lệnh này chỉ dành riêng cho Chủ Bot!', ephemeral: true });
+        
+        let role = interaction.guild.roles.cache.find(r => r.name.toLowerCase() === 'rpg player');
+        if (!role) {
+            try {
+                role = await interaction.guild.roles.create({
+                    name: 'RPG Player',
+                    color: '#FFA500',
+                    mentionable: true,
+                    reason: 'Role cho tính năng thông báo RPG (Raid Boss)'
+                });
+            } catch (err) {
+                return interaction.reply({ content: '❌ Bot không có đủ quyền để tạo role. Vui lòng cấp quyền `Manage Roles` cho bot.', ephemeral: true });
+            }
+        }
+        
+        const config = loadConfig();
+        config.rpgRoleId = role.id;
+        saveConfig(config);
+        
+        const embed = new EmbedBuilder()
+            .setTitle('⚔️ Đăng Ký Nhận Thông Báo RPG')
+            .setDescription('Bấm vào nút bên dưới để nhận (hoặc hủy) role **RPG Player**.\nBạn sẽ được tag mỗi khi Raid Boss xuất hiện để không bỏ lỡ phần thưởng!')
+            .setColor('#FFA500');
+            
+        const row = new ActionRowBuilder().addComponents(
+            new ButtonBuilder().setCustomId('get_rpg_role').setLabel('Nhận / Hủy Role RPG').setStyle(ButtonStyle.Success).setEmoji('⚔️')
+        );
+        
+        await interaction.channel.send({ embeds: [embed], components: [row] });
+        return interaction.reply({ content: '✅ Đã cài đặt thành công role RPG và gửi bảng đăng ký!', ephemeral: true });
     }
 
     // --- QR ---
