@@ -4509,6 +4509,11 @@ const slashCommands = [
         .setName('1an')
         .setDescription('Ẩn phòng Voice hiện tại của bạn đối với một người cụ thể.')
         .addUserOption(o => o.setName('user').setDescription('Người bạn muốn ẩn phòng').setRequired(true)),
+    new SlashCommandBuilder()
+        .setName('senddm')
+        .setDescription('👑 [Chủ Bot] Gửi tin nhắn trực tiếp qua Bot tới User.')
+        .addUserOption(o => o.setName('user').setDescription('Người dùng muốn gửi tin').setRequired(true))
+        .addStringOption(o => o.setName('message').setDescription('Nội dung tin nhắn').setRequired(true)),
     // --- RPG EXPANSION ---
     new SlashCommandBuilder()
         .setName('dungeon')
@@ -9447,6 +9452,21 @@ client.on('interactionCreate', async (interaction) => {
         
         await interaction.channel.send({ embeds: [embed], components: [row] });
         return interaction.reply({ content: '✅ Đã cài đặt thành công role Pokemon và gửi bảng đăng ký!', ephemeral: true });
+    }
+
+    if (commandName === 'senddm') {
+        if (interaction.user.id !== ADMIN_ID) 
+            return interaction.reply({ content: '❌ Lệnh này chỉ dành riêng cho Chủ Bot!', ephemeral: true });
+        
+        const targetUser = interaction.options.getUser('user');
+        const messageStr = interaction.options.getString('message');
+        
+        try {
+            await targetUser.send({ content: messageStr });
+            return interaction.reply({ content: `✅ Đã gửi tin nhắn đến **${targetUser.tag}** thành công!\n**Nội dung:** ${messageStr}`, ephemeral: true });
+        } catch (err) {
+            return interaction.reply({ content: `❌ Không thể gửi tin nhắn đến **${targetUser.tag}**. Người này có thể đã tắt DM hoặc chặn Bot.`, ephemeral: true });
+        }
     }
 
     if (commandName === 'setuprpgrole') {
