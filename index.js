@@ -617,7 +617,9 @@ async function playNext(guildId, textChannel) {
     try {
         let resource;
         try {
-            if (song.url.includes('soundcloud.com') || song.url.includes('on.soundcloud.com') || song.url.includes('youtube.com') || song.url.includes('youtu.be')) {
+            if (song.isAttachment) {
+                resource = createAudioResource(song.url, { inlineVolume: true });
+            } else if (song.url.includes('soundcloud.com') || song.url.includes('on.soundcloud.com') || song.url.includes('youtube.com') || song.url.includes('youtu.be')) {
                 const play = require('play-dl');
                 const stream = await play.stream(song.url);
                 resource = createAudioResource(stream.stream, { inputType: stream.type, inlineVolume: true });
@@ -627,8 +629,12 @@ async function playNext(guildId, textChannel) {
             }
         } catch(err) {
             console.error('play-dl stream failed, fallback to yt-dlp:', err.message);
-            const audioStream = ytdlpStream(song.url);
-            resource = createAudioResource(audioStream, { inlineVolume: true });
+            if (song.isAttachment) {
+                resource = createAudioResource(song.url, { inlineVolume: true });
+            } else {
+                const audioStream = ytdlpStream(song.url);
+                resource = createAudioResource(audioStream, { inlineVolume: true });
+            }
         }
 
         // Áp dụng âm lượng hiện tại
@@ -4256,8 +4262,9 @@ const slashCommands = [
     // --- MUSIC COMMANDS ---
     new SlashCommandBuilder()
         .setName('play')
-        .setDescription('🎵 Phát nhạc YouTube vào voice channel.')
-        .addStringOption(o => o.setName('query').setDescription('Tên bài hát hoặc link YouTube').setRequired(true)),
+        .setDescription('🎵 Phát nhạc (YouTube hoặc file mp3) vào voice.')
+        .addStringOption(o => o.setName('query').setDescription('Tên bài hát hoặc link YouTube').setRequired(false))
+        .addAttachmentOption(o => o.setName('file').setDescription('Upload file nhạc (mp3/wav)').setRequired(false)),
     new SlashCommandBuilder()
         .setName('skip')
         .setDescription('⏭ Bỏ qua bài nhạc hiện tại.'),
@@ -9246,7 +9253,12 @@ client.on('interactionCreate', async (interaction) => {
     // --- PLAY ---
     if (commandName === 'play') {
         const query = interaction.options.getString('query');
+        const file = interaction.options.getAttachment('file');
         const voiceChannel = interaction.member.voice.channel;
+
+        if (!query && !file) {
+            return interaction.reply({ content: '❌ Bạn phải nhập tên bài hát hoặc đính kèm một file nhạc!', ephemeral: true });
+        }
 
         if (!voiceChannel) {
             return interaction.reply({ content: '❌ Bạn cần vào **voice channel** trước!', ephemeral: true });
@@ -9261,20 +9273,35 @@ client.on('interactionCreate', async (interaction) => {
 
         try {
             let songInfo;
-            await interaction.editReply('⏳ Đang xử lý bài hát...');
-            const info = await ytdlpGetInfo(query);
-            if (!info) return interaction.editReply('❌ Không tìm thấy bài hát nào!');
-            const durationSec = parseInt(info.duration) || 0;
-            const mins = Math.floor(durationSec / 60);
-            const secs = durationSec % 60;
-            songInfo = {
-                title: info.title,
-                url: info.webpage_url,
-                duration: `${mins}:${String(secs).padStart(2, '0')}`,
-                thumbnail: info.thumbnail,
-                requestedBy: interaction.user.tag,
-                requestedById: interaction.user.id
-            };
+            if (file) {
+                if (!file.contentType?.startsWith('audio/') && !file.name.endsWith('.mp3') && !file.name.endsWith('.wav') && !file.name.endsWith('.ogg')) {
+                    return interaction.editReply('❌ File đính kèm phải là định dạng âm thanh (mp3, wav, ogg)!');
+                }
+                songInfo = {
+                    title: file.name,
+                    url: file.url,
+                    duration: 'N/A',
+                    thumbnail: 'https://i.imgur.com/8Qp4wO8.png',
+                    requestedBy: interaction.user.tag,
+                    requestedById: interaction.user.id,
+                    isAttachment: true
+                };
+            } else {
+                await interaction.editReply('⏳ Đang xử lý bài hát...');
+                const info = await ytdlpGetInfo(query);
+                if (!info) return interaction.editReply('❌ Không tìm thấy bài hát nào!');
+                const durationSec = parseInt(info.duration) || 0;
+                const mins = Math.floor(durationSec / 60);
+                const secs = durationSec % 60;
+                songInfo = {
+                    title: info.title,
+                    url: info.webpage_url,
+                    duration: `${mins}:${String(secs).padStart(2, '0')}`,
+                    thumbnail: info.thumbnail,
+                    requestedBy: interaction.user.tag,
+                    requestedById: interaction.user.id
+                };
+            }
 
             const state = getQueue(interaction.guildId);
 
