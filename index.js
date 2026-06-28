@@ -4661,21 +4661,25 @@ client.once('clientReady', async () => {
     console.log(`✅ Bot đã đăng nhập với tên: ${client.user.tag}`);
     
     const statuses = [
-        "🎓 UTEHY 2026 đang mở cổng tuyển sinh!",
-        "📚 Chọn UTEHY – Chọn tương lai!",
-        "🚀 Đồng hành cùng tân sinh viên UTEHY.",
-        "💙 UTEHY chào đón K20!",
-        "📩 Hỏi đáp tuyển sinh 24/7.",
-        "🌟 Sẵn sàng nhập học tại UTEHY?",
-        "🔥 Tuyển sinh 2026 – Đừng bỏ lỡ!",
-        "🎯 Chạm tới ước mơ cùng UTEHY.",
-        "🏫 Khám phá ngành học tại UTEHY.",
-        "💡 Học kỹ thuật – Chọn UTEHY.",
-        "⚙️ Nơi đam mê công nghệ bắt đầu.",
-        "🎉 Chào mừng các sĩ tử 2K8!",
-        "📖 Tra cứu thông tin tuyển sinh.",
-        "🤖 Bot hỗ trợ tuyển sinh UTEHY.",
-        "✨ UTEHY – Kiến tạo tương lai."
+        "💙 Welcome to UTEHY Admissions 2026 | K26 🎓",
+        "🎓 UTEHY Admissions 2026 • Chào mừng K26 💙",
+        "📚 UTEHY K26 | Đồng hành cùng mùa tuyển sinh 2026 💙",
+        "🚀 UTEHY 2026 • Hành trình K26 bắt đầu!",
+        "💙 K26 | Chạm ước mơ cùng UTEHY",
+        "✨ UTEHY Admissions • Hỗ trợ tuyển sinh 2026",
+        "📖 UTEHY K26 • Hỏi đáp tuyển sinh 24/7",
+        "💬 UTEHY Admissions | Luôn sẵn sàng hỗ trợ bạn",
+        "🎯 K26 • Định hướng hôm nay, thành công ngày mai",
+        "🌸 Welcome, Future UTEHY Students | K26",
+        "💙 UTEHY • Together We Build Your Future",
+        "🎓 Dream • Learn • Achieve | UTEHY K26",
+        "📩 Tuyển sinh UTEHY 2026 | Bot hỗ trợ chính thức",
+        "🌟 Chào mừng Tân sinh viên UTEHY K26!",
+        "💙 UTEHY K26 | Your Future Starts Here",
+        "🚀 UTEHY Admissions | Let's Begin Your Journey",
+        "🎉 Welcome to UTEHY • Class of K26",
+        "📚 K26 | Learn Today, Lead Tomorrow",
+        "💙 Tân sinh viên K26, UTEHY chào đón bạn!"
     ];
     let statusIndex = 0;
     setInterval(() => {
