@@ -4661,25 +4661,26 @@ client.once('clientReady', async () => {
     console.log(`✅ Bot đã đăng nhập với tên: ${client.user.tag}`);
     
     const statuses = [
-        "💙 Welcome to UTEHY Admissions 2026 | K26 🎓",
-        "🎓 UTEHY Admissions 2026 • Chào mừng K26 💙",
-        "📚 UTEHY K26 | Đồng hành cùng mùa tuyển sinh 2026 💙",
-        "🚀 UTEHY 2026 • Hành trình K26 bắt đầu!",
-        "💙 K26 | Chạm ước mơ cùng UTEHY",
-        "✨ UTEHY Admissions • Hỗ trợ tuyển sinh 2026",
-        "📖 UTEHY K26 • Hỏi đáp tuyển sinh 24/7",
-        "💬 UTEHY Admissions | Luôn sẵn sàng hỗ trợ bạn",
-        "🎯 K26 • Định hướng hôm nay, thành công ngày mai",
-        "🌸 Welcome, Future UTEHY Students | K26",
-        "💙 UTEHY • Together We Build Your Future",
-        "🎓 Dream • Learn • Achieve | UTEHY K26",
-        "📩 Tuyển sinh UTEHY 2026 | Bot hỗ trợ chính thức",
-        "🌟 Chào mừng Tân sinh viên UTEHY K26!",
-        "💙 UTEHY K26 | Your Future Starts Here",
-        "🚀 UTEHY Admissions | Let's Begin Your Journey",
-        "🎉 Welcome to UTEHY • Class of K26",
-        "📚 K26 | Learn Today, Lead Tomorrow",
-        "💙 Tân sinh viên K26, UTEHY chào đón bạn!"
+        "💙 Welcome to UTEHY Admissions 2026 | K26",
+        "🎓 Chào mừng K26 đến với UTEHY!",
+        "📚 UTEHY Admissions • Tuyển sinh 2026",
+        "🚀 K26 | Hành trình đại học bắt đầu",
+        "💬 Hỗ trợ tuyển sinh UTEHY 24/7",
+        "🌟 UTEHY K26 | Your Future Starts Here",
+        "🎯 Chọn UTEHY • Chọn tương lai",
+        "💙 Dream Big • Study at UTEHY",
+        "📩 UTEHY K26 | Luôn sẵn sàng hỗ trợ",
+        "✨ Welcome Future UTEHY Students",
+        "🎓 UTEHY | Nơi khởi đầu thành công",
+        "📖 Admissions Open • K26 • 2026",
+        "🌸 K26 | Chạm tới ước mơ cùng UTEHY",
+        "💡 UTEHY Admissions | Ask Me Anything",
+        "🚀 Ready for UTEHY? Let's Go!",
+        "💙 Hành trình K26 bắt đầu từ đây",
+        "🎉 UTEHY K26 | Welcome Home",
+        "📚 Learn Today • Lead Tomorrow • UTEHY",
+        "🎯 UTEHY 2026 | Kết nối đam mê, kiến tạo tương lai",
+        "🤖 Moonie Bot | Đồng hành cùng mùa tuyển sinh K26"
     ];
     let statusIndex = 0;
     setInterval(() => {
