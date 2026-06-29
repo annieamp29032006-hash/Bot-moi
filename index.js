@@ -4853,9 +4853,18 @@ client.on('guildMemberAdd', async (member) => {
             .setFooter({ text: 'Chúc bạn có những giây phút vui vẻ tại đây! 💕' })
             .setTimestamp();
             
-        // Dùng ảnh do admin cài qua lệnh /setwelcome, nếu không có thì dùng ảnh mặc định (GIF chill anime từ imgur)
-        const defaultWelcomeImage = 'https://i.imgur.com/s61O4pY.gif';
-        embed.setImage(config.welcomeImage || defaultWelcomeImage);
+        // Dùng ảnh do admin cài qua lệnh /setwelcome, nếu không có thì dùng ảnh đính kèm mặc định
+        let attachment;
+        if (!config.welcomeImage) {
+            try {
+                attachment = new AttachmentBuilder(path.join(__dirname, 'welcome_banner.png'), { name: 'welcome_banner.png' });
+                embed.setImage('attachment://welcome_banner.png');
+            } catch (err) {
+                // Ignore
+            }
+        } else {
+            embed.setImage(config.welcomeImage);
+        }
         
         // Ping user và role đón khách (nếu có trong env, nếu không thì dùng role mặc định user yêu cầu)
         let pingContent = `<@${member.user.id}>`;
@@ -4865,7 +4874,10 @@ client.on('guildMemberAdd', async (member) => {
             pingContent += ` | <@&1491977303473914036> ra đón thành viên mới kìa! 🎉`;
         }
         
-        channel.send({ content: pingContent, embeds: [embed] });
+        const messageOptions = { content: pingContent, embeds: [embed] };
+        if (attachment) messageOptions.files = [attachment];
+        
+        channel.send(messageOptions);
     } catch (error) {
         console.error('Lỗi khi gửi lời chào:', error);
     }
