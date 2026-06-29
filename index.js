@@ -2651,8 +2651,14 @@ async function handleFarmCommand(userId, msgOrInteraction) {
         new ButtonBuilder().setCustomId(`farm_refresh_${userId}`).setLabel('🔄 Làm Mới').setStyle(ButtonStyle.Secondary)
     );
 
-    if (msgOrInteraction.isButton && msgOrInteraction.isButton()) {
-        return msgOrInteraction.update({ embeds: [embed], components: [row] });
+    if (msgOrInteraction.update && typeof msgOrInteraction.update === 'function') {
+        if (msgOrInteraction.replied || msgOrInteraction.deferred) {
+            return msgOrInteraction.message.edit({ embeds: [embed], components: [row] }).catch(() => {});
+        }
+        return msgOrInteraction.update({ embeds: [embed], components: [row] }).catch(err => {
+            if (err.code === 10062) return msgOrInteraction.message.edit({ embeds: [embed], components: [row] }).catch(() => {});
+            console.error('Lỗi update farm:', err);
+        });
     }
     return replyMsg(msgOrInteraction, { embeds: [embed], components: [row] });
 }
