@@ -2125,7 +2125,7 @@ async function handlePets(userId, msgOrInteraction) {
         .addFields({ name: '👑 Thú Cưng Mạnh Nhất', value: `${strongest.pet.emoji} **${strongest.pet.name}**\nĐộ hiếm: **${strongest.pet.rarity}** | Sức mạnh: **${(strongest.pet.price||0).toLocaleString()}**\n*(Sở hữu: ${strongest.amount} con)*`, inline: false });
         
     if (strongest.pet.imageUrl) {
-        embed.setThumbnail(strongest.pet.imageUrl);
+        embed.setImage(strongest.pet.imageUrl);
     }
     
     let totalPetsCount = 0;
