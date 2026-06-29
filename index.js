@@ -4532,6 +4532,10 @@ const slashCommands = [
         .setDescription('🛠️ (Admin) Tắt tính năng tự động gửi lời chào mừng.')
         .setDefaultMemberPermissions(PermissionsBitField.Flags.Administrator),
     new SlashCommandBuilder()
+        .setName('testwelcome')
+        .setDescription('🛠️ (Admin) Dùng thử để kiểm tra hiển thị của lệnh chào mừng.')
+        .setDefaultMemberPermissions(PermissionsBitField.Flags.Administrator),
+    new SlashCommandBuilder()
         .setName('setj2c')
         .setDescription('🛠️ (Admin) Cài đặt kênh gốc để tạo Join to Create.')
         .setDefaultMemberPermissions(PermissionsBitField.Flags.Administrator)
@@ -4836,15 +4840,21 @@ client.on('guildMemberAdd', async (member) => {
         }
         
         const embed = new EmbedBuilder()
-            .setTitle(`🎉 Chào mừng thành viên mới!`)
-            .setDescription(customMessage)
-            .setColor('#00FF00')
-            .setThumbnail(member.user.displayAvatarURL({ dynamic: true, size: 256 }))
+            .setAuthor({ name: `Chào mừng đến với ${member.guild.name}`, iconURL: member.guild.iconURL({ dynamic: true }) || undefined })
+            .setTitle(`🎉 Chào mừng ${member.user.displayName} 🎉`)
+            .setDescription(`> ${customMessage}`)
+            .setColor('#ff99cc')
+            .setThumbnail(member.user.displayAvatarURL({ dynamic: true, size: 512 }))
+            .addFields(
+                { name: '👥 Thành viên thứ:', value: `**${member.guild.memberCount}**`, inline: true },
+                { name: '🗓️ Tạo tài khoản lúc:', value: `<t:${Math.floor(member.user.createdTimestamp / 1000)}:R>`, inline: true }
+            )
+            .setFooter({ text: 'Chúc bạn có những giây phút vui vẻ tại đây! 💕' })
             .setTimestamp();
             
-        if (config.welcomeImage) {
-            embed.setImage(config.welcomeImage);
-        }
+        // Dùng ảnh do admin cài qua lệnh /setwelcome, nếu không có thì dùng ảnh mặc định (GIF chill anime)
+        const defaultWelcomeImage = 'https://i.pinimg.com/originals/13/86/e3/1386e3f4eeb165e3b5e4f4ed52eb0393.gif';
+        embed.setImage(config.welcomeImage || defaultWelcomeImage);
         
         channel.send({ content: `<@${member.user.id}>`, embeds: [embed] });
     } catch (error) {
@@ -9523,6 +9533,14 @@ client.on('interactionCreate', async (interaction) => {
         saveConfig(config);
         
         return interaction.reply({ content: `✅ Đã **TẮT** tính năng chào mừng thành viên mới! (Gõ lại /setwelcome để bật lại)`, ephemeral: true });
+    }
+
+    if (commandName === 'testwelcome') {
+        if (!interaction.member || !interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) 
+            return interaction.reply({ content: '❌ Bạn không có quyền!', ephemeral: true });
+        
+        client.emit('guildMemberAdd', interaction.member);
+        return interaction.reply({ content: '✅ Đã giả lập gửi tin nhắn chào mừng (Kiểm tra tại kênh welcome của bạn)!', ephemeral: true });
     }
 
     if (commandName === 'setuppokemonrole') {
