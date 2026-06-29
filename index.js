@@ -5443,6 +5443,54 @@ client.on('messageCreate', async (message) => {
         return message.reply('🛑 Trò chơi Nối Từ đã kết thúc.').catch(() => {});
     }
 
+    // --- WELCOME COMMANDS ---
+    if (content === `${prefix}testwelcome`) {
+        if (!message.member.permissions.has(PermissionsBitField.Flags.Administrator)) return message.reply('❌ Bạn không có quyền!');
+        client.emit('guildMemberAdd', message.member);
+        return message.reply('✅ Đã giả lập gửi tin nhắn chào mừng (Kiểm tra tại kênh welcome của bạn)!');
+    }
+
+    if (content === `${prefix}disablewelcome`) {
+        if (!message.member.permissions.has(PermissionsBitField.Flags.Administrator)) return message.reply('❌ Bạn không có quyền!');
+        const config = loadConfig();
+        config.welcomeChannelId = 'disabled';
+        saveConfig(config);
+        return message.reply('✅ Đã **TẮT** tính năng chào mừng thành viên mới! (Dùng lệnh setwelcome để bật lại)');
+    }
+
+    if (content.startsWith(`${prefix}setwelcome`)) {
+        if (!message.member.permissions.has(PermissionsBitField.Flags.Administrator)) return message.reply('❌ Bạn không có quyền!');
+        
+        const args = message.content.slice(prefix.length + 10).trim().split(/\s+/);
+        const channelMention = args[0];
+        
+        if (!channelMention || !channelMention.startsWith('<#') || !channelMention.endsWith('>')) {
+            return message.reply(`❌ Sai cú pháp! Vui lòng dùng: \`${prefix}setwelcome #kênh [lời chào] [link_ảnh]\``);
+        }
+        
+        const channelId = channelMention.replace('<#', '').replace('>', '');
+        let messageStr = '';
+        let image = null;
+        
+        if (args.length > 1) {
+            const lastArg = args[args.length - 1];
+            if (lastArg.startsWith('http')) {
+                image = lastArg;
+                messageStr = args.slice(1, -1).join(' ');
+            } else {
+                messageStr = args.slice(1).join(' ');
+            }
+        }
+        
+        const config = loadConfig();
+        config.welcomeChannelId = channelId;
+        if (messageStr) config.welcomeMessage = messageStr;
+        if (image) config.welcomeImage = image;
+        saveConfig(config);
+        
+        return message.reply(`✅ Đã cài đặt chào mừng!\n- **Kênh:** <#${channelId}>\n- **Lời chào:** ${messageStr || 'Mặc định'}\n- **Ảnh:** ${image || 'Không có'}`);
+    }
+
     // --- RPG EXPANSION COMMANDS ---
     if (content === `${prefix}setuprpg`) {
         if (message.author.id !== ADMIN_ID) 
