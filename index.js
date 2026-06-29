@@ -4805,6 +4805,17 @@ client.once('clientReady', async () => {
     }
     if (j2cChanged) saveJ2C(savedJ2C);
 
+    // Phục hồi tracking voice cho những người đã ở sẵn trong kênh thoại khi bot restart
+    client.guilds.cache.forEach(guild => {
+        guild.channels.cache.filter(c => c.isVoiceBased()).forEach(channel => {
+            channel.members.forEach(member => {
+                if (!member.user.bot) {
+                    voiceJoinTimes.set(member.user.id, { time: Date.now(), channel: channel.id });
+                }
+            });
+        });
+    });
+
     const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
     try {
         console.log('Đang đăng ký Slash Commands...');
