@@ -2128,16 +2128,12 @@ async function handlePets(userId, msgOrInteraction) {
         embed.setThumbnail(strongest.pet.imageUrl);
     }
     
-    const rarities = {};
+    let totalPetsCount = 0;
     for (const op of ownedPets) {
-        const r = op.pet.rarity || 'Thường';
-        if (!rarities[r]) rarities[r] = [];
-        rarities[r].push(`${op.pet.emoji} **${op.pet.name}** (x${op.amount})`);
+        totalPetsCount += op.amount;
     }
     
-    for (const [rarity, pList] of Object.entries(rarities)) {
-        embed.addFields({ name: `💎 ${rarity} (${pList.length} loài)`, value: pList.join(', '), inline: false });
-    }
+    embed.addFields({ name: '📊 Tổng Quan Thú Cưng', value: `Bạn đang sở hữu **${totalPetsCount}** thú cưng thuộc **${ownedPets.length}** loài khác nhau.\n*(Sử dụng menu bên dưới để xem chi tiết từng con)*`, inline: false });
 
     ownedPets.sort((a, b) => b.pet.price - a.pet.price);
     const options = ownedPets.slice(0, 25).map(p => 
