@@ -1650,7 +1650,13 @@ function buildProfileEmbed(user) {
     let isBirthday = false;
 
     const msgCount = pData.messageCount || 0;
-    const vTime = pData.voiceTime || 0;
+    let vTime = pData.voiceTime || 0;
+    const session = voiceJoinTimes.get(user.id);
+    if (session) {
+        const joinTime = typeof session === 'number' ? session : session.time;
+        const diffSecs = (Date.now() - joinTime) / 1000;
+        vTime += diffSecs;
+    }
 
     if (pData.birthday) {
         bdayText = `**${pData.birthday}**`;
@@ -5539,6 +5545,14 @@ client.on('messageCreate', async (message) => {
         const progressBar = '█'.repeat(progressFilled) + '░'.repeat(progressLen - progressFilled);
         const percent = Math.round((data.xp / xpNeeded) * 100);
 
+        let currentVoiceTime = data.voiceTime || 0;
+        const session = voiceJoinTimes.get(message.author.id);
+        if (session) {
+            const joinTime = typeof session === 'number' ? session : session.time;
+            const diffSecs = (Date.now() - joinTime) / 1000;
+            currentVoiceTime += Math.floor(diffSecs / 60);
+        }
+
         const embed = new EmbedBuilder()
             .setTitle(`📊 Thống Kê Tương Tác của ${message.author.username}`)
             .setColor('#3498db')
@@ -5547,7 +5561,7 @@ client.on('messageCreate', async (message) => {
                 { name: '🌟 Cấp độ', value: `${data.level}`, inline: true },
                 { name: '✨ Điểm XP', value: `${data.xp} / ${xpNeeded}\n\`${progressBar}\` ${percent}%`, inline: true },
                 { name: '💬 Tổng tin nhắn', value: `${data.messages}`, inline: true },
-                { name: '🎙️ Tổng giờ Voice', value: `${Math.floor((data.voiceTime || 0) / 60)} giờ ${(data.voiceTime || 0) % 60} phút`, inline: true },
+                { name: '🎙️ Tổng giờ Voice', value: `${Math.floor(currentVoiceTime / 60)} giờ ${currentVoiceTime % 60} phút`, inline: true },
                 { name: '📝 Kênh hay chat', value: favText, inline: true },
                 { name: '🎧 Kênh hay ngồi', value: favVoice, inline: true }
             )
@@ -5557,10 +5571,19 @@ client.on('messageCreate', async (message) => {
         return message.reply({ embeds: [embed] });
     }
 
-    if (content === `${prefix}toprank`) {
+    if (content === `${prefix}toprank` || content === `${prefix}tr`) {
         const levelData = loadLevels();
         const sorted = Object.entries(levelData)
-            .map(([id, d]) => ({ id, ...d }))
+            .map(([id, d]) => {
+                let currentVoice = d.voiceTime || 0;
+                const session = voiceJoinTimes.get(id);
+                if (session) {
+                    const joinTime = typeof session === 'number' ? session : session.time;
+                    const diffSecs = (Date.now() - joinTime) / 1000;
+                    currentVoice += Math.floor(diffSecs / 60);
+                }
+                return { id, ...d, displayVoice: currentVoice };
+            })
             .sort((a, b) => (b.level - a.level) || (b.xp - a.xp));
             
         if (sorted.length === 0) return message.reply('❌ Chưa có ai trong bảng xếp hạng tương tác!');
@@ -5573,7 +5596,7 @@ client.on('messageCreate', async (message) => {
             const end = start + 10;
             const chunk = sorted.slice(start, end);
             
-            let desc = chunk.map((u, i) => `**#${start + i + 1}** <@${u.id}> - Cấp ${u.level} (${u.messages} tin, ${Math.floor((u.voiceTime || 0) / 60)}h${(u.voiceTime || 0) % 60}m)`).join('\n');
+            let desc = chunk.map((u, i) => `**#${start + i + 1}** <@${u.id}> - Cấp ${u.level} (${u.messages} tin, ${Math.floor(u.displayVoice / 60)}h${u.displayVoice % 60}m)`).join('\n');
             
             return new EmbedBuilder()
                 .setTitle('🏆 Bảng Xếp Hạng Tương Tác')
