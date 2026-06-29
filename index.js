@@ -5211,7 +5211,8 @@ client.on('messageCreate', async (message) => {
     if (content.includes('tydc')) {
         const tydcEmbed = new EmbedBuilder()
             .setColor('#2b2d31')
-            .setDescription('Discord không tạo ra tình yêu, Discord chỉ tạo điều kiện cho hai đứa thức tới 4 giờ sáng gọi nhau, hứa hẹn đủ điều, đổi bio theo cặp, đặt avatar đôi, spam emoji tim. Rồi một ngày tự nhiên thấy "Last Online: 2 days ago", nick đổi tên, avatar đổi màu, status mất tiêu. Thế là kết thúc một chuyện tình mà người ngoài nhìn vào còn tưởng chỉ là hai cái avatar đang nói chuyện. <:doroconcerned:1493099221048361030>');
+            .setDescription('Discord không tạo ra tình yêu, Discord chỉ tạo điều kiện cho hai đứa thức tới 4 giờ sáng gọi nhau, hứa hẹn đủ điều, đổi bio theo cặp, đặt avatar đôi, spam emoji tim. Rồi một ngày tự nhiên thấy "Last Online: 2 days ago", nick đổi tên, avatar đổi màu, status mất tiêu. Thế là kết thúc một chuyện tình mà người ngoài nhìn vào còn tưởng chỉ là hai cái avatar đang nói chuyện. <:doroconcerned:1493099221048361030>')
+            .setFooter({ text: 'by Hima in here' });
         return message.reply({ embeds: [tydcEmbed] });
     }
 
