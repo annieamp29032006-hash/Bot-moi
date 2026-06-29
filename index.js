@@ -1617,22 +1617,22 @@ function buildProfileEmbed(user) {
 
     let petsText = 'Không có thú cưng 😢';
     if (pData.pets && Object.keys(pData.pets).length > 0) {
-        const petStrs = [];
         let totalPets = 0;
+        let bestPet = null;
         for (const pid of Object.keys(pData.pets)) {
             const amount = pData.pets[pid] || 0;
             if (amount > 0) {
                 totalPets += amount;
                 const petInfo = PET_LIST.find(x => x.id === pid);
-                if (petInfo) petStrs.push(`${petInfo.emoji} ${petInfo.name} (x${amount})`);
+                if (petInfo) {
+                    if (!bestPet || petInfo.price > bestPet.price) {
+                        bestPet = petInfo;
+                    }
+                }
             }
         }
-        if (petStrs.length > 0) {
-            if (petStrs.length > 10) {
-                petsText = petStrs.slice(0, 10).join(', ') + `... và ${petStrs.length - 10} loại khác (Tổng: ${totalPets} con). Dùng /pets để xem chi tiết.`;
-            } else {
-                petsText = petStrs.join(', ') + ` (Tổng: ${totalPets} con)`;
-            }
+        if (totalPets > 0 && bestPet) {
+            petsText = `${bestPet.emoji} **${bestPet.name}** (Mạnh nhất)\n*(Sở hữu tổng cộng **${totalPets}** thú cưng)*`;
         }
     }
 
