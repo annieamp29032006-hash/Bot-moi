@@ -445,7 +445,8 @@ function buildHelpPages(prefix) {
                 { name: `\`${prefix}av [@user]\` hoặc \`/av\``, value: '🖼️ Hiển thị **Avatar** (ảnh đại diện) ở kích thước lớn nhất.\nKèm thông tin: ngày tạo tài khoản Discord, ngày tham gia server.\nKhông tag ai → xem avatar của chính bạn.', inline: false },
                 { name: '📱 Tải Video TikTok (Tự động)', value: 'Chỉ cần **dán link TikTok** vào bất kỳ kênh chat nào, bot sẽ tự động:\n1. Phát hiện link TikTok\n2. Tải video **không watermark**\n3. Gửi video + thông tin (tên tác giả, lượt thích, lượt xem)\n\n✅ Không cần gõ lệnh gì cả!', inline: false },
                 { name: '🎧 Join To Create (J2C) — Tự tạo phòng Voice', value: `Vào kênh voice **"Tạo Phòng"** → Bot tự tạo phòng riêng cho bạn.\n\n**Bảng điều khiển phòng (các nút bấm):**\n📝 **Đổi tên** — Đặt tên phòng theo ý muốn\n👥 **Giới hạn** — Giới hạn số người (0 = không giới hạn)\n👻 **Khóa ẩn** — Ẩn phòng khỏi danh sách (không ai thấy)\n🔒 **Khóa kết nối** — Không ai vào được nữa\n👢 **Kích User** — Chọn và đá 1 người ra khỏi phòng\n👑 **Nhận quyền Chủ phòng** — Nếu chủ phòng rời, người khác có thể nhận quyền\n\n🚫 \`/1an @user\` — Ẩn phòng với 1 người cụ thể (họ không thấy phòng bạn)\n\n💡 **MẸO:** Phòng đang khóa nhưng muốn cho bạn bè vào? **@mention** tên họ vào kênh chat của phòng Voice!`, inline: false },
-                { name: '🔔 Tính năng tự động', value: '• 🎙️ **Thông báo Voice** — Bot báo khi có người vào/rời kênh thoại.\n• 👋 **Chào mừng** — Bot chào mừng thành viên mới tham gia server.\n• 🤖 **Auto-reply** — Bot tự trả lời khi ai gõ: `ping`, `hello`, `hima`.', inline: false }
+                { name: '🔔 Tính năng tự động', value: '• 🎙️ **Thông báo Voice** — Bot báo khi có người vào/rời kênh thoại.\n• 👋 **Chào mừng** — Bot chào mừng thành viên mới tham gia server.\n• 🤖 **Auto-reply** — Bot tự trả lời khi ai gõ: `ping`, `hello`, `hima`.', inline: false },
+                { name: '📈 Cày Cấp Tương Tác', value: `\`${prefix}rank\` — Xem Cấp độ, XP, Tổng số tin nhắn và giờ Voice của bạn, kèm Kênh Yêu Thích.\n\`${prefix}toprank\` — Xem Bảng xếp hạng những người tương tác nhiều nhất server.`, inline: false }
             )
             .setColor('#00FF88')
             .setFooter({ text: 'Trang 10/13 • Tiện ích & Voice' })
@@ -743,8 +744,61 @@ async function downloadTikTok(url) {
 // ========================
 // COIN SYSTEM
 // ========================
-const coinsPath = './coins.json';
+const levelsPath = './levels.json';
+function loadLevels() {
+    if (!fs.existsSync(levelsPath)) return {};
+    try { return JSON.parse(fs.readFileSync(levelsPath, 'utf8')); }
+    catch { return {}; }
+}
+function saveLevels(data) { fs.writeFileSync(levelsPath, JSON.stringify(data, null, 2)); }
+const xpCooldowns = new Map();
 
+async function checkLevelUp(userId, user, xpAdded) {
+    const data = loadLevels();
+    if (!data[userId]) {
+        data[userId] = { xp: 0, level: 1, messages: 0, voiceTime: 0 };
+    }
+    
+    data[userId].xp += xpAdded;
+    let currentLevel = data[userId].level;
+    let xpNeeded = currentLevel * 100;
+    
+    let leveledUp = false;
+    while (data[userId].xp >= xpNeeded) {
+        data[userId].xp -= xpNeeded;
+        data[userId].level++;
+        currentLevel = data[userId].level;
+        xpNeeded = currentLevel * 100;
+        leveledUp = true;
+    }
+    
+    saveLevels(data);
+    
+    if (leveledUp) {
+        try {
+            const channel = await client.channels.fetch('1521123353031737415').catch(() => null);
+            if (channel) {
+                const embed = new EmbedBuilder()
+                    .setTitle('🎉 Chúc mừng thăng cấp! 🎉')
+                    .setDescription(`Chúc mừng <@${userId}> đã tương tác chăm chỉ và đạt **Cấp độ ${data[userId].level}**! 🚀`)
+                    .setColor('#FFD700')
+                    .setThumbnail(user.displayAvatarURL({ dynamic: true }))
+                    .addFields(
+                        { name: '✨ Điểm XP hiện tại', value: `${data[userId].xp} / ${data[userId].level * 100}`, inline: true },
+                        { name: '💬 Tổng tin nhắn', value: `${data[userId].messages}`, inline: true },
+                        { name: '🎙️ Tổng giờ Voice', value: `${Math.floor(data[userId].voiceTime / 60)} giờ ${Math.floor(data[userId].voiceTime % 60)} phút`, inline: true }
+                    )
+                    .setFooter({ text: 'Cảm ơn bạn đã luôn đồng hành cùng Server!' })
+                    .setTimestamp();
+                await channel.send({ content: `<@${userId}>`, embeds: [embed] }).catch(() => {});
+            }
+        } catch (error) {
+            console.error('Lỗi gửi thông báo thăng cấp:', error);
+        }
+    }
+}
+
+const coinsPath = './coins.json';
 function loadCoins() {
     if (!fs.existsSync(coinsPath)) return {};
     try { return JSON.parse(fs.readFileSync(coinsPath, 'utf8')); }
@@ -4888,16 +4942,35 @@ client.on('guildMemberAdd', async (member) => {
 client.on('voiceStateUpdate', async (oldState, newState) => {
     const userId = newState.member?.user?.id || oldState.member?.user?.id;
     if (userId && !newState.member?.user?.bot) {
-        if (!oldState.channelId && newState.channelId) {
-            voiceJoinTimes.set(userId, Date.now());
-        } else if (oldState.channelId && !newState.channelId) {
-            const joinTime = voiceJoinTimes.get(userId);
-            if (joinTime) {
-                const diffSecs = (Date.now() - joinTime) / 1000;
-                updatePlayer(userId, p => {
-                    p.voiceTime = (p.voiceTime || 0) + diffSecs;
-                });
-                voiceJoinTimes.delete(userId);
+        const oldChannelId = oldState.channelId;
+        const newChannelId = newState.channelId;
+
+        if (oldChannelId !== newChannelId) {
+            if (oldChannelId) {
+                const session = voiceJoinTimes.get(userId);
+                if (session) {
+                    const joinTime = typeof session === 'number' ? session : session.time;
+                    const diffSecs = (Date.now() - joinTime) / 1000;
+                    updatePlayer(userId, p => { p.voiceTime = (p.voiceTime || 0) + diffSecs; });
+                    
+                    const diffMins = Math.floor(diffSecs / 60);
+                    if (diffMins > 0) {
+                        const levelData = loadLevels();
+                        if (!levelData[userId]) levelData[userId] = { xp: 0, level: 1, messages: 0, voiceTime: 0, textChannels: {}, voiceChannels: {} };
+                        levelData[userId].voiceTime = (levelData[userId].voiceTime || 0) + diffMins;
+                        
+                        const trackChannelId = (typeof session === 'object' && session.channel) ? session.channel : oldChannelId;
+                        levelData[userId].voiceChannels = levelData[userId].voiceChannels || {};
+                        levelData[userId].voiceChannels[trackChannelId] = (levelData[userId].voiceChannels[trackChannelId] || 0) + diffMins;
+                        
+                        saveLevels(levelData);
+                        checkLevelUp(userId, oldState.member.user, diffMins * 10);
+                    }
+                    voiceJoinTimes.delete(userId);
+                }
+            }
+            if (newChannelId) {
+                voiceJoinTimes.set(userId, { time: Date.now(), channel: newChannelId });
             }
         }
     }
@@ -5094,6 +5167,17 @@ client.on('messageCreate', async (message) => {
     updatePlayer(message.author.id, p => {
         p.messageCount = (p.messageCount || 0) + 1;
     });
+
+    // --- INTERACTION LEVELING ---
+    const levelData = loadLevels();
+    if (!levelData[message.author.id]) levelData[message.author.id] = { xp: 0, level: 1, messages: 0, voiceTime: 0, textChannels: {}, voiceChannels: {} };
+    levelData[message.author.id].messages = (levelData[message.author.id].messages || 0) + 1;
+    levelData[message.author.id].textChannels = levelData[message.author.id].textChannels || {};
+    levelData[message.author.id].textChannels[message.channelId] = (levelData[message.author.id].textChannels[message.channelId] || 0) + 1;
+    saveLevels(levelData);
+
+    const xpGained = Math.floor(Math.random() * 11) + 15; // 15 - 25 XP
+    checkLevelUp(message.author.id, message.author, xpGained);
 
     // --- ANTI-PING EVERYONE TRONG DANH MỤC CỤ THỂ ---
     if (message.channel.parentId === '1465200188866953450') {
@@ -5431,6 +5515,106 @@ client.on('messageCreate', async (message) => {
         data[uid].jailEnd = null;
         saveCoins(data);
         return message.reply('🔓 Bạn đã nộp **100,000 🪙** cho công an và được thả tự do!');
+    }
+
+    if (content === `${prefix}rank`) {
+        const levelData = loadLevels();
+        const data = levelData[message.author.id] || { xp: 0, level: 1, messages: 0, voiceTime: 0 };
+        const xpNeeded = data.level * 100;
+        
+        let favText = 'Chưa có';
+        if (data.textChannels && Object.keys(data.textChannels).length > 0) {
+            const bestText = Object.keys(data.textChannels).reduce((a, b) => data.textChannels[a] > data.textChannels[b] ? a : b);
+            favText = `<#${bestText}>`;
+        }
+        
+        let favVoice = 'Chưa có';
+        if (data.voiceChannels && Object.keys(data.voiceChannels).length > 0) {
+            const bestVoice = Object.keys(data.voiceChannels).reduce((a, b) => data.voiceChannels[a] > data.voiceChannels[b] ? a : b);
+            favVoice = `<#${bestVoice}>`;
+        }
+        
+        const progressLen = 10;
+        const progressFilled = Math.round((data.xp / xpNeeded) * progressLen);
+        const progressBar = '█'.repeat(progressFilled) + '░'.repeat(progressLen - progressFilled);
+        const percent = Math.round((data.xp / xpNeeded) * 100);
+
+        const embed = new EmbedBuilder()
+            .setTitle(`📊 Thống Kê Tương Tác của ${message.author.username}`)
+            .setColor('#3498db')
+            .setThumbnail(message.author.displayAvatarURL({ dynamic: true }))
+            .addFields(
+                { name: '🌟 Cấp độ', value: `${data.level}`, inline: true },
+                { name: '✨ Điểm XP', value: `${data.xp} / ${xpNeeded}\n\`${progressBar}\` ${percent}%`, inline: true },
+                { name: '💬 Tổng tin nhắn', value: `${data.messages}`, inline: true },
+                { name: '🎙️ Tổng giờ Voice', value: `${Math.floor((data.voiceTime || 0) / 60)} giờ ${(data.voiceTime || 0) % 60} phút`, inline: true },
+                { name: '📝 Kênh hay chat', value: favText, inline: true },
+                { name: '🎧 Kênh hay ngồi', value: favVoice, inline: true }
+            )
+            .setFooter({ text: 'Hãy tích cực tương tác để thăng cấp nhé!' })
+            .setTimestamp();
+        
+        return message.reply({ embeds: [embed] });
+    }
+
+    if (content === `${prefix}toprank`) {
+        const levelData = loadLevels();
+        const sorted = Object.entries(levelData)
+            .map(([id, d]) => ({ id, ...d }))
+            .sort((a, b) => (b.level - a.level) || (b.xp - a.xp));
+            
+        if (sorted.length === 0) return message.reply('❌ Chưa có ai trong bảng xếp hạng tương tác!');
+        
+        let page = 0;
+        const maxPage = Math.ceil(sorted.length / 10) - 1;
+        
+        const generateEmbed = (pageNum) => {
+            const start = pageNum * 10;
+            const end = start + 10;
+            const chunk = sorted.slice(start, end);
+            
+            let desc = chunk.map((u, i) => `**#${start + i + 1}** <@${u.id}> - Cấp ${u.level} (${u.messages} tin, ${Math.floor((u.voiceTime || 0) / 60)}h${(u.voiceTime || 0) % 60}m)`).join('\n');
+            
+            return new EmbedBuilder()
+                .setTitle('🏆 Bảng Xếp Hạng Tương Tác')
+                .setColor('#FFD700')
+                .setDescription(desc)
+                .setFooter({ text: `Trang ${pageNum + 1}/${maxPage + 1} • Tổng: ${sorted.length} người` })
+                .setTimestamp();
+        };
+
+        const generateButtons = (pageNum) => {
+            return new ActionRowBuilder().addComponents(
+                new ButtonBuilder()
+                    .setCustomId('toprank_prev')
+                    .setLabel('◀️ Trước')
+                    .setStyle(ButtonStyle.Primary)
+                    .setDisabled(pageNum === 0),
+                new ButtonBuilder()
+                    .setCustomId('toprank_next')
+                    .setLabel('▶️ Sau')
+                    .setStyle(ButtonStyle.Primary)
+                    .setDisabled(pageNum === maxPage)
+            );
+        };
+
+        const rankMsg = await message.reply({ embeds: [generateEmbed(0)], components: maxPage > 0 ? [generateButtons(0)] : [] });
+        
+        if (maxPage > 0) {
+            const collector = rankMsg.createMessageComponentCollector({ time: 60000 });
+            collector.on('collect', async i => {
+                if (i.user.id !== message.author.id) return i.reply({ content: '❌ Nút này không dành cho bạn!', ephemeral: true });
+                
+                if (i.customId === 'toprank_prev' && page > 0) page--;
+                if (i.customId === 'toprank_next' && page < maxPage) page++;
+                
+                await i.update({ embeds: [generateEmbed(page)], components: [generateButtons(page)] }).catch(() => {});
+            });
+            collector.on('end', () => {
+                rankMsg.edit({ components: [] }).catch(() => {});
+            });
+        }
+        return;
     }
 
     if (content === `${prefix}noitu`) {
