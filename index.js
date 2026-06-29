@@ -779,16 +779,10 @@ async function checkLevelUp(userId, user, xpAdded) {
             const channel = await client.channels.fetch('1521123353031737415').catch(() => null);
             if (channel) {
                 const embed = new EmbedBuilder()
-                    .setTitle('🎉 Chúc mừng thăng cấp! 🎉')
-                    .setDescription(`Chúc mừng <@${userId}> đã tương tác chăm chỉ và đạt **Cấp độ ${data[userId].level}**! 🚀`)
+                    .setTitle('🎉 CHÚC MỪNG THĂNG CẤP! 🎉')
+                    .setDescription(`Cảm ơn <@${userId}> đã nhiệt tình tương tác với server nhé! 💕\n\nChúc mừng bạn đã đạt **Cấp độ ${data[userId].level}**! 🚀\nHãy tiếp tục trò chuyện và vào voice cùng mọi người nha!`)
                     .setColor('#FFD700')
                     .setThumbnail(user.displayAvatarURL({ dynamic: true }))
-                    .addFields(
-                        { name: '✨ Điểm XP hiện tại', value: `${data[userId].xp} / ${data[userId].level * 100}`, inline: true },
-                        { name: '💬 Tổng tin nhắn', value: `${data[userId].messages}`, inline: true },
-                        { name: '🎙️ Tổng giờ Voice', value: `${Math.floor(data[userId].voiceTime / 60)} giờ ${Math.floor(data[userId].voiceTime % 60)} phút`, inline: true }
-                    )
-                    .setFooter({ text: 'Cảm ơn bạn đã luôn đồng hành cùng Server!' })
                     .setTimestamp();
                 await channel.send({ content: `<@${userId}>`, embeds: [embed] }).catch(() => {});
             }
