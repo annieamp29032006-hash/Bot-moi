@@ -5965,6 +5965,40 @@ client.on('messageCreate', async (message) => {
         }
     }
 
+    // Lệnh Ban
+    if (content.startsWith(`${prefix}ban`)) {
+        if (!message.member.permissions.has(PermissionsBitField.Flags.BanMembers) && !message.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+            return message.reply('❌ Bạn không có quyền Ban thành viên!');
+        }
+        if (!message.guild.members.me.permissions.has(PermissionsBitField.Flags.BanMembers)) {
+            return message.reply('❌ Bot không có quyền Ban thành viên! Vui lòng kiểm tra lại Role của bot.');
+        }
+        
+        const targetMember = message.mentions.members.first();
+        if (!targetMember) return message.reply(`❌ Cú pháp sai! Vui lòng dùng: \`${prefix}ban @user [lý do]\``);
+        
+        if (targetMember.id === message.author.id) return message.reply('❌ Bạn không thể tự ban chính mình!');
+        if (targetMember.id === client.user.id) return message.reply('❌ Bạn không thể ban bot!');
+        
+        if (targetMember.roles.highest.position >= message.member.roles.highest.position && message.guild.ownerId !== message.author.id) {
+            return message.reply('❌ Bạn không thể ban người có role cao hơn hoặc bằng bạn!');
+        }
+        if (targetMember.roles.highest.position >= message.guild.members.me.roles.highest.position) {
+            return message.reply('❌ Bot không thể ban người này vì role của họ cao hơn hoặc bằng role của bot!');
+        }
+        
+        const args = message.content.split(' ').slice(2);
+        const reason = args.length > 0 ? args.join(' ') : 'Không có lý do';
+        
+        try {
+            await targetMember.ban({ reason: `Banned by ${message.author.tag}: ${reason}` });
+            return message.reply(`✅ Đã ban thành công **${targetMember.user.tag}**. Lý do: ${reason}`);
+        } catch (error) {
+            console.error(error);
+            return message.reply('❌ Đã xảy ra lỗi khi cố gắng ban thành viên này!');
+        }
+    }
+
     // Cài đặt kênh xuất hiện Pokemon
     if (content.startsWith(`${prefix}setspawnchannel`)) {
         if (!message.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
