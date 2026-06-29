@@ -4239,8 +4239,7 @@ client.giveawaysManager = manager;
 // Từ khóa auto-reply
 const autoReplies = {
     'hello': 'Xin chào bạn nhé!',
-    'hima': 'Dạ, Hima nghe đây ạ!',
-    'tydc': 'Discord không tạo ra tình yêu, Discord chỉ tạo điều kiện cho hai đứa thức tới 4 giờ sáng gọi nhau, hứa hẹn đủ điều, đổi bio theo cặp, đặt avatar đôi, spam emoji tim. Rồi một ngày tự nhiên thấy "Last Online: 2 days ago", nick đổi tên, avatar đổi màu, status mất tiêu. Thế là kết thúc một chuyện tình mà người ngoài nhìn vào còn tưởng chỉ là hai cái avatar đang nói chuyện. <:doroconcerned:1493099221048361030>'
+    'hima': 'Dạ, Hima nghe đây ạ!'
 };
 
 // ========================
@@ -5207,6 +5206,13 @@ client.on('messageCreate', async (message) => {
     // --- AUTO REPLY ---
     if (content === 'ping' || content === `${prefix}ping`) {
         return message.reply(`🏓 Pong! Độ trễ của bot là **${client.ws.ping}ms**`);
+    }
+
+    if (content.includes('tydc')) {
+        const tydcEmbed = new EmbedBuilder()
+            .setColor('#2b2d31')
+            .setDescription('Discord không tạo ra tình yêu, Discord chỉ tạo điều kiện cho hai đứa thức tới 4 giờ sáng gọi nhau, hứa hẹn đủ điều, đổi bio theo cặp, đặt avatar đôi, spam emoji tim. Rồi một ngày tự nhiên thấy "Last Online: 2 days ago", nick đổi tên, avatar đổi màu, status mất tiêu. Thế là kết thúc một chuyện tình mà người ngoài nhìn vào còn tưởng chỉ là hai cái avatar đang nói chuyện. <:doroconcerned:1493099221048361030>');
+        return message.reply({ embeds: [tydcEmbed] });
     }
 
     for (const [key, reply] of Object.entries(autoReplies)) {
