@@ -484,7 +484,7 @@ function buildHelpPages(prefix) {
             .setDescription('Quản lý sự kiện, cài đặt tính năng bot và đặc quyền Admin Chính.')
             .addFields(
                 { name: '🎁 Sự kiện Giveaway', value: `\`${prefix}gstart <thời gian> <số người thắng> <tên giải>\`\n→ Bắt đầu Giveaway. Ví dụ: \`${prefix}gstart 1h 1 Nitro Classic\`\n• Thời gian hỗ trợ: \`30s\`, \`5m\`, \`1h\`, \`1d\`...\n\n\`/gend <message_id>\` — Kết thúc Giveaway sớm\n\`/greroll <message_id>\` — Chọn lại người thắng`, inline: false },
-                { name: '⚙️ Cài đặt Bot', value: `\`${prefix}setprefix <dấu mới>\` — Đổi prefix bot\n\`/setwelcome #kênh [lời chào] [ảnh]\` — Cài đặt chào mừng\n\`/setspawnchannel #channel\` — Kênh xuất hiện Pokemon\n\`/setuppokemonrole\` — Role ping Pokemon\n\`${prefix}spawnpet\` — Ép ra Pokemon hiếm\n\`/addpetvip @user <pet_id>\` — Tặng pet VIP\n\`${prefix}getallvip\` — Tặng bản thân 1B coin, max đồ/pet (Admin)\n\`${prefix}updateytdlp\` — Cập nhật yt-dlp\n\`/togglevoice\` — Bật/Tắt thông báo thoại`, inline: false },
+                { name: '⚙️ Cài đặt Bot', value: `\`${prefix}setprefix <dấu mới>\` — Đổi prefix bot\n\`/setwelcome #kênh [lời chào] [ảnh]\` — Cài đặt chào mừng\n\`/setspawnchannel #channel\` — Kênh xuất hiện Pokemon\n\`/setuppokemonrole\` — Role ping Pokemon\n\`${prefix}spawnpet\` — Ép ra Pokemon hiếm\n\`/addpetvip @user <pet_id>\` — Tặng pet VIP\n\`${prefix}getallvip\` — Tặng bản thân 1B coin, max đồ/pet (Admin)\n\`${prefix}updateytdlp\` — Cập nhật yt-dlp\n\`/togglevoice\` — Bật/Tắt thông báo thoại\n\`${prefix}disable\` / \`${prefix}enable\` — Tắt/Bật bot ở kênh hiện tại`, inline: false },
                 { name: '👑 Admin Cheat Panel (Chỉ Admin Chính)', value: `\`${prefix}admincheat\` hoặc \`/admincheat\`\nMở bảng điều khiển đặc biệt:\n• 🎰 Bật/Tắt chế độ **luôn thắng** tất cả trò cờ bạc\n• ⏱️ Bỏ qua mọi cooldown (daily, work...)\n• Các quyền năng đặc biệt khác`, inline: false },
                 { name: '🤖 Tính năng tự động', value: '• Chào mừng thành viên mới (cài `/setwelcome`)\n• Ghi log voice (ai vào/rời)\n• Auto-reply: `ping` → pong!, `hello` → Xin chào!\n• Xóa phòng J2C trống, Xổ số lô đề 18h30', inline: false },
                 { name: '😀 Quản lý Emoji Bot', value: `\`${prefix}botemojis\` — Xem danh sách emoji đã upload cho bot\n\`${prefix}clonebotemojis\` — Copy toàn bộ emoji bot vào server *(Admin)*`, inline: false }
@@ -5491,6 +5491,15 @@ client.on('messageCreate', async (message) => {
     // --- PREFIX COMMANDS ---
     if (!content.startsWith(prefix)) return;
 
+    // --- DISABLED CHANNEL CHECK ---
+    const botConfig = loadConfig();
+    const disabledChannels = botConfig.disabledChannels || [];
+    if (!content.startsWith(`${prefix}disable`) && !content.startsWith(`${prefix}enable`)) {
+        if (disabledChannels.includes(message.channel.id)) {
+            return;
+        }
+    }
+
     // --- NORMAL JAIL CHECK ---
     if (userData.jailEnd && Date.now() < userData.jailEnd) {
         if (!content.startsWith(`${prefix}nopphat`) && !content.startsWith(`${prefix}bribe`)) {
@@ -5912,6 +5921,37 @@ client.on('messageCreate', async (message) => {
         if (!newPrefix) return message.reply(`❌ Cú pháp sai! Vui lòng dùng: \`${prefix}setprefix <dấu mới>\``);
         savePrefix(newPrefix);
         return message.reply(`✅ Đã đổi tiền tố lệnh thành: **${newPrefix}**`);
+    }
+
+    // Disable/Enable kênh
+    if (content.startsWith(`${prefix}disable`)) {
+        if (!message.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+            return message.reply('❌ Chỉ Quản trị viên mới có quyền dùng lệnh này!');
+        }
+        const config = loadConfig();
+        if (!config.disabledChannels) config.disabledChannels = [];
+        if (!config.disabledChannels.includes(message.channel.id)) {
+            config.disabledChannels.push(message.channel.id);
+            saveConfig(config);
+            return message.reply(`✅ Đã vô hiệu hóa bot tại kênh này. Bot sẽ không nhận lệnh ở đây nữa (trừ lệnh \`${prefix}enable\`).`);
+        } else {
+            return message.reply('⚠️ Kênh này đã bị vô hiệu hóa từ trước rồi!');
+        }
+    }
+
+    if (content.startsWith(`${prefix}enable`)) {
+        if (!message.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+            return message.reply('❌ Chỉ Quản trị viên mới có quyền dùng lệnh này!');
+        }
+        const config = loadConfig();
+        if (!config.disabledChannels) config.disabledChannels = [];
+        if (config.disabledChannels.includes(message.channel.id)) {
+            config.disabledChannels = config.disabledChannels.filter(id => id !== message.channel.id);
+            saveConfig(config);
+            return message.reply(`✅ Đã kích hoạt lại bot tại kênh này. Bot sẽ nhận lệnh bình thường.`);
+        } else {
+            return message.reply('⚠️ Kênh này chưa bị vô hiệu hóa!');
+        }
     }
 
     // Cài đặt kênh xuất hiện Pokemon
