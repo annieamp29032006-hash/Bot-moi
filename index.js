@@ -4832,22 +4832,21 @@ client.on('guildMemberAdd', async (member) => {
         }
         if (!channel) return;
         
-        let customMessage = config.welcomeMessage || `Chào mừng {user} đã tham gia server **{server}**!`;
-        customMessage = customMessage.replace(/{user}/g, `<@${member.user.id}>`).replace(/{server}/g, member.guild.name);
-        
-        if (receptionistRoleId && receptionistRoleId !== 'YOUR_RECEPTIONIST_ROLE_ID_HERE') {
-            customMessage += `\n<@&${receptionistRoleId}> ra đón khách kìa! 🎉`;
+        let description = '';
+        if (config.welcomeMessage) {
+            description = `> ${config.welcomeMessage.replace(/{user}/g, `<@${member.user.id}>`).replace(/{server}/g, member.guild.name)}`;
+        } else {
+            description = `Chào mừng bạn **${member.user.username}** đã hạ cánh an toàn tại **${member.guild.name}**! 🛬\n\n📝 **Thông tin tài khoản:**\n- 📅 **Ngày tạo tài khoản Discord:** <t:${Math.floor(member.user.createdTimestamp / 1000)}:D> (<t:${Math.floor(member.user.createdTimestamp / 1000)}:R>)\n- 📥 **Ngày tham gia server:** <t:${Math.floor(member.joinedTimestamp / 1000)}:D> (<t:${Math.floor(member.joinedTimestamp / 1000)}:R>)\n\n> Đừng quên đọc luật và tự nhiên giao lưu nhé! Rất vui được gặp bạn! 💕`;
         }
         
         const embed = new EmbedBuilder()
             .setAuthor({ name: `Chào mừng đến với ${member.guild.name}`, iconURL: member.guild.iconURL({ dynamic: true }) || undefined })
-            .setTitle(`🎉 Chào mừng ${member.user.displayName} 🎉`)
-            .setDescription(`> ${customMessage}`)
+            .setTitle(`🎉 Welcome ${member.user.displayName} 🎉`)
+            .setDescription(description)
             .setColor('#ff99cc')
             .setThumbnail(member.user.displayAvatarURL({ dynamic: true, size: 512 }))
             .addFields(
-                { name: '👥 Thành viên thứ:', value: `**${member.guild.memberCount}**`, inline: true },
-                { name: '🗓️ Tạo tài khoản lúc:', value: `<t:${Math.floor(member.user.createdTimestamp / 1000)}:R>`, inline: true }
+                { name: '👥 Thành viên thứ:', value: `**#${member.guild.memberCount}**`, inline: true }
             )
             .setFooter({ text: 'Chúc bạn có những giây phút vui vẻ tại đây! 💕' })
             .setTimestamp();
@@ -4856,7 +4855,15 @@ client.on('guildMemberAdd', async (member) => {
         const defaultWelcomeImage = 'https://i.pinimg.com/originals/13/86/e3/1386e3f4eeb165e3b5e4f4ed52eb0393.gif';
         embed.setImage(config.welcomeImage || defaultWelcomeImage);
         
-        channel.send({ content: `<@${member.user.id}>`, embeds: [embed] });
+        // Ping user và role đón khách (nếu có trong env, nếu không thì dùng role mặc định user yêu cầu)
+        let pingContent = `<@${member.user.id}>`;
+        if (receptionistRoleId && receptionistRoleId !== 'YOUR_RECEPTIONIST_ROLE_ID_HERE') {
+            pingContent += ` | <@&${receptionistRoleId}> ra đón khách kìa! 🎉`;
+        } else {
+            pingContent += ` | <@&1491977303473914036> ra đón thành viên mới kìa! 🎉`;
+        }
+        
+        channel.send({ content: pingContent, embeds: [embed] });
     } catch (error) {
         console.error('Lỗi khi gửi lời chào:', error);
     }
