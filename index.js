@@ -5271,16 +5271,32 @@ client.on('messageCreate', async (message) => {
     if (BANNED_USERS.includes(message.author.id)) return;
     
     if (message.content === '!testboost') {
-        const oldMember = { premiumSince: null };
-        const mockedNewMember = Object.create(message.member);
-        mockedNewMember.premiumSince = new Date();
-        if (!mockedNewMember.guild.premiumSubscriptionCount) {
-            mockedNewMember.guild = Object.create(message.member.guild);
-            mockedNewMember.guild.premiumSubscriptionCount = 1;
-            mockedNewMember.guild.premiumTier = 1;
+        try {
+            const channelId = '1491618335689805856';
+            const channel = message.guild.channels.cache.get(channelId);
+            
+            if (!channel) {
+                return message.reply('Không tìm thấy kênh gửi thông báo Boost (1491618335689805856). Hãy đảm bảo ID kênh chính xác và bot có quyền xem kênh đó.');
+            }
+            
+            const embed = new EmbedBuilder()
+                .setTitle('🚀 Cảm ơn bạn đã Boost Server! 🚀')
+                .setDescription(`Tuyệt vời quá! Cảm ơn **${message.member.user.displayName}** đã boost server **${message.guild.name}**! 💖\nSự ủng hộ của bạn là động lực rất lớn đối với chúng mình!`)
+                .setColor('#ff73fa')
+                .setThumbnail(message.member.user.displayAvatarURL({ dynamic: true, size: 512 }))
+                .addFields(
+                    { name: '🔥 Tổng số Boost hiện tại', value: `**${message.guild.premiumSubscriptionCount || 1}** Boosts!`, inline: true },
+                    { name: '💎 Server Level', value: `Cấp **${message.guild.premiumTier || 0}**`, inline: true }
+                )
+                .setFooter({ text: 'Cảm ơn tình yêu của bạn 💕 (ĐÂY LÀ TIN NHẮN TEST)' })
+                .setTimestamp();
+                
+            await channel.send({ content: `Cảm ơn <@${message.author.id}> rất nhiều nha! 🎉`, embeds: [embed] });
+            return message.reply(`Đã gửi thông báo Boost test qua kênh <#${channelId}> thành công!`);
+        } catch (err) {
+            console.error(err);
+            return message.reply('Đã xảy ra lỗi khi test boost: ' + err.message);
         }
-        client.emit('guildMemberUpdate', oldMember, mockedNewMember);
-        return message.reply('Đã giả lập sự kiện Boost Server! (Kiểm tra kênh 1491618335689805856)');
     }
 
     updatePlayer(message.author.id, p => {
