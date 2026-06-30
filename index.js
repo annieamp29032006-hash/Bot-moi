@@ -1,10 +1,10 @@
 require('dotenv').config();
-const {
+const { MessageFlags, 
     Client, GatewayIntentBits, EmbedBuilder, PermissionsBitField,
     ActionRowBuilder, ButtonBuilder, ButtonStyle, REST, Routes, SlashCommandBuilder,
     StringSelectMenuBuilder, StringSelectMenuOptionBuilder, ComponentType, UserSelectMenuBuilder,
     ModalBuilder, TextInputBuilder, TextInputStyle, AttachmentBuilder
-} = require('discord.js');
+ } = require('discord.js');
 const { GiveawaysManager } = require('discord-giveaways');
 const ms = require('ms');
 const fs = require('fs');
@@ -1827,7 +1827,7 @@ async function handleShop(userId, msgOrInteraction) {
 
     const collector = msg.createMessageComponentCollector({ time: 120000 });
     collector.on('collect', async i => {
-        if (i.user.id !== userId) return i.reply({ content: '❌ Cửa hàng này không phải của bạn!', ephemeral: true });
+        if (i.user.id !== userId) return i.reply({ content: '❌ Cửa hàng này không phải của bạn!', flags: MessageFlags.Ephemeral });
 
         // Tab buttons
         if (i.customId === 'shop_tab_rpg' || i.customId === 'shop_tab_ring' || i.customId === 'shop_tab_pet' || i.customId === 'shop_tab_farm') {
@@ -1848,12 +1848,12 @@ async function handleShop(userId, msgOrInteraction) {
             if (val === 'farm_expand') {
                 const p = getPlayer(userId);
                 if (!p.farm) p.farm = { slots: 3, plants: {} };
-                if (p.farm.slots >= 10) return i.reply({ content: `❌ Bạn đã mở rộng tối đa ô đất!`, ephemeral: true });
+                if (p.farm.slots >= 10) return i.reply({ content: `❌ Bạn đã mở rộng tối đa ô đất!`, flags: MessageFlags.Ephemeral });
                 const expandCost = p.farm.slots * 10000;
-                if (getUserCoins(userId) < expandCost) return i.reply({ content: `❌ Bạn cần **${expandCost.toLocaleString()} 🪙** để mở rộng!`, ephemeral: true });
+                if (getUserCoins(userId) < expandCost) return i.reply({ content: `❌ Bạn cần **${expandCost.toLocaleString()} 🪙** để mở rộng!`, flags: MessageFlags.Ephemeral });
                 addCoins(userId, -expandCost);
                 updatePlayer(userId, dp => { if(!dp.farm) dp.farm = { slots: 3, plants: {} }; dp.farm.slots += 1; });
-                return i.reply({ content: `✅ Đã mở rộng Nông trại lên **${p.farm.slots + 1}** ô đất! (Trừ ${expandCost.toLocaleString()} 🪙)`, ephemeral: true });
+                return i.reply({ content: `✅ Đã mở rộng Nông trại lên **${p.farm.slots + 1}** ô đất! (Trừ ${expandCost.toLocaleString()} 🪙)`, flags: MessageFlags.Ephemeral });
             }
 
             const firstUnderscore = val.indexOf('_');
@@ -1866,8 +1866,8 @@ async function handleShop(userId, msgOrInteraction) {
                 else if (type === 'armor') item = RPG_ITEMS.armors[itemCode];
                 else if (type === 'ring') item = MARRY_RINGS[itemCode];
 
-                if (!item) return i.reply({ content: '❌ Mã món đồ không tồn tại!', ephemeral: true });
-                if (getUserCoins(userId) < item.price) return i.reply({ content: `❌ Bạn không đủ Coin! (Cần ${item.price.toLocaleString()} 🪙)`, ephemeral: true });
+                if (!item) return i.reply({ content: '❌ Mã món đồ không tồn tại!', flags: MessageFlags.Ephemeral });
+                if (getUserCoins(userId) < item.price) return i.reply({ content: `❌ Bạn không đủ Coin! (Cần ${item.price.toLocaleString()} 🪙)`, flags: MessageFlags.Ephemeral });
 
                 addCoins(userId, -item.price);
                 updatePlayer(userId, p => {
@@ -1884,7 +1884,7 @@ async function handleShop(userId, msgOrInteraction) {
                 if (type === 'ring') msgContent += `\n> Dùng lệnh \`/marry\` để cầu hôn với nhẫn này!`;
                 trackQuestProgress(userId, 'buy', 1);
 
-                return i.reply({ content: msgContent, ephemeral: true });
+                return i.reply({ content: msgContent, flags: MessageFlags.Ephemeral });
             } else {
                 // Hiển thị modal nhập số lượng cho potion, pokeball
                 const modal = new ModalBuilder()
@@ -2021,7 +2021,7 @@ async function handleCatchPet(userId, msgOrInteraction) {
         const m = Math.floor(remaining / 60000);
         const s = Math.floor((remaining % 60000) / 1000);
         const msg = `⏳ Các Pokemon khu vực này đã hoảng sợ bỏ chạy. Hãy đợi **${m} phút ${s} giây** nữa để săn tiếp!`;
-        return msgOrInteraction.reply ? msgOrInteraction.reply({ content: msg, ephemeral: true }) : msgOrInteraction.channel.send(msg);
+        return msgOrInteraction.reply ? msgOrInteraction.reply({ content: msg, flags: MessageFlags.Ephemeral }) : msgOrInteraction.channel.send(msg);
     }
     
     const ballTypes = ['basic_ball', 'great_ball', 'ultra_ball', 'master_ball'];
@@ -2035,7 +2035,7 @@ async function handleCatchPet(userId, msgOrInteraction) {
 
     if (!usedBall) {
         const msg = `❌ Bạn không có bất kỳ quả **Bóng Bắt Pet** nào! Hãy vào \`/shop\` (Tab Bắt Pet) để mua!`;
-        return msgOrInteraction.reply ? msgOrInteraction.reply({ content: msg, ephemeral: true }) : msgOrInteraction.channel.send(msg);
+        return msgOrInteraction.reply ? msgOrInteraction.reply({ content: msg, flags: MessageFlags.Ephemeral }) : msgOrInteraction.channel.send(msg);
     }
     
     // Deduct ball
@@ -2163,7 +2163,7 @@ async function handlePets(userId, msgOrInteraction) {
 
     const collector = msg.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 60000 });
     collector.on('collect', async i => {
-        if (i.user.id !== userId) return i.reply({ content: '❌ Đây không phải là chuồng thú của bạn!', ephemeral: true });
+        if (i.user.id !== userId) return i.reply({ content: '❌ Đây không phải là chuồng thú của bạn!', flags: MessageFlags.Ephemeral });
         
         const petId = i.values[0].replace('viewpet_', '');
         const selectedPet = PET_LIST.find(p => p.id === petId);
@@ -2188,9 +2188,9 @@ async function handlePets(userId, msgOrInteraction) {
                 .setColor(color)
                 .setImage(selectedPet.imageUrl);
             
-            await i.reply({ embeds: [detailEmbed], ephemeral: true });
+            await i.reply({ embeds: [detailEmbed], flags: MessageFlags.Ephemeral });
         } else {
-            await i.reply({ content: '❌ Lỗi: Không tìm thấy thú cưng này.', ephemeral: true });
+            await i.reply({ content: '❌ Lỗi: Không tìm thấy thú cưng này.', flags: MessageFlags.Ephemeral });
         }
     });
     
@@ -2214,7 +2214,7 @@ async function handleSellPet(userId, msgOrInteraction) {
     
     if (ownedPets.length === 0) {
         const msg = '❌ Bạn không có con thú nào để bán cả!';
-        return msgOrInteraction.reply ? msgOrInteraction.reply({ content: msg, ephemeral: true }) : msgOrInteraction.channel.send(msg);
+        return msgOrInteraction.reply ? msgOrInteraction.reply({ content: msg, flags: MessageFlags.Ephemeral }) : msgOrInteraction.channel.send(msg);
     }
 
     ownedPets.sort((a, b) => a.pet.price - b.pet.price);
@@ -2262,7 +2262,7 @@ async function handleSellPet(userId, msgOrInteraction) {
 
     const collector = msg.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 60000 });
     collector.on('collect', async i => {
-        if (i.user.id !== userId) return i.reply({ content: '❌ Cửa hàng thú này không phải của bạn!', ephemeral: true });
+        if (i.user.id !== userId) return i.reply({ content: '❌ Cửa hàng thú này không phải của bạn!', flags: MessageFlags.Ephemeral });
         
         const val = i.values[0].replace('sellpet_', '');
         
@@ -2317,7 +2317,7 @@ async function handleSellPet(userId, msgOrInteraction) {
         
         if (sellCoin > 0) addCoins(userId, sellCoin);
         
-        return i.reply({ content: soldMsg, ephemeral: true });
+        return i.reply({ content: soldMsg, flags: MessageFlags.Ephemeral });
     });
     
     collector.on('end', () => {
@@ -2425,14 +2425,14 @@ async function awaitConfirmation(msgOrInteraction, userId, promptText, onConfirm
 
     let confirmMsg;
     if (msgOrInteraction.commandName) {
-        confirmMsg = await msgOrInteraction.reply({ content: `⚠️ **XÁC NHẬN:** ${promptText}`, components: [row], fetchReply: true });
+        confirmMsg = await msgOrInteraction.reply({ content: `⚠️ **XÁC NHẬN:** ${promptText}`, components: [row], withResponse: true });
     } else {
         confirmMsg = await msgOrInteraction.reply({ content: `⚠️ **XÁC NHẬN:** ${promptText}`, components: [row] });
     }
 
     const filter = i => {
         if (i.user.id !== userId) {
-            i.reply({ content: '❌ Bạn không có quyền bấm nút này!', ephemeral: true }).catch(()=>{});
+            i.reply({ content: '❌ Bạn không có quyền bấm nút này!', flags: MessageFlags.Ephemeral }).catch(()=>{});
             return false;
         }
         return i.customId === confirmId || i.customId === declineId;
@@ -2499,7 +2499,7 @@ async function handleGather(userId, msgOrInteraction, args) {
     //     
     //     // If it's a button interaction, we can reply ephemerally so we don't spam
     //     if (msgOrInteraction.isButton && msgOrInteraction.isButton()) {
-    //         return msgOrInteraction.reply({ content: `⏳ Khu vực đang hồi tài nguyên! Hãy nhấn lại sau **${secs} giây**.`, ephemeral: true });
+    //         return msgOrInteraction.reply({ content: `⏳ Khu vực đang hồi tài nguyên! Hãy nhấn lại sau **${secs} giây**.`, flags: MessageFlags.Ephemeral });
     //     }
     //     return replyMsg(msgOrInteraction, `⏳ Khu vực đang hồi tài nguyên! Hãy quay lại sau **${secs} giây**.`);
     // }
@@ -2704,12 +2704,12 @@ async function handleDungeon(userId, msgOrInteraction) {
 
     const collector = msg.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 30000 });
     collector.on('collect', async i => {
-        if (i.user.id !== userId) return i.reply({ content: '❌ Đây không phải lượt của bạn!', ephemeral: true });
+        if (i.user.id !== userId) return i.reply({ content: '❌ Đây không phải lượt của bạn!', flags: MessageFlags.Ephemeral });
         
         const dungeonId = i.values[0];
         const dungeon = DUNGEONS.find(d => d.id === dungeonId);
-        if (!dungeon) return i.reply({ content: '❌ Dungeon không tồn tại!', ephemeral: true });
-        if (p.level < dungeon.minLevel) return i.reply({ content: `❌ Cần tối thiểu **Lv.${dungeon.minLevel}** để vào ${dungeon.name}!`, ephemeral: true });
+        if (!dungeon) return i.reply({ content: '❌ Dungeon không tồn tại!', flags: MessageFlags.Ephemeral });
+        if (p.level < dungeon.minLevel) return i.reply({ content: `❌ Cần tối thiểu **Lv.${dungeon.minLevel}** để vào ${dungeon.name}!`, flags: MessageFlags.Ephemeral });
 
         collector.stop();
         await i.deferUpdate();
@@ -2951,7 +2951,7 @@ async function handleQuest(userId, msgOrInteraction) {
 
     const collector = msg.createMessageComponentCollector({ componentType: ComponentType.Button, time: 30000 });
     collector.on('collect', async i => {
-        if (i.user.id !== userId) return i.reply({ content: '❌ Đây không phải nhiệm vụ của bạn!', ephemeral: true });
+        if (i.user.id !== userId) return i.reply({ content: '❌ Đây không phải nhiệm vụ của bạn!', flags: MessageFlags.Ephemeral });
         
         let totalCoin = 0, totalExp = 0;
         updatePlayer(userId, dp => {
@@ -3023,18 +3023,18 @@ async function handleClass(userId, msgOrInteraction) {
 
     const collector = msg.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 30000 });
     collector.on('collect', async i => {
-        if (i.user.id !== userId) return i.reply({ content: '❌ Không phải lượt của bạn!', ephemeral: true });
+        if (i.user.id !== userId) return i.reply({ content: '❌ Không phải lượt của bạn!', flags: MessageFlags.Ephemeral });
 
         const classId = i.values[0];
         const cls = RPG_CLASSES[classId];
         const currentP = getPlayer(userId);
 
-        if (currentP.rpgClass === classId) return i.reply({ content: `❌ Bạn đã là **${cls.name}** rồi!`, ephemeral: true });
+        if (currentP.rpgClass === classId) return i.reply({ content: `❌ Bạn đã là **${cls.name}** rồi!`, flags: MessageFlags.Ephemeral });
 
         // Nếu đã có class → phải trả phí
         if (currentP.rpgClass) {
             const changeCost = 5000000;
-            if (getUserCoins(userId) < changeCost) return i.reply({ content: `❌ Không đủ **${changeCost.toLocaleString()} 🪙** để đổi class!`, ephemeral: true });
+            if (getUserCoins(userId) < changeCost) return i.reply({ content: `❌ Không đủ **${changeCost.toLocaleString()} 🪙** để đổi class!`, flags: MessageFlags.Ephemeral });
             addCoins(userId, -changeCost);
         }
 
@@ -3099,14 +3099,14 @@ async function handleOpenBox(userId, msgOrInteraction) {
 
     const collector = msg.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 30000 });
     collector.on('collect', async i => {
-        if (i.user.id !== userId) return i.reply({ content: '❌ Không phải rương của bạn!', ephemeral: true });
+        if (i.user.id !== userId) return i.reply({ content: '❌ Không phải rương của bạn!', flags: MessageFlags.Ephemeral });
 
         const chestType = i.values[0];
         const chestDef = RPG_CHESTS[chestType];
         const curPlayer = getPlayer(userId);
 
         if (!curPlayer.chests[chestType] || curPlayer.chests[chestType] <= 0) {
-            return i.reply({ content: '❌ Hết rương loại này rồi!', ephemeral: true });
+            return i.reply({ content: '❌ Hết rương loại này rồi!', flags: MessageFlags.Ephemeral });
         }
 
         // Roll loot
@@ -3737,17 +3737,17 @@ async function handleDivorce(userId, msgOrInteraction) {
 }
 
 async function handleSetBday(userId, msgOrInteraction, bdayInput) {
-    if (!bdayInput) return replyMsg(msgOrInteraction, { content: '❌ Cú pháp: `setbday <ngày/tháng>` (VD: 15/08)', ephemeral: true });
+    if (!bdayInput) return replyMsg(msgOrInteraction, { content: '❌ Cú pháp: `setbday <ngày/tháng>` (VD: 15/08)', flags: MessageFlags.Ephemeral });
     
     // Validate dd/mm
     const regex = /^(\d{1,2})\/(\d{1,2})$/;
     const match = bdayInput.match(regex);
-    if (!match) return replyMsg(msgOrInteraction, { content: '❌ Vui lòng nhập đúng định dạng `ngày/tháng` (VD: 15/08)', ephemeral: true });
+    if (!match) return replyMsg(msgOrInteraction, { content: '❌ Vui lòng nhập đúng định dạng `ngày/tháng` (VD: 15/08)', flags: MessageFlags.Ephemeral });
     
     let d = parseInt(match[1]);
     let m = parseInt(match[2]);
     if (d < 1 || d > 31 || m < 1 || m > 12) {
-        return replyMsg(msgOrInteraction, { content: '❌ Ngày tháng không hợp lệ!', ephemeral: true });
+        return replyMsg(msgOrInteraction, { content: '❌ Ngày tháng không hợp lệ!', flags: MessageFlags.Ephemeral });
     }
     
     const bdayStr = `${d.toString().padStart(2, '0')}/${m.toString().padStart(2, '0')}`;
@@ -3757,7 +3757,7 @@ async function handleSetBday(userId, msgOrInteraction, bdayInput) {
     
     data[userId].birthday = bdayStr;
     saveRPG(data);
-    return replyMsg(msgOrInteraction, { content: `🎉 Đã lưu ngày sinh của bạn là **${bdayStr}**!`, ephemeral: true });
+    return replyMsg(msgOrInteraction, { content: `🎉 Đã lưu ngày sinh của bạn là **${bdayStr}**!`, flags: MessageFlags.Ephemeral });
 }
 
 async function handleAdminCheat(userId, msgOrInteraction) {
@@ -3779,7 +3779,7 @@ async function handleAdminCheat(userId, msgOrInteraction) {
         .setDescription('Chào mừng ngài trở lại. Xin hãy chọn quyền năng ngài muốn sử dụng hôm nay.')
         .setColor('#000000');
         
-    return replyMsg(msgOrInteraction, { embeds: [embed], components: [row], ephemeral: true });
+    return replyMsg(msgOrInteraction, { embeds: [embed], components: [row], flags: MessageFlags.Ephemeral });
 }
 
 // ========================
@@ -4076,7 +4076,7 @@ function bcButtons(disabled = false) {
 
 async function startBaucuaMultiplayer(interactionOrMessage, channelId, clientInstance) {
     if (baucuaChannels.has(channelId)) {
-        const replyObj = { content: '❌ Kênh này đang có một bàn Bầu Cua chưa kết thúc!', ephemeral: true };
+        const replyObj = { content: '❌ Kênh này đang có một bàn Bầu Cua chưa kết thúc!', flags: MessageFlags.Ephemeral };
         if (interactionOrMessage.reply && typeof interactionOrMessage.reply === 'function') {
             return interactionOrMessage.reply(replyObj);
         }
@@ -4094,7 +4094,7 @@ async function startBaucuaMultiplayer(interactionOrMessage, channelId, clientIns
     
     if (interactionOrMessage.reply && typeof interactionOrMessage.reply === 'function') {
         if (!interactionOrMessage.deferred) {
-            msg = await interactionOrMessage.reply({ ...options, fetchReply: true });
+            msg = await interactionOrMessage.reply({ ...options, withResponse: true });
         } else {
             msg = await interactionOrMessage.editReply(options);
         }
@@ -5788,7 +5788,7 @@ client.on('messageCreate', async (message) => {
         if (maxPage > 0) {
             const collector = rankMsg.createMessageComponentCollector({ time: 60000 });
             collector.on('collect', async i => {
-                if (i.user.id !== message.author.id) return i.reply({ content: '❌ Nút này không dành cho bạn!', ephemeral: true });
+                if (i.user.id !== message.author.id) return i.reply({ content: '❌ Nút này không dành cho bạn!', flags: MessageFlags.Ephemeral });
                 
                 if (i.customId === 'toprank_prev' && page > 0) page--;
                 if (i.customId === 'toprank_next' && page < maxPage) page++;
@@ -6314,13 +6314,13 @@ client.on('messageCreate', async (message) => {
                 // Trang Admin: chỉ Admin mới được xem, hiển thị ẩn
                 const isAdmin = i.member?.permissions?.has(PermissionsBitField.Flags.Administrator);
                 if (!isAdmin) {
-                    return i.reply({ content: '🔒 **Trang này chỉ dành cho Admin!** Bạn không có quyền xem mục này.', ephemeral: true });
+                    return i.reply({ content: '🔒 **Trang này chỉ dành cho Admin!** Bạn không có quyền xem mục này.', flags: MessageFlags.Ephemeral });
                 }
                 await i.update({ components: [row] });
-                return i.followUp({ embeds: [pages[page]], ephemeral: true });
+                return i.followUp({ embeds: [pages[page]], flags: MessageFlags.Ephemeral });
             }
             if (i.user.id !== message.author.id) {
-                return i.reply({ content: '❌ Chỉ người dùng lệnh mới có thể điều hướng!', ephemeral: true });
+                return i.reply({ content: '❌ Chỉ người dùng lệnh mới có thể điều hướng!', flags: MessageFlags.Ephemeral });
             }
             await i.update({ embeds: [pages[page]], components: [row] });
         });
@@ -7868,7 +7868,7 @@ client.on('interactionCreate', async (interaction) => {
     if (userData.jailEnd && Date.now() < userData.jailEnd) {
         if (!interaction.isChatInputCommand() || (interaction.commandName !== 'nopphat' && interaction.commandName !== 'bribe')) {
             const r = userData.jailEnd - Date.now();
-            return interaction.reply({ content: `🚓 **BẠN ĐANG Ở TRONG TÙ!** Hãy đợi **${Math.ceil(r/60000)} phút** nữa hoặc dùng lệnh \`/nopphat\` (phí 100,000 🪙) để hối lộ ra tù sớm.`, ephemeral: true });
+            return interaction.reply({ content: `🚓 **BẠN ĐANG Ở TRONG TÙ!** Hãy đợi **${Math.ceil(r/60000)} phút** nữa hoặc dùng lệnh \`/nopphat\` (phí 100,000 🪙) để hối lộ ra tù sớm.`, flags: MessageFlags.Ephemeral });
         }
     } else if (userData.jailEnd && Date.now() >= userData.jailEnd) {
         const coinsData = loadCoins();
@@ -7886,7 +7886,7 @@ client.on('interactionCreate', async (interaction) => {
         if (interaction.isStringSelectMenu() && cid.startsWith('inv_select_')) {
             const ownerId = cid.replace('inv_select_', '');
             if (interaction.user.id !== ownerId) {
-                return interaction.reply({ content: '❌ Đây không phải là túi đồ của bạn!', ephemeral: true });
+                return interaction.reply({ content: '❌ Đây không phải là túi đồ của bạn!', flags: MessageFlags.Ephemeral });
             }
             
             const selectedVal = interaction.values[0];
@@ -7894,7 +7894,7 @@ client.on('interactionCreate', async (interaction) => {
             
             let itemDef = RPG_ITEMS.potions[itemId] || RPG_ITEMS.pokeballs[itemId] || RPG_ITEMS.materials[itemId] || RPG_ITEMS.weapons?.[itemId] || RPG_ITEMS.armors?.[itemId] || RPG_ITEMS.artifacts?.[itemId] || RPG_ITEMS.seeds?.[itemId] || RPG_ITEMS.crops?.[itemId] || PET_LIST.find(p => p.id === itemId);
             
-            if (!itemDef) return interaction.reply({ content: '❌ Không tìm thấy vật phẩm này!', ephemeral: true });
+            if (!itemDef) return interaction.reply({ content: '❌ Không tìm thấy vật phẩm này!', flags: MessageFlags.Ephemeral });
             
             const isPotion = !!RPG_ITEMS.potions[itemId];
             
@@ -7922,13 +7922,13 @@ client.on('interactionCreate', async (interaction) => {
                 embed.setThumbnail(itemDef.imageUrl);
             }
                 
-            return interaction.reply({ embeds: [embed], components: [buttons], ephemeral: true });
+            return interaction.reply({ embeds: [embed], components: [buttons], flags: MessageFlags.Ephemeral });
         }
 
         if (interaction.isStringSelectMenu() && cid.startsWith('gather_region_select_')) {
             const ownerId = cid.replace('gather_region_select_', '');
             if (interaction.user.id !== ownerId) {
-                return interaction.reply({ content: '❌ Đây không phải là menu của bạn!', ephemeral: true });
+                return interaction.reply({ content: '❌ Đây không phải là menu của bạn!', flags: MessageFlags.Ephemeral });
             }
             const selectedRegion = interaction.values[0];
             updatePlayer(ownerId, dp => {
@@ -7940,7 +7940,7 @@ client.on('interactionCreate', async (interaction) => {
         if (interaction.isStringSelectMenu() && cid.startsWith('craft_select_')) {
             const ownerId = cid.replace('craft_select_', '');
             if (interaction.user.id !== ownerId) {
-                return interaction.reply({ content: '❌ Đây không phải là menu của bạn!', ephemeral: true });
+                return interaction.reply({ content: '❌ Đây không phải là menu của bạn!', flags: MessageFlags.Ephemeral });
             }
             
             const val = interaction.values[0];
@@ -7967,19 +7967,19 @@ client.on('interactionCreate', async (interaction) => {
         // =============================================
         if (cid.startsWith('gather_again_')) {
             const ownerId = cid.replace('gather_again_', '');
-            if (interaction.user.id !== ownerId) return interaction.reply({ content: '❌ Đây không phải là hành động của bạn!', ephemeral: true });
+            if (interaction.user.id !== ownerId) return interaction.reply({ content: '❌ Đây không phải là hành động của bạn!', flags: MessageFlags.Ephemeral });
             return handleGather(ownerId, interaction, ['gather']);
         }
 
         if (cid.startsWith('farm_refresh_')) {
             const ownerId = cid.replace('farm_refresh_', '');
-            if (interaction.user.id !== ownerId) return interaction.reply({ content: '❌ Nông trại này không phải của bạn!', ephemeral: true });
+            if (interaction.user.id !== ownerId) return interaction.reply({ content: '❌ Nông trại này không phải của bạn!', flags: MessageFlags.Ephemeral });
             return handleFarmCommand(ownerId, interaction);
         }
 
         if (cid.startsWith('farm_harvest_all_')) {
             const ownerId = cid.replace('farm_harvest_all_', '');
-            if (interaction.user.id !== ownerId) return interaction.reply({ content: '❌ Nông trại này không phải của bạn!', ephemeral: true });
+            if (interaction.user.id !== ownerId) return interaction.reply({ content: '❌ Nông trại này không phải của bạn!', flags: MessageFlags.Ephemeral });
             const p = getPlayer(ownerId);
             const now = Date.now();
             let harvestedCount = 0;
@@ -8005,14 +8005,14 @@ client.on('interactionCreate', async (interaction) => {
                 }
             }
             
-            if (harvestedCount === 0) return interaction.reply({ content: `❌ Không có cây nào chín để thu hoạch!`, ephemeral: true });
-            await interaction.reply({ content: `🌾 **THU HOẠCH THÀNH CÔNG**\n${harvestText}\n⭐ Nhận được **+${totalExp} EXP**!`, ephemeral: true });
+            if (harvestedCount === 0) return interaction.reply({ content: `❌ Không có cây nào chín để thu hoạch!`, flags: MessageFlags.Ephemeral });
+            await interaction.reply({ content: `🌾 **THU HOẠCH THÀNH CÔNG**\n${harvestText}\n⭐ Nhận được **+${totalExp} EXP**!`, flags: MessageFlags.Ephemeral });
             return handleFarmCommand(ownerId, interaction); // Refresh the UI
         }
 
         if (cid.startsWith('farm_plant_') && !cid.startsWith('farm_plant_seed_') && !cid.startsWith('farm_plant_slot_')) {
             const ownerId = cid.replace('farm_plant_', '');
-            if (interaction.user.id !== ownerId) return interaction.reply({ content: '❌ Nông trại này không phải của bạn!', ephemeral: true });
+            if (interaction.user.id !== ownerId) return interaction.reply({ content: '❌ Nông trại này không phải của bạn!', flags: MessageFlags.Ephemeral });
             
             const p = getPlayer(ownerId);
             const options = [];
@@ -8026,7 +8026,7 @@ client.on('interactionCreate', async (interaction) => {
                         .setEmoji(seedDef.emoji));
                 }
             }
-            if (options.length === 0) return interaction.reply({ content: '❌ Bạn không có hạt giống nào trong túi! Hãy vào cửa hàng mua.', ephemeral: true });
+            if (options.length === 0) return interaction.reply({ content: '❌ Bạn không có hạt giống nào trong túi! Hãy vào cửa hàng mua.', flags: MessageFlags.Ephemeral });
             
             const row = new ActionRowBuilder().addComponents(
                 new StringSelectMenuBuilder()
@@ -8034,12 +8034,12 @@ client.on('interactionCreate', async (interaction) => {
                     .setPlaceholder('Chọn hạt giống muốn trồng...')
                     .addOptions(options.slice(0, 25))
             );
-            return interaction.reply({ content: '🌱 Vui lòng chọn hạt giống muốn gieo:', components: [row], ephemeral: true });
+            return interaction.reply({ content: '🌱 Vui lòng chọn hạt giống muốn gieo:', components: [row], flags: MessageFlags.Ephemeral });
         }
 
         if (cid.startsWith('farm_plant_seed_')) {
             const ownerId = cid.replace('farm_plant_seed_', '');
-            if (interaction.user.id !== ownerId) return interaction.reply({ content: '❌ Hành động không hợp lệ!', ephemeral: true });
+            if (interaction.user.id !== ownerId) return interaction.reply({ content: '❌ Hành động không hợp lệ!', flags: MessageFlags.Ephemeral });
             
             const seedId = interaction.values[0].replace('farmseed_', '');
             const p = getPlayer(ownerId);
@@ -8067,7 +8067,7 @@ client.on('interactionCreate', async (interaction) => {
 
         if (cid.startsWith('farm_plant_slot_')) {
             const ownerId = cid.replace('farm_plant_slot_', '');
-            if (interaction.user.id !== ownerId) return interaction.reply({ content: '❌ Hành động không hợp lệ!', ephemeral: true });
+            if (interaction.user.id !== ownerId) return interaction.reply({ content: '❌ Hành động không hợp lệ!', flags: MessageFlags.Ephemeral });
             
             const val = interaction.values[0];
             const valParts = val.replace('farmslot_', '').split('_');
@@ -8108,12 +8108,12 @@ client.on('interactionCreate', async (interaction) => {
             if (cid.startsWith('invsellall_')) { action = 'sellall'; itemId = cid.replace('invsellall_', ''); }
             
             let itemDef = RPG_ITEMS.potions[itemId] || RPG_ITEMS.pokeballs[itemId] || RPG_ITEMS.materials[itemId] || RPG_ITEMS.weapons?.[itemId] || RPG_ITEMS.armors?.[itemId] || RPG_ITEMS.artifacts?.[itemId] || RPG_ITEMS.seeds?.[itemId] || RPG_ITEMS.crops?.[itemId] || PET_LIST.find(pt => pt.id === itemId);
-            if (!itemDef) return interaction.reply({ content: '❌ Lỗi: Vật phẩm không tồn tại.', ephemeral: true });
+            if (!itemDef) return interaction.reply({ content: '❌ Lỗi: Vật phẩm không tồn tại.', flags: MessageFlags.Ephemeral });
             
             const isPet = !!PET_LIST.find(pt => pt.id === itemId);
             let userQty = isPet ? (p.pets[itemId] || 0) : (p.inventory[itemId] || 0);
             
-            if (userQty <= 0) return interaction.reply({ content: `❌ Bạn không còn **${itemDef.name}** nào trong túi!`, ephemeral: true });
+            if (userQty <= 0) return interaction.reply({ content: `❌ Bạn không còn **${itemDef.name}** nào trong túi!`, flags: MessageFlags.Ephemeral });
             
             if (action === 'use') {
                 if (RPG_ITEMS.potions[itemId]) {
@@ -8126,7 +8126,7 @@ client.on('interactionCreate', async (interaction) => {
                         const np = getPlayer(uid);
                         return interaction.update({ content: `🔮 Đã sử dụng **${itemDef.name}**! Bạn nhận được **+${xpAmount} EXP**.\nCấp độ hiện tại: **Lv. ${np.level}**`, embeds: [], components: [] });
                     }
-                    if (p.hp >= p.maxHp) return interaction.reply({ content: '✅ Máu của bạn đã đầy!', ephemeral: true });
+                    if (p.hp >= p.maxHp) return interaction.reply({ content: '✅ Máu của bạn đã đầy!', flags: MessageFlags.Ephemeral });
                     const healAmount = RPG_ITEMS.potions[itemId].heal;
                     updatePlayer(uid, dp => { 
                         dp.hp = Math.min(dp.maxHp, dp.hp + healAmount); 
@@ -8168,17 +8168,17 @@ client.on('interactionCreate', async (interaction) => {
             const channel = interaction.channel;
             
             if (!j2cChannels.has(channelId)) {
-                return interaction.reply({ content: '❌ Đây không phải là phòng được tạo bởi tính năng Join To Create!', ephemeral: true });
+                return interaction.reply({ content: '❌ Đây không phải là phòng được tạo bởi tính năng Join To Create!', flags: MessageFlags.Ephemeral });
             }
             
             const ownerId = j2cChannels.get(channelId);
             const isOwner = interaction.user.id === ownerId;
             
             if (cid === 'j2c_claim') {
-                if (isOwner) return interaction.reply({ content: '❌ Bạn đã là chủ phòng rồi!', ephemeral: true });
+                if (isOwner) return interaction.reply({ content: '❌ Bạn đã là chủ phòng rồi!', flags: MessageFlags.Ephemeral });
                 const ownerInChannel = channel.members.has(ownerId);
                 if (ownerInChannel) {
-                    return interaction.reply({ content: '❌ Chủ phòng cũ vẫn đang ở trong kênh. Không thể chiếm quyền!', ephemeral: true });
+                    return interaction.reply({ content: '❌ Chủ phòng cũ vẫn đang ở trong kênh. Không thể chiếm quyền!', flags: MessageFlags.Ephemeral });
                 }
                 
                 j2cChannels.set(channelId, interaction.user.id);
@@ -8189,11 +8189,11 @@ client.on('interactionCreate', async (interaction) => {
                 newEmbed.data.fields[0].value = `<@${interaction.user.id}>`;
                 
                 await interaction.update({ embeds: [newEmbed] });
-                return interaction.followUp({ content: `✅ <@${interaction.user.id}> đã trở thành chủ phòng mới!`, ephemeral: false });
+                return interaction.followUp({ content: `✅ <@${interaction.user.id}> đã trở thành chủ phòng mới!`, flags: 0 });
             }
             
             if (!isOwner) {
-                return interaction.reply({ content: '❌ Chỉ chủ phòng mới có thể dùng chức năng này!', ephemeral: true });
+                return interaction.reply({ content: '❌ Chỉ chủ phòng mới có thể dùng chức năng này!', flags: MessageFlags.Ephemeral });
             }
             
             if (cid === 'j2c_name') {
@@ -8238,7 +8238,7 @@ client.on('interactionCreate', async (interaction) => {
                 newEmbed.data.fields[2].value = (isGhosted ? '👁️ Đã hiện' : '👻 Đang ẩn') + ` | ${lockState}`;
                 
                 await interaction.update({ embeds: [newEmbed] });
-                return interaction.followUp({ content: isGhosted ? '✅ Đã BỎ ẨN phòng.' : '✅ Đã ẨN phòng khỏi mọi người.', ephemeral: true });
+                return interaction.followUp({ content: isGhosted ? '✅ Đã BỎ ẨN phòng.' : '✅ Đã ẨN phòng khỏi mọi người.', flags: MessageFlags.Ephemeral });
             }
             
             if (cid === 'j2c_lock') {
@@ -8256,14 +8256,14 @@ client.on('interactionCreate', async (interaction) => {
                 newEmbed.data.fields[2].value = `${ghostState} | ` + (isLocked ? '🔓 Có thể kết nối' : '🔒 Không kết nối');
                 
                 await interaction.update({ embeds: [newEmbed] });
-                return interaction.followUp({ content: isLocked ? '✅ Đã MỞ KHÓA kết nối.' : '✅ Đã KHÓA kết nối phòng.', ephemeral: true });
+                return interaction.followUp({ content: isLocked ? '✅ Đã MỞ KHÓA kết nối.' : '✅ Đã KHÓA kết nối phòng.', flags: MessageFlags.Ephemeral });
             }
 
             if (cid === 'j2c_kick') {
                 const voiceChannel = interaction.channel;
                 const otherMembers = voiceChannel.members.filter(m => m.id !== interaction.user.id && !m.user.bot);
                 if (otherMembers.size === 0) {
-                    return interaction.reply({ content: '❌ Không có ai khác trong phòng để kích!', ephemeral: true });
+                    return interaction.reply({ content: '❌ Không có ai khác trong phòng để kích!', flags: MessageFlags.Ephemeral });
                 }
 
                 const options = otherMembers.map(m => {
@@ -8280,7 +8280,7 @@ client.on('interactionCreate', async (interaction) => {
                         .addOptions(options.slice(0, 25))
                 );
 
-                return interaction.reply({ content: 'Chọn người mà bạn muốn kích khỏi phòng (Chỉ mình bạn thấy tin nhắn này):', components: [row], ephemeral: true });
+                return interaction.reply({ content: 'Chọn người mà bạn muốn kích khỏi phòng (Chỉ mình bạn thấy tin nhắn này):', components: [row], flags: MessageFlags.Ephemeral });
             }
         }
 
@@ -8290,21 +8290,21 @@ client.on('interactionCreate', async (interaction) => {
         if (cid === 'get_pokemon_role') {
             const config = loadConfig();
             const roleId = config.pokemonRoleId;
-            if (!roleId) return interaction.reply({ content: '❌ Hệ thống chưa cài đặt role.', ephemeral: true });
+            if (!roleId) return interaction.reply({ content: '❌ Hệ thống chưa cài đặt role.', flags: MessageFlags.Ephemeral });
             
             const role = interaction.guild.roles.cache.get(roleId);
-            if (!role) return interaction.reply({ content: '❌ Role không tồn tại hoặc đã bị xóa.', ephemeral: true });
+            if (!role) return interaction.reply({ content: '❌ Role không tồn tại hoặc đã bị xóa.', flags: MessageFlags.Ephemeral });
             
             try {
                 if (interaction.member.roles.cache.has(roleId)) {
                     await interaction.member.roles.remove(roleId);
-                    return interaction.reply({ content: '✅ Bạn đã **hủy** role Pokemon!', ephemeral: true });
+                    return interaction.reply({ content: '✅ Bạn đã **hủy** role Pokemon!', flags: MessageFlags.Ephemeral });
                 } else {
                     await interaction.member.roles.add(roleId);
-                    return interaction.reply({ content: '✅ Bạn đã **nhận** role Pokemon!', ephemeral: true });
+                    return interaction.reply({ content: '✅ Bạn đã **nhận** role Pokemon!', flags: MessageFlags.Ephemeral });
                 }
             } catch (err) {
-                return interaction.reply({ content: '❌ Bot không đủ quyền để cấp role cho bạn (Role bot phải xếp cao hơn role Pokemon).', ephemeral: true });
+                return interaction.reply({ content: '❌ Bot không đủ quyền để cấp role cho bạn (Role bot phải xếp cao hơn role Pokemon).', flags: MessageFlags.Ephemeral });
             }
         }
 
@@ -8314,21 +8314,21 @@ client.on('interactionCreate', async (interaction) => {
         if (cid === 'get_rpg_role') {
             const config = loadConfig();
             const roleId = config.rpgRoleId;
-            if (!roleId) return interaction.reply({ content: '❌ Hệ thống chưa cài đặt role.', ephemeral: true });
+            if (!roleId) return interaction.reply({ content: '❌ Hệ thống chưa cài đặt role.', flags: MessageFlags.Ephemeral });
             
             const role = interaction.guild.roles.cache.get(roleId);
-            if (!role) return interaction.reply({ content: '❌ Role không tồn tại hoặc đã bị xóa.', ephemeral: true });
+            if (!role) return interaction.reply({ content: '❌ Role không tồn tại hoặc đã bị xóa.', flags: MessageFlags.Ephemeral });
             
             try {
                 if (interaction.member.roles.cache.has(roleId)) {
                     await interaction.member.roles.remove(roleId);
-                    return interaction.reply({ content: '✅ Bạn đã **hủy** role RPG!', ephemeral: true });
+                    return interaction.reply({ content: '✅ Bạn đã **hủy** role RPG!', flags: MessageFlags.Ephemeral });
                 } else {
                     await interaction.member.roles.add(roleId);
-                    return interaction.reply({ content: '✅ Bạn đã **nhận** role RPG!', ephemeral: true });
+                    return interaction.reply({ content: '✅ Bạn đã **nhận** role RPG!', flags: MessageFlags.Ephemeral });
                 }
             } catch (err) {
-                return interaction.reply({ content: '❌ Bot không đủ quyền để cấp role cho bạn.', ephemeral: true });
+                return interaction.reply({ content: '❌ Bot không đủ quyền để cấp role cho bạn.', flags: MessageFlags.Ephemeral });
             }
         }
 
@@ -8340,7 +8340,7 @@ client.on('interactionCreate', async (interaction) => {
             const spawnData = activeSpawns.get(interaction.message.id);
             
             if (!spawnData || !spawnData.active) {
-                return interaction.reply({ content: '❌ Thú cưng này đã bị người khác bắt hoặc đã chạy mất!', ephemeral: true }).catch(() => {});
+                return interaction.reply({ content: '❌ Thú cưng này đã bị người khác bắt hoặc đã chạy mất!', flags: MessageFlags.Ephemeral }).catch(() => {});
             }
             
             const p = getPlayer(interaction.user.id);
@@ -8357,14 +8357,14 @@ client.on('interactionCreate', async (interaction) => {
             }
             
             if (options.length === 0) {
-                return interaction.reply({ content: '❌ Bạn không có quả bóng nào trong túi! Hãy vào `/shop` (Tab Bắt Pet) để mua!', ephemeral: true });
+                return interaction.reply({ content: '❌ Bạn không có quả bóng nào trong túi! Hãy vào `/shop` (Tab Bắt Pet) để mua!', flags: MessageFlags.Ephemeral });
             }
             
             const row = new ActionRowBuilder().addComponents(
                 new StringSelectMenuBuilder().setCustomId(`wild_throw_select`).setPlaceholder('🎯 Chọn bóng để ném...').addOptions(options)
             );
             
-            return interaction.reply({ content: 'Hãy nhanh tay chọn bóng để ném!', components: [row], ephemeral: true });
+            return interaction.reply({ content: 'Hãy nhanh tay chọn bóng để ném!', components: [row], flags: MessageFlags.Ephemeral });
         }
         
         if (cid === 'wild_throw_select') {
@@ -8445,10 +8445,10 @@ client.on('interactionCreate', async (interaction) => {
             const targetId = parts[3];
             const bet = parseInt(parts[4]);
             
-            if (interaction.user.id !== targetId) return interaction.reply({ content: '❌ Bạn không phải người được thách đấu!', ephemeral: true });
+            if (interaction.user.id !== targetId) return interaction.reply({ content: '❌ Bạn không phải người được thách đấu!', flags: MessageFlags.Ephemeral });
             
-            if (getUserCoins(challengerId) < bet) return interaction.reply({ content: `❌ Người thách đấu không còn đủ tiền!`, ephemeral: true });
-            if (getUserCoins(targetId) < bet) return interaction.reply({ content: `❌ Bạn không đủ tiền!`, ephemeral: true });
+            if (getUserCoins(challengerId) < bet) return interaction.reply({ content: `❌ Người thách đấu không còn đủ tiền!`, flags: MessageFlags.Ephemeral });
+            if (getUserCoins(targetId) < bet) return interaction.reply({ content: `❌ Bạn không đủ tiền!`, flags: MessageFlags.Ephemeral });
             
             addCoins(challengerId, -bet);
             addCoins(targetId, -bet);
@@ -8468,7 +8468,7 @@ client.on('interactionCreate', async (interaction) => {
             if (!p1Best || !p2Best) {
                 addCoins(challengerId, bet);
                 addCoins(targetId, bet);
-                return interaction.reply({ content: '❌ Lỗi: Có người đã bán mất thú cưng trước khi trận đấu bắt đầu!', ephemeral: true });
+                return interaction.reply({ content: '❌ Lỗi: Có người đã bán mất thú cưng trước khi trận đấu bắt đầu!', flags: MessageFlags.Ephemeral });
             }
             
             const totalPower = p1Best.price + p2Best.price;
@@ -8497,7 +8497,7 @@ client.on('interactionCreate', async (interaction) => {
         if (cid.startsWith('pb_decline_')) {
             const parts = cid.split('_');
             const targetId = parts[3];
-            if (interaction.user.id !== targetId) return interaction.reply({ content: '❌ Bạn không phải người được thách đấu!', ephemeral: true });
+            if (interaction.user.id !== targetId) return interaction.reply({ content: '❌ Bạn không phải người được thách đấu!', flags: MessageFlags.Ephemeral });
             return interaction.update({ content: `❌ <@${targetId}> đã từ chối lời thách đấu.`, embeds: [], components: [] });
         }
 
@@ -8510,10 +8510,10 @@ client.on('interactionCreate', async (interaction) => {
             const targetId = parts[3];
             const bet = parseInt(parts[4]);
             
-            if (interaction.user.id !== targetId) return interaction.reply({ content: '❌ Bạn không phải người được thách đấu!', ephemeral: true });
+            if (interaction.user.id !== targetId) return interaction.reply({ content: '❌ Bạn không phải người được thách đấu!', flags: MessageFlags.Ephemeral });
             
-            if (getUserCoins(challengerId) < bet) return interaction.reply({ content: '❌ Người thách đấu không còn đủ tiền!', ephemeral: true });
-            if (getUserCoins(targetId) < bet) return interaction.reply({ content: '❌ Bạn không đủ tiền!', ephemeral: true });
+            if (getUserCoins(challengerId) < bet) return interaction.reply({ content: '❌ Người thách đấu không còn đủ tiền!', flags: MessageFlags.Ephemeral });
+            if (getUserCoins(targetId) < bet) return interaction.reply({ content: '❌ Bạn không đủ tiền!', flags: MessageFlags.Ephemeral });
             
             addCoins(challengerId, -bet);
             addCoins(targetId, -bet);
@@ -8567,7 +8567,7 @@ client.on('interactionCreate', async (interaction) => {
         if (cid.startsWith('pvp_decline_')) {
             const parts = cid.split('_');
             const targetId = parts[3];
-            if (interaction.user.id !== targetId) return interaction.reply({ content: '❌ Bạn không phải người được thách đấu!', ephemeral: true });
+            if (interaction.user.id !== targetId) return interaction.reply({ content: '❌ Bạn không phải người được thách đấu!', flags: MessageFlags.Ephemeral });
             return interaction.update({ content: `❌ <@${targetId}> đã từ chối PvP.`, embeds: [], components: [] });
         }
 
@@ -8576,7 +8576,7 @@ client.on('interactionCreate', async (interaction) => {
         // =============================================
         if (interaction.isStringSelectMenu() && cid.startsWith('evolve_select_')) {
             const ownerId = cid.replace('evolve_select_', '');
-            if (interaction.user.id !== ownerId) return interaction.reply({ content: '❌ Không phải menu của bạn!', ephemeral: true });
+            if (interaction.user.id !== ownerId) return interaction.reply({ content: '❌ Không phải menu của bạn!', flags: MessageFlags.Ephemeral });
             
             const val = interaction.values[0]; // evolve_fromId_toId
             const parts = val.split('_');
@@ -8585,7 +8585,7 @@ client.on('interactionCreate', async (interaction) => {
             
             const pData = getPlayer(ownerId);
             if (!pData.pets[fromId] || pData.pets[fromId] <= 0) {
-                return interaction.reply({ content: '❌ Bạn không sở hữu thú cưng này!', ephemeral: true });
+                return interaction.reply({ content: '❌ Bạn không sở hữu thú cưng này!', flags: MessageFlags.Ephemeral });
             }
             
             updatePlayer(ownerId, dp => {
@@ -8600,7 +8600,7 @@ client.on('interactionCreate', async (interaction) => {
 
         if (cid.startsWith('sell_dupe_pets_')) {
             const ownerId = cid.replace('sell_dupe_pets_', '');
-            if (interaction.user.id !== ownerId) return interaction.reply({ content: '❌ Không phải của bạn!', ephemeral: true });
+            if (interaction.user.id !== ownerId) return interaction.reply({ content: '❌ Không phải của bạn!', flags: MessageFlags.Ephemeral });
             
             let totalCoinEarned = 0;
             let soldCount = 0;
@@ -8615,7 +8615,7 @@ client.on('interactionCreate', async (interaction) => {
                 }
             });
             
-            if (soldCount === 0) return interaction.reply({ content: '❌ Không có Pokemon dư để bán!', ephemeral: true });
+            if (soldCount === 0) return interaction.reply({ content: '❌ Không có Pokemon dư để bán!', flags: MessageFlags.Ephemeral });
             
             addCoins(ownerId, totalCoinEarned);
             
@@ -8631,33 +8631,33 @@ client.on('interactionCreate', async (interaction) => {
         if (cid.startsWith('ww_join_') || cid.startsWith('ww_start_') || cid.startsWith('ww_cancel_')) {
             const guildId = cid.split('_').slice(2).join('_');
             const game = WW.WW_GAMES.get(guildId);
-            if (!game || game.phase !== 'lobby') return interaction.reply({ content: '❌ Phòng này không còn hoạt động!', ephemeral: true });
+            if (!game || game.phase !== 'lobby') return interaction.reply({ content: '❌ Phòng này không còn hoạt động!', flags: MessageFlags.Ephemeral });
 
             if (cid.startsWith('ww_join_')) {
-                if (game.players.has(interaction.user.id)) return interaction.reply({ content: '✅ Bạn đã tham gia rồi!', ephemeral: true });
+                if (game.players.has(interaction.user.id)) return interaction.reply({ content: '✅ Bạn đã tham gia rồi!', flags: MessageFlags.Ephemeral });
                 game.players.set(interaction.user.id, { role: null, alive: true });
                 const playerIds = [...game.players.keys()];
                 const newEmbed = game._buildLobbyEmbed(playerIds);
                 await game.lobbyMsg.edit({ embeds: [newEmbed] }).catch(() => {});
-                return interaction.reply({ content: `🎮 Bạn đã tham gia game! Tổng: **${playerIds.length}** người.`, ephemeral: true });
+                return interaction.reply({ content: `🎮 Bạn đã tham gia game! Tổng: **${playerIds.length}** người.`, flags: MessageFlags.Ephemeral });
             }
 
             if (cid.startsWith('ww_cancel_')) {
                 if (interaction.user.id !== game.hostId && !interaction.member.permissions.has(PermissionsBitField.Flags.Administrator))
-                    return interaction.reply({ content: '❌ Chỉ host mới có thể hủy!', ephemeral: true });
+                    return interaction.reply({ content: '❌ Chỉ host mới có thể hủy!', flags: MessageFlags.Ephemeral });
                 WW.WW_GAMES.delete(guildId);
                 if (game.lobbyTimeout) clearTimeout(game.lobbyTimeout);
                 const cancelEmbed = game._buildLobbyEmbed([]).setDescription('❌ Phòng chờ đã bị hủy.').setColor('#888888');
                 await game.lobbyMsg.edit({ embeds: [cancelEmbed], components: [] }).catch(() => {});
-                return interaction.reply({ content: '❌ Đã hủy game!', ephemeral: true });
+                return interaction.reply({ content: '❌ Đã hủy game!', flags: MessageFlags.Ephemeral });
             }
 
             if (cid.startsWith('ww_start_')) {
                 if (interaction.user.id !== game.hostId && !interaction.member.permissions.has(PermissionsBitField.Flags.Administrator))
-                    return interaction.reply({ content: '❌ Chỉ host mới có thể bắt đầu!', ephemeral: true });
-                if (game.players.size < 4) return interaction.reply({ content: `❌ Cần ít nhất **4 người**! Hiện có ${game.players.size}.`, ephemeral: true });
+                    return interaction.reply({ content: '❌ Chỉ host mới có thể bắt đầu!', flags: MessageFlags.Ephemeral });
+                if (game.players.size < 4) return interaction.reply({ content: `❌ Cần ít nhất **4 người**! Hiện có ${game.players.size}.`, flags: MessageFlags.Ephemeral });
                 game._addCoins = addCoins;
-                await interaction.reply({ content: '▶️ Game bắt đầu!', ephemeral: true });
+                await interaction.reply({ content: '▶️ Game bắt đầu!', flags: MessageFlags.Ephemeral });
                 return WW.startGame(game, client, interaction.channel);
             }
         }
@@ -8676,27 +8676,27 @@ client.on('interactionCreate', async (interaction) => {
             for (const [gid, g] of WW.WW_GAMES) {
                 if (cid.endsWith(gid)) { game = g; break; }
             }
-            if (!game || game.phase !== 'night') return interaction.reply({ content: '❌ Không phải lúc hành động!', ephemeral: true });
+            if (!game || game.phase !== 'night') return interaction.reply({ content: '❌ Không phải lúc hành động!', flags: MessageFlags.Ephemeral });
 
             // Wolf kill
             if (cid.startsWith('ww_wolf_kill_')) {
                 const pdata = game.players.get(interaction.user.id);
-                if (!pdata || pdata.role !== 'WEREWOLF') return interaction.reply({ content: '❌ Bạn không phải Ma Sói!', ephemeral: true });
+                if (!pdata || pdata.role !== 'WEREWOLF') return interaction.reply({ content: '❌ Bạn không phải Ma Sói!', flags: MessageFlags.Ephemeral });
                 const targetId = interaction.values[0];
                 game.nightActions.wolfTarget = targetId;
-                return interaction.reply({ content: `✅ Đã chọn giết! Chờ các vai khác hoàn thành.`, ephemeral: true });
+                return interaction.reply({ content: `✅ Đã chọn giết! Chờ các vai khác hoàn thành.`, flags: MessageFlags.Ephemeral });
             }
 
             // Seer check
             if (cid.startsWith('ww_seer_check_')) {
                 const pdata = game.players.get(interaction.user.id);
-                if (!pdata || pdata.role !== 'SEER') return interaction.reply({ content: '❌ Bạn không phải Tiên Tri!', ephemeral: true });
+                if (!pdata || pdata.role !== 'SEER') return interaction.reply({ content: '❌ Bạn không phải Tiên Tri!', flags: MessageFlags.Ephemeral });
                 const targetId = interaction.values[0];
                 const targetRole = game.players.get(targetId)?.role;
                 const roleInfo = WW.WW_ROLES[targetRole];
                 const team = roleInfo?.team === 'evil' ? '🐺 **Phe Ác (Ma Sói)**' : '✅ **Phe Dân Làng**';
                 const targetUser = await client.users.fetch(targetId).catch(() => null);
-                await interaction.reply({ content: `🔮 **Kết quả điều tra:** <@${targetId}> (${targetUser?.username || '?'}) là ${team}`, ephemeral: true });
+                await interaction.reply({ content: `🔮 **Kết quả điều tra:** <@${targetId}> (${targetUser?.username || '?'}) là ${team}`, flags: MessageFlags.Ephemeral });
                 game.nightActions.seerTarget = targetId;
                 return;
             }
@@ -8704,25 +8704,25 @@ client.on('interactionCreate', async (interaction) => {
             // Doctor protect
             if (cid.startsWith('ww_doctor_protect_')) {
                 const pdata = game.players.get(interaction.user.id);
-                if (!pdata || pdata.role !== 'DOCTOR') return interaction.reply({ content: '❌ Bạn không phải Thầy Thuốc!', ephemeral: true });
+                if (!pdata || pdata.role !== 'DOCTOR') return interaction.reply({ content: '❌ Bạn không phải Thầy Thuốc!', flags: MessageFlags.Ephemeral });
                 const targetId = interaction.values[0];
                 game.nightActions.doctorTarget = targetId;
-                return interaction.reply({ content: `✅ Bạn đang bảo vệ <@${targetId}> tối nay!`, ephemeral: true });
+                return interaction.reply({ content: `✅ Bạn đang bảo vệ <@${targetId}> tối nay!`, flags: MessageFlags.Ephemeral });
             }
 
             // Witch save (cứu người bị Ma Sói tấn công)
             if (cid.startsWith('ww_witch_save_')) {
                 const pdata = game.players.get(interaction.user.id);
-                if (!pdata || pdata.role !== 'WITCH' || !game.witchSave) return interaction.reply({ content: '❌ Không thể dùng thuốc cứu!', ephemeral: true });
+                if (!pdata || pdata.role !== 'WITCH' || !game.witchSave) return interaction.reply({ content: '❌ Không thể dùng thuốc cứu!', flags: MessageFlags.Ephemeral });
                 game.nightActions.witchSave = true;
                 game.witchSave = false;
-                return interaction.reply({ content: '💊 Bạn đã dùng Thuốc Cứu! Người bị tấn công đêm nay sẽ được sống!', ephemeral: true });
+                return interaction.reply({ content: '💊 Bạn đã dùng Thuốc Cứu! Người bị tấn công đêm nay sẽ được sống!', flags: MessageFlags.Ephemeral });
             }
 
             // Witch kill
             if (cid.startsWith('ww_witch_kill_')) {
                 const pdata = game.players.get(interaction.user.id);
-                if (!pdata || pdata.role !== 'WITCH' || !game.witchKill) return interaction.reply({ content: '❌ Không thể dùng thuốc độc!', ephemeral: true });
+                if (!pdata || pdata.role !== 'WITCH' || !game.witchKill) return interaction.reply({ content: '❌ Không thể dùng thuốc độc!', flags: MessageFlags.Ephemeral });
                 // Cần chọn mục tiêu — gửi select menu
                 const opts = [...game.players.entries()]
                     .filter(([id, p]) => p.alive)
@@ -8733,22 +8733,22 @@ client.on('interactionCreate', async (interaction) => {
                 const row = new ActionRowBuilder().addComponents(
                     new StringSelectMenuBuilder().setCustomId(`ww_witch_poison_${game.guildId}`).setPlaceholder('Chọn mục tiêu...').addOptions(opts)
                 );
-                return interaction.reply({ content: '☠️ Chọn người bạn muốn đầu độc:', components: [row], ephemeral: true });
+                return interaction.reply({ content: '☠️ Chọn người bạn muốn đầu độc:', components: [row], flags: MessageFlags.Ephemeral });
             }
 
             // Witch poison select
             if (cid.startsWith('ww_witch_poison_')) {
                 const pdata = game.players.get(interaction.user.id);
-                if (!pdata || pdata.role !== 'WITCH') return interaction.reply({ content: '❌ Bạn không phải Phù Thủy!', ephemeral: true });
+                if (!pdata || pdata.role !== 'WITCH') return interaction.reply({ content: '❌ Bạn không phải Phù Thủy!', flags: MessageFlags.Ephemeral });
                 const targetId = interaction.values[0];
                 game.nightActions.witchKillTarget = targetId;
                 game.witchKill = false;
-                return interaction.reply({ content: `☠️ Đã đầu độc <@${targetId}>!`, ephemeral: true });
+                return interaction.reply({ content: `☠️ Đã đầu độc <@${targetId}>!`, flags: MessageFlags.Ephemeral });
             }
 
             // Witch skip
             if (cid.startsWith('ww_witch_skip_')) {
-                return interaction.reply({ content: '⏭️ Bạn đã bỏ qua lượt này.', ephemeral: true });
+                return interaction.reply({ content: '⏭️ Bạn đã bỏ qua lượt này.', flags: MessageFlags.Ephemeral });
             }
         }
 
@@ -8770,27 +8770,27 @@ client.on('interactionCreate', async (interaction) => {
                     break;
                 }
             }
-            if (!game || game.phase !== 'day') return interaction.reply({ content: '❌ Không phải lúc bỏ phiếu!', ephemeral: true });
+            if (!game || game.phase !== 'day') return interaction.reply({ content: '❌ Không phải lúc bỏ phiếu!', flags: MessageFlags.Ephemeral });
 
             // End vote button
             if (cid.startsWith('ww_endvote_')) {
                 if (interaction.user.id !== game.hostId && !interaction.member.permissions.has(PermissionsBitField.Flags.Administrator))
-                    return interaction.reply({ content: '❌ Chỉ host mới được kết thúc sớm!', ephemeral: true });
-                await interaction.reply({ content: '⏹️ Host đã kết thúc bỏ phiếu!', ephemeral: true });
+                    return interaction.reply({ content: '❌ Chỉ host mới được kết thúc sớm!', flags: MessageFlags.Ephemeral });
+                await interaction.reply({ content: '⏹️ Host đã kết thúc bỏ phiếu!', flags: MessageFlags.Ephemeral });
                 return WW.resolveDay(game, client, interaction.channel);
             }
 
             // Vote for someone
             const voter = game.players.get(interaction.user.id);
-            if (!voter?.alive) return interaction.reply({ content: '❌ Bạn đã chết rồi, không thể vote!', ephemeral: true });
-            if (!game.players.get(targetId)?.alive) return interaction.reply({ content: '❌ Người này đã chết!', ephemeral: true });
+            if (!voter?.alive) return interaction.reply({ content: '❌ Bạn đã chết rồi, không thể vote!', flags: MessageFlags.Ephemeral });
+            if (!game.players.get(targetId)?.alive) return interaction.reply({ content: '❌ Người này đã chết!', flags: MessageFlags.Ephemeral });
             const prevVote = game.votes.get(interaction.user.id);
             game.votes.set(interaction.user.id, targetId);
             const targetUser = await client.users.fetch(targetId).catch(() => null);
             const msg = prevVote && prevVote !== targetId
                 ? `🔄 Đã đổi vote sang **${targetUser?.displayName || targetUser?.username || targetId}**!`
                 : `✅ Đã vote **${targetUser?.displayName || targetUser?.username || targetId}**!`;
-            return interaction.reply({ content: msg, ephemeral: true });
+            return interaction.reply({ content: msg, flags: MessageFlags.Ephemeral });
         }
 
         // === XỬ LÝ NÚT NGÂN HÀNG ===
@@ -8800,7 +8800,7 @@ client.on('interactionCreate', async (interaction) => {
             const ownerId = parts[3];
             
             if (interaction.user.id !== ownerId) {
-                return interaction.reply({ content: '❌ Menu ngân hàng này không phải của bạn! Hãy tự dùng lệnh `/bank` hoặc `!bank` để mở menu của riêng bạn.', ephemeral: true });
+                return interaction.reply({ content: '❌ Menu ngân hàng này không phải của bạn! Hãy tự dùng lệnh `/bank` hoặc `!bank` để mở menu của riêng bạn.', flags: MessageFlags.Ephemeral });
             }
             
             if (action === 'deposit') {
@@ -8841,7 +8841,7 @@ client.on('interactionCreate', async (interaction) => {
             
             if (action === 'top') {
                 const embed = buildLeaderboardEmbed(interaction.client);
-                return interaction.reply({ embeds: [embed], ephemeral: true });
+                return interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
             }
             
             if (action === 'refresh') {
@@ -8853,7 +8853,7 @@ client.on('interactionCreate', async (interaction) => {
         // Xử lý nút xác nhận thanh toán
         if (interaction.customId.startsWith('confirm_payment_')) {
             if (!interaction.member.permissions.has(PermissionsBitField.Flags.ManageMessages))
-                return interaction.reply({ content: '❌ Bạn không có quyền!', ephemeral: true });
+                return interaction.reply({ content: '❌ Bạn không có quyền!', flags: MessageFlags.Ephemeral });
             const addInfo = interaction.customId.replace('confirm_payment_', '');
             const updatedRow = new ActionRowBuilder().addComponents(
                 new ButtonBuilder().setCustomId('confirmed').setLabel('Đã xác nhận thanh toán').setStyle(ButtonStyle.Secondary).setDisabled(true)
@@ -8870,14 +8870,14 @@ client.on('interactionCreate', async (interaction) => {
             const targetId = parts[3];
             
             if (action === 'ring') {
-                if (interaction.user.id !== senderId) return interaction.reply({ content: '❌ Đây không phải là menu cầu hôn của bạn!', ephemeral: true });
+                if (interaction.user.id !== senderId) return interaction.reply({ content: '❌ Đây không phải là menu cầu hôn của bạn!', flags: MessageFlags.Ephemeral });
                 const ringId = interaction.values[0];
                 const ring = MARRY_RINGS[ringId];
                 const p1 = getPlayer(senderId);
                 const hasRing = p1.rings && p1.rings[ringId] > 0;
                 
                 if (!hasRing && getUserCoins(senderId) < ring.price) {
-                    return interaction.reply({ content: `❌ Bạn không có sẵn nhẫn và cần **${ring.price.toLocaleString()} 🪙** để mua ${ring.name}!`, ephemeral: true });
+                    return interaction.reply({ content: `❌ Bạn không có sẵn nhẫn và cần **${ring.price.toLocaleString()} 🪙** để mua ${ring.name}!`, flags: MessageFlags.Ephemeral });
                 }
                 
                 const row = new ActionRowBuilder().addComponents(
@@ -8896,7 +8896,7 @@ client.on('interactionCreate', async (interaction) => {
             }
 
             if (interaction.user.id !== targetId) {
-                return interaction.reply({ content: '❌ Bạn không phải là người được cầu hôn!', ephemeral: true });
+                return interaction.reply({ content: '❌ Bạn không phải là người được cầu hôn!', flags: MessageFlags.Ephemeral });
             }
             
             if (action === 'decline') {
@@ -8910,12 +8910,12 @@ client.on('interactionCreate', async (interaction) => {
                 
                 const p1 = getPlayer(senderId);
                 const p2 = getPlayer(targetId);
-                if (p1.partner || p2.partner) return interaction.reply({ content: '❌ Một trong hai người đã kết hôn với người khác rồi!', ephemeral: true });
+                if (p1.partner || p2.partner) return interaction.reply({ content: '❌ Một trong hai người đã kết hôn với người khác rồi!', flags: MessageFlags.Ephemeral });
 
                 const hasRing = p1.rings && p1.rings[ringId] > 0;
 
                 if (!hasRing && getUserCoins(senderId) < ring.price) {
-                    return interaction.reply({ content: `❌ <@${senderId}> không có sẵn nhẫn và không còn đủ ${ring.price.toLocaleString()} 🪙 để mua mới! Lễ cưới bị hủy.`, ephemeral: true });
+                    return interaction.reply({ content: `❌ <@${senderId}> không có sẵn nhẫn và không còn đủ ${ring.price.toLocaleString()} 🪙 để mua mới! Lễ cưới bị hủy.`, flags: MessageFlags.Ephemeral });
                 }
                 
                 if (hasRing) {
@@ -8947,7 +8947,7 @@ client.on('interactionCreate', async (interaction) => {
             const targetId = parts[3];
             
             if (action === 'offerA') {
-                if (interaction.user.id !== senderId) return interaction.reply({ content: '❌ Đây không phải là giao dịch của bạn!', ephemeral: true });
+                if (interaction.user.id !== senderId) return interaction.reply({ content: '❌ Đây không phải là giao dịch của bạn!', flags: MessageFlags.Ephemeral });
                 const petAId = interaction.values[0].replace('ptradeA_', '');
                 const petA = PET_LIST.find(p => p.id === petAId);
                 
@@ -8984,7 +8984,7 @@ client.on('interactionCreate', async (interaction) => {
             }
             
             if (action === 'offerB') {
-                if (interaction.user.id !== targetId) return interaction.reply({ content: '❌ Đây không phải lượt chọn của bạn!', ephemeral: true });
+                if (interaction.user.id !== targetId) return interaction.reply({ content: '❌ Đây không phải lượt chọn của bạn!', flags: MessageFlags.Ephemeral });
                 const petAId = parts[4];
                 const petBId = interaction.values[0].replace('ptradeB_', '');
                 
@@ -9000,13 +9000,13 @@ client.on('interactionCreate', async (interaction) => {
             }
             
             if (action === 'decline') {
-                if (interaction.user.id !== senderId && interaction.user.id !== targetId) return interaction.reply({ content: '❌ Bạn không có quyền hủy giao dịch này!', ephemeral: true });
+                if (interaction.user.id !== senderId && interaction.user.id !== targetId) return interaction.reply({ content: '❌ Bạn không có quyền hủy giao dịch này!', flags: MessageFlags.Ephemeral });
                 await interaction.update({ components: [] });
                 return interaction.channel.send(`❌ Giao dịch giữa <@${senderId}> và <@${targetId}> đã bị hủy!`);
             }
             
             if (action === 'accept') {
-                if (interaction.user.id !== senderId) return interaction.reply({ content: '❌ Chỉ người khởi xướng mới có thể chốt giao dịch!', ephemeral: true });
+                if (interaction.user.id !== senderId) return interaction.reply({ content: '❌ Chỉ người khởi xướng mới có thể chốt giao dịch!', flags: MessageFlags.Ephemeral });
                 const petAId = parts[4];
                 const petBId = parts[5];
                 
@@ -9043,7 +9043,7 @@ client.on('interactionCreate', async (interaction) => {
         
         // === XỬ LÝ NÚT ADMIN CHEAT ===
         if (interaction.customId.startsWith('admin_')) {
-            if (interaction.user.id !== ADMIN_ID) return interaction.reply({ content: '❌ Ngươi không phải Sáng Thế Thần!', ephemeral: true });
+            if (interaction.user.id !== ADMIN_ID) return interaction.reply({ content: '❌ Ngươi không phải Sáng Thế Thần!', flags: MessageFlags.Ephemeral });
             
             if (interaction.customId === 'admin_toggle_cheat') {
                 const cData = loadCoins();
@@ -9083,10 +9083,10 @@ client.on('interactionCreate', async (interaction) => {
         if (interaction.customId.startsWith('ww_myrole_')) {
             const channelId = interaction.customId.replace('ww_myrole_', '');
             const game = wwGames.get(channelId);
-            if (!game || game.status === 'LOBBY') return interaction.reply({ content: '❌ Game không tồn tại hoặc chưa bắt đầu!', ephemeral: true });
+            if (!game || game.status === 'LOBBY') return interaction.reply({ content: '❌ Game không tồn tại hoặc chưa bắt đầu!', flags: MessageFlags.Ephemeral });
             
             const p = game.players.get(interaction.user.id);
-            if (!p) return interaction.reply({ content: '❌ Bạn không tham gia game này!', ephemeral: true });
+            if (!p) return interaction.reply({ content: '❌ Bạn không tham gia game này!', flags: MessageFlags.Ephemeral });
             
             let desc = `Vai trò của bạn là: **${p.role}**\n\n`;
             if (p.role === WW_ROLES.WOLF) desc += 'Mục tiêu: Tiêu diệt hết Dân làng và phe bảo vệ. Bạn sẽ thức dậy mỗi đêm để chọn người cắn.';
@@ -9094,20 +9094,20 @@ client.on('interactionCreate', async (interaction) => {
             else if (p.role === WW_ROLES.GUARD) desc += 'Mục tiêu: Bảo vệ những người vô tội. Bạn sẽ thức dậy mỗi đêm để chọn một người bảo vệ khỏi Sói cắn.';
             else desc += 'Mục tiêu: Sống sót và treo cổ Sói. Hãy suy luận và dùng phiếu bầu của mình vào ban ngày.';
             
-            return interaction.reply({ content: desc, ephemeral: true });
+            return interaction.reply({ content: desc, flags: MessageFlags.Ephemeral });
         }
 
         if (interaction.customId.startsWith('ww_action_')) {
             const channelId = interaction.customId.replace('ww_action_', '');
             const game = wwGames.get(channelId);
-            if (!game || game.status !== 'NIGHT') return interaction.reply({ content: '❌ Hiện không phải ban đêm!', ephemeral: true });
+            if (!game || game.status !== 'NIGHT') return interaction.reply({ content: '❌ Hiện không phải ban đêm!', flags: MessageFlags.Ephemeral });
             
             const p = game.players.get(interaction.user.id);
-            if (!p) return interaction.reply({ content: '❌ Bạn không chơi game này!', ephemeral: true });
-            if (!p.alive) return interaction.reply({ content: '👻 Người chết không được nói!', ephemeral: true });
+            if (!p) return interaction.reply({ content: '❌ Bạn không chơi game này!', flags: MessageFlags.Ephemeral });
+            if (!p.alive) return interaction.reply({ content: '👻 Người chết không được nói!', flags: MessageFlags.Ephemeral });
             
             if (p.role === WW_ROLES.VILLAGER) {
-                return interaction.reply({ content: '💤 Dân làng bình thường không có kỹ năng ban đêm. Hãy đi ngủ!', ephemeral: true });
+                return interaction.reply({ content: '💤 Dân làng bình thường không có kỹ năng ban đêm. Hãy đi ngủ!', flags: MessageFlags.Ephemeral });
             }
             
             // Build target list
@@ -9130,7 +9130,7 @@ client.on('interactionCreate', async (interaction) => {
                     .addOptions(options)
             );
             
-            return interaction.reply({ content: 'Hãy sử dụng kỹ năng của bạn (Bí mật):', components: [row], ephemeral: true });
+            return interaction.reply({ content: 'Hãy sử dụng kỹ năng của bạn (Bí mật):', components: [row], flags: MessageFlags.Ephemeral });
         }
 
         if (interaction.customId.startsWith('ww_target_')) {
@@ -9160,19 +9160,19 @@ client.on('interactionCreate', async (interaction) => {
         if (interaction.customId.startsWith('ww_vote_')) {
             const channelId = interaction.customId.replace('ww_vote_', '');
             const game = wwGames.get(channelId);
-            if (!game || game.status !== 'DAY') return interaction.reply({ content: '❌ Hiện không phải ban ngày!', ephemeral: true });
+            if (!game || game.status !== 'DAY') return interaction.reply({ content: '❌ Hiện không phải ban ngày!', flags: MessageFlags.Ephemeral });
             
             const p = game.players.get(interaction.user.id);
-            if (!p) return interaction.reply({ content: '❌ Bạn không chơi game này!', ephemeral: true });
-            if (!p.alive) return interaction.reply({ content: '👻 Người chết không được bầu cử!', ephemeral: true });
+            if (!p) return interaction.reply({ content: '❌ Bạn không chơi game này!', flags: MessageFlags.Ephemeral });
+            if (!p.alive) return interaction.reply({ content: '👻 Người chết không được bầu cử!', flags: MessageFlags.Ephemeral });
             
             const targetId = interaction.values[0];
             game.dayVotes.set(p.id, targetId);
             
             if (targetId === 'skip') {
-                return interaction.reply({ content: '🗳️ Đã chọn **Skip Vote**.', ephemeral: true });
+                return interaction.reply({ content: '🗳️ Đã chọn **Skip Vote**.', flags: MessageFlags.Ephemeral });
             } else {
-                return interaction.reply({ content: `🗳️ Bạn đã vote treo cổ **${game.players.get(targetId).user.username}**!`, ephemeral: true });
+                return interaction.reply({ content: `🗳️ Bạn đã vote treo cổ **${game.players.get(targetId).user.username}**!`, flags: MessageFlags.Ephemeral });
             }
         }
 
@@ -9182,15 +9182,15 @@ client.on('interactionCreate', async (interaction) => {
         // === XỬ LÝ NÚT TÀI XỈU ===
         if (interaction.customId.startsWith('tx_')) {
             const game = taixiuGames.get(interaction.message.id);
-            if (!game) return interaction.reply({ content: '❌ Phiên Tài Xỉu này đã hết hạn hoặc không tồn tại!', ephemeral: true });
-            if (game.uid !== interaction.user.id) return interaction.reply({ content: '❌ Đây không phải bàn cược của bạn!', ephemeral: true });
+            if (!game) return interaction.reply({ content: '❌ Phiên Tài Xỉu này đã hết hạn hoặc không tồn tại!', flags: MessageFlags.Ephemeral });
+            if (game.uid !== interaction.user.id) return interaction.reply({ content: '❌ Đây không phải bàn cược của bạn!', flags: MessageFlags.Ephemeral });
             
             const betChoice = interaction.customId.replace('tx_', '');
             const { uid, bet } = game;
             
             if (getUserCoins(uid) < bet) {
                 taixiuGames.delete(interaction.message.id);
-                return interaction.reply({ content: '❌ Bạn không đủ coin để chơi!', ephemeral: true });
+                return interaction.reply({ content: '❌ Bạn không đủ coin để chơi!', flags: MessageFlags.Ephemeral });
             }
             
             taixiuGames.delete(interaction.message.id);
@@ -9259,7 +9259,7 @@ client.on('interactionCreate', async (interaction) => {
             const channelId = interaction.channelId;
             const game = baucuaChannels.get(channelId);
             if (!game || game.msgId !== interaction.message.id) {
-                return interaction.reply({ content: '❌ Bàn Bầu Cua này đã đóng!', ephemeral: true });
+                return interaction.reply({ content: '❌ Bàn Bầu Cua này đã đóng!', flags: MessageFlags.Ephemeral });
             }
 
             const choice = interaction.customId.replace('bc_', ''); // bau, cua, tom, ca, ga, nai
@@ -9307,18 +9307,18 @@ client.on('interactionCreate', async (interaction) => {
         // === XỬ LÝ CHỌN CÔNG VIỆC ===
         if (interaction.customId.startsWith('work_select_')) {
             const ownerId = interaction.customId.replace('work_select_', '');
-            if (interaction.user.id !== ownerId) return interaction.reply({ content: '❌ Menu việc làm này không phải của bạn!', ephemeral: true });
+            if (interaction.user.id !== ownerId) return interaction.reply({ content: '❌ Menu việc làm này không phải của bạn!', flags: MessageFlags.Ephemeral });
             
             const jobId = interaction.values[0];
             const job = WORK_JOBS[jobId];
-            if (!job) return interaction.reply({ content: '❌ Công việc không tồn tại!', ephemeral: true });
+            if (!job) return interaction.reply({ content: '❌ Công việc không tồn tại!', flags: MessageFlags.Ephemeral });
             
             const data = loadCoins();
             if (!data[ownerId]) data[ownerId] = { coins: 0 };
             const user = data[ownerId];
             
             if (user.workEnd && Date.now() < user.workEnd) {
-                return interaction.reply({ content: '❌ Bạn đang làm một công việc khác rồi!', ephemeral: true });
+                return interaction.reply({ content: '❌ Bạn đang làm một công việc khác rồi!', flags: MessageFlags.Ephemeral });
             }
             
             user.workJob = job.name;
@@ -9337,8 +9337,8 @@ client.on('interactionCreate', async (interaction) => {
         // === XỬ LÝ NÚT BLACKJACK ===
         if (['bj_hit', 'bj_stand', 'bj_double'].includes(interaction.customId)) {
             const game = blackjackGames.get(interaction.user.id);
-            if (!game) return interaction.reply({ content: '❌ Không có game Blackjack nào!', ephemeral: true });
-            if (game.uid !== interaction.user.id) return interaction.reply({ content: '❌ Đây không phải game của bạn!', ephemeral: true });
+            if (!game) return interaction.reply({ content: '❌ Không có game Blackjack nào!', flags: MessageFlags.Ephemeral });
+            if (game.uid !== interaction.user.id) return interaction.reply({ content: '❌ Đây không phải game của bạn!', flags: MessageFlags.Ephemeral });
 
             // Hit
             if (interaction.customId === 'bj_hit') {
@@ -9387,7 +9387,7 @@ client.on('interactionCreate', async (interaction) => {
 
             // Double Down
             if (interaction.customId === 'bj_double') {
-                if (getUserCoins(game.uid) < game.bet) return interaction.reply({ content: '❌ Không đủ coin để gấp đôi!', ephemeral: true });
+                if (getUserCoins(game.uid) < game.bet) return interaction.reply({ content: '❌ Không đủ coin để gấp đôi!', flags: MessageFlags.Ephemeral });
                 addCoins(game.uid, -game.bet);
                 game.bet *= 2;
                 game.p.push(game.deck.pop());
@@ -9411,14 +9411,14 @@ client.on('interactionCreate', async (interaction) => {
             const state = getQueue(interaction.guildId);
 
             if (!state.player || !state.queue.length || !state.djId) {
-                return interaction.reply({ content: '❌ Không có nhạc đang phát!', ephemeral: true }).catch(console.error);
+                return interaction.reply({ content: '❌ Không có nhạc đang phát!', flags: MessageFlags.Ephemeral }).catch(console.error);
             }
 
             // Kiểm tra quyền: chỉ DJ (người gọi /play) mới điều khiển được
             if (interaction.user.id !== state.djId) {
                 return interaction.reply({
                     content: `❌ Chỉ <@${state.djId}> (người gọi nhạc) mới có thể điều khiển!`,
-                    ephemeral: true
+                    flags: MessageFlags.Ephemeral
                 }).catch(console.error);
             }
 
@@ -9467,7 +9467,7 @@ client.on('interactionCreate', async (interaction) => {
                 
                 const controls = buildMusicControls(state.paused, state.volume, state.loop);
                 await interaction.update({ embeds: [embed], components: controls });
-                return interaction.followUp({ content: state.loop ? '🔁 Đã BẬT chế độ lặp bài hiện tại!' : '➡ Đã TẮT chế độ lặp bài!', ephemeral: true });
+                return interaction.followUp({ content: state.loop ? '🔁 Đã BẬT chế độ lặp bài hiện tại!' : '➡ Đã TẮT chế độ lặp bài!', flags: MessageFlags.Ephemeral });
             }
 
             // --- NÚt BọO QUA ---
@@ -9497,7 +9497,7 @@ client.on('interactionCreate', async (interaction) => {
             // --- NÚt XEM HÀNG ĐỢI ---
             else if (interaction.customId === 'music_queue') {
                 if (!state.queue.length) {
-                    return interaction.reply({ content: '📋 Hàng đợi trống!', ephemeral: true });
+                    return interaction.reply({ content: '📋 Hàng đợi trống!', flags: MessageFlags.Ephemeral });
                 }
                 const queueList = state.queue.slice(0, 10).map((s, i) =>
                     `${i === 0 ? '▶ **[Đang phát]**' : `${i}.`} [${s.title}](${s.url}) • \`${s.duration || 'N/A'}\``
@@ -9507,7 +9507,7 @@ client.on('interactionCreate', async (interaction) => {
                     .setDescription(queueList)
                     .setColor('#0099ff')
                     .setFooter({ text: state.queue.length > 10 ? `... và ${state.queue.length - 10} bài nữa` : '​' });
-                return interaction.reply({ embeds: [embed], ephemeral: true });
+                return interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
             }
 
             // --- NÚT ÂM LƯỢNG ---
@@ -9541,14 +9541,14 @@ client.on('interactionCreate', async (interaction) => {
         if (interaction.customId === 'j2c_name_modal') {
             const newName = interaction.fields.getTextInputValue('new_name');
             await interaction.channel.setName(newName).catch(() => {});
-            return interaction.reply({ content: `✅ Đã đổi tên phòng thành: **${newName}**`, ephemeral: true });
+            return interaction.reply({ content: `✅ Đã đổi tên phòng thành: **${newName}**`, flags: MessageFlags.Ephemeral });
         }
         
         if (interaction.customId === 'j2c_limit_modal') {
             const limitStr = interaction.fields.getTextInputValue('new_limit');
             const limit = parseInt(limitStr);
             if (isNaN(limit) || limit < 0 || limit > 99) {
-                return interaction.reply({ content: '❌ Vui lòng nhập số từ 0 đến 99 (0 = Không giới hạn)!', ephemeral: true });
+                return interaction.reply({ content: '❌ Vui lòng nhập số từ 0 đến 99 (0 = Không giới hạn)!', flags: MessageFlags.Ephemeral });
             }
             await interaction.channel.setUserLimit(limit).catch(() => {});
             
@@ -9558,7 +9558,7 @@ client.on('interactionCreate', async (interaction) => {
                 newEmbed.data.fields[1].value = limit === 0 ? 'Không giới hạn' : `${limit} người`;
                 await interaction.message.edit({ embeds: [newEmbed] }).catch(() => {});
             }
-            return interaction.reply({ content: `✅ Đã chỉnh giới hạn phòng thành: **${limit === 0 ? 'Không giới hạn' : limit + ' người'}**`, ephemeral: true });
+            return interaction.reply({ content: `✅ Đã chỉnh giới hạn phòng thành: **${limit === 0 ? 'Không giới hạn' : limit + ' người'}**`, flags: MessageFlags.Ephemeral });
         }
 
         if (interaction.customId.startsWith('bcmodal_')) {
@@ -9568,7 +9568,7 @@ client.on('interactionCreate', async (interaction) => {
             
             const game = baucuaChannels.get(channelId);
             if (!game) {
-                return interaction.reply({ content: '❌ Bàn Bầu Cua này đã kết thúc!', ephemeral: true });
+                return interaction.reply({ content: '❌ Bàn Bầu Cua này đã kết thúc!', flags: MessageFlags.Ephemeral });
             }
             
             const amountInput = interaction.fields.getTextInputValue('bet_amount').trim().toLowerCase();
@@ -9581,12 +9581,12 @@ client.on('interactionCreate', async (interaction) => {
             } else {
                 finalAmount = parseInt(amountInput);
                 if (isNaN(finalAmount) || finalAmount < 10) {
-                    return interaction.reply({ content: '❌ Cú pháp không hợp lệ. Vui lòng nhập số coin (tối thiểu 10) hoặc "all".', ephemeral: true });
+                    return interaction.reply({ content: '❌ Cú pháp không hợp lệ. Vui lòng nhập số coin (tối thiểu 10) hoặc "all".', flags: MessageFlags.Ephemeral });
                 }
             }
             
-            if (finalAmount > 500000) return interaction.reply({ content: '❌ Mức cược tối đa là **500,000 🪙**!', ephemeral: true });
-            if (cash < finalAmount) return interaction.reply({ content: `❌ Không đủ coin! Bạn có **${cash.toLocaleString()} 🪙**.`, ephemeral: true });
+            if (finalAmount > 500000) return interaction.reply({ content: '❌ Mức cược tối đa là **500,000 🪙**!', flags: MessageFlags.Ephemeral });
+            if (cash < finalAmount) return interaction.reply({ content: `❌ Không đủ coin! Bạn có **${cash.toLocaleString()} 🪙**.`, flags: MessageFlags.Ephemeral });
             
             addCoins(uid, -finalAmount);
             game.bets.push({
@@ -9607,12 +9607,12 @@ client.on('interactionCreate', async (interaction) => {
                 
             game.messageObj.edit({ embeds: [embed] }).catch(() => {});
             
-            return interaction.reply({ content: `✅ Bạn đã đặt cược **${finalAmount.toLocaleString()} 🪙** vào **${faceNames[choice]}** thành công!`, ephemeral: true });
+            return interaction.reply({ content: `✅ Bạn đã đặt cược **${finalAmount.toLocaleString()} 🪙** vào **${faceNames[choice]}** thành công!`, flags: MessageFlags.Ephemeral });
         }
         
         if (interaction.customId.startsWith('bank_deposit_modal_')) {
             const ownerId = interaction.customId.replace('bank_deposit_modal_', '');
-            if (interaction.user.id !== ownerId) return interaction.reply({ content: '❌ Bạn không phải chủ sở hữu giao dịch này!', ephemeral: true });
+            if (interaction.user.id !== ownerId) return interaction.reply({ content: '❌ Bạn không phải chủ sở hữu giao dịch này!', flags: MessageFlags.Ephemeral });
             
             const amount = interaction.fields.getTextInputValue('deposit_amount_input').trim().toLowerCase();
             const cash = getUserCoins(ownerId);
@@ -9623,15 +9623,15 @@ client.on('interactionCreate', async (interaction) => {
             } else {
                 finalAmount = parseInt(amount);
                 if (isNaN(finalAmount) || finalAmount <= 0) {
-                    return interaction.reply({ content: '❌ Số tiền không hợp lệ! Vui lòng nhập số nguyên dương hoặc "all".', ephemeral: true });
+                    return interaction.reply({ content: '❌ Số tiền không hợp lệ! Vui lòng nhập số nguyên dương hoặc "all".', flags: MessageFlags.Ephemeral });
                 }
             }
             
             if (cash < finalAmount) {
-                return interaction.reply({ content: `❌ Bạn không đủ tiền mặt! (Hiện có: **${cash.toLocaleString()} 🪙** tiền mặt)`, ephemeral: true });
+                return interaction.reply({ content: `❌ Bạn không đủ tiền mặt! (Hiện có: **${cash.toLocaleString()} 🪙** tiền mặt)`, flags: MessageFlags.Ephemeral });
             }
             if (finalAmount === 0) {
-                return interaction.reply({ content: '❌ Bạn không có tiền mặt để gửi!', ephemeral: true });
+                return interaction.reply({ content: '❌ Bạn không có tiền mặt để gửi!', flags: MessageFlags.Ephemeral });
             }
             
             addCoins(ownerId, -finalAmount);
@@ -9639,12 +9639,12 @@ client.on('interactionCreate', async (interaction) => {
             
             const embed = buildBankEmbed(interaction.user);
             await interaction.update({ embeds: [embed], components: buildBankButtons(ownerId) });
-            return interaction.followUp({ content: `✅ Đã gửi **${finalAmount.toLocaleString()} 🪙** vào ngân hàng thành công!`, ephemeral: true });
+            return interaction.followUp({ content: `✅ Đã gửi **${finalAmount.toLocaleString()} 🪙** vào ngân hàng thành công!`, flags: MessageFlags.Ephemeral });
         }
         
         if (interaction.customId.startsWith('bank_withdraw_modal_')) {
             const ownerId = interaction.customId.replace('bank_withdraw_modal_', '');
-            if (interaction.user.id !== ownerId) return interaction.reply({ content: '❌ Bạn không phải chủ sở hữu giao dịch này!', ephemeral: true });
+            if (interaction.user.id !== ownerId) return interaction.reply({ content: '❌ Bạn không phải chủ sở hữu giao dịch này!', flags: MessageFlags.Ephemeral });
             
             const amount = interaction.fields.getTextInputValue('withdraw_amount_input').trim().toLowerCase();
             const bank = getUserBank(ownerId);
@@ -9655,15 +9655,15 @@ client.on('interactionCreate', async (interaction) => {
             } else {
                 finalAmount = parseInt(amount);
                 if (isNaN(finalAmount) || finalAmount <= 0) {
-                    return interaction.reply({ content: '❌ Số tiền không hợp lệ! Vui lòng nhập số nguyên dương hoặc "all".', ephemeral: true });
+                    return interaction.reply({ content: '❌ Số tiền không hợp lệ! Vui lòng nhập số nguyên dương hoặc "all".', flags: MessageFlags.Ephemeral });
                 }
             }
             
             if (bank < finalAmount) {
-                return interaction.reply({ content: `❌ Tài khoản ngân hàng của bạn không đủ tiền! (Hiện có: **${bank.toLocaleString()} 🪙** trong ngân hàng)`, ephemeral: true });
+                return interaction.reply({ content: `❌ Tài khoản ngân hàng của bạn không đủ tiền! (Hiện có: **${bank.toLocaleString()} 🪙** trong ngân hàng)`, flags: MessageFlags.Ephemeral });
             }
             if (finalAmount === 0) {
-                return interaction.reply({ content: '❌ Ngân hàng của bạn đang trống, không thể rút!', ephemeral: true });
+                return interaction.reply({ content: '❌ Ngân hàng của bạn đang trống, không thể rút!', flags: MessageFlags.Ephemeral });
             }
             
             addBank(ownerId, -finalAmount);
@@ -9671,7 +9671,7 @@ client.on('interactionCreate', async (interaction) => {
             
             const embed = buildBankEmbed(interaction.user);
             await interaction.update({ embeds: [embed], components: buildBankButtons(ownerId) });
-            return interaction.followUp({ content: `✅ Đã rút **${finalAmount.toLocaleString()} 🪙** về ví tiền mặt thành công!`, ephemeral: true });
+            return interaction.followUp({ content: `✅ Đã rút **${finalAmount.toLocaleString()} 🪙** về ví tiền mặt thành công!`, flags: MessageFlags.Ephemeral });
         }
         if (interaction.customId.startsWith('craft_buy_modal_')) {
             const itemId = interaction.customId.replace('craft_buy_modal_', '');
@@ -9679,25 +9679,25 @@ client.on('interactionCreate', async (interaction) => {
             const amount = parseInt(amountStr);
             
             if (isNaN(amount) || amount <= 0) {
-                return interaction.reply({ content: '❌ Số lượng không hợp lệ! Vui lòng nhập số lớn hơn 0.', ephemeral: true });
+                return interaction.reply({ content: '❌ Số lượng không hợp lệ! Vui lòng nhập số lớn hơn 0.', flags: MessageFlags.Ephemeral });
             }
             
             const recipe = CRAFTING_RECIPES[itemId];
-            if (!recipe) return interaction.reply({ content: '❌ Món đồ không tồn tại!', ephemeral: true });
+            if (!recipe) return interaction.reply({ content: '❌ Món đồ không tồn tại!', flags: MessageFlags.Ephemeral });
             
             const userId = interaction.user.id;
             const p = getPlayer(userId);
             
             const totalCoin = recipe.coin * amount;
             if (getUserCoins(userId) < totalCoin) {
-                return interaction.reply({ content: `❌ Bạn không đủ tiền! Cần **${totalCoin.toLocaleString()} 🪙** để rèn ${amount} món này.`, ephemeral: true });
+                return interaction.reply({ content: `❌ Bạn không đủ tiền! Cần **${totalCoin.toLocaleString()} 🪙** để rèn ${amount} món này.`, flags: MessageFlags.Ephemeral });
             }
             
             for (const [mat, qty] of Object.entries(recipe.req)) {
                 const totalMatReq = qty * amount;
                 if (!p.inventory[mat] || p.inventory[mat] < totalMatReq) {
                     const matDef = RPG_ITEMS.materials[mat];
-                    return interaction.reply({ content: `❌ Bạn thiếu **${matDef.emoji} ${matDef.name}** (Cần ${totalMatReq}, có ${p.inventory[mat] || 0}).`, ephemeral: true });
+                    return interaction.reply({ content: `❌ Bạn thiếu **${matDef.emoji} ${matDef.name}** (Cần ${totalMatReq}, có ${p.inventory[mat] || 0}).`, flags: MessageFlags.Ephemeral });
                 }
             }
             
@@ -9720,7 +9720,7 @@ client.on('interactionCreate', async (interaction) => {
                 .setDescription(`Bạn đã rèn thành công **${amount}x ${recipe.emoji} ${recipe.name}**!\nTổng chi phí: **${totalCoin.toLocaleString()} 🪙**`)
                 .setColor('#F1C40F');
                 
-            return interaction.reply({ embeds: [embed], ephemeral: true });
+            return interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
         }
 
         if (interaction.customId.startsWith('shop_buy_modal_')) {
@@ -9731,7 +9731,7 @@ client.on('interactionCreate', async (interaction) => {
             const amountStr = interaction.fields.getTextInputValue('buy_amount_input').trim();
             const amount = parseInt(amountStr);
             if (isNaN(amount) || amount <= 0) {
-                return interaction.reply({ content: '❌ Số lượng không hợp lệ! Vui lòng nhập số nguyên lớn hơn 0.', ephemeral: true });
+                return interaction.reply({ content: '❌ Số lượng không hợp lệ! Vui lòng nhập số nguyên lớn hơn 0.', flags: MessageFlags.Ephemeral });
             }
             
             let item;
@@ -9740,13 +9740,13 @@ client.on('interactionCreate', async (interaction) => {
             else if (type === 'pokeball') item = RPG_ITEMS.pokeballs[itemCode];
             else if (type === 'seed') item = RPG_ITEMS.seeds[itemCode];
             
-            if (!item) return interaction.reply({ content: '❌ Món đồ không tồn tại!', ephemeral: true });
+            if (!item) return interaction.reply({ content: '❌ Món đồ không tồn tại!', flags: MessageFlags.Ephemeral });
             
             const totalCost = item.price * amount;
             const coins = getUserCoins(interaction.user.id);
             
             if (coins < totalCost) {
-                return interaction.reply({ content: `❌ Bạn không đủ tiền! Cần **${totalCost.toLocaleString()} 🪙** để mua ${amount}x ${item.name}.`, ephemeral: true });
+                return interaction.reply({ content: `❌ Bạn không đủ tiền! Cần **${totalCost.toLocaleString()} 🪙** để mua ${amount}x ${item.name}.`, flags: MessageFlags.Ephemeral });
             }
             
             addCoins(interaction.user.id, -totalCost);
@@ -9763,7 +9763,7 @@ client.on('interactionCreate', async (interaction) => {
             let msgContent = `✅ Bạn đã mua **${amount}x ${item.emoji} ${item.name}** thành công! Đã trừ **${totalCost.toLocaleString()} 🪙**.\nSố dư: **${getUserCoins(interaction.user.id).toLocaleString()} 🪙**`;
             if (type === 'ring') msgContent += `\n> Dùng lệnh \`/marry\` để cầu hôn với nhẫn này!`;
             
-            return interaction.reply({ content: msgContent, ephemeral: true });
+            return interaction.reply({ content: msgContent, flags: MessageFlags.Ephemeral });
         }
     }
 
@@ -9774,15 +9774,15 @@ client.on('interactionCreate', async (interaction) => {
     if (commandName === 'nopphat' || commandName === 'bribe') {
         const data = loadCoins();
         if (!data[uid] || !data[uid].jailEnd || Date.now() >= data[uid].jailEnd) {
-            return interaction.reply({ content: '❌ Bạn có ở trong tù đâu mà đòi nộp phạt!', ephemeral: true });
+            return interaction.reply({ content: '❌ Bạn có ở trong tù đâu mà đòi nộp phạt!', flags: MessageFlags.Ephemeral });
         }
         if ((data[uid].coins || 0) < 100000) {
-            return interaction.reply({ content: '❌ Không đủ tiền! Bạn cần **100,000 🪙** tiền mặt để nộp phạt.', ephemeral: true });
+            return interaction.reply({ content: '❌ Không đủ tiền! Bạn cần **100,000 🪙** tiền mặt để nộp phạt.', flags: MessageFlags.Ephemeral });
         }
         data[uid].coins = Math.max(0, (data[uid].coins || 0) - 100000);
         data[uid].jailEnd = null;
         saveCoins(data);
-        return interaction.reply({ content: '🔓 Bạn đã nộp **100,000 🪙** cho công an và được thả tự do!', ephemeral: false });
+        return interaction.reply({ content: '🔓 Bạn đã nộp **100,000 🪙** cho công an và được thả tự do!', flags: 0 });
     }
 
     if (commandName === 'robbank' || commandName === 'heist') {
@@ -9809,13 +9809,13 @@ client.on('interactionCreate', async (interaction) => {
                 // Trang Admin: chỉ Admin mới được xem, hiển thị ẩn
                 const isAdmin = i.member?.permissions?.has(PermissionsBitField.Flags.Administrator);
                 if (!isAdmin) {
-                    return i.reply({ content: '🔒 **Trang này chỉ dành cho Admin!** Bạn không có quyền xem mục này.', ephemeral: true });
+                    return i.reply({ content: '🔒 **Trang này chỉ dành cho Admin!** Bạn không có quyền xem mục này.', flags: MessageFlags.Ephemeral });
                 }
                 await i.update({ components: [row] });
-                return i.followUp({ embeds: [pages[page]], ephemeral: true });
+                return i.followUp({ embeds: [pages[page]], flags: MessageFlags.Ephemeral });
             }
             if (i.user.id !== interaction.user.id) {
-                return i.reply({ content: '❌ Chỉ người dùng lệnh mới có thể điều hướng!', ephemeral: true });
+                return i.reply({ content: '❌ Chỉ người dùng lệnh mới có thể điều hướng!', flags: MessageFlags.Ephemeral });
             }
             await i.update({ embeds: [pages[page]], components: [row] });
         });
@@ -9838,16 +9838,16 @@ client.on('interactionCreate', async (interaction) => {
         const voiceChannel = interaction.member.voice.channel;
 
         if (!query && !file) {
-            return interaction.reply({ content: '❌ Bạn phải nhập tên bài hát hoặc đính kèm một file nhạc!', ephemeral: true });
+            return interaction.reply({ content: '❌ Bạn phải nhập tên bài hát hoặc đính kèm một file nhạc!', flags: MessageFlags.Ephemeral });
         }
 
         if (!voiceChannel) {
-            return interaction.reply({ content: '❌ Bạn cần vào **voice channel** trước!', ephemeral: true });
+            return interaction.reply({ content: '❌ Bạn cần vào **voice channel** trước!', flags: MessageFlags.Ephemeral });
         }
 
         const perms = voiceChannel.permissionsFor(client.user);
         if (!perms.has(PermissionsBitField.Flags.Connect) || !perms.has(PermissionsBitField.Flags.Speak)) {
-            return interaction.reply({ content: '❌ Bot không có quyền vào kênh thoại này!', ephemeral: true });
+            return interaction.reply({ content: '❌ Bot không có quyền vào kênh thoại này!', flags: MessageFlags.Ephemeral });
         }
 
         await interaction.deferReply();
@@ -9937,7 +9937,7 @@ client.on('interactionCreate', async (interaction) => {
     if (commandName === 'skip') {
         const state = getQueue(interaction.guildId);
         if (!state.player || state.queue.length === 0) {
-            return interaction.reply({ content: '❌ Không có bài nào đang phát!', ephemeral: true });
+            return interaction.reply({ content: '❌ Không có bài nào đang phát!', flags: MessageFlags.Ephemeral });
         }
         state.player.stop();
         return interaction.reply('⏭ Đã bỏ qua bài nhạc!');
@@ -9947,7 +9947,7 @@ client.on('interactionCreate', async (interaction) => {
     if (commandName === 'stop') {
         const state = getQueue(interaction.guildId);
         if (!state.connection) {
-            return interaction.reply({ content: '❌ Bot không ở trong voice channel!', ephemeral: true });
+            return interaction.reply({ content: '❌ Bot không ở trong voice channel!', flags: MessageFlags.Ephemeral });
         }
         state.queue.length = 0;
         state.player?.stop();
@@ -9975,7 +9975,7 @@ client.on('interactionCreate', async (interaction) => {
         const amount = interaction.options.getInteger('amount') || 1;
         
         const petInfo = PET_LIST.find(p => p.id === petId);
-        if (!petInfo) return interaction.reply({ content: '❌ Pet ID không hợp lệ! (Ví dụ: pikachu, arceus, lugia...)', ephemeral: true });
+        if (!petInfo) return interaction.reply({ content: '❌ Pet ID không hợp lệ! (Ví dụ: pikachu, arceus, lugia...)', flags: MessageFlags.Ephemeral });
         
         return awaitConfirmation(interaction, interaction.user.id, `Bạn muốn tặng **${amount}x ${petInfo.emoji} ${petInfo.name}** cho <@${target.id}>?`, async () => {
             const data = loadRPG();
@@ -9996,7 +9996,7 @@ client.on('interactionCreate', async (interaction) => {
     // --- PAUSE ---
     if (commandName === 'pause') {
         const state = getQueue(interaction.guildId);
-        if (!state.player) return interaction.reply({ content: '❌ Không có nhạc đang phát!', ephemeral: true });
+        if (!state.player) return interaction.reply({ content: '❌ Không có nhạc đang phát!', flags: MessageFlags.Ephemeral });
         state.player.pause();
         return interaction.reply('⏸ Đã tạm dừng nhạc!');
     }
@@ -10013,7 +10013,7 @@ client.on('interactionCreate', async (interaction) => {
     // --- RESUME ---
     if (commandName === 'resume') {
         const state = getQueue(interaction.guildId);
-        if (!state.player) return interaction.reply({ content: '❌ Không có nhạc để tiếp tục!', ephemeral: true });
+        if (!state.player) return interaction.reply({ content: '❌ Không có nhạc để tiếp tục!', flags: MessageFlags.Ephemeral });
         state.player.unpause();
         return interaction.reply('▶ Đã tiếp tục phát nhạc!');
     }
@@ -10022,7 +10022,7 @@ client.on('interactionCreate', async (interaction) => {
     if (commandName === 'queue') {
         const state = getQueue(interaction.guildId);
         if (!state.queue.length) {
-            return interaction.reply({ content: '📋 Hàng đợi trống!', ephemeral: true });
+            return interaction.reply({ content: '📋 Hàng đợi trống!', flags: MessageFlags.Ephemeral });
         }
         const queueList = state.queue.slice(0, 10).map((s, i) =>
             `${i === 0 ? '▶ **[Đang phát]**' : `${i}.`} [${s.title}](${s.url}) • \`${s.duration || 'N/A'}\``
@@ -10039,7 +10039,7 @@ client.on('interactionCreate', async (interaction) => {
     if (commandName === 'nowplaying') {
         const state = getQueue(interaction.guildId);
         if (!state.queue.length) {
-            return interaction.reply({ content: '❌ Không có bài nào đang phát!', ephemeral: true });
+            return interaction.reply({ content: '❌ Không có bài nào đang phát!', flags: MessageFlags.Ephemeral });
         }
         const song = state.queue[0];
         const embed = new EmbedBuilder()
@@ -10076,7 +10076,7 @@ client.on('interactionCreate', async (interaction) => {
 
     if (commandName === 'setwelcome') {
         if (!interaction.member || !interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) 
-            return interaction.reply({ content: '❌ Bạn không có quyền!', ephemeral: true });
+            return interaction.reply({ content: '❌ Bạn không có quyền!', flags: MessageFlags.Ephemeral });
         
         const channel = interaction.options.getChannel('channel');
         const messageStr = interaction.options.getString('message');
@@ -10088,31 +10088,31 @@ client.on('interactionCreate', async (interaction) => {
         if (image) config.welcomeImage = image;
         saveConfig(config);
         
-        return interaction.reply({ content: `✅ Đã cài đặt chào mừng!\n- **Kênh:** ${channel}\n- **Lời chào:** ${messageStr || 'Mặc định'}\n- **Ảnh:** ${image || 'Không có'}`, ephemeral: true });
+        return interaction.reply({ content: `✅ Đã cài đặt chào mừng!\n- **Kênh:** ${channel}\n- **Lời chào:** ${messageStr || 'Mặc định'}\n- **Ảnh:** ${image || 'Không có'}`, flags: MessageFlags.Ephemeral });
     }
 
     if (commandName === 'disablewelcome') {
         if (!interaction.member || !interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) 
-            return interaction.reply({ content: '❌ Bạn không có quyền!', ephemeral: true });
+            return interaction.reply({ content: '❌ Bạn không có quyền!', flags: MessageFlags.Ephemeral });
         
         const config = loadConfig();
         config.welcomeChannelId = 'disabled';
         saveConfig(config);
         
-        return interaction.reply({ content: `✅ Đã **TẮT** tính năng chào mừng thành viên mới! (Gõ lại /setwelcome để bật lại)`, ephemeral: true });
+        return interaction.reply({ content: `✅ Đã **TẮT** tính năng chào mừng thành viên mới! (Gõ lại /setwelcome để bật lại)`, flags: MessageFlags.Ephemeral });
     }
 
     if (commandName === 'testwelcome') {
         if (!interaction.member || !interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) 
-            return interaction.reply({ content: '❌ Bạn không có quyền!', ephemeral: true });
+            return interaction.reply({ content: '❌ Bạn không có quyền!', flags: MessageFlags.Ephemeral });
         
         client.emit('guildMemberAdd', interaction.member);
-        return interaction.reply({ content: '✅ Đã giả lập gửi tin nhắn chào mừng (Kiểm tra tại kênh welcome của bạn)!', ephemeral: true });
+        return interaction.reply({ content: '✅ Đã giả lập gửi tin nhắn chào mừng (Kiểm tra tại kênh welcome của bạn)!', flags: MessageFlags.Ephemeral });
     }
 
     if (commandName === 'setuppokemonrole') {
         if (interaction.user.id !== ADMIN_ID) 
-            return interaction.reply({ content: '❌ Lệnh này chỉ dành riêng cho Chủ Bot!', ephemeral: true });
+            return interaction.reply({ content: '❌ Lệnh này chỉ dành riêng cho Chủ Bot!', flags: MessageFlags.Ephemeral });
         
         let role = interaction.guild.roles.cache.find(r => r.name.toLowerCase() === 'pokemon');
         if (!role) {
@@ -10124,7 +10124,7 @@ client.on('interactionCreate', async (interaction) => {
                     reason: 'Role cho tính năng thông báo Pokemon'
                 });
             } catch (err) {
-                return interaction.reply({ content: '❌ Bot không có đủ quyền để tạo role. Vui lòng cấp quyền `Manage Roles` cho bot.', ephemeral: true });
+                return interaction.reply({ content: '❌ Bot không có đủ quyền để tạo role. Vui lòng cấp quyền `Manage Roles` cho bot.', flags: MessageFlags.Ephemeral });
             }
         }
         
@@ -10142,27 +10142,27 @@ client.on('interactionCreate', async (interaction) => {
         );
         
         await interaction.channel.send({ embeds: [embed], components: [row] });
-        return interaction.reply({ content: '✅ Đã cài đặt thành công role Pokemon và gửi bảng đăng ký!', ephemeral: true });
+        return interaction.reply({ content: '✅ Đã cài đặt thành công role Pokemon và gửi bảng đăng ký!', flags: MessageFlags.Ephemeral });
     }
 
     if (commandName === 'senddm') {
         if (interaction.user.id !== ADMIN_ID) 
-            return interaction.reply({ content: '❌ Lệnh này chỉ dành riêng cho Chủ Bot!', ephemeral: true });
+            return interaction.reply({ content: '❌ Lệnh này chỉ dành riêng cho Chủ Bot!', flags: MessageFlags.Ephemeral });
         
         const targetUser = interaction.options.getUser('user');
         const messageStr = interaction.options.getString('message');
         
         try {
             await targetUser.send({ content: messageStr });
-            return interaction.reply({ content: `✅ Đã gửi tin nhắn đến **${targetUser.tag}** thành công!\n**Nội dung:** ${messageStr}`, ephemeral: true });
+            return interaction.reply({ content: `✅ Đã gửi tin nhắn đến **${targetUser.tag}** thành công!\n**Nội dung:** ${messageStr}`, flags: MessageFlags.Ephemeral });
         } catch (err) {
-            return interaction.reply({ content: `❌ Không thể gửi tin nhắn đến **${targetUser.tag}**. Người này có thể đã tắt DM hoặc chặn Bot.`, ephemeral: true });
+            return interaction.reply({ content: `❌ Không thể gửi tin nhắn đến **${targetUser.tag}**. Người này có thể đã tắt DM hoặc chặn Bot.`, flags: MessageFlags.Ephemeral });
         }
     }
 
     if (commandName === 'setuprpgrole') {
         if (interaction.user.id !== ADMIN_ID) 
-            return interaction.reply({ content: '❌ Lệnh này chỉ dành riêng cho Chủ Bot!', ephemeral: true });
+            return interaction.reply({ content: '❌ Lệnh này chỉ dành riêng cho Chủ Bot!', flags: MessageFlags.Ephemeral });
         
         let role = interaction.guild.roles.cache.find(r => r.name.toLowerCase() === 'rpg player');
         if (!role) {
@@ -10174,7 +10174,7 @@ client.on('interactionCreate', async (interaction) => {
                     reason: 'Role cho tính năng thông báo RPG (Raid Boss)'
                 });
             } catch (err) {
-                return interaction.reply({ content: '❌ Bot không có đủ quyền để tạo role. Vui lòng cấp quyền `Manage Roles` cho bot.', ephemeral: true });
+                return interaction.reply({ content: '❌ Bot không có đủ quyền để tạo role. Vui lòng cấp quyền `Manage Roles` cho bot.', flags: MessageFlags.Ephemeral });
             }
         }
         
@@ -10192,20 +10192,20 @@ client.on('interactionCreate', async (interaction) => {
         );
         
         await interaction.channel.send({ embeds: [embed], components: [row] });
-        return interaction.reply({ content: '✅ Đã cài đặt thành công role RPG và gửi bảng đăng ký!', ephemeral: true });
+        return interaction.reply({ content: '✅ Đã cài đặt thành công role RPG và gửi bảng đăng ký!', flags: MessageFlags.Ephemeral });
     }
 
     // --- QR ---
     if (commandName === 'qr') {
-        if (interaction.user.id !== ADMIN_ID && (!interaction.member || !interaction.member.permissions.has(PermissionsBitField.Flags.Administrator))) return interaction.reply({ content: '❌ Lệnh này chỉ dành cho Admin!', ephemeral: true });
+        if (interaction.user.id !== ADMIN_ID && (!interaction.member || !interaction.member.permissions.has(PermissionsBitField.Flags.Administrator))) return interaction.reply({ content: '❌ Lệnh này chỉ dành cho Admin!', flags: MessageFlags.Ephemeral });
         const amount = interaction.options.getInteger('amount');
         const baseInfo = interaction.options.getString('content') || '';
         const safeBaseInfo = baseInfo.replace(/[^a-zA-Z0-9 ]/g, '');
         let addInfo = safeBaseInfo ? `${safeBaseInfo} ${qrOrderCount}` : `Thanh toan don ${qrOrderCount}`;
         qrOrderCount++;
-        if (amount <= 0) return interaction.reply({ content: '❌ Số tiền phải lớn hơn 0.', ephemeral: true });
+        if (amount <= 0) return interaction.reply({ content: '❌ Số tiền phải lớn hơn 0.', flags: MessageFlags.Ephemeral });
         const bankId = process.env.BANK_ID, accountNo = process.env.ACCOUNT_NO, accountName = process.env.ACCOUNT_NAME;
-        if (!bankId || !accountNo || bankId === 'YOUR_BANK_ID_HERE') return interaction.reply({ content: '❌ Chưa cấu hình ngân hàng trong `.env`.', ephemeral: true });
+        if (!bankId || !accountNo || bankId === 'YOUR_BANK_ID_HERE') return interaction.reply({ content: '❌ Chưa cấu hình ngân hàng trong `.env`.', flags: MessageFlags.Ephemeral });
         let qrUrl = `https://img.vietqr.io/image/${bankId}-${accountNo}-compact2.png?amount=${amount}&addInfo=${encodeURIComponent(addInfo)}`;
         if (accountName && accountName !== 'YOUR_ACCOUNT_NAME_HERE') qrUrl += `&accountName=${encodeURIComponent(accountName)}`;
         const embed = new EmbedBuilder()
@@ -10223,7 +10223,7 @@ client.on('interactionCreate', async (interaction) => {
         const duration = interaction.options.getString('duration');
         const winnerCount = interaction.options.getInteger('winners');
         const prize = interaction.options.getString('prize');
-        await interaction.reply({ content: '🎉 Đang tạo giveaway...', ephemeral: true });
+        await interaction.reply({ content: '🎉 Đang tạo giveaway...', flags: MessageFlags.Ephemeral });
         client.giveawaysManager.start(interaction.channel, {
             duration: ms(duration), winnerCount, prize,
             thumbnail: (process.env.GIVEAWAY_IMAGE_URL && process.env.GIVEAWAY_IMAGE_URL !== 'YOUR_IMAGE_LINK_HERE') ? process.env.GIVEAWAY_IMAGE_URL : null,
@@ -10236,14 +10236,14 @@ client.on('interactionCreate', async (interaction) => {
         const messageId = interaction.options.getString('message_id');
         client.giveawaysManager.end(messageId)
             .then(() => interaction.reply({ content: '✅ Đã kết thúc!' }))
-            .catch(() => interaction.reply({ content: '❌ Không tìm thấy.', ephemeral: true }));
+            .catch(() => interaction.reply({ content: '❌ Không tìm thấy.', flags: MessageFlags.Ephemeral }));
     }
 
     if (commandName === 'greroll') {
         const messageId = interaction.options.getString('message_id');
         client.giveawaysManager.reroll(messageId)
             .then(() => interaction.reply({ content: '✅ Đã chọn lại người thắng!' }))
-            .catch(() => interaction.reply({ content: '❌ Không tìm thấy.', ephemeral: true }));
+            .catch(() => interaction.reply({ content: '❌ Không tìm thấy.', flags: MessageFlags.Ephemeral }));
     }
 
     // ========================
@@ -10257,7 +10257,7 @@ client.on('interactionCreate', async (interaction) => {
             const h = Math.floor(result.remaining / 3600000);
             const m = Math.floor((result.remaining % 3600000) / 60000);
             return interaction.reply({
-                embeds: [new EmbedBuilder().setTitle('⏰ Chưa đến giờ nhận').setDescription(`Bạn cần chờ thêm **${h} giờ ${m} phút** nữa!`).setColor('#FFA500')], ephemeral: true
+                embeds: [new EmbedBuilder().setTitle('⏰ Chưa đến giờ nhận').setDescription(`Bạn cần chờ thêm **${h} giờ ${m} phút** nữa!`).setColor('#FFA500')], flags: MessageFlags.Ephemeral
             });
         }
         const desc = `Bạn nhận được **+${result.reward} 🪙**! (Cơ bản: ${result.baseReward}, Thưởng chuỗi: ${result.bonus})\n🔥 **Chuỗi điểm danh:** ${result.streak} ngày\n→ Số dư hiện tại: **${result.total.toLocaleString()} 🪙**`;
@@ -10292,10 +10292,10 @@ client.on('interactionCreate', async (interaction) => {
     if (commandName === 'give') {
         const target = interaction.options.getUser('user');
         const amount = interaction.options.getInteger('amount');
-        if (target.id === interaction.user.id) return interaction.reply({ content: '❌ Không thể tặng coin cho chính mình!', ephemeral: true });
-        if (target.bot) return interaction.reply({ content: '❌ Không thể tặng coin cho bot!', ephemeral: true });
+        if (target.id === interaction.user.id) return interaction.reply({ content: '❌ Không thể tặng coin cho chính mình!', flags: MessageFlags.Ephemeral });
+        if (target.bot) return interaction.reply({ content: '❌ Không thể tặng coin cho bot!', flags: MessageFlags.Ephemeral });
         const senderCoins = getUserCoins(interaction.user.id);
-        if (senderCoins < amount) return interaction.reply({ content: `❌ Bạn chỉ có **${senderCoins.toLocaleString()} 🪙**, không đủ!`, ephemeral: true });
+        if (senderCoins < amount) return interaction.reply({ content: `❌ Bạn chỉ có **${senderCoins.toLocaleString()} 🪙**, không đủ!`, flags: MessageFlags.Ephemeral });
         addCoins(interaction.user.id, -amount);
         addCoins(target.id, amount);
         return interaction.reply({
@@ -10342,14 +10342,14 @@ client.on('interactionCreate', async (interaction) => {
         let bet = parseInt(betInput);
         if (betInput === 'all') {
             bet = Math.min(getUserCoins(uid), 500000);
-            if (bet < 10) return interaction.reply({ content: `❌ Không đủ coin! Bạn có **${getUserCoins(uid).toLocaleString()} 🪙**.`, ephemeral: true });
+            if (bet < 10) return interaction.reply({ content: `❌ Không đủ coin! Bạn có **${getUserCoins(uid).toLocaleString()} 🪙**.`, flags: MessageFlags.Ephemeral });
         } else if (isNaN(bet) || bet < 10) {
-            return interaction.reply({ content: `❌ Cú pháp: số_coin (tối thiểu 10) hoặc "all"`, ephemeral: true });
+            return interaction.reply({ content: `❌ Cú pháp: số_coin (tối thiểu 10) hoặc "all"`, flags: MessageFlags.Ephemeral });
         }
         
-        if (blackjackGames.has(uid)) return interaction.reply({ content: '❌ Bạn đang có game Blackjack chưa xong! Hãy kết thúc trước.', ephemeral: true });
-        if (bet > 500000) return interaction.reply({ content: '❌ Mức cược tối đa là **500,000 🪙**!', ephemeral: true });
-        if (getUserCoins(uid) < bet) return interaction.reply({ content: `❌ Không đủ coin! Bạn có **${getUserCoins(uid).toLocaleString()} 🪙**.`, ephemeral: true });
+        if (blackjackGames.has(uid)) return interaction.reply({ content: '❌ Bạn đang có game Blackjack chưa xong! Hãy kết thúc trước.', flags: MessageFlags.Ephemeral });
+        if (bet > 500000) return interaction.reply({ content: '❌ Mức cược tối đa là **500,000 🪙**!', flags: MessageFlags.Ephemeral });
+        if (getUserCoins(uid) < bet) return interaction.reply({ content: `❌ Không đủ coin! Bạn có **${getUserCoins(uid).toLocaleString()} 🪙**.`, flags: MessageFlags.Ephemeral });
         addCoins(uid, -bet);
         const deck = createDeck();
         const game = { uid, bet, deck, p: [deck.pop(), deck.pop()], d: [deck.pop(), deck.pop()] };
@@ -10377,7 +10377,7 @@ client.on('interactionCreate', async (interaction) => {
         const config = loadConfig();
         config.lodeChannelId = targetChannel.id;
         saveConfig(config);
-        return interaction.reply({ content: `✅ Đã thiết lập kênh xổ số lô đề 18h30 tại <#${targetChannel.id}>`, ephemeral: true });
+        return interaction.reply({ content: `✅ Đã thiết lập kênh xổ số lô đề 18h30 tại <#${targetChannel.id}>`, flags: MessageFlags.Ephemeral });
     }
 
     // --- LÔ ĐỀ ---
@@ -10387,18 +10387,18 @@ client.on('interactionCreate', async (interaction) => {
         const betInput = interaction.options.getString('bet')?.toLowerCase();
         
         let so = parseInt(soInput);
-        if (isNaN(so) || so < 0 || so > 99) return interaction.reply({ content: `❌ Bạn phải chọn một số từ **00** đến **99**!`, ephemeral: true });
+        if (isNaN(so) || so < 0 || so > 99) return interaction.reply({ content: `❌ Bạn phải chọn một số từ **00** đến **99**!`, flags: MessageFlags.Ephemeral });
         
         let bet = parseInt(betInput);
         if (betInput === 'all') {
             bet = Math.min(getUserCoins(uid), 500000);
-            if (bet < 10) return interaction.reply({ content: `❌ Không đủ coin! Bạn có **${getUserCoins(uid).toLocaleString()} 🪙**.`, ephemeral: true });
+            if (bet < 10) return interaction.reply({ content: `❌ Không đủ coin! Bạn có **${getUserCoins(uid).toLocaleString()} 🪙**.`, flags: MessageFlags.Ephemeral });
         } else if (isNaN(bet) || bet < 10) {
-            return interaction.reply({ content: `❌ Cú pháp cược: số_coin (tối thiểu 10) hoặc "all"`, ephemeral: true });
+            return interaction.reply({ content: `❌ Cú pháp cược: số_coin (tối thiểu 10) hoặc "all"`, flags: MessageFlags.Ephemeral });
         }
         
-        if (bet > 500000) return interaction.reply({ content: '❌ Mức cược tối đa là **500,000 🪙**!', ephemeral: true });
-        if (getUserCoins(uid) < bet) return interaction.reply({ content: `❌ Không đủ coin! Bạn có **${getUserCoins(uid).toLocaleString()} 🪙**.`, ephemeral: true });
+        if (bet > 500000) return interaction.reply({ content: '❌ Mức cược tối đa là **500,000 🪙**!', flags: MessageFlags.Ephemeral });
+        if (getUserCoins(uid) < bet) return interaction.reply({ content: `❌ Không đủ coin! Bạn có **${getUserCoins(uid).toLocaleString()} 🪙**.`, flags: MessageFlags.Ephemeral });
         
         addCoins(uid, -bet);
         
@@ -10416,17 +10416,17 @@ client.on('interactionCreate', async (interaction) => {
         let bet = parseInt(betInput);
         if (betInput === 'all') {
             bet = Math.min(getUserCoins(uid), 500000);
-            if (bet < 10) return interaction.reply({ content: `❌ Không đủ coin! Bạn có **${getUserCoins(uid).toLocaleString()} 🪙**.`, ephemeral: true });
+            if (bet < 10) return interaction.reply({ content: `❌ Không đủ coin! Bạn có **${getUserCoins(uid).toLocaleString()} 🪙**.`, flags: MessageFlags.Ephemeral });
         } else if (isNaN(bet) || bet < 10) {
-            return interaction.reply({ content: `❌ Cú pháp: số_coin (tối thiểu 10) hoặc "all"`, ephemeral: true });
+            return interaction.reply({ content: `❌ Cú pháp: số_coin (tối thiểu 10) hoặc "all"`, flags: MessageFlags.Ephemeral });
         }
         
-        if (bet > 500000) return interaction.reply({ content: '❌ Mức cược tối đa là **500,000 🪙**!', ephemeral: true });
-        if (getUserCoins(uid) < bet) return interaction.reply({ content: `❌ Không đủ coin! Bạn có **${getUserCoins(uid).toLocaleString()} 🪙**.`, ephemeral: true });
+        if (bet > 500000) return interaction.reply({ content: '❌ Mức cược tối đa là **500,000 🪙**!', flags: MessageFlags.Ephemeral });
+        if (getUserCoins(uid) < bet) return interaction.reply({ content: `❌ Không đủ coin! Bạn có **${getUserCoins(uid).toLocaleString()} 🪙**.`, flags: MessageFlags.Ephemeral });
         
         if (txCooldowns.has(uid)) {
             const remaining = txCooldowns.get(uid) - Date.now();
-            if (remaining > 0) return interaction.reply({ content: `⏳ Vui lòng đợi **${Math.ceil(remaining/1000)}s** nữa trước khi cược Tài Xỉu tiếp!`, ephemeral: true });
+            if (remaining > 0) return interaction.reply({ content: `⏳ Vui lòng đợi **${Math.ceil(remaining/1000)}s** nữa trước khi cược Tài Xỉu tiếp!`, flags: MessageFlags.Ephemeral });
         }
         txCooldowns.set(uid, Date.now() + TX_COOLDOWN_MS);
 
@@ -10461,13 +10461,13 @@ client.on('interactionCreate', async (interaction) => {
     }
     if (commandName === 'ptrade') {
         const targetUser = interaction.options.getUser('user');
-        if (targetUser.bot) return interaction.reply({ content: '❌ Không thể giao dịch với Bot!', ephemeral: true });
+        if (targetUser.bot) return interaction.reply({ content: '❌ Không thể giao dịch với Bot!', flags: MessageFlags.Ephemeral });
         return handlePetTrade(interaction.user.id, targetUser.id, interaction);
     }
     if (commandName === 'petbattle') {
         const targetUser = interaction.options.getUser('user');
         const bet = interaction.options.getInteger('bet');
-        if (targetUser.bot) return interaction.reply({ content: '❌ Không thể solo với Bot!', ephemeral: true });
+        if (targetUser.bot) return interaction.reply({ content: '❌ Không thể solo với Bot!', flags: MessageFlags.Ephemeral });
         return handlePetBattle(interaction.user.id, targetUser.id, bet, interaction);
     }
 
@@ -10477,9 +10477,9 @@ client.on('interactionCreate', async (interaction) => {
     if (commandName === 'hunt') {
         const uid = interaction.user.id;
         const p = getPlayer(uid);
-        if (p.hp <= 0) return interaction.reply({ content: '❌ Bạn đã hết máu, hãy dùng `/heal` để hồi sinh lực!', ephemeral: true });
+        if (p.hp <= 0) return interaction.reply({ content: '❌ Bạn đã hết máu, hãy dùng `/heal` để hồi sinh lực!', flags: MessageFlags.Ephemeral });
         const now = Date.now();
-        if (now - p.lastHunt < 60000) return interaction.reply({ content: `⏳ Đang mệt, nghỉ ngơi **${Math.ceil((60000-(now-p.lastHunt))/1000)}s** nữa!`, ephemeral: true });
+        if (now - p.lastHunt < 60000) return interaction.reply({ content: `⏳ Đang mệt, nghỉ ngơi **${Math.ceil((60000-(now-p.lastHunt))/1000)}s** nữa!`, flags: MessageFlags.Ephemeral });
         
         const maxLevel = Math.min(Math.max(1, p.level), MONSTERS.length);
         const m = MONSTERS[Math.floor(Math.random() * maxLevel)];
@@ -10540,7 +10540,7 @@ client.on('interactionCreate', async (interaction) => {
     if (commandName === 'heal') {
         const uid = interaction.user.id;
         const p = getPlayer(uid);
-        if (p.hp >= p.maxHp) return interaction.reply({ content: '✅ Máu của bạn đã đầy!', ephemeral: true });
+        if (p.hp >= p.maxHp) return interaction.reply({ content: '✅ Máu của bạn đã đầy!', flags: MessageFlags.Ephemeral });
         trackQuestProgress(uid, 'heal', 1);
         
         let healed = false;
@@ -10558,7 +10558,7 @@ client.on('interactionCreate', async (interaction) => {
         }
         
         const healCost = 10000;
-        if (getUserCoins(uid) < healCost) return interaction.reply({ content: `❌ Không đủ **${healCost} 🪙** để bơm máu!`, ephemeral: true });
+        if (getUserCoins(uid) < healCost) return interaction.reply({ content: `❌ Không đủ **${healCost} 🪙** để bơm máu!`, flags: MessageFlags.Ephemeral });
         addCoins(uid, -healCost);
         updatePlayer(uid, dp => { dp.hp = dp.maxHp; });
         return interaction.reply(`🏥 Trả **${healCost} 🪙** bơm đầy máu! **❤️ ${p.maxHp}/${p.maxHp}**`);
@@ -10665,57 +10665,57 @@ client.on('interactionCreate', async (interaction) => {
             data[target.id].workReward = null;
             saveCoins(data);
         }
-        return interaction.reply({ content: `✅ Đã reset thời gian làm việc cho <@${target.id}>!`, ephemeral: true });
+        return interaction.reply({ content: `✅ Đã reset thời gian làm việc cho <@${target.id}>!`, flags: MessageFlags.Ephemeral });
     }
     if (commandName === 'togglevoice') {
         const config = loadConfig();
         const currentState = config.voiceNotifyEnabled !== false;
         config.voiceNotifyEnabled = !currentState;
         saveConfig(config);
-        return interaction.reply({ content: `✅ Đã **${config.voiceNotifyEnabled ? 'BẬT' : 'TẮT'}** thông báo người ra vào kênh thoại.`, ephemeral: true });
+        return interaction.reply({ content: `✅ Đã **${config.voiceNotifyEnabled ? 'BẬT' : 'TẮT'}** thông báo người ra vào kênh thoại.`, flags: MessageFlags.Ephemeral });
     }
     if (commandName === 'clear') {
         const amount = interaction.options.getInteger('amount');
         try {
             await interaction.channel.bulkDelete(amount, true);
-            return interaction.reply({ content: `✅ Đã xóa **${amount}** tin nhắn.`, ephemeral: true });
+            return interaction.reply({ content: `✅ Đã xóa **${amount}** tin nhắn.`, flags: MessageFlags.Ephemeral });
         } catch (err) {
-            return interaction.reply({ content: '❌ Không thể xóa tin nhắn (tin nhắn quá 14 ngày).', ephemeral: true });
+            return interaction.reply({ content: '❌ Không thể xóa tin nhắn (tin nhắn quá 14 ngày).', flags: MessageFlags.Ephemeral });
         }
     }
     if (commandName === 'say') {
         const channel = interaction.options.getChannel('channel');
         const messageText = interaction.options.getString('message');
-        if (!channel.isTextBased()) return interaction.reply({ content: '❌ Hãy chọn một kênh văn bản hợp lệ!', ephemeral: true });
+        if (!channel.isTextBased()) return interaction.reply({ content: '❌ Hãy chọn một kênh văn bản hợp lệ!', flags: MessageFlags.Ephemeral });
         await channel.send(messageText);
-        return interaction.reply({ content: `✅ Đã gửi thông báo vào <#${channel.id}>.`, ephemeral: true });
+        return interaction.reply({ content: `✅ Đã gửi thông báo vào <#${channel.id}>.`, flags: MessageFlags.Ephemeral });
     }
 
     // --- MA SÓI SLASH ---
     if (commandName === 'masoi') {
-        await interaction.deferReply({ ephemeral: false });
+        await interaction.deferReply({ flags: 0 });
         const result = await WW.openLobby(interaction.guildId, interaction.channel, interaction.user.id, client);
         if (result?.game) result.game._addCoins = addCoins;
         return interaction.deleteReply().catch(() => {});
     }
     if (commandName === 'wwstop') {
         const game = WW.WW_GAMES.get(interaction.guildId);
-        if (!game) return interaction.reply({ content: '❌ Không có game Ma Sói nào đang chạy!', ephemeral: true });
+        if (!game) return interaction.reply({ content: '❌ Không có game Ma Sói nào đang chạy!', flags: MessageFlags.Ephemeral });
         const isAdmin = interaction.member.permissions.has(PermissionsBitField.Flags.Administrator);
-        if (!isAdmin && interaction.user.id !== game.hostId) return interaction.reply({ content: '❌ Chỉ host hoặc Admin mới có thể hủy!', ephemeral: true });
+        if (!isAdmin && interaction.user.id !== game.hostId) return interaction.reply({ content: '❌ Chỉ host hoặc Admin mới có thể hủy!', flags: MessageFlags.Ephemeral });
         WW.WW_GAMES.delete(interaction.guildId);
         if (game.nightTimeout) clearTimeout(game.nightTimeout);
         if (game.dayTimeout) clearTimeout(game.dayTimeout);
         if (game.lobbyTimeout) clearTimeout(game.lobbyTimeout);
         if (game.voteMsg) await game.voteMsg.edit({ components: [] }).catch(() => {});
         if (game.lobbyMsg) await game.lobbyMsg.edit({ components: [] }).catch(() => {});
-        return interaction.reply({ content: '🛑 Game Ma Sói đã bị hủy!', ephemeral: false });
+        return interaction.reply({ content: '🛑 Game Ma Sói đã bị hủy!', flags: 0 });
     }
 
     // --- NOITU SLASH ---
     if (commandName === 'noitu') {
-        if (noituGames.has(interaction.channelId)) return interaction.reply({ content: '❌ Trò chơi Nối Từ Tiếng Việt đang diễn ra ở kênh này rồi!', ephemeral: true });
-        if (vnDictionary.size === 0) return interaction.reply({ content: '❌ Từ điển chưa tải xong, vui lòng chờ giây lát...', ephemeral: true });
+        if (noituGames.has(interaction.channelId)) return interaction.reply({ content: '❌ Trò chơi Nối Từ Tiếng Việt đang diễn ra ở kênh này rồi!', flags: MessageFlags.Ephemeral });
+        if (vnDictionary.size === 0) return interaction.reply({ content: '❌ Từ điển chưa tải xong, vui lòng chờ giây lát...', flags: MessageFlags.Ephemeral });
         
         noituMatchCounter++;
         const easyStartingWords = ["nhà cửa", "học sinh", "bạn bè", "làm việc", "người lớn", "xe cộ", "hoa quả", "cây cối", "nước biển", "mưa rào", "bàn ghế", "sách vở", "yêu thương", "hát ca"];
@@ -10753,7 +10753,7 @@ client.on('interactionCreate', async (interaction) => {
     }
 
     if (commandName === 'stopnoitu') {
-        if (!noituGames.has(interaction.channelId)) return interaction.reply({ content: '❌ Không có trò chơi Nối Từ Tiếng Việt nào đang diễn ra.', ephemeral: true });
+        if (!noituGames.has(interaction.channelId)) return interaction.reply({ content: '❌ Không có trò chơi Nối Từ Tiếng Việt nào đang diễn ra.', flags: MessageFlags.Ephemeral });
         const game = noituGames.get(interaction.channelId);
         clearTimeout(game.timeout);
         noituGames.delete(interaction.channelId);
@@ -10762,8 +10762,8 @@ client.on('interactionCreate', async (interaction) => {
 
     // --- NOITU ENGLISH SLASH ---
     if (commandName === 'noituen') {
-        if (noituEnGames.has(interaction.channelId)) return interaction.reply({ content: '❌ Trò chơi Nối Từ Tiếng Anh đang diễn ra ở kênh này rồi!', ephemeral: true });
-        if (enDictionary.size === 0) return interaction.reply({ content: '❌ Từ điển Tiếng Anh chưa tải xong, vui lòng chờ giây lát...', ephemeral: true });
+        if (noituEnGames.has(interaction.channelId)) return interaction.reply({ content: '❌ Trò chơi Nối Từ Tiếng Anh đang diễn ra ở kênh này rồi!', flags: MessageFlags.Ephemeral });
+        if (enDictionary.size === 0) return interaction.reply({ content: '❌ Từ điển Tiếng Anh chưa tải xong, vui lòng chờ giây lát...', flags: MessageFlags.Ephemeral });
         
         noituEnMatchCounter++;
         const easyStartingWords = ["apple", "banana", "cat", "dog", "elephant", "fish", "garden", "house", "island", "jungle", "kite", "lemon", "mountain", "night", "ocean"];
@@ -10802,7 +10802,7 @@ client.on('interactionCreate', async (interaction) => {
     }
 
     if (commandName === 'stopnoituen') {
-        if (!noituEnGames.has(interaction.channelId)) return interaction.reply({ content: '❌ Không có trò chơi Nối Từ Tiếng Anh nào đang diễn ra.', ephemeral: true });
+        if (!noituEnGames.has(interaction.channelId)) return interaction.reply({ content: '❌ Không có trò chơi Nối Từ Tiếng Anh nào đang diễn ra.', flags: MessageFlags.Ephemeral });
         const game = noituEnGames.get(interaction.channelId);
         clearTimeout(game.timeout);
         noituEnGames.delete(interaction.channelId);
@@ -10812,13 +10812,13 @@ client.on('interactionCreate', async (interaction) => {
     if (commandName === '1an') {
         const voiceChannel = interaction.member?.voice?.channel;
         if (!voiceChannel) {
-            return interaction.reply({ content: '❌ Bạn phải ở trong một kênh thoại để dùng lệnh này!', ephemeral: true });
+            return interaction.reply({ content: '❌ Bạn phải ở trong một kênh thoại để dùng lệnh này!', flags: MessageFlags.Ephemeral });
         }
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.ManageChannels) && !interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
             const ownerId = j2cChannels.get(voiceChannel.id);
             if (!ownerId || ownerId !== interaction.user.id) {
-                return interaction.reply({ content: '❌ Bạn không phải là chủ phòng này hoặc không có quyền Quản lý kênh!', ephemeral: true });
+                return interaction.reply({ content: '❌ Bạn không phải là chủ phòng này hoặc không có quyền Quản lý kênh!', flags: MessageFlags.Ephemeral });
             }
         }
 
@@ -10829,10 +10829,10 @@ client.on('interactionCreate', async (interaction) => {
                 ViewChannel: false,
                 Connect: false
             });
-            return interaction.reply({ content: `✅ Đã ẩn kênh thoại **${voiceChannel.name}** đối với **${targetUser.username}**!`, ephemeral: true });
+            return interaction.reply({ content: `✅ Đã ẩn kênh thoại **${voiceChannel.name}** đối với **${targetUser.username}**!`, flags: MessageFlags.Ephemeral });
         } catch (error) {
             console.error('Lỗi khi ẩn phòng:', error);
-            return interaction.reply({ content: '❌ Có lỗi xảy ra. Hãy đảm bảo bot có quyền **Manage Channels**.', ephemeral: true });
+            return interaction.reply({ content: '❌ Có lỗi xảy ra. Hãy đảm bảo bot có quyền **Manage Channels**.', flags: MessageFlags.Ephemeral });
         }
     }
 });
