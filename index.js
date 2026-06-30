@@ -345,7 +345,8 @@ function buildHelpPages(prefix) {
                 { name: `\`${prefix}give @user <số>\` hoặc \`/give\``, value: '🎁 Tặng coin từ ví của bạn cho người khác.', inline: true },
                 { name: `\`${prefix}top\` hoặc \`/top\``, value: '🏆 Bảng xếp hạng Top 10 người giàu nhất server.', inline: true },
                 { name: '🎲 CÁC TRÒ CHƠI CỜ BẠC', value: `\`${prefix}tx <cược>\` — **Tài Xỉu**: Đoán tài/xỉu, thắng x2 tiền cược.\n\`${prefix}bc <cược>\` — **Bầu Cua**: Chọn con vật, trúng nhận x2.\n\`${prefix}bj <cược>\` — **Blackjack**: Xì Dách, thắng x2 (Blackjack x2.5).\n\`${prefix}lode <số 00-99> <cược>\` — **Lô đề**: Xổ số 18h30 hằng ngày, trúng **x5**.`, inline: false },
-                { name: `\`${prefix}noitu\` hoặc \`/noitu\``, value: '🧠 Nối Từ Nhiều Người: Chơi nối từ ghép 2 tiếng với nhau.\n• Thưởng **1,000 🪙** cho mỗi từ đúng hợp lệ.\n• Không được nối 2 lần liên tiếp. Hết 60 giây kết thúc game.\n\`' + prefix + 'stopnoitu\` — Dừng game sớm.', inline: false }
+                { name: `\`${prefix}noitu\` hoặc \`/noitu\``, value: '🧠 Nối Từ Tiếng Việt: Chơi nối từ ghép 2 tiếng với nhau.\n• Thưởng **1,000 🪙** cho mỗi từ đúng hợp lệ.\n• Không được nối 2 lần liên tiếp. Hết 60 giây kết thúc game.\n\`' + prefix + 'stopnoitu\` — Dừng game sớm.', inline: false },
+                { name: `\`${prefix}noituen\` hoặc \`/noituen\``, value: '🔤 Nối Từ Tiếng Anh: Ký tự cuối của từ = ký tự đầu từ tiếp theo.\n• VD: **apple** → **elephant** → **tiger** → ...\n• Thưởng **1,000 🪙** mỗi từ đúng. Hết 60 giây kết thúc.\n\`' + prefix + 'stopnoituen\` — Dừng game sớm.', inline: false }
             )
             .setColor('#FFD700')
             .setFooter({ text: 'Trang 3/13 • Coin & Minigame' })
@@ -502,7 +503,7 @@ function buildHelpMenu() {
         .addOptions(
             new StringSelectMenuOptionBuilder().setLabel('📖 Tổng quan').setValue('0').setDescription('Tất cả tính năng một cái nhìn').setEmoji('📖'),
             new StringSelectMenuOptionBuilder().setLabel('🎵 Nhạc').setValue('1').setDescription('YouTube, Spotify, SoundCloud').setEmoji('🎵'),
-            new StringSelectMenuOptionBuilder().setLabel('💰 Coin & Game').setValue('2').setDescription('Daily, Work, Cờ bạc, Nối từ').setEmoji('💰'),
+            new StringSelectMenuOptionBuilder().setLabel('💰 Coin & Game').setValue('2').setDescription('Daily, Work, Cờ bạc, Nối từ VN & EN').setEmoji('💰'),
             new StringSelectMenuOptionBuilder().setLabel('🏦 Ngân Hàng').setValue('3').setDescription('Bank, Đầu tư, Cướp bank').setEmoji('🏦'),
             new StringSelectMenuOptionBuilder().setLabel('⚔️ RPG Cơ Bản').setValue('4').setDescription('Săn quái, Pokemon, Shop').setEmoji('⚔️'),
             new StringSelectMenuOptionBuilder().setLabel('🏰 RPG Nâng Cao').setValue('5').setDescription('Dungeon, PvP, Quest, Class').setEmoji('🏰'),
@@ -4318,6 +4319,12 @@ const slashCommands = [
     new SlashCommandBuilder()
         .setName('stopnoitu')
         .setDescription('Dừng trò chơi Nối Từ đang diễn ra.'),
+    new SlashCommandBuilder()
+        .setName('noituen')
+        .setDescription('🔤 Bắt đầu trò chơi Nối Từ Tiếng Anh (ký tự cuối = ký tự đầu).'),
+    new SlashCommandBuilder()
+        .setName('stopnoituen')
+        .setDescription('🔤 Dừng trò chơi Nối Từ Tiếng Anh đang diễn ra.'),
     // --- MUSIC COMMANDS ---
     new SlashCommandBuilder()
         .setName('play')
@@ -4696,6 +4703,11 @@ const vnDictionary = new Set();
 const noituGames = new Map();
 let noituMatchCounter = 0;
 const globalUsedWords = new Map();
+// --- ENGLISH WORD CHAIN ---
+const enDictionary = new Set();
+const noituEnGames = new Map();
+let noituEnMatchCounter = 0;
+const globalUsedEnWords = new Map();
 global.RAID_BOSS = null; // { name, hp, maxHp, atk, def, emoji, participants: Map<userId, damage>, endTime }
 const j2cPath = path.join(__dirname, 'j2c.json');
 function loadJ2C() {
@@ -4708,6 +4720,20 @@ function saveJ2C(data) {
 const j2cChannels = new Map(); // channelId => ownerId
 
 async function initDictionary() {
+    // Ưu tiên dùng file đã lọc sạch (được tạo bởi build_vn_dict.js)
+    const cleanPath = path.join(__dirname, 'vn_words_clean.txt');
+    if (fs.existsSync(cleanPath)) {
+        const words = fs.readFileSync(cleanPath, 'utf-8').split('\n');
+        for (const w of words) {
+            const clean = w.trim().toLowerCase();
+            if (clean && clean.split(' ').length === 2) {
+                vnDictionary.add(clean);
+            }
+        }
+        console.log(`📖 Đã nạp ${vnDictionary.size} từ ghép sạch vào bộ nhớ (từ vn_words_clean.txt).`);
+        return;
+    }
+    // Fallback: dùng vn_words.txt nếu chưa có file sạch
     const dictPath = path.join(__dirname, 'vn_words.txt');
     if (!fs.existsSync(dictPath)) {
         console.log('Đang tải từ điển Tiếng Việt...');
@@ -4723,14 +4749,50 @@ async function initDictionary() {
     if (fs.existsSync(dictPath)) {
         const words = fs.readFileSync(dictPath, 'utf-8').split('\n');
         for (const w of words) {
-            const clean = w.trim().toLowerCase();
-            if (clean && clean.split(' ').length === 2) {
-                vnDictionary.add(clean);
-            }
+            const trimmed = w.trim();
+            if (!trimmed) continue;
+            // Chỉ giữ từ ghép 2 âm tiết
+            const parts = trimmed.split(' ');
+            if (parts.length !== 2) continue;
+            // Loại bỏ tên riêng (chữ hoa đầu tiên mỗi âm tiết = tên địa danh/người)
+            if (/^[A-ZÁÀẢÃẠĂẮẰẲẴẶÂẤẦẨẪẬÉÈẺẼẸÊẾỀỂỄỆÍÌỈĨỊÓÒỎÕỌÔỐỒỔỖỘƠỚỜỞỠỢÚÙỦŨỤƯỨỪỬỮỰÝỲỶỸỴĐ]/.test(parts[0]) && /^[A-ZÁÀẢÃẠĂẮẰẲẴẶÂẤẦẨẪẬÉÈẺẼẸÊẾỀỂỄỆÍÌỈĨỊÓÒỎÕỌÔỐỒỔỖỘƠỚỜỞỠỢÚÙỦŨỤƯỨỪỬỮỰÝỲỶỸỴĐ]/.test(parts[1])) continue;
+            // Loại bỏ từ có gạch nối (thuật ngữ ngoại lai)
+            if (trimmed.includes('-')) continue;
+            // Loại bỏ từ có số hoặc ký tự đặc biệt
+            if (/[0-9()\[\]{}]/.test(trimmed)) continue;
+            const clean = trimmed.toLowerCase();
+            vnDictionary.add(clean);
         }
         console.log(`📖 Đã nạp ${vnDictionary.size} từ ghép 2 âm tiết vào bộ nhớ.`);
     }
 }
+
+async function initEnglishDictionary() {
+    const dictPath = path.join(__dirname, 'en_words.txt');
+    if (!fs.existsSync(dictPath)) {
+        console.log('Đang tải từ điển Tiếng Anh...');
+        try {
+            const res = await axios.get('https://raw.githubusercontent.com/dwyl/english-words/master/words_alpha.txt');
+            fs.writeFileSync(dictPath, res.data);
+            console.log('✅ Đã tải xong từ điển Tiếng Anh!');
+        } catch (err) {
+            console.error('❌ Lỗi tải từ điển Tiếng Anh:', err);
+        }
+    }
+    
+    if (fs.existsSync(dictPath)) {
+        const words = fs.readFileSync(dictPath, 'utf-8').split(/\r?\n/);
+        for (const w of words) {
+            const clean = w.trim().toLowerCase();
+            // Chỉ giữ từ 2-15 ký tự, chỉ chữ cái a-z
+            if (clean && /^[a-z]{2,15}$/.test(clean)) {
+                enDictionary.add(clean);
+            }
+        }
+        console.log(`📖 Đã nạp ${enDictionary.size} từ tiếng Anh vào bộ nhớ.`);
+    }
+}
+
 function getBotNoiTuWord(lastWord, usedWords, currentMatchId) {
     const lastSyllable = lastWord.split(' ').pop();
     const possibleWords = [];
@@ -4753,6 +4815,7 @@ function getBotNoiTuWord(lastWord, usedWords, currentMatchId) {
 // ========================
 client.once('clientReady', async () => {
     await initDictionary();
+    await initEnglishDictionary();
     console.log(`✅ Bot đã đăng nhập với tên: ${client.user.tag}`);
     
     const statuses = [
@@ -5361,7 +5424,7 @@ client.on('messageCreate', async (message) => {
         return;
     }
 
-    // --- NOITU GAME LOGIC ---
+    // --- NOITU GAME LOGIC (TIẾNG VIỆT) ---
     if (message.guildId && noituGames.has(message.channelId)) {
         const game = noituGames.get(message.channelId);
         const msgText = content.trim().toLowerCase();
@@ -5407,10 +5470,14 @@ client.on('messageCreate', async (message) => {
                     
                     message.reply(`✅ **Chính xác!** <@${message.author.id}> cộng 1,000 🪙 (Chuỗi cá nhân: **${userStreak}** | Tổng chuỗi: **${game.streak}**).\nMời người tiếp theo nối chữ: **${msgText.split(' ')[1].toUpperCase()}**`).catch(() => {});
                     
+                    const channelId = message.channelId;
                     game.timeout = setTimeout(() => {
-                        noituGames.delete(message.channelId);
+                        const endGame = noituGames.get(channelId);
+                        if (!endGame) return;
+                        noituGames.delete(channelId);
                         
-                        const sortedPlayers = Array.from(game.userStreaks.entries()).sort((a, b) => b[1] - a[1]);
+                        const lastWordEnd = endGame.lastWord.split(' ')[1].toUpperCase();
+                        const sortedPlayers = Array.from(endGame.userStreaks.entries()).sort((a, b) => b[1] - a[1]);
                         let leaderboardText = sortedPlayers.map((entry, index) => {
                             let medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '🏅';
                             return `${medal} <@${entry[0]}>: **${entry[1]}** từ`;
@@ -5418,10 +5485,10 @@ client.on('messageCreate', async (message) => {
                         if (!leaderboardText) leaderboardText = "Chưa có ai ghi điểm.";
                         
                         const embed = new EmbedBuilder()
-                            .setTitle('🛑 TỔNG KẾT NỐI TỪ')
-                            .setDescription(`⏰ Hết 60 giây không ai nối tiếp được chữ **${msgText.split(' ')[1].toUpperCase()}**.\nTrò chơi đã kết thúc!`)
+                            .setTitle('🛑 TỔNG KẾT NỐI TỪ TIẾNG VIỆT')
+                            .setDescription(`⏰ Hết 60 giây không ai nối tiếp được chữ **${lastWordEnd}**.\nTrò chơi đã kết thúc!`)
                             .addFields(
-                                { name: '🔥 Tổng số từ đã nối', value: `**${game.streak}** từ`, inline: true },
+                                { name: '🔥 Tổng số từ đã nối', value: `**${endGame.streak}** từ`, inline: true },
                                 { name: '🏆 Bảng xếp hạng', value: leaderboardText, inline: false }
                             )
                             .setColor('#FF4500')
@@ -5432,6 +5499,85 @@ client.on('messageCreate', async (message) => {
                 } else {
                     message.react('❌').catch(() => {});
                     message.reply(`Từ **${msgText}** không hợp lệ hoặc không có trong từ điển Tiếng Việt!`).catch(() => {});
+                }
+            }
+        }
+    }
+
+    // --- NOITU ENGLISH GAME LOGIC ---
+    if (message.guildId && noituEnGames.has(message.channelId)) {
+        const game = noituEnGames.get(message.channelId);
+        const msgText = content.trim().toLowerCase();
+        // Chỉ xử lý tin nhắn 1 từ, không bắt đầu bằng prefix
+        if (/^[a-z]+$/.test(msgText) && !msgText.startsWith(prefix)) {
+            const lastChar = game.lastWord[game.lastWord.length - 1];
+            const firstChar = msgText[0];
+            
+            if (firstChar === lastChar) {
+                if (enDictionary.has(msgText)) {
+                    if (game.usedWords.has(msgText)) {
+                        message.react('❌').catch(() => {});
+                        return message.reply(`The word **${msgText}** has already been used! Try another one.`).catch(() => {});
+                    }
+                    const lastUsedMatch = globalUsedEnWords.get(msgText);
+                    if (lastUsedMatch !== undefined && game.matchId - lastUsedMatch <= 5) {
+                        message.react('❌').catch(() => {});
+                        return message.reply(`The word **${msgText}** was used recently (wait 5 rounds)! Try another one.`).catch(() => {});
+                    }
+                    
+                    if (game.lastUserId === message.author.id) {
+                        message.react('❌').catch(() => {});
+                        return message.reply(`Bạn vừa nối rồi, hãy nhường lượt cho người khác nhé!`).catch(() => {});
+                    }
+
+                    game.lastWord = msgText;
+                    game.usedWords.add(msgText);
+                    globalUsedEnWords.set(msgText, game.matchId);
+                    game.lastUserId = message.author.id;
+                    game.streak = (game.streak || 0) + 1;
+                    
+                    const userStreak = (game.userStreaks.get(message.author.id) || 0) + 1;
+                    game.userStreaks.set(message.author.id, userStreak);
+                    
+                    clearTimeout(game.timeout);
+                    
+                    addCoins(message.author.id, 1000);
+                    const numberEmojis = ['0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'];
+                    const streakEmoji = userStreak <= 10 ? numberEmojis[userStreak] : '🔥';
+                    message.react(streakEmoji).catch(() => {});
+                    
+                    const lastCharOfNew = msgText[msgText.length - 1].toUpperCase();
+                    message.reply(`✅ **Correct!** <@${message.author.id}> +1,000 🪙 (Streak: **${userStreak}** | Total: **${game.streak}**).\nNext word must start with: **${lastCharOfNew}**`).catch(() => {});
+                    
+                    const channelId = message.channelId;
+                    game.timeout = setTimeout(() => {
+                        const endGame = noituEnGames.get(channelId);
+                        if (!endGame) return;
+                        noituEnGames.delete(channelId);
+                        
+                        const lastCharEnd = endGame.lastWord[endGame.lastWord.length - 1].toUpperCase();
+                        const sortedPlayers = Array.from(endGame.userStreaks.entries()).sort((a, b) => b[1] - a[1]);
+                        let leaderboardText = sortedPlayers.map((entry, index) => {
+                            let medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '🏅';
+                            return `${medal} <@${entry[0]}>: **${entry[1]}** words`;
+                        }).join('\n');
+                        if (!leaderboardText) leaderboardText = "No one scored.";
+                        
+                        const embed = new EmbedBuilder()
+                            .setTitle('🛑 ENGLISH WORD CHAIN — GAME OVER')
+                            .setDescription(`⏰ 60 seconds passed — no one could chain from letter **${lastCharEnd}**.\nGame ended!`)
+                            .addFields(
+                                { name: '🔥 Total words chained', value: `**${endGame.streak}** words`, inline: true },
+                                { name: '🏆 Leaderboard', value: leaderboardText, inline: false }
+                            )
+                            .setColor('#3498DB')
+                            .setTimestamp();
+                            
+                        message.channel.send({ embeds: [embed] }).catch(() => {});
+                    }, 60000);
+                } else {
+                    message.react('❌').catch(() => {});
+                    message.reply(`The word **${msgText}** is not a valid English word!`).catch(() => {});
                 }
             }
         }
@@ -5663,20 +5809,25 @@ client.on('messageCreate', async (message) => {
         noituMatchCounter++;
         const easyStartingWords = ["nhà cửa", "học sinh", "bạn bè", "làm việc", "người lớn", "xe cộ", "hoa quả", "cây cối", "nước biển", "mưa rào", "bàn ghế", "sách vở", "yêu thương", "hát ca"];
         const randomWord = easyStartingWords[Math.floor(Math.random() * easyStartingWords.length)];
+        const channelId = message.channelId;
         
         const game = {
             matchId: noituMatchCounter,
             streak: 0,
             userStreaks: new Map(),
+            lastUserId: null,
             lastWord: randomWord,
             usedWords: new Set([randomWord]),
             timeout: setTimeout(() => {
-                noituGames.delete(message.channelId);
+                const endGame = noituGames.get(channelId);
+                if (!endGame) return;
+                noituGames.delete(channelId);
+                const lastWordEnd = endGame.lastWord.split(' ')[1].toUpperCase();
                 const embed = new EmbedBuilder()
-                    .setTitle('🛑 TỔNG KẾT NỐI TỪ')
-                    .setDescription(`⏰ Hết 60 giây không ai nối được chữ **${randomWord.split(' ')[1].toUpperCase()}**.\nTrò chơi đã kết thúc!`)
+                    .setTitle('🛑 TỔNG KẾT NỐI TỪ TIẾNG VIỆT')
+                    .setDescription(`⏰ Hết 60 giây không ai nối được chữ **${lastWordEnd}**.\nTrò chơi đã kết thúc!`)
                     .addFields(
-                        { name: '🔥 Tổng số từ đã nối', value: `**0** từ`, inline: true },
+                        { name: '🔥 Tổng số từ đã nối', value: `**${endGame.streak}** từ`, inline: true },
                         { name: '🏆 Bảng xếp hạng', value: 'Chưa có ai tham gia.', inline: false }
                     )
                     .setColor('#FF4500')
@@ -5687,15 +5838,63 @@ client.on('messageCreate', async (message) => {
         noituGames.set(message.channelId, game);
         globalUsedWords.set(randomWord, game.matchId);
         
-        return message.channel.send(`🎮 **TRÒ CHƠI NỐI TỪ NHIỀU NGƯỜI BẮT ĐẦU!**\nTừ khởi đầu: **${randomWord.toUpperCase()}**\n\nHãy nối tiếp bằng một từ ghép 2 chữ bắt đầu là **${randomWord.split(' ')[1].toUpperCase()}** nhé!\n_Thưởng 1,000 🪙 mỗi từ đúng. Hãy xem các bạn nối được bao nhiêu từ!_`).catch(() => {});
+        return message.channel.send(`🎮 **TRÒ CHƠI NỐI TỪ TIẾNG VIỆT BẮT ĐẦU!**\nTừ khởi đầu: **${randomWord.toUpperCase()}**\n\nHãy nối tiếp bằng một từ ghép 2 chữ bắt đầu là **${randomWord.split(' ')[1].toUpperCase()}** nhé!\n_Thưởng 1,000 🪙 mỗi từ đúng. Hãy xem các bạn nối được bao nhiêu từ!_`).catch(() => {});
     }
 
     if (content === `${prefix}stopnoitu`) {
-        if (!noituGames.has(message.channelId)) return message.reply('❌ Không có trò chơi Nối Từ nào đang diễn ra.');
+        if (!noituGames.has(message.channelId)) return message.reply('❌ Không có trò chơi Nối Từ Tiếng Việt nào đang diễn ra.');
         const game = noituGames.get(message.channelId);
         clearTimeout(game.timeout);
         noituGames.delete(message.channelId);
-        return message.reply('🛑 Trò chơi Nối Từ đã kết thúc.').catch(() => {});
+        return message.reply('🛑 Trò chơi Nối Từ Tiếng Việt đã kết thúc.').catch(() => {});
+    }
+
+    if (content === `${prefix}noituen`) {
+        if (noituEnGames.has(message.channelId)) return message.reply('❌ Trò chơi Nối Từ Tiếng Anh đang diễn ra ở kênh này rồi!');
+        if (enDictionary.size === 0) return message.reply('❌ Từ điển Tiếng Anh chưa tải xong, vui lòng chờ giây lát...');
+        
+        noituEnMatchCounter++;
+        const easyStartingWords = ["apple", "banana", "cat", "dog", "elephant", "fish", "garden", "house", "island", "jungle", "kite", "lemon", "mountain", "night", "ocean"];
+        const randomWord = easyStartingWords[Math.floor(Math.random() * easyStartingWords.length)];
+        const channelId = message.channelId;
+        const lastChar = randomWord[randomWord.length - 1].toUpperCase();
+        
+        const game = {
+            matchId: noituEnMatchCounter,
+            streak: 0,
+            userStreaks: new Map(),
+            lastUserId: null,
+            lastWord: randomWord,
+            usedWords: new Set([randomWord]),
+            timeout: setTimeout(() => {
+                const endGame = noituEnGames.get(channelId);
+                if (!endGame) return;
+                noituEnGames.delete(channelId);
+                const lastCharEnd = endGame.lastWord[endGame.lastWord.length - 1].toUpperCase();
+                const embed = new EmbedBuilder()
+                    .setTitle('🛑 ENGLISH WORD CHAIN — GAME OVER')
+                    .setDescription(`⏰ 60 seconds passed — no one could chain from letter **${lastCharEnd}**.\nGame ended!`)
+                    .addFields(
+                        { name: '🔥 Total words chained', value: `**${endGame.streak}** words`, inline: true },
+                        { name: '🏆 Leaderboard', value: 'No one participated.', inline: false }
+                    )
+                    .setColor('#3498DB')
+                    .setTimestamp();
+                message.channel.send({ embeds: [embed] }).catch(() => {});
+            }, 60000)
+        };
+        noituEnGames.set(message.channelId, game);
+        globalUsedEnWords.set(randomWord, game.matchId);
+        
+        return message.channel.send(`🔤 **ENGLISH WORD CHAIN STARTS!**\nFirst word: **${randomWord.toUpperCase()}**\n\nType a word that starts with the letter **${lastChar}** (the last letter of the previous word)!\n_Reward: 1,000 🪙 per correct word. 60 seconds timeout to end._`).catch(() => {});
+    }
+
+    if (content === `${prefix}stopnoituen`) {
+        if (!noituEnGames.has(message.channelId)) return message.reply('❌ Không có trò chơi Nối Từ Tiếng Anh nào đang diễn ra.');
+        const game = noituEnGames.get(message.channelId);
+        clearTimeout(game.timeout);
+        noituEnGames.delete(message.channelId);
+        return message.reply('🛑 English Word Chain has ended.').catch(() => {});
     }
 
     // --- WELCOME COMMANDS ---
@@ -10515,35 +10714,99 @@ client.on('interactionCreate', async (interaction) => {
 
     // --- NOITU SLASH ---
     if (commandName === 'noitu') {
-        if (noituGames.has(interaction.channelId)) return interaction.reply({ content: '❌ Trò chơi Nối Từ đang diễn ra ở kênh này rồi!', ephemeral: true });
+        if (noituGames.has(interaction.channelId)) return interaction.reply({ content: '❌ Trò chơi Nối Từ Tiếng Việt đang diễn ra ở kênh này rồi!', ephemeral: true });
         if (vnDictionary.size === 0) return interaction.reply({ content: '❌ Từ điển chưa tải xong, vui lòng chờ giây lát...', ephemeral: true });
         
         noituMatchCounter++;
         const easyStartingWords = ["nhà cửa", "học sinh", "bạn bè", "làm việc", "người lớn", "xe cộ", "hoa quả", "cây cối", "nước biển", "mưa rào", "bàn ghế", "sách vở", "yêu thương", "hát ca"];
         const randomWord = easyStartingWords[Math.floor(Math.random() * easyStartingWords.length)];
+        const channelId = interaction.channelId;
         
         const game = {
             matchId: noituMatchCounter,
             streak: 0,
+            userStreaks: new Map(),
+            lastUserId: null,
             lastWord: randomWord,
             usedWords: new Set([randomWord]),
             timeout: setTimeout(() => {
-                noituGames.delete(interaction.channelId);
-                interaction.channel.send(`⏰ Hết 60 giây không ai nối được chữ **${randomWord.split(' ')[1]}**. Trò chơi Nối Từ kết thúc!`).catch(() => {});
+                const endGame = noituGames.get(channelId);
+                if (!endGame) return;
+                noituGames.delete(channelId);
+                const lastWordEnd = endGame.lastWord.split(' ')[1].toUpperCase();
+                const embed = new EmbedBuilder()
+                    .setTitle('🛑 TỔNG KẾT NỐI TỪ TIẾNG VIỆT')
+                    .setDescription(`⏰ Hết 60 giây không ai nối được chữ **${lastWordEnd}**.\nTrò chơi đã kết thúc!`)
+                    .addFields(
+                        { name: '🔥 Tổng số từ đã nối', value: `**${endGame.streak}** từ`, inline: true },
+                        { name: '🏆 Bảng xếp hạng', value: 'Chưa có ai tham gia.', inline: false }
+                    )
+                    .setColor('#FF4500')
+                    .setTimestamp();
+                interaction.channel.send({ embeds: [embed] }).catch(() => {});
             }, 60000)
         };
         noituGames.set(interaction.channelId, game);
         globalUsedWords.set(randomWord, game.matchId);
         
-        return interaction.reply(`🎮 **TRÒ CHƠI NỐI TỪ VỚI BOT BẮT ĐẦU!**\nBot ra từ đầu tiên: **${randomWord.toUpperCase()}**\n\nHãy nối tiếp bằng một từ ghép 2 chữ bắt đầu là **${randomWord.split(' ')[1].toUpperCase()}** nhé!\n_Thưởng 1,000 🪙 mỗi từ đúng. Đạt chuỗi 10 từ hoặc làm Bot bí từ sẽ thắng 50,000 🪙!_`);
+        return interaction.reply(`🎮 **TRÒ CHƠI NỐI TỪ TIẾNG VIỆT BẮT ĐẦU!**\nTừ khởi đầu: **${randomWord.toUpperCase()}**\n\nHãy nối tiếp bằng một từ ghép 2 chữ bắt đầu là **${randomWord.split(' ')[1].toUpperCase()}** nhé!\n_Thưởng 1,000 🪙 mỗi từ đúng. Hãy xem các bạn nối được bao nhiêu từ!_`);
     }
 
     if (commandName === 'stopnoitu') {
-        if (!noituGames.has(interaction.channelId)) return interaction.reply({ content: '❌ Không có trò chơi Nối Từ nào đang diễn ra.', ephemeral: true });
+        if (!noituGames.has(interaction.channelId)) return interaction.reply({ content: '❌ Không có trò chơi Nối Từ Tiếng Việt nào đang diễn ra.', ephemeral: true });
         const game = noituGames.get(interaction.channelId);
         clearTimeout(game.timeout);
         noituGames.delete(interaction.channelId);
-        return interaction.reply('🛑 Trò chơi Nối Từ đã kết thúc.');
+        return interaction.reply('🛑 Trò chơi Nối Từ Tiếng Việt đã kết thúc.');
+    }
+
+    // --- NOITU ENGLISH SLASH ---
+    if (commandName === 'noituen') {
+        if (noituEnGames.has(interaction.channelId)) return interaction.reply({ content: '❌ Trò chơi Nối Từ Tiếng Anh đang diễn ra ở kênh này rồi!', ephemeral: true });
+        if (enDictionary.size === 0) return interaction.reply({ content: '❌ Từ điển Tiếng Anh chưa tải xong, vui lòng chờ giây lát...', ephemeral: true });
+        
+        noituEnMatchCounter++;
+        const easyStartingWords = ["apple", "banana", "cat", "dog", "elephant", "fish", "garden", "house", "island", "jungle", "kite", "lemon", "mountain", "night", "ocean"];
+        const randomWord = easyStartingWords[Math.floor(Math.random() * easyStartingWords.length)];
+        const channelId = interaction.channelId;
+        const lastChar = randomWord[randomWord.length - 1].toUpperCase();
+        
+        const game = {
+            matchId: noituEnMatchCounter,
+            streak: 0,
+            userStreaks: new Map(),
+            lastUserId: null,
+            lastWord: randomWord,
+            usedWords: new Set([randomWord]),
+            timeout: setTimeout(() => {
+                const endGame = noituEnGames.get(channelId);
+                if (!endGame) return;
+                noituEnGames.delete(channelId);
+                const lastCharEnd = endGame.lastWord[endGame.lastWord.length - 1].toUpperCase();
+                const embed = new EmbedBuilder()
+                    .setTitle('🛑 ENGLISH WORD CHAIN — GAME OVER')
+                    .setDescription(`⏰ 60 seconds passed — no one could chain from letter **${lastCharEnd}**.\nGame ended!`)
+                    .addFields(
+                        { name: '🔥 Total words chained', value: `**${endGame.streak}** words`, inline: true },
+                        { name: '🏆 Leaderboard', value: 'No one participated.', inline: false }
+                    )
+                    .setColor('#3498DB')
+                    .setTimestamp();
+                interaction.channel.send({ embeds: [embed] }).catch(() => {});
+            }, 60000)
+        };
+        noituEnGames.set(interaction.channelId, game);
+        globalUsedEnWords.set(randomWord, game.matchId);
+        
+        return interaction.reply(`🔤 **ENGLISH WORD CHAIN STARTS!**\nFirst word: **${randomWord.toUpperCase()}**\n\nType a word that starts with the letter **${lastChar}** (the last letter of the previous word)!\n_Reward: 1,000 🪙 per correct word. 60 seconds timeout to end._`);
+    }
+
+    if (commandName === 'stopnoituen') {
+        if (!noituEnGames.has(interaction.channelId)) return interaction.reply({ content: '❌ Không có trò chơi Nối Từ Tiếng Anh nào đang diễn ra.', ephemeral: true });
+        const game = noituEnGames.get(interaction.channelId);
+        clearTimeout(game.timeout);
+        noituEnGames.delete(interaction.channelId);
+        return interaction.reply('🛑 English Word Chain has ended.');
     }
 
     if (commandName === '1an') {
