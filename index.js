@@ -5013,6 +5013,36 @@ client.on('guildMemberAdd', async (member) => {
 });
 
 // ========================
+// BOOST NOTIFICATION
+// ========================
+client.on('guildMemberUpdate', async (oldMember, newMember) => {
+    // Check if the member just started boosting the server
+    if (!oldMember.premiumSince && newMember.premiumSince) {
+        try {
+            const channelId = '1491618335689805856';
+            const channel = newMember.guild.channels.cache.get(channelId);
+            if (!channel) return;
+            
+            const embed = new EmbedBuilder()
+                .setTitle('🚀 Cảm ơn bạn đã Boost Server! 🚀')
+                .setDescription(`Tuyệt vời quá! Cảm ơn **${newMember.user.displayName}** đã boost server **${newMember.guild.name}**! 💖\nSự ủng hộ của bạn là động lực rất lớn đối với chúng mình!`)
+                .setColor('#ff73fa')
+                .setThumbnail(newMember.user.displayAvatarURL({ dynamic: true, size: 512 }))
+                .addFields(
+                    { name: '🔥 Tổng số Boost hiện tại', value: `**${newMember.guild.premiumSubscriptionCount || 0}** Boosts!`, inline: true },
+                    { name: '💎 Server Level', value: `Cấp **${newMember.guild.premiumTier || 0}**`, inline: true }
+                )
+                .setFooter({ text: 'Cảm ơn tình yêu của bạn 💕' })
+                .setTimestamp();
+                
+            channel.send({ content: `Cảm ơn <@${newMember.id}> rất nhiều nha! 🎉`, embeds: [embed] });
+        } catch (error) {
+            console.error('Lỗi khi gửi thông báo boost:', error);
+        }
+    }
+});
+
+// ========================
 // VOICE STATE - NOTIFY
 // ========================
 client.on('voiceStateUpdate', async (oldState, newState) => {
@@ -5239,6 +5269,19 @@ const TIKTOK_REGEX = /https?:\/\/(www\.|vm\.|vt\.)?tiktok\.com\/[^\s]+/gi;
 client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
     if (BANNED_USERS.includes(message.author.id)) return;
+    
+    if (message.content === '!testboost') {
+        const oldMember = { premiumSince: null };
+        const mockedNewMember = Object.create(message.member);
+        mockedNewMember.premiumSince = new Date();
+        if (!mockedNewMember.guild.premiumSubscriptionCount) {
+            mockedNewMember.guild = Object.create(message.member.guild);
+            mockedNewMember.guild.premiumSubscriptionCount = 1;
+            mockedNewMember.guild.premiumTier = 1;
+        }
+        client.emit('guildMemberUpdate', oldMember, mockedNewMember);
+        return message.reply('Đã giả lập sự kiện Boost Server! (Kiểm tra kênh 1491618335689805856)');
+    }
 
     updatePlayer(message.author.id, p => {
         p.messageCount = (p.messageCount || 0) + 1;
