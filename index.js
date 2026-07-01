@@ -1989,10 +1989,11 @@ async function handleShop(userId, msgOrInteraction) {
         if (i.user.id !== userId) return i.reply({ content: '❌ Cửa hàng này không phải của bạn!', flags: MessageFlags.Ephemeral });
 
         // Tab buttons
-        if (i.customId === 'shop_tab_rpg' || i.customId === 'shop_tab_ring' || i.customId === 'shop_tab_pet' || i.customId === 'shop_tab_farm') {
+        if (i.customId === 'shop_tab_rpg' || i.customId === 'shop_tab_ring' || i.customId === 'shop_tab_pet' || i.customId === 'shop_tab_farm' || i.customId === 'shop_tab_tools') {
             if (i.customId === 'shop_tab_ring') currentTab = 'ring';
             else if (i.customId === 'shop_tab_pet') currentTab = 'pet';
             else if (i.customId === 'shop_tab_farm') currentTab = 'farm';
+            else if (i.customId === 'shop_tab_tools') currentTab = 'tools';
             else currentTab = 'rpg';
             const newEmbed = buildShopEmbed(currentTab);
             const newCatRow = buildShopCategoryRow();
