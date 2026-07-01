@@ -1454,18 +1454,26 @@ const marketPath = './market.json';
 const MARKET_ITEMS = ['iron_ore', 'magic_dust', 'dragon_scale', 'void_shard', 'obsidian'];
 
 function loadMarket() {
+    let data;
     if (!fs.existsSync(marketPath)) {
-        const initData = { lastUpdate: Date.now(), items: {} };
-        for (const item of MARKET_ITEMS) {
-            initData.items[item] = {
+        data = { lastUpdate: Date.now(), items: {} };
+    } else {
+        try { data = JSON.parse(fs.readFileSync(marketPath, 'utf8')); } 
+        catch { data = { lastUpdate: Date.now(), items: {} }; }
+    }
+    
+    let needsSave = false;
+    for (const item of MARKET_ITEMS) {
+        if (!data.items[item] || !data.items[item].history) {
+            data.items[item] = {
                 currentPrice: RPG_ITEMS.materials[item]?.price || 5000,
                 history: [RPG_ITEMS.materials[item]?.price || 5000]
             };
+            needsSave = true;
         }
-        saveMarket(initData);
-        return initData;
     }
-    try { return JSON.parse(fs.readFileSync(marketPath, 'utf8')); } catch { return { lastUpdate: Date.now(), items: {} }; }
+    if (needsSave) saveMarket(data);
+    return data;
 }
 
 function saveMarket(data) { fs.writeFileSync(marketPath, JSON.stringify(data, null, 2)); }
@@ -1476,12 +1484,6 @@ function updateMarketPrices() {
     // Cập nhật sau mỗi 5 phút
     if (now - data.lastUpdate >= 5 * 60 * 1000) {
         for (const item of MARKET_ITEMS) {
-            if (!data.items[item]) {
-                data.items[item] = {
-                    currentPrice: RPG_ITEMS.materials[item]?.price || 5000,
-                    history: [RPG_ITEMS.materials[item]?.price || 5000]
-                };
-            }
             const oldPrice = data.items[item].currentPrice;
             const changePercent = (Math.random() * 0.3) - 0.15;
             let newPrice = Math.floor(oldPrice * (1 + changePercent));
