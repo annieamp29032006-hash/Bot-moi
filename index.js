@@ -3829,39 +3829,55 @@ async function handleHackCommand(userId, targetId, msgOrInteraction) {
 }
 
 async function handleMarketCommand(userId, msgOrInteraction) {
-    const data = updateMarketPrices();
-    
-    // Tạo mảng dữ liệu để vẽ biểu đồ cho 3 vật phẩm đại diện
-    const datasets = MARKET_ITEMS.slice(0, 3).map((item, index) => { 
-        const colors = ['rgb(149,165,166)', 'rgb(231,76,60)', 'rgb(155,89,182)'];
-        return `{label:'${RPG_ITEMS.materials[item].name}',data:[${data.items[item].history.join(',')}],fill:false,borderColor:'${colors[index]}'}`;
-    });
-    
-    const labels = data.items[MARKET_ITEMS[0]].history.map((_, i) => `'-${(data.items[MARKET_ITEMS[0]].history.length - i) * 5}m'`).join(',');
-    
-    const chartUrl = `https://quickchart.io/chart?c={type:'line',data:{labels:[${labels}],datasets:[${datasets.join(',')}]}}`;
-    
-    let desc = '> Cứ mỗi 5 phút, giá vật phẩm sẽ biến động ngẫu nhiên.\n> Hãy dùng lệnh `/inv` hoặc Nút [Bán] trong túi đồ để xả hàng lúc giá tạo đỉnh!\n\n';
-    
-    for (const item of MARKET_ITEMS) {
-        const h = data.items[item].history;
-        const current = h[h.length - 1];
-        const prev = h.length > 1 ? h[h.length - 2] : current;
-        let diff = current - prev;
-        let icon = diff >= 0 ? (diff === 0 ? '➖' : '📈') : '📉';
-        let percent = prev > 0 ? (Math.abs(diff) / prev * 100).toFixed(1) : 0;
+    try {
+        const data = updateMarketPrices();
         
-        desc += `${RPG_ITEMS.materials[item].emoji} **${RPG_ITEMS.materials[item].name}**: ${current.toLocaleString()} 🪙 (${icon} ${percent}%)\n`;
+        // Build chart config as a proper JSON object then encode it
+        const chartConfig = {
+            type: 'line',
+            data: {
+                labels: data.items[MARKET_ITEMS[0]].history.map((_, i) => 
+                    `-${(data.items[MARKET_ITEMS[0]].history.length - i) * 5}m`
+                ),
+                datasets: MARKET_ITEMS.slice(0, 3).map((item, index) => {
+                    const colors = ['#95A5A6', '#E74C3C', '#9B59B6'];
+                    return {
+                        label: RPG_ITEMS.materials[item].name,
+                        data: data.items[item].history,
+                        fill: false,
+                        borderColor: colors[index]
+                    };
+                })
+            }
+        };
+        
+        const chartUrl = `https://quickchart.io/chart?c=${encodeURIComponent(JSON.stringify(chartConfig))}`;
+        
+        let desc = '> C\u1ee9 m\u1ed7i 5 ph\u00fat, gi\u00e1 v\u1eadt ph\u1ea9m s\u1ebd bi\u1ebfn \u0111\u1ed9ng ng\u1eabu nhi\u00ean.\n> H\u00e3y d\u00f9ng l\u1ec7nh `/inv` ho\u1eb7c N\u00fat [B\u00e1n] trong t\u00fai \u0111\u1ed3 \u0111\u1ec3 x\u1ea3 h\u00e0ng l\u00fac gi\u00e1 t\u1ea1o \u0111\u1ec9nh!\n\n';
+        
+        for (const item of MARKET_ITEMS) {
+            const h = data.items[item].history;
+            const current = h[h.length - 1];
+            const prev = h.length > 1 ? h[h.length - 2] : current;
+            let diff = current - prev;
+            let icon = diff >= 0 ? (diff === 0 ? '\u27a1\ufe0f' : '\ud83d\udcc8') : '\ud83d\udcc9';
+            let percent = prev > 0 ? (Math.abs(diff) / prev * 100).toFixed(1) : 0;
+            
+            desc += `${RPG_ITEMS.materials[item].emoji} **${RPG_ITEMS.materials[item].name}**: ${current.toLocaleString()} \ud83e\ude99 (${icon} ${percent}%)\n`;
+        }
+        
+        const embed = new EmbedBuilder()
+            .setTitle('\ud83d\udcca S\u00c0N CH\u1ee8NG KHO\u00c1N V\u1eacT PH\u1ea8M')
+            .setDescription(desc)
+            .setImage(chartUrl)
+            .setColor('#F1C40F')
+            .setFooter({ text: 'Th\u1ecb tr\u01b0\u1eddng th\u1eddi gian th\u1ef1c - C\u1eadp nh\u1eadt 5 ph\u00fat/l\u1ea7n' });
+            
+        return replyMsg(msgOrInteraction, { embeds: [embed] });
+    } catch (err) {
+        console.error('Market command error:', err);
+        return replyMsg(msgOrInteraction, '\u274c \u0110\u00e3 x\u1ea3y ra l\u1ed7i khi t\u1ea3i d\u1eef li\u1ec7u s\u00e0n ch\u1ee9ng kho\u00e1n. Vui l\u00f2ng th\u1eed l\u1ea1i!');
     }
-    
-    const embed = new EmbedBuilder()
-        .setTitle('📊 SÀN CHỨNG KHOÁN VẬT PHẨM')
-        .setDescription(desc)
-        .setImage(chartUrl)
-        .setColor('#F1C40F')
-        .setFooter({ text: 'Thị trường thời gian thực - Cập nhật 5 phút/lần' });
-        
-    return replyMsg(msgOrInteraction, { embeds: [embed] });
 }
 
 let QUOTES_THINH = [];
