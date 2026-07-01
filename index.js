@@ -362,6 +362,7 @@ function buildHelpPages(prefix) {
                 { name: `\`${prefix}robbank\` hoặc \`/robbank\``, value: '🏦 **Cướp ngân hàng hệ thống:**\n• 15% thành công → nhận thưởng lớn\n• Thất bại → mất 50% tiền mặt + bị tù 5 phút', inline: false },
                 { name: `\`${prefix}robbank @user\` hoặc \`/robbank @user\``, value: '🥷 **Cướp ngân hàng người khác:**\n• 40% thành công → lấy 10–30% tiền bank của họ\n• Thất bại → mất 30% tiền mặt + bị tù 3 phút', inline: false },
                 { name: `\`${prefix}nopphat\` hoặc \`/nopphat\``, value: '🚓 Đang bị tù? Nộp **100,000 🪙** để hối lộ và được thả tự do ngay lập tức!', inline: false },
+                { name: `\`${prefix}hack @user\` hoặc \`/hack\``, value: '💻 **Mạng Ngầm Dark Web:**\n• Hack người khác để trộm **5-15%** tiền của họ!\n• Yêu cầu: Cần mua **Laptop** và **Virus** trong Shop.\n• Minigame: Nhập 3 số không trùng nhau trong 4 lần thử.\n• Cảnh báo: Thất bại sẽ bị **mất Laptop và đi Tù 10 phút**.\n• Phòng thủ: Mua **Tường Lửa** trong Shop để chặn hack tự động.', inline: false },
                 { name: '💡 Mẹo quan trọng', value: '• Tiền trong **bank** an toàn, không bị mất khi thua cờ bạc!\n• Nhưng tiền bank **có thể bị cướp** bởi người khác qua lệnh `robbank`.\n• Bị tù → không dùng được bất kỳ lệnh nào ngoài `nopphat`.', inline: false }
             )
             .setColor('#2ECC71')
@@ -1125,6 +1126,11 @@ const RPG_ITEMS = {
         'carrot': { name: 'Cà Rốt', emoji: '🥕', price: 12000 },
         'tomato': { name: 'Cà Chua', emoji: '🍅', price: 40000 },
         'magic_leaf': { name: 'Lá Cây Thần', emoji: '🍃', price: 300000 }
+    },
+    tools: {
+        'laptop': { name: 'Laptop Hacker', emoji: '💻', price: 1000000 },
+        'virus': { name: 'Virus Trojan', emoji: '🦠', price: 100000 },
+        'firewall': { name: 'Tường Lửa', emoji: '🧱', price: 300000 }
     }
 };
 
@@ -1851,6 +1857,21 @@ function buildShopEmbed(tab) {
             .setThumbnail('https://cdn-icons-png.flaticon.com/512/833/833472.png')
             .setFooter({ text: 'Chọn nhẫn từ menu bên dưới để mua' });
     }
+    if (tab === 'tools') {
+        return new EmbedBuilder()
+            .setTitle('💻 Mạng Ngầm - Cửa Hàng Hacker')
+            .setDescription('Mua công cụ để đi hack tiền người khác hoặc bảo vệ bản thân!\n> ⚠️ Gõ `!hack @user` để bắt đầu tấn công!')
+            .addFields(
+                ...Object.entries(RPG_ITEMS.tools).map(([k, p]) => ({
+                    name: `${p.emoji} ${p.name}`,
+                    value: `Giá: **${p.price.toLocaleString()} 🪙**`,
+                    inline: true
+                }))
+            )
+            .setColor('#000000')
+            .setThumbnail('https://cdn-icons-png.flaticon.com/512/2906/2906274.png')
+            .setFooter({ text: 'Chọn công cụ từ menu bên dưới để mua' });
+    }
     if (tab === 'farm') {
         return new EmbedBuilder()
             .setTitle('🏡 Cửa Hàng Nông Trại')
@@ -1871,7 +1892,8 @@ function buildShopCategoryRow() {
         new ButtonBuilder().setCustomId('shop_tab_rpg').setLabel('⚔️ Trang Bị RPG').setStyle(ButtonStyle.Primary),
         new ButtonBuilder().setCustomId('shop_tab_pet').setLabel('🐾 Bắt Pet').setStyle(ButtonStyle.Success),
         new ButtonBuilder().setCustomId('shop_tab_ring').setLabel('💍 Nhẫn Kết Hôn').setStyle(ButtonStyle.Secondary),
-        new ButtonBuilder().setCustomId('shop_tab_farm').setLabel('🏡 Nông Trại').setStyle(ButtonStyle.Danger)
+        new ButtonBuilder().setCustomId('shop_tab_farm').setLabel('🏡 Nông Trại').setStyle(ButtonStyle.Danger),
+        new ButtonBuilder().setCustomId('shop_tab_tools').setLabel('💻 Hacker').setStyle(ButtonStyle.Primary)
     );
 }
 
@@ -1899,6 +1921,18 @@ function buildShopSelectRow(tab) {
         }
         return new ActionRowBuilder().addComponents(
             new StringSelectMenuBuilder().setCustomId('rpg_shop_select').setPlaceholder('💍 Chọn nhẫn muốn mua...').addOptions(options)
+        );
+    }
+    if (tab === 'tools') {
+        for (const [k, v] of Object.entries(RPG_ITEMS.tools)) {
+            options.push(new StringSelectMenuOptionBuilder()
+                .setLabel(`${v.name}`)
+                .setValue(`tool_${k}`)
+                .setDescription(`Giá: ${v.price.toLocaleString()} 🪙`)
+                .setEmoji(v.emoji));
+        }
+        return new ActionRowBuilder().addComponents(
+            new StringSelectMenuBuilder().setCustomId('rpg_shop_select').setPlaceholder('💻 Chọn công cụ muốn mua...').addOptions(options)
         );
     }
     if (tab === 'farm') {
@@ -3740,6 +3774,58 @@ async function handleRobbank(userId, msgOrInteraction, targetId = null) {
 }
 
 // --- SÀN CHỨNG KHOÁN (MARKET) ---
+// ========================
+// HACKING SYSTEM (DARK WEB)
+// ========================
+const hackingSessions = new Map(); // Store active hacking sessions
+
+async function handleHackCommand(userId, targetId, msgOrInteraction) {
+    if (!targetId) return replyMsg(msgOrInteraction, '❌ Cú pháp: `/hack @user` hoặc `!hack @user`');
+    if (userId === targetId) return replyMsg(msgOrInteraction, '❌ Bạn không thể tự hack chính mình!');
+    if (targetId === client.user.id) return replyMsg(msgOrInteraction, '❌ Tôi là hệ thống vạn năng, không thể bị hack!');
+    
+    if (hackingSessions.has(userId)) return replyMsg(msgOrInteraction, '❌ Bạn đang trong một phiên hack rồi! Hãy giải mã đi.');
+
+    const pData = getPlayer(userId);
+    if (!pData.inventory['laptop']) return replyMsg(msgOrInteraction, '❌ Bạn không có **💻 Laptop Hacker**! Hãy mua trong Cửa hàng.');
+    if (!pData.inventory['virus'] || pData.inventory['virus'] < 1) return replyMsg(msgOrInteraction, '❌ Bạn đã hết **🦠 Virus Trojan**! Hãy mua thêm để tấn công.');
+    
+    const targetCoins = getUserCoins(targetId);
+    if (targetCoins < 1000000) return replyMsg(msgOrInteraction, '❌ Mục tiêu quá nghèo (dưới 1M 🪙), không bõ công hack!');
+    
+    // Tiêu thụ 1 Virus
+    updatePlayer(userId, p => {
+        p.inventory['virus'] -= 1;
+        if (p.inventory['virus'] <= 0) delete p.inventory['virus'];
+    });
+    
+    const targetData = getPlayer(targetId);
+    if (targetData.inventory['firewall'] && targetData.inventory['firewall'] > 0) {
+        updatePlayer(targetId, p => {
+            p.inventory['firewall'] -= 1;
+            if (p.inventory['firewall'] <= 0) delete p.inventory['firewall'];
+        });
+        return replyMsg(msgOrInteraction, `💥 **HACK THẤT BẠI!**\nMục tiêu đã trang bị **🧱 Tường Lửa**. Mã độc của bạn đã bị tiêu diệt và Tường Lửa của nạn nhân cũng bị phá vỡ!`);
+    }
+    
+    // Bắt đầu Minigame
+    const digits = [];
+    while (digits.length < 3) {
+        const d = Math.floor(Math.random() * 10);
+        if (!digits.includes(d)) digits.push(d); // 3 số không trùng nhau
+    }
+    const secretCode = digits.join('');
+    
+    hackingSessions.set(userId, { code: secretCode, attempts: 4, targetId });
+    
+    const embed = new EmbedBuilder()
+        .setTitle('💻 BẮT ĐẦU XÂM NHẬP (MASTERMIND)')
+        .setDescription(`Đã vượt qua lớp vỏ bọc, đang truy cập vào hệ thống lõi của <@${targetId}>!\n\n> Hãy nhập **3 chữ số không trùng nhau** (Ví dụ: \`123\`) lên kênh chat để giải mã két sắt.\n> Trạng thái:\n🟢: Đúng số, đúng vị trí\n🟡: Có số này nhưng sai vị trí\n🔴: Số sai hoàn toàn\n\nBạn có **4 lần thử**. Nhập mã của bạn ngay!`)
+        .setColor('#00FF00');
+        
+    return replyMsg(msgOrInteraction, { embeds: [embed] });
+}
+
 async function handleMarketCommand(userId, msgOrInteraction) {
     const data = updateMarketPrices();
     
@@ -4575,6 +4661,10 @@ const slashCommands = [
     new SlashCommandBuilder()
         .setName('nopphat')
         .setDescription('🚓 Hối lộ công an 100,000 🪙 để ra tù sớm.'),
+    new SlashCommandBuilder()
+        .setName('hack')
+        .setDescription('💻 Xâm nhập hệ thống lấy trộm tiền từ người chơi khác (Cần Laptop & Virus).')
+        .addUserOption(o => o.setName('user').setDescription('Mục tiêu bị hack').setRequired(true)),
     new SlashCommandBuilder()
         .setName('market')
         .setDescription('📊 Xem Sàn Chứng Khoán Vật Phẩm thời gian thực.'),
@@ -5436,6 +5526,78 @@ const TIKTOK_REGEX = /https?:\/\/(www\.|vm\.|vt\.)?tiktok\.com\/[^\s]+/gi;
 client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
     if (BANNED_USERS.includes(message.author.id)) return;
+    
+    // --- DARK WEB HACKING LOGIC ---
+    if (hackingSessions.has(message.author.id)) {
+        const session = hackingSessions.get(message.author.id);
+        const guess = message.content.trim();
+        
+        if (/^\d{3}$/.test(guess)) {
+            // Validate distinct digits
+            if (new Set(guess.split('')).size !== 3) {
+                return message.reply('❌ Mã giải phải gồm **3 chữ số không trùng nhau** (Ví dụ: `123`)!');
+            }
+            
+            session.attempts -= 1;
+            
+            if (guess === session.code) {
+                // Thắng
+                hackingSessions.delete(message.author.id);
+                const stealPercent = (Math.random() * 0.1) + 0.05; // 5% - 15%
+                const targetCoins = getUserCoins(session.targetId);
+                const stolen = Math.floor(targetCoins * stealPercent);
+                
+                addCoins(session.targetId, -stolen);
+                addCoins(message.author.id, stolen);
+                
+                const embed = new EmbedBuilder()
+                    .setTitle('🔓 XÂM NHẬP THÀNH CÔNG!')
+                    .setDescription(`Bạn đã phá giải hệ thống an ninh và cuỗm đi **${stolen.toLocaleString()} 🪙** từ <@${session.targetId}>!`)
+                    .setColor('#2ECC71');
+                return message.reply({ embeds: [embed] });
+            } else {
+                if (session.attempts <= 0) {
+                    // Thua
+                    hackingSessions.delete(message.author.id);
+                    updatePlayer(message.author.id, p => {
+                        delete p.inventory['laptop'];
+                        p.jailTime = Date.now() + 10 * 60 * 1000; // 10 minutes jail
+                    });
+                    
+                    const embed = new EmbedBuilder()
+                        .setTitle('🚨 BÁO ĐỘNG ĐỎ! BỊ TÓM CỔ!')
+                        .setDescription(`Bạn đã nhập sai quá nhiều lần. Cảnh sát mạng đã theo dõi IP và ập vào nhà bạn!\n\n> 💻 **Laptop Hacker** đã bị tịch thu!\n> 🚓 Bạn bị tống vào tù **10 phút**!`)
+                        .setColor('#FF0000');
+                    return message.reply({ embeds: [embed] });
+                } else {
+                    let feedback = '';
+                    let tempCode = session.code.split('');
+                    let tempGuess = guess.split('');
+                    
+                    for (let i = 0; i < 3; i++) {
+                        if (tempGuess[i] === tempCode[i]) {
+                            feedback += '🟢 ';
+                            tempCode[i] = null;
+                            tempGuess[i] = null;
+                        }
+                    }
+                    for (let i = 0; i < 3; i++) {
+                        if (tempGuess[i] !== null) {
+                            const idx = tempCode.indexOf(tempGuess[i]);
+                            if (idx !== -1) {
+                                feedback += '🟡 ';
+                                tempCode[idx] = null;
+                            } else {
+                                feedback += '🔴 ';
+                            }
+                        }
+                    }
+                    let sortedFeedback = feedback.trim().split(' ').sort().reverse().join(' ');
+                    return message.reply(`🖥️ Giải mã thất bại: **${guess}** ➡️ ${sortedFeedback}\n> Bạn còn **${session.attempts} lần thử**! (Vd: 🟢 = Trúng, 🟡 = Sai chỗ, 🔴 = Sai)`);
+                }
+            }
+        }
+    }
     
     if (message.content === '!testboost') {
         try {
@@ -7228,6 +7390,10 @@ client.on('messageCreate', async (message) => {
     if (content.startsWith(`${prefix}robbank`) || content.startsWith(`${prefix}heist`)) {
         const robTarget = message.mentions.users.first();
         return handleRobbank(message.author.id, message, robTarget ? robTarget.id : null);
+    }
+    if (content.startsWith(`${prefix}hack`)) {
+        const targetId = message.mentions.users.first()?.id;
+        return handleHackCommand(message.author.id, targetId, message);
     }
     if (content === `${prefix}market` || content === `${prefix}mk`) {
         return handleMarketCommand(message.author.id, message);
@@ -9903,6 +10069,7 @@ client.on('interactionCreate', async (interaction) => {
             else if (type === 'potion') item = RPG_ITEMS.potions[itemCode];
             else if (type === 'pokeball') item = RPG_ITEMS.pokeballs[itemCode];
             else if (type === 'seed') item = RPG_ITEMS.seeds[itemCode];
+            else if (type === 'tool') item = RPG_ITEMS.tools[itemCode];
             
             if (!item) return interaction.reply({ content: '❌ Món đồ không tồn tại!', flags: MessageFlags.Ephemeral });
             
@@ -10733,6 +10900,10 @@ client.on('interactionCreate', async (interaction) => {
     // ========================
     if (commandName === 'dungeon') {
         return handleDungeon(interaction.user.id, interaction);
+    }
+    if (commandName === 'hack') {
+        const targetUser = interaction.options.getUser('user');
+        return handleHackCommand(interaction.user.id, targetUser ? targetUser.id : null, interaction);
     }
     if (commandName === 'market') {
         return handleMarketCommand(interaction.user.id, interaction);
