@@ -5688,14 +5688,12 @@ client.on('messageCreate', async (message) => {
 
     // --- AUTO MESSAGE FOR SPECIFIC CHANNEL ---
     if (message.channel.id === '1491623564582064248') {
-        const capoo = message.client.emojis.cache.find(e => e.name === 'capoo_dance')?.toString() || ':capoo_dance:';
-        const emoji116 = message.client.emojis.cache.find(e => e.name === 'emoji_116')?.toString() || ':emoji_116:';
-        const abis = message.client.emojis.cache.find(e => e.name === 'abis_cham2')?.toString() || ':abis_cham2:';
+        const ic_timnhay = message.client.emojis.cache.find(e => e.name.includes('ic_timnhay4'))?.toString() || '<a:ic_timnhay4:1333488435998101667>';
+        const mlz_heart = message.client.emojis.cache.find(e => e.name.includes('mlz_heart'))?.toString() || ':mlz_heart:';
         
-        const content = `${capoo} **Main legend xin chào ạ** ${capoo}\n` +
-            `${emoji116} Cảm ơn đã tag game vui lòng đợi mọi người vào chơi cùng bạn \n` +
-            `${emoji116} Chỉ cần ghi các chữ **pubg, tft, ggd, lol, steam, val, ff, lq, liên quân, mc, rbl** bot sẽ tag game lên cho bạn \n` +
-            `Xin cảm ơn ạ ${abis}`;
+        const content = `${ic_timnhay} Đây là kênh để ping game trong server ${ic_timnhay}\n` +
+            `Cách ping là @mention game muốn chơi lên ví dụ như là \`@TFT\` ....\n` +
+            `${mlz_heart} Cảm ơn đã đọc ạ ${mlz_heart}`;
 
         try {
             if (client.lastMainLegendMsgId) {

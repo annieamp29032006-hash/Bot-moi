@@ -1,0 +1,35 @@
+{
+  "lastUpdate": 1782907737400,
+  "items": {
+    "iron_ore": {
+      "currentPrice": 5000,
+      "history": [
+        5000
+      ]
+    },
+    "magic_dust": {
+      "currentPrice": 10000,
+      "history": [
+        10000
+      ]
+    },
+    "dragon_scale": {
+      "currentPrice": 25000,
+      "history": [
+        25000
+      ]
+    },
+    "void_shard": {
+      "currentPrice": 80000,
+      "history": [
+        80000
+      ]
+    },
+    "obsidian": {
+      "currentPrice": 100000,
+      "history": [
+        100000
+      ]
+    }
+  }
+}
