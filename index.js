@@ -358,7 +358,7 @@ function buildHelpPages(prefix) {
             .setDescription('Gửi tiền vào bank để bảo toàn tài sản (tránh mất khi thua cờ bạc), đầu tư sinh lời hoặc liều mình cướp bank!')
             .addFields(
                 { name: `\`${prefix}bank\` hoặc \`/bank\``, value: '🏦 Mở bảng ngân hàng cá nhân với 4 nút bấm:\n• 📥 **Gửi Tiền** — Nhập số tiền muốn chuyển từ ví → bank\n• 📤 **Rút Tiền** — Nhập số tiền muốn rút từ bank → ví\n• 🏆 **Top Bank** — Xem bảng xếp hạng người giàu nhất bank\n• 🔄 **Làm mới** — Cập nhật lại số dư hiện tại', inline: false },
-                { name: `\`${prefix}dautu <số tiền>\` hoặc \`/dautu\``, value: '📊 Đầu tư cổ phiếu ngẫu nhiên:\n• Có thể **lãi tối đa +80%** số tiền đầu tư\n• Có thể **lỗ tối đa -50%** số tiền đầu tư\n• Kết quả hiện ngay sau khi bấm xác nhận\n• Ví dụ: Đầu tư 1,000,000 → lãi +800,000 hoặc lỗ -500,000', inline: false },
+                { name: `\`${prefix}market\` (hoặc \`${prefix}mk\`) / \`/market\``, value: '📊 Sàn Chứng Khoán Vật Phẩm:\n• Xem giá nguyên liệu cập nhật mỗi 5 phút (tăng/giảm ngẫu nhiên)\n• Xem biểu đồ lịch sử giá\n• Dùng lệnh `!inv` (hoặc `/inv`) để bán vật liệu theo giá sàn hiện tại', inline: false },
                 { name: `\`${prefix}robbank\` hoặc \`/robbank\``, value: '🏦 **Cướp ngân hàng hệ thống:**\n• 15% thành công → nhận thưởng lớn\n• Thất bại → mất 50% tiền mặt + bị tù 5 phút', inline: false },
                 { name: `\`${prefix}robbank @user\` hoặc \`/robbank @user\``, value: '🥷 **Cướp ngân hàng người khác:**\n• 40% thành công → lấy 10–30% tiền bank của họ\n• Thất bại → mất 30% tiền mặt + bị tù 3 phút', inline: false },
                 { name: `\`${prefix}nopphat\` hoặc \`/nopphat\``, value: '🚓 Đang bị tù? Nộp **100,000 🪙** để hối lộ và được thả tự do ngay lập tức!', inline: false },
@@ -390,7 +390,7 @@ function buildHelpPages(prefix) {
                 { name: '⚔️ PVP ĐẤU TRƯỜNG', value: `\`${prefix}pvp @user <cược>\` hoặc \`/pvp\` — Thách đấu 1v1 nhân vật RPG\n• Dùng stat thật (ATK, DEF, HP + trang bị + class)\n• 20% chance đòn chí mạng x2 DMG\n• Người thắng nhận coin cược x2 • Cooldown: 5 phút`, inline: false },
                 { name: '🎯 NHIỆM VỤ HÀNG NGÀY', value: `\`${prefix}nv\` hoặc \`/quest\` — Xem & nhận thưởng nhiệm vụ\n• 3 nhiệm vụ ngẫu nhiên mỗi ngày (đánh quái, bắt pet, PvP...)\n• Hoàn thành cả 3 → **BONUS 100K 🪙 + 200 EXP**\n• Tự động tracking, reset lúc 0:00`, inline: false },
                 { name: '🏅 CLASS NHÂN VẬT', value: `\`${prefix}class\` hoặc \`/class\` — Chọn/đổi class (Lv.5+)\n• ⚔️ **Chiến Binh** — +30% ATK\n• 🛡️ **Hiệp Sĩ** — +30% DEF, +20% HP\n• 🧙 **Pháp Sư** — +20% ATK, +15% coin hunt\n• Đổi class: 5M 🪙 (lần đầu miễn phí)`, inline: false },
-                { name: '🐲 RAID BOSS & CHẾ TẠO', value: `\`${prefix}spawnraid\` — Dùng vật liệu gọi Boss Thế Giới\n\`${prefix}raid\` — Tham gia đánh Boss Thế Giới để nhận thưởng khủng\n\`${prefix}setuprpg\` — Đăng ký Role thông báo Raid Boss\n\`${prefix}gather\` (\`${prefix}g\`) — Thu thập nguyên liệu theo khu vực\n\`${prefix}craft\` (\`${prefix}cr\`) — Chế tạo vũ khí/giáp từ vật liệu đánh Boss/Hunt\n\`${prefix}equip\` (\`${prefix}eq\`) / \`${prefix}unequip\` (\`${prefix}uneq\`) — Mặc/Tháo trang bị`, inline: false },
+                { name: '🐲 RAID BOSS & CHẾ TẠO', value: `\`${prefix}raid\` (hoặc \`${prefix}rb\`) / \`/raid\` — Xem trạng thái Boss hoặc tấn công Boss\n\`${prefix}setuprpg\` — Đăng ký Role thông báo Raid Boss\n\`${prefix}gather\` (\`${prefix}g\`) — Thu thập nguyên liệu theo khu vực\n\`${prefix}craft\` (\`${prefix}cr\`) — Chế tạo vũ khí/giáp từ vật liệu đánh Boss/Hunt\n\`${prefix}equip\` (\`${prefix}eq\`) / \`${prefix}unequip\` (\`${prefix}uneq\`) — Mặc/Tháo trang bị`, inline: false },
                 { name: '🎁 RƯƠNG & TIẾN HÓA & TOP', value: `\`${prefix}ob\` hoặc \`/openbox\` — Mở rương nhận loot (vũ khí, giáp, coin, danh hiệu...)\n\`${prefix}ev\` hoặc \`/evolve\` — Chuyển Pokemon dư thành 🍬 Candy để tiến hóa\n\`${prefix}rt\` hoặc \`/rpgtop\` — Bảng xếp hạng RPG (Level, Power, Dungeon, Pokemon, PvP)`, inline: false },
                 { name: '🌾 NÔNG TRẠI (FARM)', value: `\`${prefix}farm\` (\`${prefix}f\`) — Quản lý Nông Trại cá nhân\n• \`${prefix}f shop\` — Mua hạt giống\n• \`${prefix}f plant <ô> <hạt>\` — Trồng cây\n• \`${prefix}f harvest all\` — Thu hoạch\n• \`${prefix}f expand\` — Mua thêm ô đất`, inline: false }
             )
@@ -1211,6 +1211,45 @@ const DUNGEONS = [
         boss: { name: 'Quỷ Vương Hủy Diệt', hp: 8000, atk: 600, def: 300, emoji: '👿👑' },
         rewards: { coin: 1000000, exp: 12000, chestChance: 1.0, chestType: 'legendary' },
         cooldown: 120 * 60 * 1000
+    },
+    {
+        id: 'endless_abyss', name: '🌀 Vực Thẳm Vô Tận', minLevel: 30,
+        floors: [
+            { name: 'Tinh Linh Hư Không', hp: 5000, atk: 500, def: 250, emoji: '👾' },
+            { name: 'Kẻ Nuốt Chửng', hp: 6000, atk: 600, def: 280, emoji: '🧿' },
+            { name: 'Bóng Ma Khổng Lồ', hp: 7500, atk: 700, def: 300, emoji: '👻' },
+            { name: 'Xúc Tu Hắc Ám', hp: 9000, atk: 800, def: 350, emoji: '🐙' },
+            { name: 'Thống Soái Vực Thẳm', hp: 11000, atk: 900, def: 400, emoji: '🛡️' },
+        ],
+        boss: { name: 'Chúa Tể Hư Không', hp: 20000, atk: 1200, def: 600, emoji: '🌌👑' },
+        rewards: { coin: 2500000, exp: 25000, chestChance: 1.0, chestType: 'legendary' },
+        cooldown: 180 * 60 * 1000
+    },
+    {
+        id: 'divine_realm', name: '⛰️ Vương Quốc Thần Linh', minLevel: 40,
+        floors: [
+            { name: 'Vệ Binh Thiên Thần', hp: 12000, atk: 1000, def: 500, emoji: '👼' },
+            { name: 'Chiến Binh Ánh Sáng', hp: 15000, atk: 1200, def: 600, emoji: '⚔️' },
+            { name: 'Sư Tử Thần', hp: 18000, atk: 1500, def: 700, emoji: '🦁' },
+            { name: 'Pháp Sư Tối Cao', hp: 16000, atk: 2000, def: 400, emoji: '🧙‍♂️' },
+            { name: 'Tổng Lãnh Thiên Thần', hp: 22000, atk: 1800, def: 800, emoji: '🕊️' },
+        ],
+        boss: { name: 'Thần Ánh Sáng', hp: 45000, atk: 2500, def: 1200, emoji: '☀️👑' },
+        rewards: { coin: 6000000, exp: 50000, chestChance: 1.0, chestType: 'legendary' },
+        cooldown: 240 * 60 * 1000
+    },
+    {
+        id: 'shattered_heaven', name: '🌠 Thiên Đình Gãy Nát', minLevel: 50,
+        floors: [
+            { name: 'Mảnh Vỡ Hỗn Mang', hp: 25000, atk: 2200, def: 1000, emoji: '☄️' },
+            { name: 'Tàn Dư Thần Linh', hp: 30000, atk: 2500, def: 1200, emoji: '🧟' },
+            { name: 'Thú Cưỡi Bạo Chúa', hp: 35000, atk: 3000, def: 1500, emoji: '🐅' },
+            { name: 'Bóng Đen Thời Gian', hp: 40000, atk: 3500, def: 1800, emoji: '⏳' },
+            { name: 'Kẻ Hủy Diệt Thế Giới', hp: 50000, atk: 4000, def: 2000, emoji: '🌍💥' },
+        ],
+        boss: { name: 'Sáng Thế Thần Đọa Lạc', hp: 100000, atk: 6000, def: 3000, emoji: '🌌🎭' },
+        rewards: { coin: 15000000, exp: 120000, chestChance: 1.0, chestType: 'legendary' },
+        cooldown: 360 * 60 * 1000
     }
 ];
 
@@ -1405,6 +1444,82 @@ function loadConfig() {
 }
 function saveConfig(data) { fs.writeFileSync(configPath, JSON.stringify(data, null, 2)); }
 
+const marketPath = './market.json';
+const MARKET_ITEMS = ['iron_ore', 'magic_dust', 'dragon_scale', 'void_shard', 'obsidian'];
+
+function loadMarket() {
+    if (!fs.existsSync(marketPath)) {
+        const initData = { lastUpdate: Date.now(), items: {} };
+        for (const item of MARKET_ITEMS) {
+            initData.items[item] = {
+                currentPrice: RPG_ITEMS.materials[item]?.price || 5000,
+                history: [RPG_ITEMS.materials[item]?.price || 5000]
+            };
+        }
+        saveMarket(initData);
+        return initData;
+    }
+    try { return JSON.parse(fs.readFileSync(marketPath, 'utf8')); } catch { return { lastUpdate: Date.now(), items: {} }; }
+}
+
+function saveMarket(data) { fs.writeFileSync(marketPath, JSON.stringify(data, null, 2)); }
+
+function updateMarketPrices() {
+    const data = loadMarket();
+    const now = Date.now();
+    // Cập nhật sau mỗi 5 phút
+    if (now - data.lastUpdate >= 5 * 60 * 1000) {
+        for (const item of MARKET_ITEMS) {
+            if (!data.items[item]) {
+                data.items[item] = {
+                    currentPrice: RPG_ITEMS.materials[item]?.price || 5000,
+                    history: [RPG_ITEMS.materials[item]?.price || 5000]
+                };
+            }
+            const oldPrice = data.items[item].currentPrice;
+            const changePercent = (Math.random() * 0.3) - 0.15;
+            let newPrice = Math.floor(oldPrice * (1 + changePercent));
+            if (newPrice < 1000) newPrice = 1000;
+            if (newPrice > 500000) newPrice = Math.floor(newPrice * 0.9);
+            data.items[item].currentPrice = newPrice;
+            data.items[item].history.push(newPrice);
+            if (data.items[item].history.length > 20) data.items[item].history.shift();
+        }
+        data.lastUpdate = now;
+        saveMarket(data);
+    }
+    return data;
+}
+
+const raidPath = './raid.json';
+function loadRaid() {
+    if (!fs.existsSync(raidPath)) return {};
+    try { return JSON.parse(fs.readFileSync(raidPath, 'utf8')); } catch { return {}; }
+}
+function saveRaid(data) { fs.writeFileSync(raidPath, JSON.stringify(data, null, 2)); }
+function getRaidBoss() {
+    const data = loadRaid();
+    const now = Date.now();
+    if (!data.boss || (data.boss.status === 'dead' && now - data.boss.deathTime > 12 * 60 * 60 * 1000)) {
+        let maxHp = 5000000;
+        let def = 100;
+        let name = 'Hắc Long Vương';
+        let emoji = '🐉';
+        if (data.boss && data.boss.level) {
+            maxHp = Math.floor(data.boss.maxHp * 1.5);
+            def = Math.floor(data.boss.def * 1.2);
+            name = 'Ma Thần Hư Không';
+            emoji = '👿';
+        }
+        data.boss = {
+            name, emoji, maxHp, hp: maxHp, level: data.boss ? data.boss.level + 10 : 50, def,
+            participants: {}, status: 'alive'
+        };
+        saveRaid(data);
+    }
+    return data.boss;
+}
+
 function getPlayer(userId) {
     const data = loadRPG();
     if (!data[userId]) {
@@ -1446,8 +1561,16 @@ function getPlayer(userId) {
         if (!data[userId].pets) { data[userId].pets = {}; changed = true; }
         if (data[userId].lastCatch === undefined) { data[userId].lastCatch = 0; changed = true; }
         if (data[userId].partner === undefined) { data[userId].partner = null; changed = true; }
-        if (data[userId].investAmount === undefined) { data[userId].investAmount = 0; changed = true; }
-        if (data[userId].investTime === undefined) { data[userId].investTime = 0; changed = true; }
+        if (data[userId].investAmount > 0) {
+            const coinsData = loadCoins();
+            if (!coinsData[userId]) coinsData[userId] = { coins: 0, bank: 0 };
+            coinsData[userId].coins += data[userId].investAmount;
+            saveCoins(coinsData);
+            console.log(`Refunded ${data[userId].investAmount} investAmount to ${userId}`);
+            changed = true;
+        }
+        if (data[userId].investAmount !== undefined) { delete data[userId].investAmount; changed = true; }
+        if (data[userId].investTime !== undefined) { delete data[userId].investTime; changed = true; }
         if (data[userId].messageCount === undefined) { data[userId].messageCount = 0; changed = true; }
         if (data[userId].voiceTime === undefined) { data[userId].voiceTime = 0; changed = true; }
         // Migrate new RPG fields
@@ -2672,17 +2795,18 @@ async function handleDungeon(userId, msgOrInteraction) {
     }
 
     // Build dungeon selection
-    const options = DUNGEONS.map(d => 
-        new StringSelectMenuOptionBuilder()
+    const options = DUNGEONS.map(d => {
+        const emoji = d.name.match(/^[\p{Emoji_Presentation}\p{Extended_Pictographic}]+/u)?.[0] || '🏰';
+        return new StringSelectMenuOptionBuilder()
             .setLabel(d.name.replace(/[^\w\sÀ-ỹ]/g, '').trim())
             .setValue(d.id)
             .setDescription(`Cấp tối thiểu: Lv.${d.minLevel} | Thưởng: ${d.rewards.coin.toLocaleString()} 🪙`)
-            .setEmoji(d.id === 'goblin_cave' ? '🏚️' : d.id === 'magic_tower' ? '🗼' : '🔥')
-    );
+            .setEmoji(emoji);
+    });
 
     const embed = new EmbedBuilder()
         .setTitle('🏰 CHỌN DUNGEON')
-        .setDescription(`**${p.level >= 10 ? '🔥' : p.level >= 5 ? '🗼' : '🏚️'} Cấp độ của bạn: Lv.${p.level}**\n\n` +
+        .setDescription(`**${p.level >= 50 ? '🌠' : p.level >= 40 ? '⛰️' : p.level >= 30 ? '🌀' : p.level >= 20 ? '🌑' : p.level >= 15 ? '❄️' : p.level >= 10 ? '🔥' : p.level >= 5 ? '🗼' : '🏚️'} Cấp độ của bạn: Lv.${p.level}**\n\n` +
             DUNGEONS.map(d => {
                 const locked = p.level < d.minLevel;
                 return `${locked ? '🔒' : '✅'} **${d.name}** (Lv.${d.minLevel}+)\n> Thưởng: ${d.rewards.coin.toLocaleString()} 🪙 + ${d.rewards.exp} EXP\n> Boss: ${d.boss.emoji} ${d.boss.name}`;
@@ -2720,13 +2844,47 @@ async function handleDungeon(userId, msgOrInteraction) {
         const combatLog = [];
         let cleared = true;
         let floorReached = 0;
+        let extraCoins = 0;
+        const extraChests = {};
 
         // Fight through floors
         for (let f = 0; f < dungeon.floors.length; f++) {
             const monster = dungeon.floors[f];
-            let mHp = monster.hp;
+            
+            let eventMsg = '';
+            let isElite = false;
+            const eventRoll = Math.random();
+            
+            if (eventRoll < 0.05) {
+                const trapDmg = Math.floor(p.maxHp * 0.1);
+                playerHp -= trapDmg;
+                eventMsg = ` ⚠️ Bẫy (-${trapDmg} HP)`;
+            } else if (eventRoll < 0.15) {
+                const healAmt = Math.floor(p.maxHp * 0.2);
+                playerHp = Math.min(p.maxHp, playerHp + healAmt);
+                eventMsg = ` ⛲ Suối tiên (+${healAmt} HP)`;
+            } else if (eventRoll < 0.25) {
+                isElite = true;
+                eventMsg = ` 💀 Quái Tinh Anh (x2 thưởng)!`;
+            } else if (eventRoll < 0.35) {
+                const type = Math.random() < 0.5 ? 'wood' : 'iron';
+                extraChests[type] = (extraChests[type] || 0) + 1;
+                eventMsg = ` 📦 Nhặt được ${type === 'wood' ? 'Rương Gỗ' : 'Rương Sắt'}!`;
+            }
+
+            if (playerHp <= 0) {
+                combatLog.push(`❌ Tầng ${f + 1}: Bị cạm bẫy hạ gục trước khi đánh!`);
+                cleared = false;
+                floorReached = f + 1;
+                break;
+            }
+
+            let mHp = isElite ? monster.hp * 1.5 : monster.hp;
+            let mAtk = isElite ? monster.atk * 1.5 : monster.atk;
+            let mName = isElite ? `[ELITE] ${monster.name}` : monster.name;
+
             const pDmg = Math.max(1, stats.atk - monster.def);
-            const mDmg = Math.max(1, monster.atk - stats.def);
+            const mDmg = Math.max(1, mAtk - stats.def);
             let rounds = 0;
 
             while (mHp > 0 && playerHp > 0 && rounds < 20) {
@@ -2737,17 +2895,19 @@ async function handleDungeon(userId, msgOrInteraction) {
             }
 
             if (playerHp <= 0) {
-                combatLog.push(`❌ Tầng ${f + 1}: ${monster.emoji} **${monster.name}** đã hạ gục bạn!`);
+                combatLog.push(`❌ Tầng ${f + 1}: ${monster.emoji} **${mName}** đã hạ gục bạn!${eventMsg}`);
                 cleared = false;
                 floorReached = f + 1;
                 break;
             }
-            combatLog.push(`✅ Tầng ${f + 1}: Đánh bại ${monster.emoji} **${monster.name}** (HP còn: ${playerHp})`);
+            if (isElite) extraCoins += Math.floor(dungeon.rewards.coin / dungeon.floors.length);
+            combatLog.push(`✅ Tầng ${f + 1}: Đánh bại ${monster.emoji} **${mName}** (HP còn: ${Math.floor(playerHp)})${eventMsg}`);
             floorReached = f + 1;
         }
 
         // Boss fight
         let bossDefeated = false;
+        let rareMaterial = null;
         if (cleared && playerHp > 0) {
             const boss = dungeon.boss;
             let bHp = boss.hp;
@@ -2768,6 +2928,12 @@ async function handleDungeon(userId, msgOrInteraction) {
             } else {
                 combatLog.push(`\n🏆 **BOSS** Đánh bại ${boss.emoji} **${boss.name}**!`);
                 bossDefeated = true;
+                
+                // Drop Rare Material for end-game dungeons
+                if (dungeon.minLevel >= 20 && Math.random() < 0.4) {
+                    const materials = ['obsidian', 'void_shard', 'dragon_scale', 'demon_horn', 'mega_stone', 'z_crystal'];
+                    rareMaterial = materials[Math.floor(Math.random() * materials.length)];
+                }
             }
         }
 
@@ -2789,13 +2955,20 @@ async function handleDungeon(userId, msgOrInteraction) {
 
         // Update player
         updatePlayer(userId, dp => {
-            dp.hp = Math.max(0, playerHp);
+            dp.hp = Math.max(0, Math.floor(playerHp));
             dp.lastDungeon = now;
             dp.exp += expReward;
             if (bossDefeated) dp.dungeonClears = (dp.dungeonClears || 0) + 1;
             if (chestDropped) dp.chests[chestDropped] = (dp.chests[chestDropped] || 0) + 1;
+            for (const cType in extraChests) {
+                dp.chests[cType] = (dp.chests[cType] || 0) + extraChests[cType];
+            }
+            if (rareMaterial) {
+                if (!dp.inventory) dp.inventory = {};
+                dp.inventory[rareMaterial] = (dp.inventory[rareMaterial] || 0) + 1;
+            }
         });
-        addCoins(userId, coinReward);
+        addCoins(userId, coinReward + extraCoins);
 
         if (bossDefeated) trackQuestProgress(userId, 'dungeon', 1);
 
@@ -2804,16 +2977,28 @@ async function handleDungeon(userId, msgOrInteraction) {
             .setTitle(bossDefeated ? `🏆 ${dungeon.name} — HOÀN THÀNH!` : `💀 ${dungeon.name} — THẤT BẠI`)
             .setDescription(combatLog.join('\n'))
             .addFields(
-                { name: '💰 Coin', value: `+${coinReward.toLocaleString()} 🪙`, inline: true },
+                { name: '💰 Coin', value: `+${(coinReward + extraCoins).toLocaleString()} 🪙`, inline: true },
                 { name: '⭐ EXP', value: `+${expReward}`, inline: true },
-                { name: '❤️ HP còn lại', value: `${Math.max(0, playerHp)}/${p.maxHp}`, inline: true }
+                { name: '❤️ HP còn lại', value: `${Math.max(0, Math.floor(playerHp))}/${p.maxHp}`, inline: true }
             )
             .setColor(bossDefeated ? '#2ECC71' : '#E74C3C')
             .setTimestamp();
 
-        if (chestDropped) {
-            const chest = RPG_CHESTS[chestDropped];
-            resultEmbed.addFields({ name: '🎁 Rương Drop!', value: `${chest.emoji} **${chest.name}** — Dùng \`/openbox\` để mở!`, inline: false });
+        if (chestDropped || rareMaterial || Object.keys(extraChests).length > 0) {
+            const lootLog = [];
+            if (chestDropped) {
+                const chest = RPG_CHESTS[chestDropped];
+                lootLog.push(`${chest.emoji} **${chest.name}**`);
+            }
+            if (rareMaterial) {
+                const mat = RPG_ITEMS.materials[rareMaterial];
+                lootLog.push(`✨ ${mat.emoji} **${mat.name}** (Rớt từ Boss)`);
+            }
+            for (const type in extraChests) {
+                const chest = RPG_CHESTS[type];
+                lootLog.push(`${chest.emoji} **${chest.name}** x${extraChests[type]}`);
+            }
+            resultEmbed.addFields({ name: '🎁 Loot nhận được!', value: lootLog.join('\n') + '\n*Dùng `/openbox` để mở rương!*', inline: false });
         }
 
         await i.editReply({ embeds: [resultEmbed], components: [] });
@@ -3554,58 +3739,41 @@ async function handleRobbank(userId, msgOrInteraction, targetId = null) {
     }
 }
 
-// Invest
-async function handleInvest(userId, amount, msgOrInteraction) {
-    let p = getPlayer(userId);
-    const cash = getUserCoins(userId);
+// --- SÀN CHỨNG KHOÁN (MARKET) ---
+async function handleMarketCommand(userId, msgOrInteraction) {
+    const data = updateMarketPrices();
     
-    if (amount === 'all') amount = Math.min(cash, 1000000); 
-    else {
-        amount = parseInt(amount);
-        if (isNaN(amount) || amount <= 0) return replyMsg(msgOrInteraction, '❌ Số tiền không hợp lệ!');
-    }
-    
-    if (amount > 2000000) return replyMsg(msgOrInteraction, '❌ Quỹ đầu tư chỉ nhận tối đa 2,000,000 🪙 một lần để tránh rủi ro phá sản!');
-    if (cash < amount) return replyMsg(msgOrInteraction, '❌ Không đủ tiền mặt!');
-    if (p.investAmount && p.investAmount > 0) return replyMsg(msgOrInteraction, '❌ Bạn đang có khoản đầu tư chưa rút! Dùng `!claim-invest` trước.');
-    
-    addCoins(userId, -amount);
-    updatePlayer(userId, dp => {
-        dp.investAmount = amount;
-        dp.investTime = Date.now();
+    // Tạo mảng dữ liệu để vẽ biểu đồ cho 3 vật phẩm đại diện
+    const datasets = MARKET_ITEMS.slice(0, 3).map((item, index) => { 
+        const colors = ['rgb(149,165,166)', 'rgb(231,76,60)', 'rgb(155,89,182)'];
+        return `{label:'${RPG_ITEMS.materials[item].name}',data:[${data.items[item].history.join(',')}],fill:false,borderColor:'${colors[index]}'}`;
     });
     
-    return replyMsg(msgOrInteraction, `📈 Bạn đã ném **${amount.toLocaleString()} 🪙** vào Quỹ Đầu Tư rủi ro cao. Hãy quay lại dùng lệnh \`!claim-invest\` sau 1 giờ để xem kết quả!`);
-}
-
-async function handleClaimInvest(userId, msgOrInteraction) {
-    let p = getPlayer(userId);
-    if (!p.investAmount || p.investAmount <= 0) return replyMsg(msgOrInteraction, '❌ Bạn chưa có khoản đầu tư nào đang hoạt động!');
+    const labels = data.items[MARKET_ITEMS[0]].history.map((_, i) => `'-${(data.items[MARKET_ITEMS[0]].history.length - i) * 5}m'`).join(',');
     
-    const now = Date.now();
-    const passed = now - p.investTime;
-    if (passed < 3600000 && userId !== ADMIN_ID) { // 1 hour
-        const r = 3600000 - passed;
-        return replyMsg(msgOrInteraction, `⏳ Thị trường chưa đóng cửa! Đợi thêm **${Math.floor(r/60000)} phút** nữa!`);
-    }
+    const chartUrl = `https://quickchart.io/chart?c={type:'line',data:{labels:[${labels}],datasets:[${datasets.join(',')}]}}`;
     
-    // Tỉ suất -40% đến +50%
-    const rate = (Math.random() * 0.9) - 0.4; // -0.4 to 0.5
-    const original = p.investAmount;
-    const finalAmount = Math.floor(original * (1 + rate));
+    let desc = '> Cứ mỗi 5 phút, giá vật phẩm sẽ biến động ngẫu nhiên.\n> Hãy dùng lệnh `/inv` hoặc Nút [Bán] trong túi đồ để xả hàng lúc giá tạo đỉnh!\n\n';
     
-    updatePlayer(userId, dp => {
-        dp.investAmount = 0;
-        dp.investTime = 0;
-    });
-    
-    addCoins(userId, finalAmount);
-    
-    let desc = rate >= 0 
-        ? `🟢 Cổ phiếu lên đỉnh! Lợi nhuận: **+${(rate*100).toFixed(1)}%**. Bạn thu về **${finalAmount.toLocaleString()} 🪙** (Lãi: ${(finalAmount - original).toLocaleString()})!`
-        : `🔴 Thị trường sụp đổ! Thua lỗ: **${(rate*100).toFixed(1)}%**. Bạn chỉ còn lại **${finalAmount.toLocaleString()} 🪙** (Lỗ: ${(original - finalAmount).toLocaleString()})!`;
+    for (const item of MARKET_ITEMS) {
+        const h = data.items[item].history;
+        const current = h[h.length - 1];
+        const prev = h.length > 1 ? h[h.length - 2] : current;
+        let diff = current - prev;
+        let icon = diff >= 0 ? (diff === 0 ? '➖' : '📈') : '📉';
+        let percent = prev > 0 ? (Math.abs(diff) / prev * 100).toFixed(1) : 0;
         
-    return replyMsg(msgOrInteraction, `📊 **KẾT QUẢ ĐẦU TƯ**\n${desc}`);
+        desc += `${RPG_ITEMS.materials[item].emoji} **${RPG_ITEMS.materials[item].name}**: ${current.toLocaleString()} 🪙 (${icon} ${percent}%)\n`;
+    }
+    
+    const embed = new EmbedBuilder()
+        .setTitle('📊 SÀN CHỨNG KHOÁN VẬT PHẨM')
+        .setDescription(desc)
+        .setImage(chartUrl)
+        .setColor('#F1C40F')
+        .setFooter({ text: 'Thị trường thời gian thực - Cập nhật 5 phút/lần' });
+        
+    return replyMsg(msgOrInteraction, { embeds: [embed] });
 }
 
 let QUOTES_THINH = [];
@@ -4408,12 +4576,8 @@ const slashCommands = [
         .setName('nopphat')
         .setDescription('🚓 Hối lộ công an 100,000 🪙 để ra tù sớm.'),
     new SlashCommandBuilder()
-        .setName('invest')
-        .setDescription('📈 Ném tiền vào quỹ đầu tư (Có thể Lãi to hoặc Lỗ nặng).')
-        .addStringOption(o => o.setName('amount').setDescription('Số tiền (hoặc "all")').setRequired(true)),
-    new SlashCommandBuilder()
-        .setName('claiminvest')
-        .setDescription('📊 Rút khoản đầu tư sau khi đợi 1 tiếng.'),
+        .setName('market')
+        .setDescription('📊 Xem Sàn Chứng Khoán Vật Phẩm thời gian thực.'),
     new SlashCommandBuilder()
         .setName('marry')
         .setDescription('💍 Ghép đôi ngẫu nhiên hoặc cầu hôn (Phí nhẫn 50,000 Coin).')
@@ -4615,6 +4779,9 @@ const slashCommands = [
     new SlashCommandBuilder()
         .setName('dungeon')
         .setDescription('🏰 Vào Dungeon đánh quái nhiều tầng + Boss.'),
+    new SlashCommandBuilder()
+        .setName('raid')
+        .setDescription('⚔️ Tham gia đánh Raid Boss Toàn Máy Chủ cùng mọi người.'),
     new SlashCommandBuilder()
         .setName('pvp')
         .setDescription('⚔️ Thách đấu PvP 1v1 với người chơi khác.')
@@ -6040,106 +6207,6 @@ client.on('messageCreate', async (message) => {
         return message.reply('✅ Đã cài đặt thành công role RPG và gửi bảng đăng ký!');
     }
 
-    if (content === `${prefix}spawnraid`) {
-        if (!message.member.permissions.has(PermissionsBitField.Flags.Administrator)) return message.reply('❌ Chỉ admin mới được gọi Raid Boss!');
-        if (global.RAID_BOSS) return message.reply('❌ Đã có Raid Boss xuất hiện rồi!');
-        global.RAID_BOSS = {
-            name: 'Ma Vương Ánh Sáng Mù Lòa',
-            hp: 500000,
-            maxHp: 500000,
-            atk: 1500,
-            def: 600,
-            emoji: '👹',
-            participants: new Map(),
-            endTime: Date.now() + 60 * 60 * 1000 // 1 hour
-        };
-        const embed = new EmbedBuilder()
-            .setTitle('🚨 CẢNH BÁO: RAID BOSS ĐÃ XUẤT HIỆN 🚨')
-            .setDescription(`**${global.RAID_BOSS.emoji} ${global.RAID_BOSS.name}** đã giáng trần!\n\n> 🩸 Máu: **${global.RAID_BOSS.maxHp.toLocaleString()}**\n> ⚔️ Tấn công: **${global.RAID_BOSS.atk}**\n\nTất cả người chơi hãy dùng lệnh \`${prefix}raid\` để tấn công Boss! Kẻ kết liễu hoặc gây sát thương cao nhất sẽ nhận được phần thưởng khổng lồ!`)
-            .setColor('#FF0000')
-            .setImage('https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExcDdvMnAwaGFwa3RwbzlkdzIzZ3Rza2g0NThwa3BxanIxbWhpYWl3ciZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/LwsCiZPppEIJIIGmO1/giphy.gif');
-        const config = loadConfig();
-        let msgContent = '';
-        if (config.rpgRoleId) msgContent = `<@&${config.rpgRoleId}>`;
-        return message.channel.send({ content: msgContent, embeds: [embed] });
-    }
-
-    if (content === `${prefix}raid`) {
-        if (!global.RAID_BOSS) return message.reply('❌ Không có Raid Boss nào đang xuất hiện!');
-        if (Date.now() > global.RAID_BOSS.endTime) {
-            global.RAID_BOSS = null;
-            return message.reply('⏳ Raid Boss đã bỏ đi vì hết thời gian!');
-        }
-        const pData = getPlayer(uid);
-        const stats = getPlayerStats(pData);
-        
-        // Bỏ giới hạn level 5 để mọi người đều có thể đánh Raid Boss
-        // if (pData.level < 5) return message.reply('❌ Bạn cần đạt ít nhất Level 5 để tham gia Raid Boss!');
-        
-        // Bỏ cooldown boss để mọi người đánh liên tục
-        // if (pData.lastRaid && Date.now() - pData.lastRaid < 5 * 60 * 1000) {
-        //     const r = 5 * 60 * 1000 - (Date.now() - pData.lastRaid);
-        //     return message.reply(`⏳ Đang hồi sức! Hãy quay lại sau **${Math.ceil(r/1000)}s** nữa.`);
-        // }
-
-        let dmg = Math.max(1, stats.atk - Math.floor(global.RAID_BOSS.def / 10));
-        if (Math.random() < 0.2) dmg = Math.floor(dmg * 1.5);
-        
-        global.RAID_BOSS.hp -= dmg;
-        pData.lastRaid = Date.now();
-        updatePlayer(uid, p => p.lastRaid = pData.lastRaid);
-
-        let playerDmg = global.RAID_BOSS.participants.get(uid) || 0;
-        global.RAID_BOSS.participants.set(uid, playerDmg + dmg);
-
-        if (global.RAID_BOSS.hp <= 0) {
-            const bossName = global.RAID_BOSS.name;
-            const participants = global.RAID_BOSS.participants;
-            global.RAID_BOSS = null;
-
-            const sorted = Array.from(participants.entries()).sort((a, b) => b[1] - a[1]);
-            const cData = loadCoins();
-            const rData = loadRPG();
-            
-            let rewardText = '';
-            sorted.forEach(([playerId, damage], index) => {
-                if (!cData[playerId]) cData[playerId] = { coins: 0, bank: 0 };
-                if (!rData[playerId]) rData[playerId] = getPlayer(playerId);
-                
-                let coinReward = 0;
-
-                if (index === 0) {
-                    coinReward = 1000000;
-                    rData[playerId].chests.legendary = (rData[playerId].chests.legendary || 0) + 1;
-                    rewardText += `🥇 <@${playerId}>: **${damage.toLocaleString()}** DMG ➡️ 1,000,000 🪙 + 1 Rương Huyền Thoại\n`;
-                } else if (index === 1) {
-                    coinReward = 500000;
-                    rData[playerId].chests.gold = (rData[playerId].chests.gold || 0) + 1;
-                    rewardText += `🥈 <@${playerId}>: **${damage.toLocaleString()}** DMG ➡️ 500,000 🪙 + 1 Rương Vàng\n`;
-                } else if (index === 2) {
-                    coinReward = 250000;
-                    rData[playerId].chests.iron = (rData[playerId].chests.iron || 0) + 1;
-                    rewardText += `🥉 <@${playerId}>: **${damage.toLocaleString()}** DMG ➡️ 250,000 🪙 + 1 Rương Sắt\n`;
-                } else {
-                    coinReward = 50000;
-                    rewardText += `🏅 <@${playerId}>: **${damage.toLocaleString()}** DMG ➡️ 50,000 🪙\n`;
-                }
-                cData[playerId].coins = (cData[playerId].coins || 0) + coinReward;
-            });
-            
-            saveCoins(cData);
-            saveRPG(rData);
-
-            const embed = new EmbedBuilder()
-                .setTitle(`🏆 RAID BOSS ĐÃ BỊ TIÊU DIỆT!`)
-                .setDescription(`**${bossName}** đã bị đánh bại bởi sức mạnh đoàn kết của toàn server!\nNgười tung đòn kết liễu: <@${uid}>\n\n**BẢNG XẾP HẠNG SÁT THƯƠNG:**\n${rewardText}`)
-                .setColor('#FFD700');
-            return message.reply({ embeds: [embed] });
-        } else {
-            return message.reply(`⚔️ Bạn đã chém **${global.RAID_BOSS.name}** gây ra **${dmg.toLocaleString()}** sát thương!\n🩸 Máu Boss còn lại: **${global.RAID_BOSS.hp.toLocaleString()} / ${global.RAID_BOSS.maxHp.toLocaleString()}**`);
-        }
-    }
-
     if (content === `${prefix}craft`) {
         const pData = getPlayer(uid);
         let desc = 'Sử dụng nguyên liệu để chế tạo đồ cực phẩm!\nCú pháp: `!craft <id>`\n\n**Kho nguyên liệu của bạn:**\n';
@@ -7162,17 +7229,8 @@ client.on('messageCreate', async (message) => {
         const robTarget = message.mentions.users.first();
         return handleRobbank(message.author.id, message, robTarget ? robTarget.id : null);
     }
-    if (content.startsWith(`${prefix}invest`)) {
-        const p = getPlayer(message.author.id);
-        if (p.investAmount && p.investAmount > 0) {
-            return handleClaimInvest(message.author.id, message);
-        }
-        const args = message.content.split(' ');
-        if (!args[1]) return message.reply(`❌ Cú pháp: \`${prefix}invest <số tiền|all>\`\n*(Nếu bạn đang đầu tư rồi, gõ \`${prefix}invest\` để xem kết quả!)*`);
-        return handleInvest(message.author.id, args[1].toLowerCase(), message);
-    }
-    if (content === `${prefix}claiminvest`) {
-        return handleClaimInvest(message.author.id, message);
+    if (content === `${prefix}market` || content === `${prefix}mk`) {
+        return handleMarketCommand(message.author.id, message);
     }
     if (content.startsWith(`${prefix}marry`)) {
         let targetId = null;
@@ -7513,6 +7571,9 @@ client.on('messageCreate', async (message) => {
     if (content === `${prefix}dungeon` || content === `${prefix}dg`) {
         return handleDungeon(message.author.id, message);
     }
+    if (content === `${prefix}raid` || content === `${prefix}rb`) {
+        return handleRaidCommand(message.author.id, message);
+    }
     if (content.startsWith(`${prefix}farm`) || content.startsWith(`${prefix}f `) || content === `${prefix}f`) {
         const args = content.split(/\s+/);
         return handleFarmCommand(message.author.id, message, args);
@@ -7658,56 +7719,7 @@ client.on('messageCreate', async (message) => {
         return message.reply(`🏥 Đã trả **${healCost} 🪙** cho Y Tá để hồi phục toàn bộ sinh lực! **❤️ ${p.maxHp}/${p.maxHp}**`);
     }
 
-    // !dautu
-    if (content.startsWith(`${prefix}dautu`) || content.startsWith(`${prefix}invest`)) {
-        const args = content.split(' ');
-        const amountStr = args[1];
-        if (!amountStr) return message.reply(`❌ Cú pháp: \`${prefix}dautu <số tiền/all>\``);
 
-        const uid = message.author.id;
-        
-        if (dautuCooldowns.has(uid)) {
-            const remaining = dautuCooldowns.get(uid) - Date.now();
-            if (remaining > 0) return message.reply(`⏱️ Đang chờ phân tích thị trường... Vui lòng đợi **${Math.ceil(remaining/1000)}s** nữa trước khi đầu tư tiếp!`);
-        }
-        
-        const coins = getUserCoins(uid);
-        let amount = 0;
-
-        if (amountStr.toLowerCase() === 'all') amount = coins;
-        else amount = parseInt(amountStr);
-
-        if (isNaN(amount) || amount <= 0) return message.reply('❌ Số tiền đầu tư không hợp lệ!');
-        if (coins < amount) return message.reply(`❌ Bạn không đủ tiền! (Hiện có: **${coins.toLocaleString()} 🪙**)`);
-
-        dautuCooldowns.set(uid, Date.now() + DAUTU_COOLDOWN_MS);
-
-        // Gacha logic: 40% win (up to +80%), 60% lose (up to -50%)
-        const roll = Math.random();
-        let isWin = roll < 0.40;
-        let multiplier = 0;
-
-        if (isWin) {
-            multiplier = Math.random() * (0.8 - 0.1) + 0.1; // +10% to +80%
-        } else {
-            multiplier = -(Math.random() * (0.5 - 0.1) + 0.1); // -10% to -50%
-        }
-
-        const profit = Math.floor(amount * multiplier);
-        addCoins(uid, profit);
-
-        const embed = new EmbedBuilder()
-            .setTitle('📈 KẾT QUẢ ĐẦU TƯ')
-            .setDescription(`Bạn đã đầu tư **${amount.toLocaleString()} 🪙** vào thị trường chứng khoán.`)
-            .addFields(
-                { name: 'Thị trường', value: isWin ? 'Tăng giá! 🚀' : 'Sập sàn! 📉', inline: false },
-                { name: isWin ? 'Lợi nhuận' : 'Thua lỗ', value: `**${Math.abs(profit).toLocaleString()} 🪙** (${(multiplier * 100).toFixed(1)}%)`, inline: false },
-                { name: 'Số dư ví', value: `**${getUserCoins(uid).toLocaleString()} 🪙**`, inline: false }
-            )
-            .setColor(isWin ? '#00FF00' : '#FF0000');
-
-        return message.reply({ embeds: [embed] });
-    }
 
     // ========================
     // ADMIN - PREFIX COMMANDS
@@ -7940,6 +7952,92 @@ client.on('interactionCreate', async (interaction) => {
     // === MESSAGE COMPONENT (BUTTONS & MENUS) ===
     if (interaction.isMessageComponent()) {
         const cid = interaction.customId;
+
+        if (interaction.isButton() && (cid === 'raid_attack' || cid === 'raid_top')) {
+            const uid = interaction.user.id;
+            const p = getPlayer(uid);
+            const boss = getRaidBoss();
+
+            if (cid === 'raid_top') {
+                const sorted = Object.entries(boss.participants).sort((a, b) => b[1].dmg - a[1].dmg);
+                if (sorted.length === 0) return interaction.reply({ content: 'Chưa có ai tấn công Boss!', flags: MessageFlags.Ephemeral });
+                
+                const top10 = sorted.slice(0, 10);
+                const desc = top10.map((entry, i) => {
+                    const rankEmojis = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'];
+                    return `${rankEmojis[i]} <@${entry[0]}> — **${entry[1].dmg.toLocaleString()}** DMG`;
+                }).join('\n');
+                
+                const embed = new EmbedBuilder()
+                    .setTitle(`📊 BẢNG SÁT THƯƠNG RAID BOSS`)
+                    .setDescription(desc)
+                    .setColor('#3498DB');
+                    
+                return interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
+            }
+
+            if (p.hp <= 0) return interaction.reply({ content: '❌ Bạn đã hết máu! Dùng `/heal` trước.', flags: MessageFlags.Ephemeral });
+            if (boss.status === 'dead') return interaction.reply({ content: '🎉 Boss đã bị tiêu diệt rồi!', flags: MessageFlags.Ephemeral });
+            
+            const pData = boss.participants[uid] || { dmg: 0, lastHit: 0 };
+            const now = Date.now();
+            if (now - pData.lastHit < 10 * 60 * 1000) {
+                const wait = Math.ceil((10 * 60 * 1000 - (now - pData.lastHit)) / 60000);
+                return interaction.reply({ content: `⏳ Bạn đang kiệt sức! Hãy chờ **${wait} phút** nữa để đánh tiếp.`, flags: MessageFlags.Ephemeral });
+            }
+            
+            const stats = getPlayerStats(p);
+            const isCrit = Math.random() < 0.2;
+            let dmg = Math.max(1, stats.atk - boss.def);
+            if (isCrit) dmg *= 2;
+            dmg = Math.floor(dmg * (0.9 + Math.random() * 0.2));
+            
+            boss.hp -= dmg;
+            pData.dmg += dmg;
+            pData.lastHit = now;
+            boss.participants[uid] = pData;
+            
+            if (boss.hp <= 0) {
+                boss.hp = 0;
+                boss.status = 'dead';
+                boss.deathTime = now;
+                boss.lastHitBy = uid;
+            }
+            
+            const data = loadRaid();
+            data.boss = boss;
+            saveRaid(data);
+            
+            if (boss.status === 'dead') {
+                const sorted = Object.entries(boss.participants).sort((a, b) => b[1].dmg - a[1].dmg);
+                const results = [];
+                for (let i = 0; i < sorted.length; i++) {
+                    const [pid, pd] = sorted[i];
+                    let coinReward = 50000;
+                    let expReward = 1000;
+                    let chest = 'iron';
+                    if (i === 0) { coinReward = 1000000; expReward = 10000; chest = 'legendary'; }
+                    else if (i === 1) { coinReward = 500000; expReward = 5000; chest = 'gold'; }
+                    else if (i === 2) { coinReward = 200000; expReward = 2500; chest = 'gold'; }
+                    
+                    if (pid === uid) coinReward += 200000; // Last hit bonus
+                    
+                    updatePlayer(pid, pl => {
+                        pl.exp += expReward;
+                        pl.chests[chest] = (pl.chests[chest] || 0) + 1;
+                    });
+                    addCoins(pid, coinReward);
+                    
+                    if (i < 3 || pid === uid) {
+                        results.push(`<@${pid}>: ${pd.dmg.toLocaleString()} DMG (${i < 3 ? `Top ${i+1}` : 'Last Hit'})`);
+                    }
+                }
+                
+                return interaction.reply({ content: `🎉 **${boss.name}** đã bị TIÊU DIỆT bởi đòn kết liễu của <@${uid}>! (-${dmg} DMG${isCrit ? ' 💥' : ''})\n\n🏆 **VINH DANH:**\n${results.join('\n')}\n*(Quà đã được phát cho tất cả người tham gia)*` });
+            } else {
+                return interaction.reply({ content: `⚔️ Bạn đã tung đòn tấn công (-${dmg} DMG${isCrit ? ' 💥' : ''}) vào **${boss.name}**!\nCùng kêu gọi mọi người đánh tiếp nhé!` });
+            }
+        }
 
         // INVENTORY INTERACTIVE SYSTEM
         if (interaction.isStringSelectMenu() && cid.startsWith('inv_select_')) {
@@ -8198,7 +8296,14 @@ client.on('interactionCreate', async (interaction) => {
             
             if (action === 'sell' || action === 'sellall') {
                 const sellQty = action === 'sellall' ? userQty : 1;
-                const sellPrice = Math.floor((itemDef.price || 0) * 0.5) * sellQty;
+                let unitPrice = Math.floor((itemDef.price || 0) * 0.5);
+                
+                if (MARKET_ITEMS.includes(itemId)) {
+                    const marketData = updateMarketPrices();
+                    unitPrice = marketData.items[itemId]?.currentPrice || unitPrice;
+                }
+                
+                const sellPrice = unitPrice * sellQty;
                 
                 updatePlayer(uid, dp => {
                     if (isPet) {
@@ -10628,6 +10733,12 @@ client.on('interactionCreate', async (interaction) => {
     // ========================
     if (commandName === 'dungeon') {
         return handleDungeon(interaction.user.id, interaction);
+    }
+    if (commandName === 'market') {
+        return handleMarketCommand(interaction.user.id, interaction);
+    }
+    if (commandName === 'raid') {
+        return handleRaidCommand(interaction.user.id, interaction);
     }
     if (commandName === 'pvp') {
         const target = interaction.options.getUser('user');
