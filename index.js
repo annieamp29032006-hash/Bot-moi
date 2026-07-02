@@ -5397,19 +5397,24 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
             try {
                 const imgPath = 'C:\\Users\\ADMIN\\.gemini\\antigravity-ide\\brain\\3dc1e042-00bf-48ef-8b3d-beb74a248c25\\god_arrival_1781495845667.png';
                 const embed = new EmbedBuilder()
-                    .setTitle('👑 QUỲ XUỐNG! THẦN SÁNG THẾ ĐÃ GIÁNG LÂM! 👑')
-                    .setDescription(`**<@${ADMIN_ID}>** vừa bước vào **${newState.channel.name}**!\nTất cả bách tính mau mau nghênh giá!`)
+                    .setDescription(`👑 **Dev Hima** <@${ADMIN_ID}> đã vào phòng **${newState.channel.name}**!`)
                     .setColor('#FFD700')
                     .setTimestamp();
 
                 if (fs.existsSync(imgPath)) {
                     embed.setImage('attachment://god_arrival.png');
                     await newState.channel.send({
+                        content: `<@${ADMIN_ID}>`,
                         embeds: [embed],
-                        files: [{ attachment: imgPath, name: 'god_arrival.png' }]
+                        files: [{ attachment: imgPath, name: 'god_arrival.png' }],
+                        allowedMentions: { parse: [] }
                     });
                 } else {
-                    await newState.channel.send({ embeds: [embed] });
+                    await newState.channel.send({
+                        content: `<@${ADMIN_ID}>`,
+                        embeds: [embed],
+                        allowedMentions: { parse: [] }
+                    });
                 }
             } catch (err) {
                 // Bỏ qua nếu bot không có quyền gửi tin nhắn vào voice channel
@@ -5423,21 +5428,25 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
             if (!oldState.channelId && newState.channelId) {
                 const channel = newState.channel;
                 if (channel && channel.permissionsFor(newState.guild.members.me).has('SendMessages')) {
-                    await channel.send({ content: `🔔 <@${userId}> vừa tham gia kênh thoại **${channel.name}**! Vô chém gió nào mọi người.`, allowedMentions: { parse: [] } }).catch(() => {});
+                    const embed = new EmbedBuilder().setDescription(`🔔 <@${userId}> vừa tham gia kênh thoại **${channel.name}**! Vô chém gió nào mọi người.`).setColor('#57F287');
+                    await channel.send({ content: `<@${userId}>`, embeds: [embed], allowedMentions: { parse: [] } }).catch(() => {});
                 }
             } else if (oldState.channelId && !newState.channelId) {
                 const channel = oldState.channel;
                 if (channel && channel.permissionsFor(oldState.guild.members.me).has('SendMessages')) {
-                    await channel.send({ content: `👋 <@${userId}> đã ngắt kết nối hoàn toàn khỏi kênh thoại **${channel.name}**.`, allowedMentions: { parse: [] } }).catch(() => {});
+                    const embed = new EmbedBuilder().setDescription(`👋 <@${userId}> đã ngắt kết nối hoàn toàn khỏi kênh thoại **${channel.name}**.`).setColor('#ED4245');
+                    await channel.send({ content: `<@${userId}>`, embeds: [embed], allowedMentions: { parse: [] } }).catch(() => {});
                 }
             } else if (oldState.channelId && newState.channelId && oldState.channelId !== newState.channelId) {
                 const oldChannel = oldState.channel;
                 const newChannel = newState.channel;
                 if (oldChannel && oldChannel.permissionsFor(oldState.guild.members.me).has('SendMessages')) {
-                    await oldChannel.send({ content: `👋 <@${userId}> đã rời khỏi đây và chuyển sang kênh **${newChannel.name}**.`, allowedMentions: { parse: [] } }).catch(() => {});
+                    const embed = new EmbedBuilder().setDescription(`👋 <@${userId}> đã rời khỏi đây và chuyển sang kênh **${newChannel.name}**.`).setColor('#ED4245');
+                    await oldChannel.send({ content: `<@${userId}>`, embeds: [embed], allowedMentions: { parse: [] } }).catch(() => {});
                 }
                 if (newChannel && newChannel.permissionsFor(newState.guild.members.me).has('SendMessages')) {
-                    await newChannel.send({ content: `🔔 <@${userId}> vừa chuyển từ kênh **${oldChannel.name}** sang kênh này!`, allowedMentions: { parse: [] } }).catch(() => {});
+                    const embed = new EmbedBuilder().setDescription(`🔔 <@${userId}> vừa chuyển từ kênh **${oldChannel.name}** sang kênh này!`).setColor('#FEE75C');
+                    await newChannel.send({ content: `<@${userId}>`, embeds: [embed], allowedMentions: { parse: [] } }).catch(() => {});
                 }
             }
         }
