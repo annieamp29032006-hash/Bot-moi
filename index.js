@@ -7825,7 +7825,7 @@ client.on('messageCreate', async (message) => {
         if (p.inventory) {
             for (const [k, v] of Object.entries(p.inventory)) {
                 if (v > 0) {
-                    let item = RPG_ITEMS.potions[k] || RPG_ITEMS.pokeballs[k] || RPG_ITEMS.materials[k] || RPG_ITEMS.weapons?.[k] || RPG_ITEMS.armors?.[k] || RPG_ITEMS.artifacts?.[k] || RPG_ITEMS.seeds?.[k] || RPG_ITEMS.crops?.[k];
+                    let item = RPG_ITEMS.potions?.[k] || RPG_ITEMS.pokeballs?.[k] || RPG_ITEMS.materials?.[k] || RPG_ITEMS.weapons?.[k] || RPG_ITEMS.armors?.[k] || RPG_ITEMS.artifacts?.[k] || RPG_ITEMS.seeds?.[k] || RPG_ITEMS.crops?.[k] || RPG_ITEMS.tools?.[k];
                     if (item) {
                         items.push(`${item.emoji || ''} **${item.name}**: ${v}`);
                         options.push(new StringSelectMenuOptionBuilder()
@@ -10887,10 +10887,14 @@ client.on('interactionCreate', async (interaction) => {
         const p = getPlayer(interaction.user.id);
         const pots = [];
         for (const [k, v] of Object.entries(p.inventory)) {
-            if (v > 0) pots.push(`${RPG_ITEMS.potions[k].emoji} **${RPG_ITEMS.potions[k].name}**: ${v} bình`);
+            if (v > 0) {
+                let item = RPG_ITEMS.potions?.[k] || RPG_ITEMS.pokeballs?.[k] || RPG_ITEMS.materials?.[k] || RPG_ITEMS.weapons?.[k] || RPG_ITEMS.armors?.[k] || RPG_ITEMS.artifacts?.[k] || RPG_ITEMS.seeds?.[k] || RPG_ITEMS.crops?.[k] || RPG_ITEMS.tools?.[k];
+                if (item) pots.push(`${item.emoji || ''} **${item.name}**: ${v}`);
+                else pots.push(`❓ **${k}**: ${v}`);
+            }
         }
         const embed = new EmbedBuilder().setTitle('🎒 Túi Đồ').setColor('#F1C40F')
-            .setDescription(pots.length ? pots.join('\n') : 'Trống trơn.\nHãy mua bình máu ở `/shop` để hồi phục khi đi săn!');
+            .setDescription(pots.length ? pots.join('\n') : 'Trống trơn.\nHãy mua đồ ở `/shop` nhé!');
         return interaction.reply({ embeds: [embed] });
     }
 
