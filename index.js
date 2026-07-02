@@ -8101,8 +8101,8 @@ function giveawayMessages() {
         giveawayEnded: '🛑 **GIVEAWAY ĐÃ KẾT THÚC** 🛑',
         title: '{this.prize}',
         drawing: '⏳ Kết thúc: **{timestamp}**',
-        dropMessage: 'Hãy là người đầu tiên phản hồi bằng 🎉 để nhận giải!',
-        inviteToParticipate: '👇 Nhấn vào biểu tượng 🎉 bên dưới để tham gia ngay!',
+        dropMessage: 'Hãy là người đầu tiên phản hồi bằng <a:1000063764:1492460870054182994> để nhận giải!',
+        inviteToParticipate: '👇 Nhấn vào biểu tượng <a:1000063764:1492460870054182994> bên dưới để tham gia ngay!\n👥 **Số người tham gia:** {this.messageReaction ? this.messageReaction.count - 1 : 0}',
         winMessage: {
             content: '🎊 Chúc mừng {winners}! 🎊',
             embed: new EmbedBuilder()
