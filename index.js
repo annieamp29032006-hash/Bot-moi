@@ -7836,7 +7836,9 @@ client.on('messageCreate', async (message) => {
                 }
             }
         }
-        embed.addFields({ name: 'Vật Phẩm', value: items.length ? items.join('\n') : 'Trống rỗng.', inline: true });
+        let itemsStr = items.length ? items.join('\n') : 'Trống rỗng.';
+        if (itemsStr.length > 1024) itemsStr = itemsStr.substring(0, 1010) + '...';
+        embed.addFields({ name: 'Vật Phẩm', value: itemsStr, inline: true });
         
         const rings = [];
         if (p.rings) {
@@ -7848,7 +7850,9 @@ client.on('messageCreate', async (message) => {
             }
         }
         if (rings.length > 0) {
-            embed.addFields({ name: 'Nhẫn Kết Hôn', value: rings.join('\n'), inline: true });
+            let ringsStr = rings.join('\n');
+            if (ringsStr.length > 1024) ringsStr = ringsStr.substring(0, 1010) + '...';
+            embed.addFields({ name: 'Nhẫn Kết Hôn', value: ringsStr, inline: true });
         }
         
         const petsList = [];
@@ -7865,7 +7869,11 @@ client.on('messageCreate', async (message) => {
                 }
             }
         }
-        embed.addFields({ name: 'Thú Cưng', value: petsList.length ? petsList.join(', ') : 'Chưa có con nào.', inline: false });
+        let petsListStr = petsList.length ? petsList.join(', ') : 'Chưa có con nào.';
+        if (petsListStr.length > 1024) {
+            petsListStr = petsListStr.substring(0, 1010) + '... (Xem thêm ở chuồng thú)';
+        }
+        embed.addFields({ name: 'Thú Cưng', value: petsListStr, inline: false });
         
         const finalOptions = options.slice(0, 25);
         let components = [];
@@ -10893,8 +10901,9 @@ client.on('interactionCreate', async (interaction) => {
                 else pots.push(`❓ **${k}**: ${v}`);
             }
         }
-        const embed = new EmbedBuilder().setTitle('🎒 Túi Đồ').setColor('#F1C40F')
-            .setDescription(pots.length ? pots.join('\n') : 'Trống trơn.\nHãy mua đồ ở `/shop` nhé!');
+        let invStr = pots.length ? pots.join('\n') : 'Trống trơn.\nHãy mua đồ ở `/shop` nhé!';
+        if (invStr.length > 4096) invStr = invStr.substring(0, 4080) + '...';
+        const embed = new EmbedBuilder().setTitle('🎒 Túi Đồ').setColor('#F1C40F').setDescription(invStr);
         return interaction.reply({ embeds: [embed] });
     }
 
