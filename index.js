@@ -4561,7 +4561,7 @@ const manager = new GiveawaysManager(client, {
         botsCanWin: false,
         embedColor: '#FF0000',
         embedColorEnd: '#000000',
-        reaction: '🎉'
+        reaction: '<a:1000063764:1492460870054182994>'
     }
 });
 client.giveawaysManager = manager;
@@ -6690,6 +6690,7 @@ client.on('messageCreate', async (message) => {
         client.giveawaysManager.start(message.channel, {
             duration: ms(duration), winnerCount: parseInt(winnerCount), prize: prizeArr.join(' '),
             thumbnail: (process.env.GIVEAWAY_IMAGE_URL && process.env.GIVEAWAY_IMAGE_URL !== 'YOUR_IMAGE_LINK_HERE') ? process.env.GIVEAWAY_IMAGE_URL : null,
+            image: (process.env.GIVEAWAY_BANNER_URL && process.env.GIVEAWAY_BANNER_URL !== 'YOUR_BANNER_LINK_HERE') ? process.env.GIVEAWAY_BANNER_URL : null,
             hostedBy: message.author,
             messages: giveawayMessages()
         });
@@ -10582,6 +10583,7 @@ client.on('interactionCreate', async (interaction) => {
         client.giveawaysManager.start(interaction.channel, {
             duration: ms(duration), winnerCount, prize,
             thumbnail: (process.env.GIVEAWAY_IMAGE_URL && process.env.GIVEAWAY_IMAGE_URL !== 'YOUR_IMAGE_LINK_HERE') ? process.env.GIVEAWAY_IMAGE_URL : null,
+            image: (process.env.GIVEAWAY_BANNER_URL && process.env.GIVEAWAY_BANNER_URL !== 'YOUR_BANNER_LINK_HERE') ? process.env.GIVEAWAY_BANNER_URL : null,
             hostedBy: interaction.user,
             messages: giveawayMessages()
         });
