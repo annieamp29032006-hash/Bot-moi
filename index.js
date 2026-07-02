@@ -5404,14 +5404,12 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
                 if (fs.existsSync(imgPath)) {
                     embed.setImage('attachment://god_arrival.png');
                     await newState.channel.send({
-                        content: `<@${ADMIN_ID}>`,
                         embeds: [embed],
                         files: [{ attachment: imgPath, name: 'god_arrival.png' }],
                         allowedMentions: { parse: [] }
                     });
                 } else {
                     await newState.channel.send({
-                        content: `<@${ADMIN_ID}>`,
                         embeds: [embed],
                         allowedMentions: { parse: [] }
                     });
@@ -5429,24 +5427,24 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
                 const channel = newState.channel;
                 if (channel && channel.permissionsFor(newState.guild.members.me).has('SendMessages')) {
                     const embed = new EmbedBuilder().setDescription(`🔔 <@${userId}> vừa tham gia kênh thoại **${channel.name}**! Vô chém gió nào mọi người.`).setColor('#57F287');
-                    await channel.send({ content: `<@${userId}>`, embeds: [embed], allowedMentions: { parse: [] } }).catch(() => {});
+                    await channel.send({ embeds: [embed], allowedMentions: { parse: [] } }).catch(() => {});
                 }
             } else if (oldState.channelId && !newState.channelId) {
                 const channel = oldState.channel;
                 if (channel && channel.permissionsFor(oldState.guild.members.me).has('SendMessages')) {
                     const embed = new EmbedBuilder().setDescription(`👋 <@${userId}> đã ngắt kết nối hoàn toàn khỏi kênh thoại **${channel.name}**.`).setColor('#ED4245');
-                    await channel.send({ content: `<@${userId}>`, embeds: [embed], allowedMentions: { parse: [] } }).catch(() => {});
+                    await channel.send({ embeds: [embed], allowedMentions: { parse: [] } }).catch(() => {});
                 }
             } else if (oldState.channelId && newState.channelId && oldState.channelId !== newState.channelId) {
                 const oldChannel = oldState.channel;
                 const newChannel = newState.channel;
                 if (oldChannel && oldChannel.permissionsFor(oldState.guild.members.me).has('SendMessages')) {
                     const embed = new EmbedBuilder().setDescription(`👋 <@${userId}> đã rời khỏi đây và chuyển sang kênh **${newChannel.name}**.`).setColor('#ED4245');
-                    await oldChannel.send({ content: `<@${userId}>`, embeds: [embed], allowedMentions: { parse: [] } }).catch(() => {});
+                    await oldChannel.send({ embeds: [embed], allowedMentions: { parse: [] } }).catch(() => {});
                 }
                 if (newChannel && newChannel.permissionsFor(newState.guild.members.me).has('SendMessages')) {
                     const embed = new EmbedBuilder().setDescription(`🔔 <@${userId}> vừa chuyển từ kênh **${oldChannel.name}** sang kênh này!`).setColor('#FEE75C');
-                    await newChannel.send({ content: `<@${userId}>`, embeds: [embed], allowedMentions: { parse: [] } }).catch(() => {});
+                    await newChannel.send({ embeds: [embed], allowedMentions: { parse: [] } }).catch(() => {});
                 }
             }
         }
