@@ -3,7 +3,7 @@ const { MessageFlags,
     Client, GatewayIntentBits, EmbedBuilder, PermissionsBitField,
     ActionRowBuilder, ButtonBuilder, ButtonStyle, REST, Routes, SlashCommandBuilder,
     StringSelectMenuBuilder, StringSelectMenuOptionBuilder, ComponentType, UserSelectMenuBuilder,
-    ModalBuilder, TextInputBuilder, TextInputStyle, AttachmentBuilder
+    ModalBuilder, TextInputBuilder, TextInputStyle, AttachmentBuilder, AuditLogEvent
  } = require('discord.js');
 const { GiveawaysManager } = require('discord-giveaways');
 const ms = require('ms');
@@ -21,6 +21,11 @@ const cron = require('node-cron');
 const WW = require('./werewolf.js');
 
 const voiceJoinTimes = new Map();
+
+// --- BỘ NHỚ TẠM THỜI CHO ANTI-NUKE, ANTI-RAID & ANTI-SPAM ---
+const nukeTracker = new Map(); // Lưu: { guildId: { userId: [{ action, timestamp }] } }
+const raidTracker = new Map(); // Lưu: { guildId: [ timestamp, timestamp ] }
+const spamTracker = new Map(); // Lưu: { userId: [{ content, timestamp }] }
 
 const BANNED_USERS = ['1141650026049830963'];
 const play = require('play-dl');
@@ -4586,6 +4591,7 @@ const client = new Client({
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.MessageContent,
         GatewayIntentBits.GuildMessageReactions,
+        GatewayIntentBits.GuildModeration,
     ],
     allowedMentions: { parse: ['users', 'roles'], repliedUser: true }
 });
@@ -4676,6 +4682,14 @@ const slashCommands = [
         .setDescription('Chọn lại người thắng Giveaway (Chỉ Admin).')
         .setDefaultMemberPermissions(PermissionsBitField.Flags.ManageMessages)
         .addStringOption(o => o.setName('message_id').setDescription('ID tin nhắn Giveaway').setRequired(true)),
+    new SlashCommandBuilder()
+        .setName('antinuke')
+        .setDescription('🛡️ (Admin) Bật/Tắt hệ thống chống phá hoại (xoá kênh, xoá role, ban mem hàng loạt).')
+        .setDefaultMemberPermissions(PermissionsBitField.Flags.Administrator),
+    new SlashCommandBuilder()
+        .setName('antiraid')
+        .setDescription('🛡️ (Admin) Bật/Tắt hệ thống chống bot join ồ ạt & spam tin nhắn.')
+        .setDefaultMemberPermissions(PermissionsBitField.Flags.Administrator),
     new SlashCommandBuilder()
         .setName('setpinggame')
         .setDescription('🛠️ (Admin) Cài đặt kênh & nội dung auto-message hướng dẫn ping game.')
@@ -5282,6 +5296,19 @@ client.once('clientReady', async () => {
 client.on('guildMemberAdd', async (member) => {
     try {
         const config = getGuildConfig(member.guild.id);
+        
+        // --- ANTI-RAID CHECK ---
+        if (config.antiRaidEnabled) {
+            let joinTimes = raidTracker.get(member.guild.id) || [];
+            joinTimes.push(Date.now());
+            joinTimes = joinTimes.filter(t => Date.now() - t < 10000); // 10 giây
+            raidTracker.set(member.guild.id, joinTimes);
+            
+            if (joinTimes.length >= 10) {
+                await member.kick('Anti-Raid: Phát hiện mass join').catch(() => {});
+                return; // Kicked, no need to welcome
+            }
+        }
         const welcomeChannelId = config.welcomeChannelId || (loadConfig().welcomeChannelId) || process.env.WELCOME_CHANNEL_ID;
         const receptionistRoleId = process.env.RECEPTIONIST_ROLE_ID;
         if (welcomeChannelId === 'disabled') return;
@@ -5599,6 +5626,26 @@ const TIKTOK_REGEX = /https?:\/\/(www\.|vm\.|vt\.)?tiktok\.com\/[^\s]+/gi;
 
 client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
+    if (BANNED_USERS.includes(message.author.id)) return;
+    
+    // --- ANTI-SPAM CHECK ---
+    if (message.guild) {
+        const config = getGuildConfig(message.guild.id);
+        if (config.antiRaidEnabled) {
+            let userMsgs = spamTracker.get(message.author.id) || [];
+            userMsgs.push({ content: message.content, time: Date.now() });
+            userMsgs = userMsgs.filter(m => Date.now() - m.time < 5000); // 5 giây
+            spamTracker.set(message.author.id, userMsgs);
+            
+            const sameContentCount = userMsgs.filter(m => m.content === message.content).length;
+            if (userMsgs.length >= 10 || sameContentCount >= 5) {
+                await message.member.timeout(60 * 60 * 1000, 'Anti-Spam: Gửi quá nhiều tin nhắn').catch(() => {});
+                await message.channel.send(`🚨 <@${message.author.id}> đã bị Mute 1 tiếng do nghi ngờ spam!`).catch(() => {});
+                spamTracker.delete(message.author.id);
+                return;
+            }
+        }
+    }
     if (BANNED_USERS.includes(message.author.id)) return;
     
     // --- DARK WEB HACKING LOGIC ---
@@ -9878,6 +9925,27 @@ client.on('interactionCreate', async (interaction) => {
     }
 }
 
+    if (interaction.isButton() && (interaction.customId === 'toggle_antinuke' || interaction.customId === 'toggle_antiraid')) {
+        const config = getGuildConfig(interaction.guildId);
+        const isNuke = interaction.customId === 'toggle_antinuke';
+        const key = isNuke ? 'antiNukeEnabled' : 'antiRaidEnabled';
+        const currentState = config[key] || false;
+        const newState = !currentState;
+        
+        updateGuildConfig(interaction.guildId, key, newState);
+        
+        const embed = new EmbedBuilder()
+            .setTitle(isNuke ? '🛡️ HỆ THỐNG ANTI-NUKE' : '🛡️ HỆ THỐNG ANTI-RAID & ANTI-SPAM')
+            .setDescription(`**Trạng thái hiện tại:** ${newState ? '🟢 ĐANG BẬT' : '🔴 ĐANG TẮT'}\n\n${isNuke ? 'Khi bật, nếu có Quản trị viên nào xoá kênh, xoá role, ban hoặc kick thành viên **3 lần trong 10 giây**, hệ thống sẽ tự động tước toàn bộ role của họ để ngăn chặn phá hoại.' : 'Khi bật:\n- Nếu có **10 người join trong 10 giây**, hệ thống sẽ **Kick** ngay lập tức những người mới.\n- Nếu có ai chat **10 tin nhắn trong 5 giây** hoặc **5 tin nhắn giống hệt nhau**, họ sẽ bị Mute 1 tiếng.'}`)
+            .setColor(newState ? '#00FF00' : '#FF0000');
+            
+        const row = new ActionRowBuilder().addComponents(
+            new ButtonBuilder().setCustomId(interaction.customId).setLabel(newState ? (isNuke ? 'Tắt Anti-Nuke' : 'Tắt Anti-Raid') : (isNuke ? 'Bật Anti-Nuke' : 'Bật Anti-Raid')).setStyle(newState ? ButtonStyle.Danger : ButtonStyle.Success)
+        );
+        
+        return interaction.update({ embeds: [embed], components: [row] }).catch(() => {});
+    }
+
     if (interaction.isButton() && (interaction.customId.startsWith('welcome_edit_') || interaction.customId.startsWith('pokemon_edit_') || interaction.customId.startsWith('rpg_edit_') || interaction.customId.startsWith('pinggame_edit_') || interaction.customId === 'pokemon_send' || interaction.customId === 'rpg_send')) {
         const config = getGuildConfig(interaction.guildId);
         
@@ -10511,6 +10579,40 @@ client.on('interactionCreate', async (interaction) => {
         const targetChannel = interaction.options.getChannel('channel');
         updateGuildConfig(interaction.guildId, 'j2cChannelId', targetChannel.id);
         return interaction.reply({ content: `✅ Đã thiết lập kênh gốc Join to Create tại ${targetChannel}!` });
+    }
+
+    if (commandName === 'antinuke') {
+        if (!interaction.member || !interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) return interaction.reply({ content: '❌ Bạn không có quyền!', flags: MessageFlags.Ephemeral });
+        const config = getGuildConfig(interaction.guildId);
+        const isEnabled = config.antiNukeEnabled || false;
+        
+        const embed = new EmbedBuilder()
+            .setTitle('🛡️ HỆ THỐNG ANTI-NUKE')
+            .setDescription(`**Trạng thái hiện tại:** ${isEnabled ? '🟢 ĐANG BẬT' : '🔴 ĐANG TẮT'}\n\nKhi bật, nếu có Quản trị viên nào xoá kênh, xoá role, ban hoặc kick thành viên **3 lần trong 10 giây**, hệ thống sẽ tự động tước toàn bộ role của họ để ngăn chặn phá hoại.`)
+            .setColor(isEnabled ? '#00FF00' : '#FF0000');
+            
+        const row = new ActionRowBuilder().addComponents(
+            new ButtonBuilder().setCustomId('toggle_antinuke').setLabel(isEnabled ? 'Tắt Anti-Nuke' : 'Bật Anti-Nuke').setStyle(isEnabled ? ButtonStyle.Danger : ButtonStyle.Success)
+        );
+        
+        return interaction.reply({ embeds: [embed], components: [row], flags: MessageFlags.Ephemeral });
+    }
+
+    if (commandName === 'antiraid') {
+        if (!interaction.member || !interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) return interaction.reply({ content: '❌ Bạn không có quyền!', flags: MessageFlags.Ephemeral });
+        const config = getGuildConfig(interaction.guildId);
+        const isEnabled = config.antiRaidEnabled || false;
+        
+        const embed = new EmbedBuilder()
+            .setTitle('🛡️ HỆ THỐNG ANTI-RAID & ANTI-SPAM')
+            .setDescription(`**Trạng thái hiện tại:** ${isEnabled ? '🟢 ĐANG BẬT' : '🔴 ĐANG TẮT'}\n\nKhi bật:\n- Nếu có **10 người join trong 10 giây**, hệ thống sẽ **Kick** ngay lập tức những người mới.\n- Nếu có ai chat **10 tin nhắn trong 5 giây** hoặc **5 tin nhắn giống hệt nhau**, họ sẽ bị Mute 1 tiếng.`)
+            .setColor(isEnabled ? '#00FF00' : '#FF0000');
+            
+        const row = new ActionRowBuilder().addComponents(
+            new ButtonBuilder().setCustomId('toggle_antiraid').setLabel(isEnabled ? 'Tắt Anti-Raid' : 'Bật Anti-Raid').setStyle(isEnabled ? ButtonStyle.Danger : ButtonStyle.Success)
+        );
+        
+        return interaction.reply({ embeds: [embed], components: [row], flags: MessageFlags.Ephemeral });
     }
 
     if (commandName === 'setpinggame') {
@@ -11329,6 +11431,73 @@ client.on('interactionCreate', async (interaction) => {
             return interaction.reply({ content: '❌ Có lỗi xảy ra. Hãy đảm bảo bot có quyền **Manage Channels**.', flags: MessageFlags.Ephemeral });
         }
     }
+});
+
+// ========================
+// ANTI-NUKE SYSTEM
+// ========================
+async function checkAntiNuke(guild, actionType) {
+    const config = getGuildConfig(guild.id);
+    if (!config.antiNukeEnabled) return;
+    
+    await new Promise(r => setTimeout(r, 2000));
+    
+    let auditType;
+    if (actionType === 'CHANNEL_DELETE') auditType = AuditLogEvent.ChannelDelete;
+    else if (actionType === 'ROLE_DELETE') auditType = AuditLogEvent.RoleDelete;
+    else if (actionType === 'MEMBER_BAN') auditType = AuditLogEvent.MemberBanAdd;
+    else if (actionType === 'MEMBER_KICK') auditType = AuditLogEvent.MemberKick;
+    else return;
+
+    try {
+        const auditLogs = await guild.fetchAuditLogs({ type: auditType, limit: 1 });
+        const log = auditLogs.entries.first();
+        if (!log) return;
+        
+        if (Date.now() - log.createdTimestamp > 10000) return;
+        
+        const executor = log.executor;
+        if (!executor || executor.bot) return;
+        
+        if (!nukeTracker.has(guild.id)) nukeTracker.set(guild.id, new Map());
+        const guildTracker = nukeTracker.get(guild.id);
+        
+        if (!guildTracker.has(executor.id)) guildTracker.set(executor.id, []);
+        const userActions = guildTracker.get(executor.id);
+        
+        userActions.push(Date.now());
+        const recentActions = userActions.filter(t => Date.now() - t < 10000);
+        guildTracker.set(executor.id, recentActions);
+        
+        if (recentActions.length >= 3) {
+            try {
+                const member = await guild.members.fetch(executor.id);
+                if (member) {
+                    await member.roles.set([]); 
+                    const owner = await guild.fetchOwner();
+                    if (owner) {
+                        await owner.send(`🚨 **CẢNH BÁO ANTI-NUKE** 🚨\nPhát hiện Quản trị viên <@${executor.id}> (${executor.tag}) có hành vi phá hoại (xoá kênh/role/ban 3 lần trong 10s).\nBot đã tự động tước toàn bộ Role của người này để bảo vệ server!`);
+                    }
+                }
+            } catch (err) {
+                console.error('Lỗi khi tước role kẻ nuke:', err);
+            }
+            guildTracker.delete(executor.id);
+        }
+    } catch (err) {}
+}
+
+client.on('channelDelete', channel => {
+    if (channel.guild) checkAntiNuke(channel.guild, 'CHANNEL_DELETE');
+});
+client.on('roleDelete', role => {
+    if (role.guild) checkAntiNuke(role.guild, 'ROLE_DELETE');
+});
+client.on('guildBanAdd', ban => {
+    if (ban.guild) checkAntiNuke(ban.guild, 'MEMBER_BAN');
+});
+client.on('guildMemberRemove', member => {
+    if (member.guild) checkAntiNuke(member.guild, 'MEMBER_KICK');
 });
 
 // ========================
