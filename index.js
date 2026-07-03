@@ -5628,7 +5628,8 @@ client.on('messageCreate', async (message) => {
     // --- ANTI-SPAM CHECK ---
     if (message.guild) {
         const config = getGuildConfig(message.guild.id);
-        if (config.antiRaidEnabled !== false) {
+        const jailChannelId = config.jailChannelId || '1491629719169273956';
+        if (config.antiRaidEnabled !== false && message.channel.id !== jailChannelId) {
             let userMsgs = spamTracker.get(message.author.id) || [];
             userMsgs.push({ content: message.content, time: Date.now() });
             userMsgs = userMsgs.filter(m => Date.now() - m.time < 5000); // 5 giây
