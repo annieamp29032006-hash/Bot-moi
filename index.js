@@ -807,20 +807,8 @@ async function checkLevelUp(userId, user, xpAdded) {
     saveLevels(data);
     
     if (leveledUp) {
-        try {
-            const channel = await client.channels.fetch('1521123353031737415').catch(() => null);
-            if (channel) {
-                const embed = new EmbedBuilder()
-                    .setTitle('🎉 CHÚC MỪNG THĂNG CẤP! 🎉')
-                    .setDescription(`Cảm ơn <@${userId}> đã nhiệt tình tương tác với server nhé! 💕\n\nChúc mừng bạn đã đạt **Cấp độ ${data[userId].level}**! 🚀\nHãy tiếp tục trò chuyện và vào voice cùng mọi người nha!`)
-                    .setColor('#FFD700')
-                    .setThumbnail(user.displayAvatarURL({ dynamic: true }))
-                    .setTimestamp();
-                await channel.send({ content: `<@${userId}>`, embeds: [embed] }).catch(() => {});
-            }
-        } catch (error) {
-            console.error('Lỗi gửi thông báo thăng cấp:', error);
-        }
+        // User requested to disable the level up notification in the specific channel
+        // Do nothing for now, but leveling system remains active.
     }
 }
 
