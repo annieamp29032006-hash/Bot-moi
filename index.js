@@ -435,7 +435,7 @@ function buildHelpPages(prefix) {
             .setDescription('Mua nhẫn, cầu hôn người ấy, xem bạn đời và ly hôn khi cần!')
             .addFields(
                 { name: '💍 Bảng giá nhẫn', value: '🌿 Cỏ — 10M 🪙 │ 🥈 Bạc — 50M │ 🥇 Vàng — 200M\n💎 Kim Cương — 500M │ 👑 Vô Cực — 1B', inline: false },
-                { name: '📜 Lệnh kết hôn', value: `\`${prefix}marry @user\` — Cầu hôn (chọn nhẫn)\n\`${prefix}marry\` — Cầu hôn ngẫu nhiên\n\`${prefix}divorce\` — Ly hôn (phí 1M 🪙)\n\n⚠️ *Phải cầu hôn tại khu Lễ Đường!*`, inline: false }
+                { name: '📜 Lệnh kết hôn', value: `\`${prefix}marry @user\` — Cầu hôn (chọn nhẫn)\n\`${prefix}marry\` — Cầu hôn ngẫu nhiên\n\`${prefix}divorce\` — Ly hôn (phí 1M 🪙)`, inline: false }
             )
             .setColor('#FF69B4')
             .setFooter({ text: 'Trang 7/13 • Kết Hôn' })
@@ -3951,9 +3951,6 @@ const MARRY_RINGS = {
 
 async function handleMarry(userId, targetId, msgOrInteraction) {
     const channel = msgOrInteraction.channel;
-    if (channel && channel.parentId !== '1491627690799927409') {
-        return replyMsg(msgOrInteraction, '❌ Thần Cupid phán rằng: Nghi thức Cầu Hôn thiêng liêng chỉ được thực hiện tại **Lễ Đường** thôi nhé!');
-    }
 
     let finalTargetId = targetId;
 
