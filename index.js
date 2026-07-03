@@ -516,7 +516,7 @@ function buildHelpPages(prefix) {
             .setDescription('Quản lý sự kiện, cài đặt tính năng bot và đặc quyền Admin Chính.')
             .addFields(
                 { name: '🎁 Sự kiện Giveaway', value: `\`${prefix}gstart <thời gian> <số người thắng> <tên giải>\`\n→ Bắt đầu Giveaway. Ví dụ: \`${prefix}gstart 1h 1 Nitro Classic\`\n• Thời gian hỗ trợ: \`30s\`, \`5m\`, \`1h\`, \`1d\`...\n\n\`/gend <message_id>\` — Kết thúc Giveaway sớm\n\`/greroll <message_id>\` — Chọn lại người thắng`, inline: false },
-                { name: '⚙️ Cài đặt Bot', value: `\`${prefix}setprefix <dấu mới>\` — Đổi prefix bot\n\`/setwelcome\` — Cài đặt chào mừng\n\`/setspawnchannel\` — Kênh xuất hiện Pokemon\n\`/setuppokemonrole\` — Cài role ping Pokemon\n\`/setuprpgrole\` — Cài role ping RPG\n\`/setpinggame\` — Cài đặt hướng dẫn ping game\n\`/set1ar\` — Cài đặt lệnh cấp role nhanh\n\`${prefix}spawnpet\` — Ép ra Pokemon hiếm\n\`/addpetvip @user <pet_id>\` — Tặng pet VIP\n\`${prefix}getallvip\` — Tặng bản thân 1B coin (Admin)\n\`${prefix}updateytdlp\` — Cập nhật yt-dlp\n\`/togglevoice\` — Bật/Tắt thông báo thoại\n\`${prefix}disable\` / \`${prefix}enable\` — Tắt/Bật bot ở kênh hiện tại`, inline: false },
+                { name: '⚙️ Cài đặt Bot', value: `\`${prefix}setprefix <dấu mới>\` — Đổi prefix bot\n\`/setwelcome\` — Cài đặt chào mừng\n\`/setspawnchannel\` — Kênh xuất hiện Pokemon\n\`/setuppokemonrole\` — Cài role ping Pokemon\n\`/setuprpgrole\` — Cài role ping RPG\n\`/setpinggame\` — Cài đặt hướng dẫn ping game\n\`/set1ar\` — Cài đặt lệnh cấp role nhanh\n\`/setjail\` — Cài đặt Khu cải tạo & Role Tù\n\`${prefix}spawnpet\` — Ép ra Pokemon hiếm\n\`/addpetvip @user <pet_id>\` — Tặng pet VIP\n\`${prefix}getallvip\` — Tặng bản thân 1B coin (Admin)\n\`${prefix}updateytdlp\` — Cập nhật yt-dlp\n\`/togglevoice\` — Bật/Tắt thông báo thoại\n\`${prefix}disable\` / \`${prefix}enable\` — Tắt/Bật bot ở kênh hiện tại`, inline: false },
                 { name: '👑 Admin Cheat Panel (Chỉ Admin Chính)', value: `\`${prefix}admincheat\` hoặc \`/admincheat\`\nMở bảng điều khiển đặc biệt:\n• 🎰 Bật/Tắt chế độ **luôn thắng** tất cả trò cờ bạc\n• ⏱️ Bỏ qua mọi cooldown (daily, work...)\n• Các quyền năng đặc biệt khác`, inline: false },
                 { name: '🤖 Tính năng tự động', value: '• Chào mừng thành viên mới (cài `/setwelcome`)\n• Tự động hướng dẫn ping game (cài `/setpinggame`)\n• Ghi log voice (ai vào/rời)\n• Auto-reply: `ping` → pong!, `hello` → Xin chào!\n• Xóa phòng J2C trống, Xổ số lô đề 18h30', inline: false },
                 { name: '😀 Quản lý Emoji Bot', value: `\`${prefix}botemojis\` — Xem danh sách emoji đã upload cho bot\n\`${prefix}clonebotemojis\` — Copy toàn bộ emoji bot vào server *(Admin)*`, inline: false }
@@ -4676,6 +4676,12 @@ const slashCommands = [
         .setDescription('🛡️ (Admin) Bật/Tắt hệ thống chống bot join ồ ạt & spam tin nhắn.')
         .setDefaultMemberPermissions(PermissionsBitField.Flags.Administrator),
     new SlashCommandBuilder()
+        .setName('setjail')
+        .setDescription('🛠️ (Admin) Cài đặt Role và Kênh cho hệ thống Tù/Lao Động.')
+        .setDefaultMemberPermissions(PermissionsBitField.Flags.Administrator)
+        .addRoleOption(o => o.setName('role').setDescription('Role Tù nhân').setRequired(true))
+        .addChannelOption(o => o.setName('channel').setDescription('Kênh Cải tạo').setRequired(true)),
+    new SlashCommandBuilder()
         .setName('set1ar')
         .setDescription('🛠️ (Admin) Cài đặt lệnh cấp role nhanh (mặc định: 1ar).')
         .setDefaultMemberPermissions(PermissionsBitField.Flags.Administrator)
@@ -6032,7 +6038,11 @@ client.on('messageCreate', async (message) => {
     const userData = loadCoins()[uid] || {};
     
     if (userData.laborCount && userData.laborCount > 0) {
-        if (message.channelId === '1491629719169273956') {
+        const config = message.guildId ? getGuildConfig(message.guildId) : {};
+        const jailChannelId = config.jailChannelId || '1491629719169273956';
+        const jailRoleId = config.jailRoleId || '1499243874319601664';
+        
+        if (message.channelId === jailChannelId) {
             if (message.content.includes('@everyone') || message.content.includes('@here')) {
                 message.delete().catch(() => {});
                 message.channel.send(`<@${uid}> 🚫 Không được tag everyone/here trong lúc cải tạo!`).then(m => setTimeout(() => m.delete().catch(()=>null), 5000));
@@ -6046,7 +6056,7 @@ client.on('messageCreate', async (message) => {
             if (cData[uid].laborCount <= 0) {
                 cData[uid].laborCount = 0;
                 saveCoins(cData);
-                message.member.roles.remove('1499243874319601664').catch(console.error);
+                message.member.roles.remove(jailRoleId).catch(console.error);
                 const freedEmbed = new EmbedBuilder()
                     .setTitle('🎉 PHỤC HỒI NHÂN PHẨM THÀNH CÔNG')
                     .setDescription(`<@${uid}> đã hoàn thành án lao động xã hội!\n\n> *"Từ nay hãy sống lương thiện, đừng để phải quay lại đây nữa nhé!"*`)
@@ -6070,7 +6080,7 @@ client.on('messageCreate', async (message) => {
         if (content.startsWith(prefix)) {
             const jailBlockEmbed = new EmbedBuilder()
                 .setTitle('🚓 BỊ PHẠT LAO ĐỘNG XÃ HỘI')
-                .setDescription(`Bạn đang thụ án cải tạo!\n\n📍 Hãy vào kênh <#1491629719169273956> và spam tin nhắn để giảm án.\n📊 Còn lại: **${userData.laborCount}** tin nhắn`)
+                .setDescription(`Bạn đang thụ án cải tạo!\n\n📍 Hãy vào kênh <#${jailChannelId}> và spam tin nhắn để giảm án.\n📊 Còn lại: **${userData.laborCount}** tin nhắn`)
                 .setColor('#E74C3C')
                 .setFooter({ text: '⚖️ Hệ thống Tư Pháp • Hoàn thành án phạt để dùng lại lệnh bot' })
                 .setTimestamp();
@@ -6567,17 +6577,21 @@ client.on('messageCreate', async (message) => {
         if (!target) return message.reply(`❌ Cú pháp: \`${prefix}jail @user <số_lần_lao_động>\``);
         const amount = parseInt(args[2]) || 500;
         
+        const config = getGuildConfig(message.guildId);
+        const jailChannelId = config.jailChannelId || '1491629719169273956';
+        const jailRoleId = config.jailRoleId || '1499243874319601664';
+
         const cData = loadCoins();
         if (!cData[target.id]) cData[target.id] = { coins: 0 };
         cData[target.id].laborCount = amount;
         saveCoins(cData);
         
-        target.roles.add('1499243874319601664').catch(console.error);
+        target.roles.add(jailRoleId).catch(console.error);
         const jailEmbed = new EmbedBuilder()
             .setTitle('⛓️ TỐNG GIAM LAO ĐỘNG XÃ HỘI')
             .setDescription(`<@${target.id}> đã bị tống vào khu cải tạo!`)
             .addFields(
-                { name: '📍 Khu vực', value: '<#1491629719169273956>', inline: true },
+                { name: '📍 Khu vực', value: `<#${jailChannelId}>`, inline: true },
                 { name: '📊 Số tin nhắn cần spam', value: `**${amount}**`, inline: true }
             )
             .setColor('#E74C3C')
@@ -6591,12 +6605,15 @@ client.on('messageCreate', async (message) => {
         const target = message.mentions.members.first();
         if (!target) return message.reply(`❌ Cú pháp: \`${prefix}unjail @user\``);
         
+        const config = getGuildConfig(message.guildId);
+        const jailRoleId = config.jailRoleId || '1499243874319601664';
+
         const cData = loadCoins();
         if (cData[target.id] && cData[target.id].laborCount) {
             cData[target.id].laborCount = 0;
             saveCoins(cData);
         }
-        target.roles.remove('1499243874319601664').catch(console.error);
+        target.roles.remove(jailRoleId).catch(console.error);
         const unjailEmbed = new EmbedBuilder()
             .setTitle('🕊️ ÂN XÁ')
             .setDescription(`<@${target.id}> đã được ân xá và thả khỏi khu lao động xã hội!\n\n> *"Hãy trân trọng cơ hội này và sống tốt hơn."*`)
@@ -10635,6 +10652,22 @@ client.on('interactionCreate', async (interaction) => {
         );
         
         return interaction.reply({ embeds: [embed], components: [row], flags: MessageFlags.Ephemeral });
+    }
+
+    if (commandName === 'setjail') {
+        if (!interaction.member || !interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) return interaction.reply({ content: '❌ Bạn không có quyền!', flags: MessageFlags.Ephemeral });
+        
+        const role = interaction.options.getRole('role');
+        const channel = interaction.options.getChannel('channel');
+        updateGuildConfig(interaction.guildId, 'jailRoleId', role.id);
+        updateGuildConfig(interaction.guildId, 'jailChannelId', channel.id);
+        
+        const embed = new EmbedBuilder()
+            .setTitle('⛓️ ĐÃ CÀI ĐẶT HỆ THỐNG TÙ / CẢI TẠO')
+            .setDescription(`✅ Đã cập nhật thành công!\n\n- **Role Tù nhân:** ${role}\n- **Kênh Cải tạo:** ${channel}`)
+            .setColor('#E74C3C');
+            
+        return interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
     }
 
     if (commandName === 'set1ar') {
