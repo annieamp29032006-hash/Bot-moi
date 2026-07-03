@@ -503,7 +503,7 @@ function buildHelpPages(prefix) {
             .setDescription('⚠️ Các lệnh bên dưới yêu cầu quyền **Administrator** hoặc là **Admin Chính** của bot.')
             .addFields(
                 { name: '💰 Quản lý Coin của thành viên', value: `\`${prefix}addcoin @user <số>\` hoặc \`/addcoin\` — Cộng thêm coin cho 1 người\n\`${prefix}removecoin @user <số>\` hoặc \`/removecoin\` — Trừ bớt coin của 1 người\n\`${prefix}setcoin @user <số>\` hoặc \`/setcoin\` — Đặt chính xác số coin cho 1 người\n\`${prefix}resetcoin @user\` hoặc \`/resetcoin\` — Reset coin 1 người về 500,000\n\`${prefix}resetallcoin\` hoặc \`/resetallcoin\` — ⚠️ Reset coin **toàn bộ server** về 500,000\n\`${prefix}giveall <số>\` — Phát <số> coin cho **tất cả** thành viên (Chỉ Admin Chính)`, inline: false },
-                { name: '🛠️ Quản lý Server', value: `\`${prefix}clear <1-100>\` hoặc \`/clear\` — Xóa hàng loạt tin nhắn (từ 1 đến 100 tin)\n\`${prefix}say #kênh <nội dung>\` hoặc \`/say\` — Bot gửi tin nhắn vào kênh bạn chọn, thay mặt bot\n\`${prefix}resetwork @user\` hoặc \`/resetwork\` — Xóa cooldown làm việc cho 1 người (để họ work lại ngay)\n\`1ar @user\` — Cấp role đặc biệt (role 1492427406563213462) cho người được tag`, inline: false },
+                { name: '🛠️ Quản lý Server', value: `\`${prefix}clear <1-100>\` hoặc \`/clear\` — Xóa hàng loạt tin nhắn (từ 1 đến 100 tin)\n\`${prefix}say #kênh <nội dung>\` hoặc \`/say\` — Bot gửi tin nhắn vào kênh bạn chọn, thay mặt bot\n\`${prefix}resetwork @user\` hoặc \`/resetwork\` — Xóa cooldown làm việc cho 1 người (để họ work lại ngay)\n\`1ar @user\` — Cấp nhanh role đặc biệt cho người được tag (cài bằng \`/set1ar\`)`, inline: false },
                 { name: '💳 QR Ngân Hàng', value: `\`${prefix}qr <số tiền>\` — Tạo mã QR chuyển khoản ngân hàng thật *(Admin Chính)*`, inline: false }
             )
             .setColor('#FF4444')
@@ -516,7 +516,7 @@ function buildHelpPages(prefix) {
             .setDescription('Quản lý sự kiện, cài đặt tính năng bot và đặc quyền Admin Chính.')
             .addFields(
                 { name: '🎁 Sự kiện Giveaway', value: `\`${prefix}gstart <thời gian> <số người thắng> <tên giải>\`\n→ Bắt đầu Giveaway. Ví dụ: \`${prefix}gstart 1h 1 Nitro Classic\`\n• Thời gian hỗ trợ: \`30s\`, \`5m\`, \`1h\`, \`1d\`...\n\n\`/gend <message_id>\` — Kết thúc Giveaway sớm\n\`/greroll <message_id>\` — Chọn lại người thắng`, inline: false },
-                { name: '⚙️ Cài đặt Bot', value: `\`${prefix}setprefix <dấu mới>\` — Đổi prefix bot\n\`/setwelcome\` — Cài đặt chào mừng\n\`/setspawnchannel\` — Kênh xuất hiện Pokemon\n\`/setuppokemonrole\` — Cài role ping Pokemon\n\`/setuprpgrole\` — Cài role ping RPG\n\`/setpinggame\` — Cài đặt hướng dẫn ping game\n\`${prefix}spawnpet\` — Ép ra Pokemon hiếm\n\`/addpetvip @user <pet_id>\` — Tặng pet VIP\n\`${prefix}getallvip\` — Tặng bản thân 1B coin (Admin)\n\`${prefix}updateytdlp\` — Cập nhật yt-dlp\n\`/togglevoice\` — Bật/Tắt thông báo thoại\n\`${prefix}disable\` / \`${prefix}enable\` — Tắt/Bật bot ở kênh hiện tại`, inline: false },
+                { name: '⚙️ Cài đặt Bot', value: `\`${prefix}setprefix <dấu mới>\` — Đổi prefix bot\n\`/setwelcome\` — Cài đặt chào mừng\n\`/setspawnchannel\` — Kênh xuất hiện Pokemon\n\`/setuppokemonrole\` — Cài role ping Pokemon\n\`/setuprpgrole\` — Cài role ping RPG\n\`/setpinggame\` — Cài đặt hướng dẫn ping game\n\`/set1ar\` — Cài đặt lệnh cấp role nhanh\n\`${prefix}spawnpet\` — Ép ra Pokemon hiếm\n\`/addpetvip @user <pet_id>\` — Tặng pet VIP\n\`${prefix}getallvip\` — Tặng bản thân 1B coin (Admin)\n\`${prefix}updateytdlp\` — Cập nhật yt-dlp\n\`/togglevoice\` — Bật/Tắt thông báo thoại\n\`${prefix}disable\` / \`${prefix}enable\` — Tắt/Bật bot ở kênh hiện tại`, inline: false },
                 { name: '👑 Admin Cheat Panel (Chỉ Admin Chính)', value: `\`${prefix}admincheat\` hoặc \`/admincheat\`\nMở bảng điều khiển đặc biệt:\n• 🎰 Bật/Tắt chế độ **luôn thắng** tất cả trò cờ bạc\n• ⏱️ Bỏ qua mọi cooldown (daily, work...)\n• Các quyền năng đặc biệt khác`, inline: false },
                 { name: '🤖 Tính năng tự động', value: '• Chào mừng thành viên mới (cài `/setwelcome`)\n• Tự động hướng dẫn ping game (cài `/setpinggame`)\n• Ghi log voice (ai vào/rời)\n• Auto-reply: `ping` → pong!, `hello` → Xin chào!\n• Xóa phòng J2C trống, Xổ số lô đề 18h30', inline: false },
                 { name: '😀 Quản lý Emoji Bot', value: `\`${prefix}botemojis\` — Xem danh sách emoji đã upload cho bot\n\`${prefix}clonebotemojis\` — Copy toàn bộ emoji bot vào server *(Admin)*`, inline: false }
@@ -4691,6 +4691,11 @@ const slashCommands = [
         .setDescription('🛡️ (Admin) Bật/Tắt hệ thống chống bot join ồ ạt & spam tin nhắn.')
         .setDefaultMemberPermissions(PermissionsBitField.Flags.Administrator),
     new SlashCommandBuilder()
+        .setName('set1ar')
+        .setDescription('🛠️ (Admin) Cài đặt lệnh cấp role nhanh (mặc định: 1ar).')
+        .setDefaultMemberPermissions(PermissionsBitField.Flags.Administrator)
+        .addRoleOption(o => o.setName('role').setDescription('Role sẽ được cấp khi gõ lệnh').setRequired(true)),
+    new SlashCommandBuilder()
         .setName('setpinggame')
         .setDescription('🛠️ (Admin) Cài đặt kênh & nội dung auto-message hướng dẫn ping game.')
         .setDefaultMemberPermissions(PermissionsBitField.Flags.Administrator)
@@ -5839,28 +5844,32 @@ client.on('messageCreate', async (message) => {
     }
 
     // --- 1AR COMMAND ---
-    if (message.content.toLowerCase().startsWith('1ar ')) {
-        // Kiểm tra quyền (chỉ người có quyền quản lý role hoặc admin mới được dùng)
-        if (!message.member.permissions.has(PermissionsBitField.Flags.ManageRoles) && !message.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            return message.reply({ content: '❌ Bạn không có quyền cấp role!', allowedMentions: { repliedUser: false } }).catch(() => {});
-        }
+    if (message.guildId) {
+        const arConfig = getGuildConfig(message.guildId);
+        const arCmd = (arConfig.arCommandText || '1ar').toLowerCase();
         
-        const targetMember = message.mentions.members.first();
-        if (!targetMember) {
-            return message.reply({ content: '❌ Vui lòng tag một người dùng! Ví dụ: `1ar @user`', allowedMentions: { repliedUser: false } }).catch(() => {});
-        }
-        
-        const roleId = '1492427406563213462';
-        const role = message.guild.roles.cache.get(roleId);
-        if (!role) {
-            return message.reply({ content: `❌ Không tìm thấy role với ID \`${roleId}\`!`, allowedMentions: { repliedUser: false } }).catch(() => {});
-        }
-        
-        try {
-            await targetMember.roles.add(role);
-            return message.reply({ content: `✅ Đã cấp role **${role.name}** cho <@${targetMember.id}>!`, allowedMentions: { parse: ['users'] } }).catch(() => {});
-        } catch (err) {
-            return message.reply({ content: '❌ Lỗi: Bot không đủ quyền cấp role này (Role của bot phải xếp trên role cần cấp)!', allowedMentions: { repliedUser: false } }).catch(() => {});
+        if (message.content.toLowerCase().startsWith(`${arCmd} `)) {
+            if (!message.member.permissions.has(PermissionsBitField.Flags.ManageRoles) && !message.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+                return message.reply({ content: '❌ Bạn không có quyền cấp role!', allowedMentions: { repliedUser: false } }).catch(() => {});
+            }
+            
+            const targetMember = message.mentions.members.first();
+            if (!targetMember) {
+                return message.reply({ content: `❌ Vui lòng tag một người dùng! Ví dụ: \`${arCmd} @user\``, allowedMentions: { repliedUser: false } }).catch(() => {});
+            }
+            
+            const roleId = arConfig.arRoleId || '1492427406563213462';
+            const role = message.guild.roles.cache.get(roleId);
+            if (!role) {
+                return message.reply({ content: `❌ Không tìm thấy role! Hãy dùng lệnh \`/set1ar\` để cài lại.`, allowedMentions: { repliedUser: false } }).catch(() => {});
+            }
+            
+            try {
+                await targetMember.roles.add(role);
+                return message.reply({ content: `✅ Đã cấp role **${role.name}** cho <@${targetMember.id}>!`, allowedMentions: { parse: ['users'] } }).catch(() => {});
+            } catch (err) {
+                return message.reply({ content: '❌ Lỗi: Bot không đủ quyền cấp role này (Role của bot phải xếp trên role cần cấp)!', allowedMentions: { repliedUser: false } }).catch(() => {});
+            }
         }
     }
 
@@ -9925,6 +9934,14 @@ client.on('interactionCreate', async (interaction) => {
     }
 }
 
+    if (interaction.isButton() && interaction.customId === 'set1ar_edit_command') {
+        const config = getGuildConfig(interaction.guildId);
+        const modal = new ModalBuilder().setCustomId('set1ar_edit_command_modal').setTitle('Sửa Cú pháp Lệnh');
+        const cmdInput = new TextInputBuilder().setCustomId('cmd_input').setLabel('Từ khoá lệnh (Viết liền, không dấu)').setStyle(TextInputStyle.Short).setValue(config.arCommandText || '1ar').setRequired(true);
+        modal.addComponents(new ActionRowBuilder().addComponents(cmdInput));
+        return interaction.showModal(modal);
+    }
+
     if (interaction.isButton() && (interaction.customId === 'toggle_antinuke' || interaction.customId === 'toggle_antiraid')) {
         const config = getGuildConfig(interaction.guildId);
         const isNuke = interaction.customId === 'toggle_antinuke';
@@ -9999,6 +10016,26 @@ client.on('interactionCreate', async (interaction) => {
 
     // === MODAL SUBMIT ===
     if (interaction.isModalSubmit()) {
+        if (interaction.customId === 'set1ar_edit_command_modal') {
+            const newCmd = interaction.fields.getTextInputValue('cmd_input').toLowerCase().trim();
+            updateGuildConfig(interaction.guildId, 'arCommandText', newCmd);
+            
+            const config = getGuildConfig(interaction.guildId);
+            const roleId = config.arRoleId || '1492427406563213462';
+            const roleStr = `<@&${roleId}>`;
+            
+            const embed = new EmbedBuilder()
+                .setTitle('⚙️ BẢNG ĐIỀU KHIỂN LỆNH CẤP ROLE')
+                .setDescription(`✅ Đã cập nhật thành công!\n\n**Bản xem trước dữ liệu:**\n- **Cú pháp lệnh mới:** \`${newCmd} @user\`\n- **Role được cấp:** ${roleStr}`)
+                .setColor('#9B59B6');
+                
+            const row = new ActionRowBuilder().addComponents(
+                new ButtonBuilder().setCustomId('set1ar_edit_command').setLabel('Sửa Cú pháp Lệnh').setStyle(ButtonStyle.Primary)
+            );
+            
+            return interaction.update({ embeds: [embed], components: [row] }).catch(() => {});
+        }
+
         if (interaction.customId.startsWith('welcome_edit_') || interaction.customId.startsWith('pokemon_edit_') || interaction.customId.startsWith('rpg_edit_') || interaction.customId.startsWith('pinggame_edit_')) {
             const config = getGuildConfig(interaction.guildId);
             
@@ -10610,6 +10647,27 @@ client.on('interactionCreate', async (interaction) => {
             
         const row = new ActionRowBuilder().addComponents(
             new ButtonBuilder().setCustomId('toggle_antiraid').setLabel(isEnabled ? 'Tắt Anti-Raid' : 'Bật Anti-Raid').setStyle(isEnabled ? ButtonStyle.Danger : ButtonStyle.Success)
+        );
+        
+        return interaction.reply({ embeds: [embed], components: [row], flags: MessageFlags.Ephemeral });
+    }
+
+    if (commandName === 'set1ar') {
+        if (!interaction.member || !interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) return interaction.reply({ content: '❌ Bạn không có quyền!', flags: MessageFlags.Ephemeral });
+        
+        const role = interaction.options.getRole('role');
+        updateGuildConfig(interaction.guildId, 'arRoleId', role.id);
+        
+        const config = getGuildConfig(interaction.guildId);
+        const commandText = config.arCommandText || '1ar';
+        
+        const embed = new EmbedBuilder()
+            .setTitle('⚙️ BẢNG ĐIỀU KHIỂN LỆNH CẤP ROLE (1AR)')
+            .setDescription(`✅ Đã thiết lập Role được cấp là: ${role}\n\n**Bản xem trước dữ liệu:**\n- **Cú pháp lệnh:** \`${commandText} @user\`\n- **Role được cấp:** ${role}\n\n👇 **Nhấn nút bên dưới nếu bạn muốn đổi chữ \`${commandText}\` thành chữ khác (ví dụ: \`vip\`, \`role\`...)**`)
+            .setColor('#9B59B6');
+            
+        const row = new ActionRowBuilder().addComponents(
+            new ButtonBuilder().setCustomId('set1ar_edit_command').setLabel('Sửa Cú pháp Lệnh').setStyle(ButtonStyle.Primary)
         );
         
         return interaction.reply({ embeds: [embed], components: [row], flags: MessageFlags.Ephemeral });
