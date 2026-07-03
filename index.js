@@ -277,15 +277,40 @@ function saveConfig(data) {
     fs.writeFileSync(configPath, JSON.stringify(data, null, 4));
 }
 
-function getPrefix() {
+function getGuildConfig(guildId) {
     const config = loadConfig();
+    if (!config.guilds) config.guilds = {};
+    if (guildId && config.guilds[guildId]) {
+        return config.guilds[guildId];
+    }
+    return {};
+}
+
+function updateGuildConfig(guildId, key, value) {
+    if (!guildId) return;
+    const config = loadConfig();
+    if (!config.guilds) config.guilds = {};
+    if (!config.guilds[guildId]) config.guilds[guildId] = {};
+    config.guilds[guildId][key] = value;
+    saveConfig(config);
+}
+
+function getPrefix(guildId) {
+    const config = loadConfig();
+    if (guildId && config.guilds && config.guilds[guildId] && config.guilds[guildId].prefix) {
+        return config.guilds[guildId].prefix;
+    }
     return config.prefix || process.env.PREFIX || '!';
 }
 
-function savePrefix(newPrefix) {
-    const config = loadConfig();
-    config.prefix = newPrefix;
-    saveConfig(config);
+function savePrefix(guildId, newPrefix) {
+    if (guildId) {
+        updateGuildConfig(guildId, 'prefix', newPrefix);
+    } else {
+        const config = loadConfig();
+        config.prefix = newPrefix;
+        saveConfig(config);
+    }
 }
 
 // ========================
@@ -486,9 +511,9 @@ function buildHelpPages(prefix) {
             .setDescription('Quản lý sự kiện, cài đặt tính năng bot và đặc quyền Admin Chính.')
             .addFields(
                 { name: '🎁 Sự kiện Giveaway', value: `\`${prefix}gstart <thời gian> <số người thắng> <tên giải>\`\n→ Bắt đầu Giveaway. Ví dụ: \`${prefix}gstart 1h 1 Nitro Classic\`\n• Thời gian hỗ trợ: \`30s\`, \`5m\`, \`1h\`, \`1d\`...\n\n\`/gend <message_id>\` — Kết thúc Giveaway sớm\n\`/greroll <message_id>\` — Chọn lại người thắng`, inline: false },
-                { name: '⚙️ Cài đặt Bot', value: `\`${prefix}setprefix <dấu mới>\` — Đổi prefix bot\n\`/setwelcome #kênh [lời chào] [ảnh]\` — Cài đặt chào mừng\n\`/setspawnchannel #channel\` — Kênh xuất hiện Pokemon\n\`/setuppokemonrole\` — Role ping Pokemon\n\`${prefix}spawnpet\` — Ép ra Pokemon hiếm\n\`/addpetvip @user <pet_id>\` — Tặng pet VIP\n\`${prefix}getallvip\` — Tặng bản thân 1B coin, max đồ/pet (Admin)\n\`${prefix}updateytdlp\` — Cập nhật yt-dlp\n\`/togglevoice\` — Bật/Tắt thông báo thoại\n\`${prefix}disable\` / \`${prefix}enable\` — Tắt/Bật bot ở kênh hiện tại`, inline: false },
+                { name: '⚙️ Cài đặt Bot', value: `\`${prefix}setprefix <dấu mới>\` — Đổi prefix bot\n\`/setwelcome\` — Cài đặt chào mừng\n\`/setspawnchannel\` — Kênh xuất hiện Pokemon\n\`/setuppokemonrole\` — Cài role ping Pokemon\n\`/setuprpgrole\` — Cài role ping RPG\n\`/setpinggame\` — Cài đặt hướng dẫn ping game\n\`${prefix}spawnpet\` — Ép ra Pokemon hiếm\n\`/addpetvip @user <pet_id>\` — Tặng pet VIP\n\`${prefix}getallvip\` — Tặng bản thân 1B coin (Admin)\n\`${prefix}updateytdlp\` — Cập nhật yt-dlp\n\`/togglevoice\` — Bật/Tắt thông báo thoại\n\`${prefix}disable\` / \`${prefix}enable\` — Tắt/Bật bot ở kênh hiện tại`, inline: false },
                 { name: '👑 Admin Cheat Panel (Chỉ Admin Chính)', value: `\`${prefix}admincheat\` hoặc \`/admincheat\`\nMở bảng điều khiển đặc biệt:\n• 🎰 Bật/Tắt chế độ **luôn thắng** tất cả trò cờ bạc\n• ⏱️ Bỏ qua mọi cooldown (daily, work...)\n• Các quyền năng đặc biệt khác`, inline: false },
-                { name: '🤖 Tính năng tự động', value: '• Chào mừng thành viên mới (cài `/setwelcome`)\n• Ghi log voice (ai vào/rời)\n• Auto-reply: `ping` → pong!, `hello` → Xin chào!\n• Xóa phòng J2C trống, Xổ số lô đề 18h30', inline: false },
+                { name: '🤖 Tính năng tự động', value: '• Chào mừng thành viên mới (cài `/setwelcome`)\n• Tự động hướng dẫn ping game (cài `/setpinggame`)\n• Ghi log voice (ai vào/rời)\n• Auto-reply: `ping` → pong!, `hello` → Xin chào!\n• Xóa phòng J2C trống, Xổ số lô đề 18h30', inline: false },
                 { name: '😀 Quản lý Emoji Bot', value: `\`${prefix}botemojis\` — Xem danh sách emoji đã upload cho bot\n\`${prefix}clonebotemojis\` — Copy toàn bộ emoji bot vào server *(Admin)*`, inline: false }
             )
             .setColor('#9B59B6')
@@ -2088,10 +2113,21 @@ async function spawnWildPet(client, manual = false) {
     const config = loadConfig();
     let targets = [];
     if (config.spawnChannelId) {
-        targets.push({ channelId: config.spawnChannelId });
-    } else {
+        targets.push({ guildId: null, channelId: config.spawnChannelId, roleId: config.pokemonRoleId });
+    }
+    if (config.guilds) {
+        for (const [gId, guildConf] of Object.entries(config.guilds)) {
+            if (guildConf.spawnChannelId) {
+                targets.push({ guildId: gId, channelId: guildConf.spawnChannelId, roleId: guildConf.pokemonRoleId });
+            }
+        }
+    }
+    targets = targets.filter((v, i, a) => a.findIndex(t => (t.channelId === v.channelId)) === i);
+    
+    if (targets.length === 0) {
         for (const [guildId, channelId] of activeChannels.entries()) {
-            targets.push({ guildId, channelId });
+            const guildConf = config.guilds?.[guildId] || {};
+            targets.push({ guildId, channelId, roleId: guildConf.pokemonRoleId || config.pokemonRoleId });
         }
     }
     
@@ -2140,7 +2176,7 @@ async function spawnWildPet(client, manual = false) {
             );
             
             let msgContent = undefined;
-            if (config.pokemonRoleId) msgContent = `<@&${config.pokemonRoleId}>`;
+            if (target.roleId) msgContent = `<@&${target.roleId}>`;
             const msg = await channel.send({ content: msgContent, embeds: [embed], components: [row] });
             activeSpawns.set(msg.id, { guildId: target.guildId || channel.guild.id, channelId: target.channelId, petId: spawnPet.id, active: true, expireTimeout: setTimeout(() => expireSpawn(msg), 1 * 60 * 1000) });
         } catch (e) {
@@ -4641,6 +4677,16 @@ const slashCommands = [
         .setDefaultMemberPermissions(PermissionsBitField.Flags.ManageMessages)
         .addStringOption(o => o.setName('message_id').setDescription('ID tin nhắn Giveaway').setRequired(true)),
     new SlashCommandBuilder()
+        .setName('setpinggame')
+        .setDescription('🛠️ (Admin) Cài đặt kênh & nội dung auto-message hướng dẫn ping game.')
+        .setDefaultMemberPermissions(PermissionsBitField.Flags.Administrator)
+        .addChannelOption(o => o.setName('channel').setDescription('Kênh sẽ gửi auto-message').setRequired(true)),
+    new SlashCommandBuilder()
+        .setName('setwelcome')
+        .setDescription('🛠️ (Admin) Cài đặt kênh chào mừng thành viên mới.')
+        .setDefaultMemberPermissions(PermissionsBitField.Flags.Administrator)
+        .addChannelOption(o => o.setName('channel').setDescription('Kênh sẽ gửi lời chào').setRequired(true)),
+    new SlashCommandBuilder()
         .setName('deposit')
         .setDescription('🏦 Gửi tiền mặt vào Ngân Hàng.')
         .addStringOption(o => o.setName('amount').setDescription('Số tiền (hoặc gõ "all")').setRequired(true)),
@@ -4855,13 +4901,7 @@ const slashCommands = [
     new SlashCommandBuilder()
         .setName('setuprpgrole')
         .setDescription('👑 [Chủ Bot] Tạo Role RPG và gửi tin nhắn để user nhận role.'),
-    new SlashCommandBuilder()
-        .setName('setwelcome')
-        .setDescription('🛠️ (Admin) Cài đặt hệ thống chào mừng (kênh, tin nhắn, ảnh).')
-        .setDefaultMemberPermissions(PermissionsBitField.Flags.Administrator)
-        .addChannelOption(o => o.setName('channel').setDescription('Kênh gửi lời chào').setRequired(true))
-        .addStringOption(o => o.setName('message').setDescription('Lời chào tuỳ chỉnh (Dùng {user} và {server})').setRequired(false))
-        .addStringOption(o => o.setName('image').setDescription('Link ảnh đính kèm (vd: https://imgur.com/...)').setRequired(false)),
+
     new SlashCommandBuilder()
         .setName('disablewelcome')
         .setDescription('🛠️ (Admin) Tắt tính năng tự động gửi lời chào mừng.')
@@ -5166,16 +5206,27 @@ client.once('clientReady', async () => {
         cron.schedule('30 18 * * *', async () => {
             console.log('⏰ Bắt đầu xổ số lô đề 18h30...');
             const config = loadConfig();
-            if (!config.lodeChannelId) {
-                console.log('❌ Chưa cấu hình lodeChannelId, không thể gửi kết quả lô đề!');
+            
+            let targetChannels = [];
+            if (config.lodeChannelId) targetChannels.push(config.lodeChannelId);
+            if (config.guilds) {
+                for (const guildConf of Object.values(config.guilds)) {
+                    if (guildConf.lodeChannelId) targetChannels.push(guildConf.lodeChannelId);
+                }
+            }
+            targetChannels = [...new Set(targetChannels)];
+            
+            if (targetChannels.length === 0) {
+                console.log('❌ Chưa cấu hình lodeChannelId ở bất kỳ server nào!');
                 return;
             }
-            const channel = client.channels.cache.get(config.lodeChannelId);
-            if (!channel) return;
 
             const lodeData = loadLode();
             if (!lodeData.bets || lodeData.bets.length === 0) {
-                channel.send('📊 **XỔ SỐ 18H30**\nHôm nay không có ai ghi lô đề. Hẹn gặp lại ngày mai!');
+                for (const chId of targetChannels) {
+                    const channel = client.channels.cache.get(chId);
+                    if (channel) channel.send('📊 **XỔ SỐ 18H30**\nHôm nay không có ai ghi lô đề. Hẹn gặp lại ngày mai!');
+                }
                 return;
             }
 
@@ -5205,10 +5256,16 @@ client.once('clientReady', async () => {
             if (winners.length > 0) {
                 const winnerText = winners.map(w => `<@${w.userId}> trúng **${w.prize.toLocaleString()} 🪙**`).join('\n');
                 embed.addFields({ name: '🏆 Chúc mừng các đại gia đã trúng lô', value: winnerText });
-                channel.send({ content: `🔔 Loa loa loa! Đã có kết quả xổ số: ${winners.map(w => `<@${w.userId}>`).join(' ')}`, embeds: [embed] });
+                for (const chId of targetChannels) {
+                    const channel = client.channels.cache.get(chId);
+                    if (channel) channel.send({ content: `🔔 Loa loa loa! Đã có kết quả xổ số: ${winners.map(w => `<@${w.userId}>`).join(' ')}`, embeds: [embed] });
+                }
             } else {
                 embed.addFields({ name: '😢 Chia buồn', value: 'Rất tiếc hôm nay không có ai trúng lô cả. Chúc các bạn may mắn lần sau!' });
-                channel.send({ embeds: [embed] });
+                for (const chId of targetChannels) {
+                    const channel = client.channels.cache.get(chId);
+                    if (channel) channel.send({ embeds: [embed] });
+                }
             }
         }, {
             timezone: 'Asia/Ho_Chi_Minh'
@@ -5224,9 +5281,10 @@ client.once('clientReady', async () => {
 // ========================
 client.on('guildMemberAdd', async (member) => {
     try {
-        const config = loadConfig();
-        const welcomeChannelId = config.welcomeChannelId || process.env.WELCOME_CHANNEL_ID;
+        const config = getGuildConfig(member.guild.id);
+        const welcomeChannelId = config.welcomeChannelId || (loadConfig().welcomeChannelId) || process.env.WELCOME_CHANNEL_ID;
         const receptionistRoleId = process.env.RECEPTIONIST_ROLE_ID;
+        if (welcomeChannelId === 'disabled') return;
         let channel;
         if (welcomeChannelId && welcomeChannelId !== 'YOUR_WELCOME_CHANNEL_ID_HERE') {
             channel = member.guild.channels.cache.get(welcomeChannelId);
@@ -5239,48 +5297,33 @@ client.on('guildMemberAdd', async (member) => {
         
         let description = '';
         if (config.welcomeMessage) {
-            description = `> ${config.welcomeMessage.replace(/{user}/g, `<@${member.user.id}>`).replace(/{server}/g, member.guild.name)}`;
+            description = config.welcomeMessage.replace(/{user}/g, `<@${member.user.id}>`).replace(/{server}/g, member.guild.name).replace(/\\n/g, '\n');
         } else {
             description = `Chào mừng bạn **${member.user.username}** đã hạ cánh an toàn tại **${member.guild.name}**! 🛬\n\n> Đừng quên đọc luật và tự nhiên giao lưu nhé! Rất vui được gặp bạn! 💕`;
         }
         
-        const embed = new EmbedBuilder()
-            .setAuthor({ name: `Chào mừng đến với ${member.guild.name}`, iconURL: member.guild.iconURL({ dynamic: true }) || undefined })
-            .setTitle(`🎉 Welcome ${member.user.displayName} 🎉`)
-            .setDescription(description)
-            .setColor('#ff99cc')
-            .setThumbnail(member.user.displayAvatarURL({ dynamic: true, size: 512 }))
-            .addFields(
-                { name: '👥 Thành viên thứ:', value: `**#${member.guild.memberCount}**`, inline: true },
-                { name: '📅 Tạo tài khoản lúc:', value: `<t:${Math.floor(member.user.createdTimestamp / 1000)}:D>\n(<t:${Math.floor(member.user.createdTimestamp / 1000)}:R>)`, inline: true },
-                { name: '📥 Tham gia server lúc:', value: `<t:${Math.floor(member.joinedTimestamp / 1000)}:D>\n(<t:${Math.floor(member.joinedTimestamp / 1000)}:R>)`, inline: true }
-            )
-            .setFooter({ text: 'Chúc bạn có những giây phút vui vẻ tại đây! 💕' })
-            .setTimestamp();
-            
-        // Dùng ảnh do admin cài qua lệnh /setwelcome, nếu không có thì dùng ảnh đính kèm mặc định
-        let attachment;
-        if (!config.welcomeImage) {
-            try {
-                attachment = new AttachmentBuilder(path.join(__dirname, 'welcome_banner.png'), { name: 'welcome_banner.png' });
-                embed.setImage('attachment://welcome_banner.png');
-            } catch (err) {
-                // Ignore
-            }
-        } else {
-            embed.setImage(config.welcomeImage);
-        }
+        let title = config.welcomeTitle || `🎉 Welcome ${member.user.displayName} 🎉`;
         
-        // Ping user và role đón khách (nếu có trong env, nếu không thì dùng role mặc định user yêu cầu)
+        const embed = new EmbedBuilder()
+            .setTitle(title)
+            .setDescription(description)
+            .setColor('#2b2d31')
+            .setFooter({ text: 'づ♡ど' })
+            .setImage('https://cdn.discordapp.com/attachments/1492161415388069968/1522638402326102036/ChatGPT_Image_23_21_06_3_thg_7_2026.png?ex=6a493304&is=6a47e184&hm=0b105358fb59188657d3e236fcd422de4ba27f9e60afa52dae68cf259239613e&');
+        
+        // Ping user và role đón khách
         let pingContent = `<@${member.user.id}>`;
-        if (receptionistRoleId && receptionistRoleId !== 'YOUR_RECEPTIONIST_ROLE_ID_HERE') {
+        if (config.welcomePingRoles) {
+            pingContent += ` | ${config.welcomePingRoles} ra đón khách kìa! 🎉`;
+        } else if (config.welcomeRoleId) {
+            pingContent += ` | <@&${config.welcomeRoleId}> ra đón khách kìa! 🎉`;
+        } else if (receptionistRoleId && receptionistRoleId !== 'YOUR_RECEPTIONIST_ROLE_ID_HERE') {
             pingContent += ` | <@&${receptionistRoleId}> ra đón khách kìa! 🎉`;
         } else {
             pingContent += ` | <@&1491977303473914036> ra đón thành viên mới kìa! 🎉`;
         }
         
         const messageOptions = { content: pingContent, embeds: [embed] };
-        if (attachment) messageOptions.files = [attachment];
         
         channel.send(messageOptions);
     } catch (error) {
@@ -5419,8 +5462,13 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
             }
         }
         
-        const config = loadConfig();
-        const voiceNotifyEnabled = config.voiceNotifyEnabled !== false;
+        const globalConfig = loadConfig();
+        const config = getGuildConfig(newState.guild.id);
+        
+        // Cố gắng giữ fallback sang global để không bị lỗi với data cũ
+        const voiceNotifyEnabled = (config.voiceNotifyEnabled !== undefined) 
+            ? config.voiceNotifyEnabled !== false 
+            : globalConfig.voiceNotifyEnabled !== false;
 
         if (voiceNotifyEnabled) {
             if (!oldState.channelId && newState.channelId) {
@@ -5450,7 +5498,7 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
         }
         
         // --- JOIN TO CREATE LOGIC ---
-        const j2cChannelId = config.j2cChannelId;
+        const j2cChannelId = config.j2cChannelId || globalConfig.j2cChannelId;
         
         // Handle Join To Create
         if (newState.channelId === j2cChannelId) {
@@ -5694,13 +5742,14 @@ client.on('messageCreate', async (message) => {
     }
 
     // --- AUTO MESSAGE FOR SPECIFIC CHANNEL ---
-    if (message.channel.id === '1491623564582064248') {
+    const config = message.guild ? getGuildConfig(message.guild.id) : {};
+    const targetPingChannel = config.pingGameChannelId || '1491623564582064248';
+    if (message.channel.id === targetPingChannel) {
         const ic_timnhay = message.client.emojis.cache.find(e => e.name.includes('ic_timnhay4'))?.toString() || '<a:ic_timnhay4:1333488435998101667>';
         const mlz_heart = message.client.emojis.cache.find(e => e.name.includes('mlz_heart'))?.toString() || ':mlz_heart:';
         
-        const content = `${ic_timnhay} Đây là kênh để ping game trong server ${ic_timnhay}\n` +
-            `Cách ping là @mention game muốn chơi lên ví dụ như là \`@TFT\` ....\n` +
-            `${mlz_heart} Cảm ơn đã đọc ạ ${mlz_heart}`;
+        const defaultContent = `${ic_timnhay} Đây là kênh để ping game trong server ${ic_timnhay}\nCách ping là @mention game muốn chơi lên ví dụ như là \`@TFT\` ....\n${mlz_heart} Cảm ơn đã đọc ạ ${mlz_heart}`;
+        const content = config.pingGameMessage || defaultContent;
 
         try {
             if (client.lastMainLegendMsgId) {
@@ -5773,7 +5822,7 @@ client.on('messageCreate', async (message) => {
     }
 
     const content = message.content.toLowerCase().trim();
-    const prefix = getPrefix();
+    const prefix = getPrefix(message.guildId);
 
     // --- AUTO REPLY ---
     if (content === 'ping' || content === `${prefix}ping`) {
@@ -5873,41 +5922,12 @@ client.on('messageCreate', async (message) => {
                     const userStreak = (game.userStreaks.get(message.author.id) || 0) + 1;
                     game.userStreaks.set(message.author.id, userStreak);
                     
-                    clearTimeout(game.timeout);
-                    
                     addCoins(message.author.id, 1000);
                     const numberEmojis = ['0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'];
                     const streakEmoji = userStreak <= 10 ? numberEmojis[userStreak] : '🔥';
                     message.react(streakEmoji).catch(() => {});
                     
                     message.reply(`✅ **Chính xác!** <@${message.author.id}> cộng 1,000 🪙 (Chuỗi cá nhân: **${userStreak}** | Tổng chuỗi: **${game.streak}**).\nMời người tiếp theo nối chữ: **${msgText.split(' ')[1].toUpperCase()}**`).catch(() => {});
-                    
-                    const channelId = message.channelId;
-                    game.timeout = setTimeout(() => {
-                        const endGame = noituGames.get(channelId);
-                        if (!endGame) return;
-                        noituGames.delete(channelId);
-                        
-                        const lastWordEnd = endGame.lastWord.split(' ')[1].toUpperCase();
-                        const sortedPlayers = Array.from(endGame.userStreaks.entries()).sort((a, b) => b[1] - a[1]);
-                        let leaderboardText = sortedPlayers.map((entry, index) => {
-                            let medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '🏅';
-                            return `${medal} <@${entry[0]}>: **${entry[1]}** từ`;
-                        }).join('\n');
-                        if (!leaderboardText) leaderboardText = "Chưa có ai ghi điểm.";
-                        
-                        const embed = new EmbedBuilder()
-                            .setTitle('🛑 TỔNG KẾT NỐI TỪ TIẾNG VIỆT')
-                            .setDescription(`⏰ Hết 60 giây không ai nối tiếp được chữ **${lastWordEnd}**.\nTrò chơi đã kết thúc!`)
-                            .addFields(
-                                { name: '🔥 Tổng số từ đã nối', value: `**${endGame.streak}** từ`, inline: true },
-                                { name: '🏆 Bảng xếp hạng', value: leaderboardText, inline: false }
-                            )
-                            .setColor('#FF4500')
-                            .setTimestamp();
-                            
-                        message.channel.send({ embeds: [embed] }).catch(() => {});
-                    }, 60000);
                 } else {
                     message.react('❌').catch(() => {});
                     message.reply(`Từ **${msgText}** không hợp lệ hoặc không có trong từ điển Tiếng Việt!`).catch(() => {});
@@ -5951,8 +5971,6 @@ client.on('messageCreate', async (message) => {
                     const userStreak = (game.userStreaks.get(message.author.id) || 0) + 1;
                     game.userStreaks.set(message.author.id, userStreak);
                     
-                    clearTimeout(game.timeout);
-                    
                     addCoins(message.author.id, 1000);
                     const numberEmojis = ['0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'];
                     const streakEmoji = userStreak <= 10 ? numberEmojis[userStreak] : '🔥';
@@ -5960,33 +5978,6 @@ client.on('messageCreate', async (message) => {
                     
                     const lastCharOfNew = msgText[msgText.length - 1].toUpperCase();
                     message.reply(`✅ **Correct!** <@${message.author.id}> +1,000 🪙 (Streak: **${userStreak}** | Total: **${game.streak}**).\nNext word must start with: **${lastCharOfNew}**`).catch(() => {});
-                    
-                    const channelId = message.channelId;
-                    game.timeout = setTimeout(() => {
-                        const endGame = noituEnGames.get(channelId);
-                        if (!endGame) return;
-                        noituEnGames.delete(channelId);
-                        
-                        const lastCharEnd = endGame.lastWord[endGame.lastWord.length - 1].toUpperCase();
-                        const sortedPlayers = Array.from(endGame.userStreaks.entries()).sort((a, b) => b[1] - a[1]);
-                        let leaderboardText = sortedPlayers.map((entry, index) => {
-                            let medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '🏅';
-                            return `${medal} <@${entry[0]}>: **${entry[1]}** words`;
-                        }).join('\n');
-                        if (!leaderboardText) leaderboardText = "No one scored.";
-                        
-                        const embed = new EmbedBuilder()
-                            .setTitle('🛑 ENGLISH WORD CHAIN — GAME OVER')
-                            .setDescription(`⏰ 60 seconds passed — no one could chain from letter **${lastCharEnd}**.\nGame ended!`)
-                            .addFields(
-                                { name: '🔥 Total words chained', value: `**${endGame.streak}** words`, inline: true },
-                                { name: '🏆 Leaderboard', value: leaderboardText, inline: false }
-                            )
-                            .setColor('#3498DB')
-                            .setTimestamp();
-                            
-                        message.channel.send({ embeds: [embed] }).catch(() => {});
-                    }, 60000);
                 } else {
                     message.react('❌').catch(() => {});
                     message.reply(`The word **${msgText}** is not a valid English word!`).catch(() => {});
@@ -6061,10 +6052,11 @@ client.on('messageCreate', async (message) => {
     if (!content.startsWith(prefix)) return;
 
     // --- DISABLED CHANNEL CHECK ---
-    const botConfig = loadConfig();
+    const botConfig = getGuildConfig(message.guildId);
+    const globalDisabled = loadConfig().disabledChannels || [];
     const disabledChannels = botConfig.disabledChannels || [];
     if (!content.startsWith(`${prefix}disable`) && !content.startsWith(`${prefix}enable`)) {
-        if (disabledChannels.includes(message.channel.id)) {
+        if (disabledChannels.includes(message.channel.id) || globalDisabled.includes(message.channel.id)) {
             return;
         }
     }
@@ -6229,36 +6221,37 @@ client.on('messageCreate', async (message) => {
             userStreaks: new Map(),
             lastUserId: null,
             lastWord: randomWord,
-            usedWords: new Set([randomWord]),
-            timeout: setTimeout(() => {
-                const endGame = noituGames.get(channelId);
-                if (!endGame) return;
-                noituGames.delete(channelId);
-                const lastWordEnd = endGame.lastWord.split(' ')[1].toUpperCase();
-                const embed = new EmbedBuilder()
-                    .setTitle('🛑 TỔNG KẾT NỐI TỪ TIẾNG VIỆT')
-                    .setDescription(`⏰ Hết 60 giây không ai nối được chữ **${lastWordEnd}**.\nTrò chơi đã kết thúc!`)
-                    .addFields(
-                        { name: '🔥 Tổng số từ đã nối', value: `**${endGame.streak}** từ`, inline: true },
-                        { name: '🏆 Bảng xếp hạng', value: 'Chưa có ai tham gia.', inline: false }
-                    )
-                    .setColor('#FF4500')
-                    .setTimestamp();
-                message.channel.send({ embeds: [embed] }).catch(() => {});
-            }, 60000)
+            usedWords: new Set([randomWord])
         };
         noituGames.set(message.channelId, game);
         globalUsedWords.set(randomWord, game.matchId);
         
-        return message.channel.send(`🎮 **TRÒ CHƠI NỐI TỪ TIẾNG VIỆT BẮT ĐẦU!**\nTừ khởi đầu: **${randomWord.toUpperCase()}**\n\nHãy nối tiếp bằng một từ ghép 2 chữ bắt đầu là **${randomWord.split(' ')[1].toUpperCase()}** nhé!\n_Thưởng 1,000 🪙 mỗi từ đúng. Hãy xem các bạn nối được bao nhiêu từ!_`).catch(() => {});
+        return message.channel.send(`🎮 **TRÒ CHƠI NỐI TỪ TIẾNG VIỆT BẮT ĐẦU!**\nTừ khởi đầu: **${randomWord.toUpperCase()}**\n\nHãy nối tiếp bằng một từ ghép 2 chữ bắt đầu là **${randomWord.split(' ')[1].toUpperCase()}** nhé!\n_Thưởng 1,000 🪙 mỗi từ đúng (Game không giới hạn thời gian, dùng lệnh ${prefix}stopnoitu để kết thúc)._`).catch(() => {});
     }
 
     if (content === `${prefix}stopnoitu`) {
         if (!noituGames.has(message.channelId)) return message.reply('❌ Không có trò chơi Nối Từ Tiếng Việt nào đang diễn ra.');
         const game = noituGames.get(message.channelId);
-        clearTimeout(game.timeout);
         noituGames.delete(message.channelId);
-        return message.reply('🛑 Trò chơi Nối Từ Tiếng Việt đã kết thúc.').catch(() => {});
+        
+        const sortedPlayers = Array.from(game.userStreaks.entries()).sort((a, b) => b[1] - a[1]);
+        let leaderboardText = sortedPlayers.map((entry, index) => {
+            let medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '🏅';
+            return `${medal} <@${entry[0]}>: **${entry[1]}** từ`;
+        }).join('\n');
+        if (!leaderboardText) leaderboardText = "Chưa có ai ghi điểm.";
+        
+        const embed = new EmbedBuilder()
+            .setTitle('🛑 TỔNG KẾT NỐI TỪ TIẾNG VIỆT')
+            .setDescription(`Trò chơi đã kết thúc!`)
+            .addFields(
+                { name: '🔥 Tổng số từ đã nối', value: `**${game.streak}** từ`, inline: true },
+                { name: '🏆 Bảng xếp hạng', value: leaderboardText, inline: false }
+            )
+            .setColor('#FF4500')
+            .setTimestamp();
+            
+        return message.channel.send({ embeds: [embed] }).catch(() => {});
     }
 
     if (content === `${prefix}noituen`) {
@@ -6277,36 +6270,37 @@ client.on('messageCreate', async (message) => {
             userStreaks: new Map(),
             lastUserId: null,
             lastWord: randomWord,
-            usedWords: new Set([randomWord]),
-            timeout: setTimeout(() => {
-                const endGame = noituEnGames.get(channelId);
-                if (!endGame) return;
-                noituEnGames.delete(channelId);
-                const lastCharEnd = endGame.lastWord[endGame.lastWord.length - 1].toUpperCase();
-                const embed = new EmbedBuilder()
-                    .setTitle('🛑 ENGLISH WORD CHAIN — GAME OVER')
-                    .setDescription(`⏰ 60 seconds passed — no one could chain from letter **${lastCharEnd}**.\nGame ended!`)
-                    .addFields(
-                        { name: '🔥 Total words chained', value: `**${endGame.streak}** words`, inline: true },
-                        { name: '🏆 Leaderboard', value: 'No one participated.', inline: false }
-                    )
-                    .setColor('#3498DB')
-                    .setTimestamp();
-                message.channel.send({ embeds: [embed] }).catch(() => {});
-            }, 60000)
+            usedWords: new Set([randomWord])
         };
         noituEnGames.set(message.channelId, game);
         globalUsedEnWords.set(randomWord, game.matchId);
         
-        return message.channel.send(`🔤 **ENGLISH WORD CHAIN STARTS!**\nFirst word: **${randomWord.toUpperCase()}**\n\nType a word that starts with the letter **${lastChar}** (the last letter of the previous word)!\n_Reward: 1,000 🪙 per correct word. 60 seconds timeout to end._`).catch(() => {});
+        return message.channel.send(`🔤 **ENGLISH WORD CHAIN STARTS!**\nFirst word: **${randomWord.toUpperCase()}**\n\nType a word that starts with the letter **${lastChar}** (the last letter of the previous word)!\n_Reward: 1,000 🪙 per correct word (No time limit, use ${prefix}stopnoituen to end)._`).catch(() => {});
     }
 
     if (content === `${prefix}stopnoituen`) {
         if (!noituEnGames.has(message.channelId)) return message.reply('❌ Không có trò chơi Nối Từ Tiếng Anh nào đang diễn ra.');
         const game = noituEnGames.get(message.channelId);
-        clearTimeout(game.timeout);
         noituEnGames.delete(message.channelId);
-        return message.reply('🛑 English Word Chain has ended.').catch(() => {});
+        
+        const sortedPlayers = Array.from(game.userStreaks.entries()).sort((a, b) => b[1] - a[1]);
+        let leaderboardText = sortedPlayers.map((entry, index) => {
+            let medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '🏅';
+            return `${medal} <@${entry[0]}>: **${entry[1]}** words`;
+        }).join('\n');
+        if (!leaderboardText) leaderboardText = "No one scored.";
+        
+        const embed = new EmbedBuilder()
+            .setTitle('🛑 ENGLISH WORD CHAIN — GAME OVER')
+            .setDescription(`Game ended manually!`)
+            .addFields(
+                { name: '🔥 Total words chained', value: `**${game.streak}** words`, inline: true },
+                { name: '🏆 Leaderboard', value: leaderboardText, inline: false }
+            )
+            .setColor('#3498DB')
+            .setTimestamp();
+            
+        return message.channel.send({ embeds: [embed] }).catch(() => {});
     }
 
     // --- WELCOME COMMANDS ---
@@ -6318,9 +6312,7 @@ client.on('messageCreate', async (message) => {
 
     if (content === `${prefix}disablewelcome`) {
         if (!message.member.permissions.has(PermissionsBitField.Flags.Administrator)) return message.reply('❌ Bạn không có quyền!');
-        const config = loadConfig();
-        config.welcomeChannelId = 'disabled';
-        saveConfig(config);
+        updateGuildConfig(message.guildId, 'welcomeChannelId', 'disabled');
         return message.reply('✅ Đã **TẮT** tính năng chào mừng thành viên mới! (Dùng lệnh setwelcome để bật lại)');
     }
 
@@ -6331,30 +6323,22 @@ client.on('messageCreate', async (message) => {
         const channelMention = args[0];
         
         if (!channelMention || !channelMention.startsWith('<#') || !channelMention.endsWith('>')) {
-            return message.reply(`❌ Sai cú pháp! Vui lòng dùng: \`${prefix}setwelcome #kênh [lời chào] [link_ảnh]\``);
+            return message.reply(`❌ Sai cú pháp! Vui lòng dùng: \`${prefix}setwelcome #kênh [@role]\``);
         }
         
         const channelId = channelMention.replace('<#', '').replace('>', '');
-        let messageStr = '';
-        let image = null;
+        const roleMention = args[1];
         
-        if (args.length > 1) {
-            const lastArg = args[args.length - 1];
-            if (lastArg.startsWith('http')) {
-                image = lastArg;
-                messageStr = args.slice(1, -1).join(' ');
-            } else {
-                messageStr = args.slice(1).join(' ');
-            }
+        updateGuildConfig(message.guildId, 'welcomeChannelId', channelId);
+        
+        if (roleMention && roleMention.startsWith('<@&') && roleMention.endsWith('>')) {
+            const roleId = roleMention.replace('<@&', '').replace('>', '');
+            updateGuildConfig(message.guildId, 'welcomeRoleId', roleId);
+            return message.reply(`✅ Đã cài đặt chào mừng tại <#${channelId}> và tag role <@&${roleId}>`);
+        } else {
+            updateGuildConfig(message.guildId, 'welcomeRoleId', null);
+            return message.reply(`✅ Đã cài đặt chào mừng tại <#${channelId}> với role tag mặc định`);
         }
-        
-        const config = loadConfig();
-        config.welcomeChannelId = channelId;
-        if (messageStr) config.welcomeMessage = messageStr;
-        if (image) config.welcomeImage = image;
-        saveConfig(config);
-        
-        return message.reply(`✅ Đã cài đặt chào mừng!\n- **Kênh:** <#${channelId}>\n- **Lời chào:** ${messageStr || 'Mặc định'}\n- **Ảnh:** ${image || 'Không có'}`);
     }
 
     // --- RPG EXPANSION COMMANDS ---
@@ -6441,7 +6425,7 @@ client.on('messageCreate', async (message) => {
         const args = message.content.split(' ').filter(Boolean);
         const newPrefix = args[1];
         if (!newPrefix) return message.reply(`❌ Cú pháp sai! Vui lòng dùng: \`${prefix}setprefix <dấu mới>\``);
-        savePrefix(newPrefix);
+        savePrefix(message.guildId, newPrefix);
         return message.reply(`✅ Đã đổi tiền tố lệnh thành: **${newPrefix}**`);
     }
 
@@ -6450,11 +6434,11 @@ client.on('messageCreate', async (message) => {
         if (!message.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
             return message.reply('❌ Chỉ Quản trị viên mới có quyền dùng lệnh này!');
         }
-        const config = loadConfig();
-        if (!config.disabledChannels) config.disabledChannels = [];
-        if (!config.disabledChannels.includes(message.channel.id)) {
-            config.disabledChannels.push(message.channel.id);
-            saveConfig(config);
+        const config = getGuildConfig(message.guildId);
+        const disabledChannels = config.disabledChannels || [];
+        if (!disabledChannels.includes(message.channel.id)) {
+            disabledChannels.push(message.channel.id);
+            updateGuildConfig(message.guildId, 'disabledChannels', disabledChannels);
             return message.reply(`✅ Đã vô hiệu hóa bot tại kênh này. Bot sẽ không nhận lệnh ở đây nữa (trừ lệnh \`${prefix}enable\`).`);
         } else {
             return message.reply('⚠️ Kênh này đã bị vô hiệu hóa từ trước rồi!');
@@ -6465,11 +6449,11 @@ client.on('messageCreate', async (message) => {
         if (!message.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
             return message.reply('❌ Chỉ Quản trị viên mới có quyền dùng lệnh này!');
         }
-        const config = loadConfig();
-        if (!config.disabledChannels) config.disabledChannels = [];
-        if (config.disabledChannels.includes(message.channel.id)) {
-            config.disabledChannels = config.disabledChannels.filter(id => id !== message.channel.id);
-            saveConfig(config);
+        const config = getGuildConfig(message.guildId);
+        let disabledChannels = config.disabledChannels || [];
+        if (disabledChannels.includes(message.channel.id)) {
+            disabledChannels = disabledChannels.filter(id => id !== message.channel.id);
+            updateGuildConfig(message.guildId, 'disabledChannels', disabledChannels);
             return message.reply(`✅ Đã kích hoạt lại bot tại kênh này. Bot sẽ nhận lệnh bình thường.`);
         } else {
             return message.reply('⚠️ Kênh này chưa bị vô hiệu hóa!');
@@ -6517,9 +6501,7 @@ client.on('messageCreate', async (message) => {
         }
         const targetChannel = message.mentions.channels.first();
         if (!targetChannel) return message.reply(`❌ Cú pháp sai! Vui lòng dùng: \`${prefix}setspawnchannel #ten-kenh\``);
-        const config = loadConfig();
-        config.spawnChannelId = targetChannel.id;
-        saveConfig(config);
+        updateGuildConfig(message.guildId, 'spawnChannelId', targetChannel.id);
         return message.reply(`✅ Đã thiết lập kênh xuất hiện Pokemon hoang dã tại ${targetChannel}!`);
     }
 
@@ -6530,9 +6512,7 @@ client.on('messageCreate', async (message) => {
         }
         const targetChannel = message.mentions.channels.first();
         if (!targetChannel) return message.reply(`❌ Cú pháp sai! Vui lòng dùng: \`${prefix}setj2c #ten-kenh\``);
-        const config = loadConfig();
-        config.j2cChannelId = targetChannel.id;
-        saveConfig(config);
+        updateGuildConfig(message.guildId, 'j2cChannelId', targetChannel.id);
         return message.reply(`✅ Đã thiết lập kênh gốc Join to Create tại ${targetChannel}!`);
     }
 
@@ -6997,9 +6977,7 @@ client.on('messageCreate', async (message) => {
         let targetChannel = message.mentions.channels.first();
         if (!targetChannel) targetChannel = message.channel;
         
-        const config = loadConfig();
-        config.lodeChannelId = targetChannel.id;
-        saveConfig(config);
+        updateGuildConfig(message.guildId, 'lodeChannelId', targetChannel.id);
         
         return message.reply(`✅ Đã thiết lập kênh xổ số lô đề 18h30 tại <#${targetChannel.id}>`);
     }
@@ -8003,7 +7981,7 @@ client.on('messageCreate', async (message) => {
 
     // !addcoin @user <amount>
     if (content.startsWith(`${prefix}addcoin`)) {
-        if (!isAdmin) return message.reply('❌ Bạn không có quyền!');
+        if (message.author.id !== ADMIN_ID) return message.reply('❌ Lệnh này chỉ dành riêng cho Chủ Bot!');
         const target = message.mentions.users.first();
         const amount = parseInt(message.content.split(' ')[2]);
         if (!target || isNaN(amount) || amount < 1) return message.reply(`❌ Cú pháp: \`${prefix}addcoin @user <số>\``);
@@ -8015,7 +7993,7 @@ client.on('messageCreate', async (message) => {
 
     // !removecoin @user <amount>
     if (content.startsWith(`${prefix}removecoin`)) {
-        if (!isAdmin) return message.reply('❌ Bạn không có quyền!');
+        if (message.author.id !== ADMIN_ID) return message.reply('❌ Lệnh này chỉ dành riêng cho Chủ Bot!');
         const target = message.mentions.users.first();
         const amount = parseInt(message.content.split(' ')[2]);
         if (!target || isNaN(amount) || amount < 1) return message.reply(`❌ Cú pháp: \`${prefix}removecoin @user <số>\``);
@@ -8027,7 +8005,7 @@ client.on('messageCreate', async (message) => {
 
     // !setcoin @user <amount>
     if (content.startsWith(`${prefix}setcoin`)) {
-        if (!isAdmin) return message.reply('❌ Bạn không có quyền!');
+        if (message.author.id !== ADMIN_ID) return message.reply('❌ Lệnh này chỉ dành riêng cho Chủ Bot!');
         const target = message.mentions.users.first();
         const amount = parseInt(message.content.split(' ')[2]);
         if (!target || isNaN(amount) || amount < 0) return message.reply(`❌ Cú pháp: \`${prefix}setcoin @user <số>\``);
@@ -8039,7 +8017,7 @@ client.on('messageCreate', async (message) => {
 
     // !resetcoin @user
     if (content.startsWith(`${prefix}resetcoin`)) {
-        if (!isAdmin) return message.reply('❌ Bạn không có quyền!');
+        if (message.author.id !== ADMIN_ID) return message.reply('❌ Lệnh này chỉ dành riêng cho Chủ Bot!');
         const target = message.mentions.users.first();
         if (!target) return message.reply(`❌ Cú pháp: \`${prefix}resetcoin @user\``);
         return awaitConfirmation(message, message.author.id, `Bạn CHẮC CHẮN muốn **RESET** tài khoản của <@${target.id}> về 500,000 🪙?`, async () => {
@@ -8052,7 +8030,7 @@ client.on('messageCreate', async (message) => {
 
     // !resetallcoin
     if (content.startsWith(`${prefix}resetallcoin`)) {
-        if (!isAdmin) return message.reply('❌ Bạn không có quyền!');
+        if (message.author.id !== ADMIN_ID) return message.reply('❌ Lệnh này chỉ dành riêng cho Chủ Bot!');
         return awaitConfirmation(message, message.author.id, `Bạn CHẮC CHẮN muốn **RESET TẤT CẢ** tài khoản server về 500,000 🪙? Hành động này không thể hoàn tác!`, async () => {
             const data = loadCoins();
             for (const userId in data) {
@@ -8091,11 +8069,12 @@ client.on('messageCreate', async (message) => {
 
     if (content.startsWith(`${prefix}togglevoice`)) {
         if (!isAdmin) return message.reply('❌ Bạn không có quyền Administrator để dùng lệnh này!');
-        const config = loadConfig();
-        const currentState = config.voiceNotifyEnabled !== false;
-        config.voiceNotifyEnabled = !currentState;
-        saveConfig(config);
-        return message.reply(`✅ Đã **${config.voiceNotifyEnabled ? 'BẬT' : 'TẮT'}** thông báo người ra vào kênh thoại.`);
+        const globalConfig = loadConfig();
+        const config = getGuildConfig(message.guildId);
+        const currentState = (config.voiceNotifyEnabled !== undefined) ? config.voiceNotifyEnabled !== false : globalConfig.voiceNotifyEnabled !== false;
+        const newState = !currentState;
+        updateGuildConfig(message.guildId, 'voiceNotifyEnabled', newState);
+        return message.reply(`✅ Đã **${newState ? 'BẬT' : 'TẮT'}** thông báo người ra vào kênh thoại.`);
     }
 
 });
@@ -9899,8 +9878,108 @@ client.on('interactionCreate', async (interaction) => {
     }
 }
 
+    if (interaction.isButton() && (interaction.customId.startsWith('welcome_edit_') || interaction.customId.startsWith('pokemon_edit_') || interaction.customId.startsWith('rpg_edit_') || interaction.customId.startsWith('pinggame_edit_') || interaction.customId === 'pokemon_send' || interaction.customId === 'rpg_send')) {
+        const config = getGuildConfig(interaction.guildId);
+        
+        if (interaction.customId === 'welcome_edit_basic') {
+            const modal = new ModalBuilder().setCustomId('welcome_edit_basic').setTitle('Sửa Tiêu đề & Nội dung');
+            const titleInput = new TextInputBuilder().setCustomId('title_input').setLabel('Tiêu đề').setStyle(TextInputStyle.Short).setValue(config.welcomeTitle || '').setRequired(false);
+            const messageInput = new TextInputBuilder().setCustomId('message_input').setLabel('Nội dung ({user}, {server})').setStyle(TextInputStyle.Paragraph).setValue(config.welcomeMessage || '').setRequired(false);
+            modal.addComponents(new ActionRowBuilder().addComponents(titleInput), new ActionRowBuilder().addComponents(messageInput));
+            return interaction.showModal(modal);
+        }
+        if (interaction.customId === 'welcome_edit_roles') {
+            const modal = new ModalBuilder().setCustomId('welcome_edit_roles').setTitle('Sửa Role Ping');
+            const rolesInput = new TextInputBuilder().setCustomId('roles_input').setLabel('Tag các role muốn ping (VD: @Role1)').setStyle(TextInputStyle.Short).setValue(config.welcomePingRoles || '').setRequired(false);
+            modal.addComponents(new ActionRowBuilder().addComponents(rolesInput));
+            return interaction.showModal(modal);
+        }
+        if (interaction.customId === 'pokemon_edit_basic') {
+            const modal = new ModalBuilder().setCustomId('pokemon_edit_basic').setTitle('Sửa Tiêu đề & Nội dung Pokemon');
+            const titleInput = new TextInputBuilder().setCustomId('title_input').setLabel('Tiêu đề').setStyle(TextInputStyle.Short).setValue(config.pokemonRoleTitle || '').setRequired(false);
+            const messageInput = new TextInputBuilder().setCustomId('message_input').setLabel('Nội dung hướng dẫn').setStyle(TextInputStyle.Paragraph).setValue(config.pokemonRoleMessage || '').setRequired(false);
+            modal.addComponents(new ActionRowBuilder().addComponents(titleInput), new ActionRowBuilder().addComponents(messageInput));
+            return interaction.showModal(modal);
+        }
+        if (interaction.customId === 'rpg_edit_basic') {
+            const modal = new ModalBuilder().setCustomId('rpg_edit_basic').setTitle('Sửa Tiêu đề & Nội dung RPG');
+            const titleInput = new TextInputBuilder().setCustomId('title_input').setLabel('Tiêu đề').setStyle(TextInputStyle.Short).setValue(config.rpgRoleTitle || '').setRequired(false);
+            const messageInput = new TextInputBuilder().setCustomId('message_input').setLabel('Nội dung hướng dẫn').setStyle(TextInputStyle.Paragraph).setValue(config.rpgRoleMessage || '').setRequired(false);
+            modal.addComponents(new ActionRowBuilder().addComponents(titleInput), new ActionRowBuilder().addComponents(messageInput));
+            return interaction.showModal(modal);
+        }
+        if (interaction.customId === 'pinggame_edit_basic') {
+            const modal = new ModalBuilder().setCustomId('pinggame_edit_basic').setTitle('Sửa Nội dung Ping Game');
+            const defaultContent = `Đây là kênh để ping game trong server\nCách ping là @mention game muốn chơi lên ví dụ như là \`@TFT\` ....\nCảm ơn đã đọc ạ`;
+            const messageInput = new TextInputBuilder().setCustomId('message_input').setLabel('Nội dung Auto-Message').setStyle(TextInputStyle.Paragraph).setValue(config.pingGameMessage || defaultContent).setRequired(true);
+            modal.addComponents(new ActionRowBuilder().addComponents(messageInput));
+            return interaction.showModal(modal);
+        }
+        if (interaction.customId === 'pokemon_send' || interaction.customId === 'rpg_send') {
+            const isPokemon = interaction.customId === 'pokemon_send';
+            const title = isPokemon ? (config.pokemonRoleTitle || '🔔 Đăng Ký Nhận Thông Báo Pokemon') : (config.rpgRoleTitle || '⚔️ Đăng Ký Nhận Thông Báo RPG');
+            const msg = isPokemon ? (config.pokemonRoleMessage || 'Bấm vào nút bên dưới để nhận (hoặc hủy) role **Pokemon**.\nBạn sẽ được thông báo ngay lập tức mỗi khi có Pokemon Huyền Thoại xuất hiện!') : (config.rpgRoleMessage || 'Bấm vào nút bên dưới để nhận (hoặc hủy) role **RPG Player**.\nBạn sẽ được tag mỗi khi Raid Boss xuất hiện để không bỏ lỡ phần thưởng!');
+            const color = isPokemon ? '#FF0000' : '#FFA500';
+            const embed = new EmbedBuilder().setTitle(title).setDescription(msg).setColor(color);
+            const row = new ActionRowBuilder().addComponents(
+                new ButtonBuilder().setCustomId(isPokemon ? 'get_pokemon_role' : 'get_rpg_role').setLabel(isPokemon ? 'Nhận / Hủy Role Pokemon' : 'Nhận / Hủy Role RPG').setStyle(isPokemon ? ButtonStyle.Primary : ButtonStyle.Success).setEmoji(isPokemon ? '🐾' : '⚔️')
+            );
+            await interaction.channel.send({ embeds: [embed], components: [row] });
+            return interaction.message.delete().catch(() => {});
+        }
+    }
+
     // === MODAL SUBMIT ===
     if (interaction.isModalSubmit()) {
+        if (interaction.customId.startsWith('welcome_edit_') || interaction.customId.startsWith('pokemon_edit_') || interaction.customId.startsWith('rpg_edit_') || interaction.customId.startsWith('pinggame_edit_')) {
+            const config = getGuildConfig(interaction.guildId);
+            
+            if (interaction.customId === 'welcome_edit_basic') {
+                const newTitle = interaction.fields.getTextInputValue('title_input');
+                const newMessage = interaction.fields.getTextInputValue('message_input');
+                updateGuildConfig(interaction.guildId, 'welcomeTitle', newTitle || null);
+                updateGuildConfig(interaction.guildId, 'welcomeMessage', newMessage || null);
+            } else if (interaction.customId === 'welcome_edit_roles') {
+                const newRoles = interaction.fields.getTextInputValue('roles_input');
+                updateGuildConfig(interaction.guildId, 'welcomePingRoles', newRoles || null);
+            } else if (interaction.customId === 'pokemon_edit_basic') {
+                const newTitle = interaction.fields.getTextInputValue('title_input');
+                const newMessage = interaction.fields.getTextInputValue('message_input');
+                updateGuildConfig(interaction.guildId, 'pokemonRoleTitle', newTitle || null);
+                updateGuildConfig(interaction.guildId, 'pokemonRoleMessage', newMessage || null);
+            } else if (interaction.customId === 'rpg_edit_basic') {
+                const newTitle = interaction.fields.getTextInputValue('title_input');
+                const newMessage = interaction.fields.getTextInputValue('message_input');
+                updateGuildConfig(interaction.guildId, 'rpgRoleTitle', newTitle || null);
+                updateGuildConfig(interaction.guildId, 'rpgRoleMessage', newMessage || null);
+            } else if (interaction.customId === 'pinggame_edit_basic') {
+                const newMessage = interaction.fields.getTextInputValue('message_input');
+                updateGuildConfig(interaction.guildId, 'pingGameMessage', newMessage || null);
+            }
+            
+            const updatedConfig = getGuildConfig(interaction.guildId);
+            let embed;
+            if (interaction.customId.startsWith('welcome_edit_')) {
+                const title = updatedConfig.welcomeTitle || '🎉 Welcome {user} 🎉';
+                const msg = (updatedConfig.welcomeMessage || 'Chào mừng bạn đến với {server}!');
+                const roles = updatedConfig.welcomePingRoles || 'Mặc định';
+                embed = new EmbedBuilder().setTitle('⚙️ BẢNG ĐIỀU KHIỂN CHÀO MỪNG').setDescription(`✅ Đã cập nhật thành công!\n\n**Bản xem trước dữ liệu:**\n- **Tiêu đề:** ${title}\n- **Nội dung:** ${msg.substring(0, 100)}...\n- **Role Ping:** ${roles}\n\n👇 **Sử dụng các nút bên dưới để tiếp tục tuỳ chỉnh.**`).setColor('#2b2d31');
+            } else if (interaction.customId.startsWith('pokemon_edit_')) {
+                const title = updatedConfig.pokemonRoleTitle || '🔔 Đăng Ký Nhận Thông Báo Pokemon';
+                const msg = updatedConfig.pokemonRoleMessage || 'Bấm vào nút bên dưới để nhận (hoặc hủy) role **Pokemon**.\nBạn sẽ được thông báo ngay lập tức mỗi khi có Pokemon Huyền Thoại xuất hiện!';
+                embed = new EmbedBuilder().setTitle('⚙️ BẢNG ĐIỀU KHIỂN POKEMON').setDescription(`✅ Đã cập nhật thành công!\n\n**Bản xem trước dữ liệu:**\n- **Tiêu đề:** ${title}\n- **Nội dung:** ${msg.substring(0, 100)}...\n\n👇 **Kiểm tra xem trước, sau đó bấm Gửi để đăng bảng!**`).setColor('#FF0000');
+            } else if (interaction.customId.startsWith('rpg_edit_')) {
+                const title = updatedConfig.rpgRoleTitle || '⚔️ Đăng Ký Nhận Thông Báo RPG';
+                const msg = updatedConfig.rpgRoleMessage || 'Bấm vào nút bên dưới để nhận (hoặc hủy) role **RPG Player**.\nBạn sẽ được tag mỗi khi Raid Boss xuất hiện để không bỏ lỡ phần thưởng!';
+                embed = new EmbedBuilder().setTitle('⚙️ BẢNG ĐIỀU KHIỂN RPG').setDescription(`✅ Đã cập nhật thành công!\n\n**Bản xem trước dữ liệu:**\n- **Tiêu đề:** ${title}\n- **Nội dung:** ${msg.substring(0, 100)}...\n\n👇 **Kiểm tra xem trước, sau đó bấm Gửi để đăng bảng!**`).setColor('#FFA500');
+            } else if (interaction.customId.startsWith('pinggame_edit_')) {
+                const msg = updatedConfig.pingGameMessage || 'Nội dung mặc định';
+                embed = new EmbedBuilder().setTitle('⚙️ BẢNG ĐIỀU KHIỂN PING GAME').setDescription(`✅ Đã cập nhật thành công!\n\n**Bản xem trước dữ liệu:**\n- **Nội dung:** ${msg.substring(0, 100)}...\n\n👇 **Sử dụng các nút bên dưới để tiếp tục tuỳ chỉnh.**`).setColor('#3498DB');
+            }
+                
+            return interaction.update({ embeds: [embed] }).catch(() => {});
+        }
+
         if (interaction.customId === 'j2c_name_modal') {
             const newName = interaction.fields.getTextInputValue('new_name');
             await interaction.channel.setName(newName).catch(() => {});
@@ -10156,7 +10235,7 @@ client.on('interactionCreate', async (interaction) => {
 
     // --- HELP ---
     if (commandName === 'help') {
-        const prefix = getPrefix();
+        const prefix = getPrefix(interaction.guildId);
         const pages = buildHelpPages(prefix);
         const menu = buildHelpMenu();
         const row = new ActionRowBuilder().addComponents(menu);
@@ -10424,18 +10503,37 @@ client.on('interactionCreate', async (interaction) => {
 
     if (commandName === 'setspawnchannel') {
         const targetChannel = interaction.options.getChannel('channel');
-        const config = loadConfig();
-        config.spawnChannelId = targetChannel.id;
-        saveConfig(config);
+        updateGuildConfig(interaction.guildId, 'spawnChannelId', targetChannel.id);
         return interaction.reply({ content: `✅ Đã thiết lập kênh xuất hiện Pokemon hoang dã tại ${targetChannel}!` });
     }
 
     if (commandName === 'setj2c') {
         const targetChannel = interaction.options.getChannel('channel');
-        const config = loadConfig();
-        config.j2cChannelId = targetChannel.id;
-        saveConfig(config);
+        updateGuildConfig(interaction.guildId, 'j2cChannelId', targetChannel.id);
         return interaction.reply({ content: `✅ Đã thiết lập kênh gốc Join to Create tại ${targetChannel}!` });
+    }
+
+    if (commandName === 'setpinggame') {
+        if (!interaction.member || !interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) 
+            return interaction.reply({ content: '❌ Bạn không có quyền!', flags: MessageFlags.Ephemeral });
+        
+        const channel = interaction.options.getChannel('channel');
+        updateGuildConfig(interaction.guildId, 'pingGameChannelId', channel.id);
+        
+        const config = getGuildConfig(interaction.guildId);
+        const defaultContent = `Đây là kênh để ping game trong server\nCách ping là @mention game muốn chơi lên ví dụ như là \`@TFT\` ....\nCảm ơn đã đọc ạ`;
+        const msg = config.pingGameMessage || defaultContent;
+
+        const embed = new EmbedBuilder()
+            .setTitle('⚙️ BẢNG ĐIỀU KHIỂN PING GAME')
+            .setDescription(`✅ Đã thiết lập kênh auto-message tại: ${channel}\n\n**Bản xem trước dữ liệu:**\n- **Nội dung:** ${msg.substring(0, 100)}...\n\n👇 **Sử dụng các nút bên dưới để tuỳ chỉnh nội dung.**`)
+            .setColor('#3498DB');
+
+        const row = new ActionRowBuilder().addComponents(
+            new ButtonBuilder().setCustomId('pinggame_edit_basic').setLabel('Sửa Nội dung hướng dẫn').setStyle(ButtonStyle.Primary)
+        );
+
+        return interaction.reply({ embeds: [embed], components: [row], flags: MessageFlags.Ephemeral });
     }
 
     if (commandName === 'setwelcome') {
@@ -10443,25 +10541,31 @@ client.on('interactionCreate', async (interaction) => {
             return interaction.reply({ content: '❌ Bạn không có quyền!', flags: MessageFlags.Ephemeral });
         
         const channel = interaction.options.getChannel('channel');
-        const messageStr = interaction.options.getString('message');
-        const image = interaction.options.getString('image');
+        updateGuildConfig(interaction.guildId, 'welcomeChannelId', channel.id);
         
-        const config = loadConfig();
-        config.welcomeChannelId = channel.id;
-        if (messageStr) config.welcomeMessage = messageStr;
-        if (image) config.welcomeImage = image;
-        saveConfig(config);
-        
-        return interaction.reply({ content: `✅ Đã cài đặt chào mừng!\n- **Kênh:** ${channel}\n- **Lời chào:** ${messageStr || 'Mặc định'}\n- **Ảnh:** ${image || 'Không có'}`, flags: MessageFlags.Ephemeral });
+        const config = getGuildConfig(interaction.guildId);
+        const title = config.welcomeTitle || '🎉 Welcome {user} 🎉';
+        const msg = config.welcomeMessage || 'Chào mừng bạn đến với {server}!';
+        const roles = config.welcomePingRoles || 'Mặc định';
+
+        const embed = new EmbedBuilder()
+            .setTitle('⚙️ BẢNG ĐIỀU KHIỂN CHÀO MỪNG')
+            .setDescription(`✅ Đã thiết lập kênh chào mừng tại: ${channel}\n\n**Bản xem trước dữ liệu:**\n- **Tiêu đề:** ${title}\n- **Nội dung:** ${msg.substring(0, 100)}...\n- **Role Ping:** ${roles}\n\n👇 **Sử dụng các nút bên dưới để tuỳ chỉnh nội dung.**`)
+            .setColor('#2b2d31');
+
+        const row = new ActionRowBuilder().addComponents(
+            new ButtonBuilder().setCustomId('welcome_edit_basic').setLabel('Sửa Tiêu đề & Nội dung').setStyle(ButtonStyle.Primary),
+            new ButtonBuilder().setCustomId('welcome_edit_roles').setLabel('Sửa Role Ping').setStyle(ButtonStyle.Secondary)
+        );
+
+        return interaction.reply({ embeds: [embed], components: [row], flags: MessageFlags.Ephemeral });
     }
 
     if (commandName === 'disablewelcome') {
         if (!interaction.member || !interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) 
             return interaction.reply({ content: '❌ Bạn không có quyền!', flags: MessageFlags.Ephemeral });
         
-        const config = loadConfig();
-        config.welcomeChannelId = 'disabled';
-        saveConfig(config);
+        updateGuildConfig(interaction.guildId, 'welcomeChannelId', 'disabled');
         
         return interaction.reply({ content: `✅ Đã **TẮT** tính năng chào mừng thành viên mới! (Gõ lại /setwelcome để bật lại)`, flags: MessageFlags.Ephemeral });
     }
@@ -10492,21 +10596,23 @@ client.on('interactionCreate', async (interaction) => {
             }
         }
         
-        const config = loadConfig();
-        config.pokemonRoleId = role.id;
-        saveConfig(config);
+        updateGuildConfig(interaction.guildId, 'pokemonRoleId', role.id);
+        
+        const config = getGuildConfig(interaction.guildId);
+        const title = config.pokemonRoleTitle || '🔔 Đăng Ký Nhận Thông Báo Pokemon';
+        const msg = config.pokemonRoleMessage || 'Bấm vào nút bên dưới để nhận (hoặc hủy) role **Pokemon**.\nBạn sẽ được thông báo ngay lập tức mỗi khi có Pokemon Huyền Thoại xuất hiện!';
         
         const embed = new EmbedBuilder()
-            .setTitle('🔔 Đăng Ký Nhận Thông Báo Pokemon')
-            .setDescription('Bấm vào nút bên dưới để nhận (hoặc hủy) role **Pokemon**.\nBạn sẽ được thông báo ngay lập tức mỗi khi có Pokemon Huyền Thoại xuất hiện!')
+            .setTitle('⚙️ BẢNG ĐIỀU KHIỂN POKEMON')
+            .setDescription(`✅ Đã tạo role thành công!\n\n**Bản xem trước dữ liệu:**\n- **Tiêu đề:** ${title}\n- **Nội dung:** ${msg.substring(0, 100)}...\n\n👇 **Sử dụng các nút bên dưới để tuỳ chỉnh, sau đó bấm Gửi!**`)
             .setColor('#FF0000');
             
         const row = new ActionRowBuilder().addComponents(
-            new ButtonBuilder().setCustomId('get_pokemon_role').setLabel('Nhận / Hủy Role Pokemon').setStyle(ButtonStyle.Primary).setEmoji('🐾')
+            new ButtonBuilder().setCustomId('pokemon_edit_basic').setLabel('Sửa Tiêu đề & Nội dung').setStyle(ButtonStyle.Primary),
+            new ButtonBuilder().setCustomId('pokemon_send').setLabel('✅ Gửi bảng đăng ký').setStyle(ButtonStyle.Success)
         );
         
-        await interaction.channel.send({ embeds: [embed], components: [row] });
-        return interaction.reply({ content: '✅ Đã cài đặt thành công role Pokemon và gửi bảng đăng ký!', flags: MessageFlags.Ephemeral });
+        return interaction.reply({ embeds: [embed], components: [row], flags: MessageFlags.Ephemeral });
     }
 
     if (commandName === 'senddm') {
@@ -10542,21 +10648,23 @@ client.on('interactionCreate', async (interaction) => {
             }
         }
         
-        const config = loadConfig();
-        config.rpgRoleId = role.id;
-        saveConfig(config);
+        updateGuildConfig(interaction.guildId, 'rpgRoleId', role.id);
+        
+        const config = getGuildConfig(interaction.guildId);
+        const title = config.rpgRoleTitle || '⚔️ Đăng Ký Nhận Thông Báo RPG';
+        const msg = config.rpgRoleMessage || 'Bấm vào nút bên dưới để nhận (hoặc hủy) role **RPG Player**.\nBạn sẽ được tag mỗi khi Raid Boss xuất hiện để không bỏ lỡ phần thưởng!';
         
         const embed = new EmbedBuilder()
-            .setTitle('⚔️ Đăng Ký Nhận Thông Báo RPG')
-            .setDescription('Bấm vào nút bên dưới để nhận (hoặc hủy) role **RPG Player**.\nBạn sẽ được tag mỗi khi Raid Boss xuất hiện để không bỏ lỡ phần thưởng!')
+            .setTitle('⚙️ BẢNG ĐIỀU KHIỂN RPG')
+            .setDescription(`✅ Đã tạo role thành công!\n\n**Bản xem trước dữ liệu:**\n- **Tiêu đề:** ${title}\n- **Nội dung:** ${msg.substring(0, 100)}...\n\n👇 **Sử dụng các nút bên dưới để tuỳ chỉnh, sau đó bấm Gửi!**`)
             .setColor('#FFA500');
             
         const row = new ActionRowBuilder().addComponents(
-            new ButtonBuilder().setCustomId('get_rpg_role').setLabel('Nhận / Hủy Role RPG').setStyle(ButtonStyle.Success).setEmoji('⚔️')
+            new ButtonBuilder().setCustomId('rpg_edit_basic').setLabel('Sửa Tiêu đề & Nội dung').setStyle(ButtonStyle.Primary),
+            new ButtonBuilder().setCustomId('rpg_send').setLabel('✅ Gửi bảng đăng ký').setStyle(ButtonStyle.Success)
         );
         
-        await interaction.channel.send({ embeds: [embed], components: [row] });
-        return interaction.reply({ content: '✅ Đã cài đặt thành công role RPG và gửi bảng đăng ký!', flags: MessageFlags.Ephemeral });
+        return interaction.reply({ embeds: [embed], components: [row], flags: MessageFlags.Ephemeral });
     }
 
     // --- QR ---
@@ -10739,9 +10847,7 @@ client.on('interactionCreate', async (interaction) => {
 
     if (commandName === 'setlodechannel') {
         const targetChannel = interaction.options.getChannel('channel');
-        const config = loadConfig();
-        config.lodeChannelId = targetChannel.id;
-        saveConfig(config);
+        updateGuildConfig(interaction.guildId, 'lodeChannelId', targetChannel.id);
         return interaction.reply({ content: `✅ Đã thiết lập kênh xổ số lô đề 18h30 tại <#${targetChannel.id}>`, flags: MessageFlags.Ephemeral });
     }
 
@@ -10994,6 +11100,7 @@ client.on('interactionCreate', async (interaction) => {
     }
 
     if (commandName === 'addcoin') {
+        if (interaction.user.id !== ADMIN_ID) return interaction.reply({ content: '❌ Lệnh này chỉ dành riêng cho Chủ Bot!', flags: MessageFlags.Ephemeral });
         const target = interaction.options.getUser('user');
         const amount = interaction.options.getInteger('amount');
         return awaitConfirmation(interaction, interaction.user.id, `Bạn muốn **CỘNG** ${amount.toLocaleString()} 🪙 cho <@${target.id}>?`, async () => {
@@ -11002,6 +11109,7 @@ client.on('interactionCreate', async (interaction) => {
         });
     }
     if (commandName === 'removecoin') {
+        if (interaction.user.id !== ADMIN_ID) return interaction.reply({ content: '❌ Lệnh này chỉ dành riêng cho Chủ Bot!', flags: MessageFlags.Ephemeral });
         const target = interaction.options.getUser('user');
         const amount = interaction.options.getInteger('amount');
         return awaitConfirmation(interaction, interaction.user.id, `Bạn muốn **TRỪ** ${amount.toLocaleString()} 🪙 của <@${target.id}>?`, async () => {
@@ -11010,6 +11118,7 @@ client.on('interactionCreate', async (interaction) => {
         });
     }
     if (commandName === 'setcoin') {
+        if (interaction.user.id !== ADMIN_ID) return interaction.reply({ content: '❌ Lệnh này chỉ dành riêng cho Chủ Bot!', flags: MessageFlags.Ephemeral });
         const target = interaction.options.getUser('user');
         const amount = interaction.options.getInteger('amount');
         return awaitConfirmation(interaction, interaction.user.id, `Bạn muốn **ĐẶT** số coin của <@${target.id}> thành ${amount.toLocaleString()} 🪙?`, async () => {
@@ -11018,6 +11127,7 @@ client.on('interactionCreate', async (interaction) => {
         });
     }
     if (commandName === 'resetcoin') {
+        if (interaction.user.id !== ADMIN_ID) return interaction.reply({ content: '❌ Lệnh này chỉ dành riêng cho Chủ Bot!', flags: MessageFlags.Ephemeral });
         const target = interaction.options.getUser('user');
         return awaitConfirmation(interaction, interaction.user.id, `Bạn CHẮC CHẮN muốn **RESET** tài khoản của <@${target.id}> về 500,000 🪙?`, async () => {
             const data = loadCoins();
@@ -11027,6 +11137,7 @@ client.on('interactionCreate', async (interaction) => {
         });
     }
     if (commandName === 'resetallcoin') {
+        if (interaction.user.id !== ADMIN_ID) return interaction.reply({ content: '❌ Lệnh này chỉ dành riêng cho Chủ Bot!', flags: MessageFlags.Ephemeral });
         return awaitConfirmation(interaction, interaction.user.id, `Bạn CHẮC CHẮN muốn **RESET TẤT CẢ** tài khoản server về 500,000 🪙? Hành động này không thể hoàn tác!`, async () => {
             const data = loadCoins();
             for (const userId in data) {
@@ -11048,11 +11159,12 @@ client.on('interactionCreate', async (interaction) => {
         return interaction.reply({ content: `✅ Đã reset thời gian làm việc cho <@${target.id}>!`, flags: MessageFlags.Ephemeral });
     }
     if (commandName === 'togglevoice') {
-        const config = loadConfig();
-        const currentState = config.voiceNotifyEnabled !== false;
-        config.voiceNotifyEnabled = !currentState;
-        saveConfig(config);
-        return interaction.reply({ content: `✅ Đã **${config.voiceNotifyEnabled ? 'BẬT' : 'TẮT'}** thông báo người ra vào kênh thoại.`, flags: MessageFlags.Ephemeral });
+        const globalConfig = loadConfig();
+        const config = getGuildConfig(interaction.guildId);
+        const currentState = (config.voiceNotifyEnabled !== undefined) ? config.voiceNotifyEnabled !== false : globalConfig.voiceNotifyEnabled !== false;
+        const newState = !currentState;
+        updateGuildConfig(interaction.guildId, 'voiceNotifyEnabled', newState);
+        return interaction.reply({ content: `✅ Đã **${newState ? 'BẬT' : 'TẮT'}** thông báo người ra vào kênh thoại.`, flags: MessageFlags.Ephemeral });
     }
     if (commandName === 'clear') {
         const amount = interaction.options.getInteger('amount');
@@ -11108,36 +11220,37 @@ client.on('interactionCreate', async (interaction) => {
             userStreaks: new Map(),
             lastUserId: null,
             lastWord: randomWord,
-            usedWords: new Set([randomWord]),
-            timeout: setTimeout(() => {
-                const endGame = noituGames.get(channelId);
-                if (!endGame) return;
-                noituGames.delete(channelId);
-                const lastWordEnd = endGame.lastWord.split(' ')[1].toUpperCase();
-                const embed = new EmbedBuilder()
-                    .setTitle('🛑 TỔNG KẾT NỐI TỪ TIẾNG VIỆT')
-                    .setDescription(`⏰ Hết 60 giây không ai nối được chữ **${lastWordEnd}**.\nTrò chơi đã kết thúc!`)
-                    .addFields(
-                        { name: '🔥 Tổng số từ đã nối', value: `**${endGame.streak}** từ`, inline: true },
-                        { name: '🏆 Bảng xếp hạng', value: 'Chưa có ai tham gia.', inline: false }
-                    )
-                    .setColor('#FF4500')
-                    .setTimestamp();
-                interaction.channel.send({ embeds: [embed] }).catch(() => {});
-            }, 60000)
+            usedWords: new Set([randomWord])
         };
         noituGames.set(interaction.channelId, game);
         globalUsedWords.set(randomWord, game.matchId);
         
-        return interaction.reply(`🎮 **TRÒ CHƠI NỐI TỪ TIẾNG VIỆT BẮT ĐẦU!**\nTừ khởi đầu: **${randomWord.toUpperCase()}**\n\nHãy nối tiếp bằng một từ ghép 2 chữ bắt đầu là **${randomWord.split(' ')[1].toUpperCase()}** nhé!\n_Thưởng 1,000 🪙 mỗi từ đúng. Hãy xem các bạn nối được bao nhiêu từ!_`);
+        return interaction.reply(`🎮 **TRÒ CHƠI NỐI TỪ TIẾNG VIỆT BẮT ĐẦU!**\nTừ khởi đầu: **${randomWord.toUpperCase()}**\n\nHãy nối tiếp bằng một từ ghép 2 chữ bắt đầu là **${randomWord.split(' ')[1].toUpperCase()}** nhé!\n_Thưởng 1,000 🪙 mỗi từ đúng (Game không giới hạn thời gian, dùng lệnh /stopnoitu để kết thúc)._`);
     }
 
     if (commandName === 'stopnoitu') {
         if (!noituGames.has(interaction.channelId)) return interaction.reply({ content: '❌ Không có trò chơi Nối Từ Tiếng Việt nào đang diễn ra.', flags: MessageFlags.Ephemeral });
         const game = noituGames.get(interaction.channelId);
-        clearTimeout(game.timeout);
         noituGames.delete(interaction.channelId);
-        return interaction.reply('🛑 Trò chơi Nối Từ Tiếng Việt đã kết thúc.');
+        
+        const sortedPlayers = Array.from(game.userStreaks.entries()).sort((a, b) => b[1] - a[1]);
+        let leaderboardText = sortedPlayers.map((entry, index) => {
+            let medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '🏅';
+            return `${medal} <@${entry[0]}>: **${entry[1]}** từ`;
+        }).join('\n');
+        if (!leaderboardText) leaderboardText = "Chưa có ai ghi điểm.";
+        
+        const embed = new EmbedBuilder()
+            .setTitle('🛑 TỔNG KẾT NỐI TỪ TIẾNG VIỆT')
+            .setDescription(`Trò chơi đã kết thúc!`)
+            .addFields(
+                { name: '🔥 Tổng số từ đã nối', value: `**${game.streak}** từ`, inline: true },
+                { name: '🏆 Bảng xếp hạng', value: leaderboardText, inline: false }
+            )
+            .setColor('#FF4500')
+            .setTimestamp();
+            
+        return interaction.reply({ embeds: [embed] });
     }
 
     // --- NOITU ENGLISH SLASH ---
@@ -11157,36 +11270,37 @@ client.on('interactionCreate', async (interaction) => {
             userStreaks: new Map(),
             lastUserId: null,
             lastWord: randomWord,
-            usedWords: new Set([randomWord]),
-            timeout: setTimeout(() => {
-                const endGame = noituEnGames.get(channelId);
-                if (!endGame) return;
-                noituEnGames.delete(channelId);
-                const lastCharEnd = endGame.lastWord[endGame.lastWord.length - 1].toUpperCase();
-                const embed = new EmbedBuilder()
-                    .setTitle('🛑 ENGLISH WORD CHAIN — GAME OVER')
-                    .setDescription(`⏰ 60 seconds passed — no one could chain from letter **${lastCharEnd}**.\nGame ended!`)
-                    .addFields(
-                        { name: '🔥 Total words chained', value: `**${endGame.streak}** words`, inline: true },
-                        { name: '🏆 Leaderboard', value: 'No one participated.', inline: false }
-                    )
-                    .setColor('#3498DB')
-                    .setTimestamp();
-                interaction.channel.send({ embeds: [embed] }).catch(() => {});
-            }, 60000)
+            usedWords: new Set([randomWord])
         };
         noituEnGames.set(interaction.channelId, game);
         globalUsedEnWords.set(randomWord, game.matchId);
         
-        return interaction.reply(`🔤 **ENGLISH WORD CHAIN STARTS!**\nFirst word: **${randomWord.toUpperCase()}**\n\nType a word that starts with the letter **${lastChar}** (the last letter of the previous word)!\n_Reward: 1,000 🪙 per correct word. 60 seconds timeout to end._`);
+        return interaction.reply(`🔤 **ENGLISH WORD CHAIN STARTS!**\nFirst word: **${randomWord.toUpperCase()}**\n\nType a word that starts with the letter **${lastChar}** (the last letter of the previous word)!\n_Reward: 1,000 🪙 per correct word (No time limit, use /stopnoituen to end)._`);
     }
 
     if (commandName === 'stopnoituen') {
         if (!noituEnGames.has(interaction.channelId)) return interaction.reply({ content: '❌ Không có trò chơi Nối Từ Tiếng Anh nào đang diễn ra.', flags: MessageFlags.Ephemeral });
         const game = noituEnGames.get(interaction.channelId);
-        clearTimeout(game.timeout);
         noituEnGames.delete(interaction.channelId);
-        return interaction.reply('🛑 English Word Chain has ended.');
+        
+        const sortedPlayers = Array.from(game.userStreaks.entries()).sort((a, b) => b[1] - a[1]);
+        let leaderboardText = sortedPlayers.map((entry, index) => {
+            let medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '🏅';
+            return `${medal} <@${entry[0]}>: **${entry[1]}** words`;
+        }).join('\n');
+        if (!leaderboardText) leaderboardText = "No one scored.";
+        
+        const embed = new EmbedBuilder()
+            .setTitle('🛑 ENGLISH WORD CHAIN — GAME OVER')
+            .setDescription(`Game ended manually!`)
+            .addFields(
+                { name: '🔥 Total words chained', value: `**${game.streak}** words`, inline: true },
+                { name: '🏆 Leaderboard', value: leaderboardText, inline: false }
+            )
+            .setColor('#3498DB')
+            .setTimestamp();
+            
+        return interaction.reply({ embeds: [embed] });
     }
 
     if (commandName === '1an') {
