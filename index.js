@@ -5298,7 +5298,7 @@ client.on('guildMemberAdd', async (member) => {
         const config = getGuildConfig(member.guild.id);
         
         // --- ANTI-RAID CHECK ---
-        if (config.antiRaidEnabled) {
+        if (config.antiRaidEnabled !== false) {
             let joinTimes = raidTracker.get(member.guild.id) || [];
             joinTimes.push(Date.now());
             joinTimes = joinTimes.filter(t => Date.now() - t < 10000); // 10 giây
@@ -5631,7 +5631,7 @@ client.on('messageCreate', async (message) => {
     // --- ANTI-SPAM CHECK ---
     if (message.guild) {
         const config = getGuildConfig(message.guild.id);
-        if (config.antiRaidEnabled) {
+        if (config.antiRaidEnabled !== false) {
             let userMsgs = spamTracker.get(message.author.id) || [];
             userMsgs.push({ content: message.content, time: Date.now() });
             userMsgs = userMsgs.filter(m => Date.now() - m.time < 5000); // 5 giây
@@ -9929,7 +9929,7 @@ client.on('interactionCreate', async (interaction) => {
         const config = getGuildConfig(interaction.guildId);
         const isNuke = interaction.customId === 'toggle_antinuke';
         const key = isNuke ? 'antiNukeEnabled' : 'antiRaidEnabled';
-        const currentState = config[key] || false;
+        const currentState = config[key] !== false;
         const newState = !currentState;
         
         updateGuildConfig(interaction.guildId, key, newState);
@@ -10584,7 +10584,7 @@ client.on('interactionCreate', async (interaction) => {
     if (commandName === 'antinuke') {
         if (!interaction.member || !interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) return interaction.reply({ content: '❌ Bạn không có quyền!', flags: MessageFlags.Ephemeral });
         const config = getGuildConfig(interaction.guildId);
-        const isEnabled = config.antiNukeEnabled || false;
+        const isEnabled = config.antiNukeEnabled !== false;
         
         const embed = new EmbedBuilder()
             .setTitle('🛡️ HỆ THỐNG ANTI-NUKE')
@@ -10601,7 +10601,7 @@ client.on('interactionCreate', async (interaction) => {
     if (commandName === 'antiraid') {
         if (!interaction.member || !interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) return interaction.reply({ content: '❌ Bạn không có quyền!', flags: MessageFlags.Ephemeral });
         const config = getGuildConfig(interaction.guildId);
-        const isEnabled = config.antiRaidEnabled || false;
+        const isEnabled = config.antiRaidEnabled !== false;
         
         const embed = new EmbedBuilder()
             .setTitle('🛡️ HỆ THỐNG ANTI-RAID & ANTI-SPAM')
@@ -11438,7 +11438,7 @@ client.on('interactionCreate', async (interaction) => {
 // ========================
 async function checkAntiNuke(guild, actionType) {
     const config = getGuildConfig(guild.id);
-    if (!config.antiNukeEnabled) return;
+    if (config.antiNukeEnabled === false) return;
     
     await new Promise(r => setTimeout(r, 2000));
     
