@@ -10419,7 +10419,7 @@ client.on('interactionCreate', async (interaction) => {
     if (commandName === 'play') {
         const query = interaction.options.getString('query');
         const file = interaction.options.getAttachment('file');
-        const voiceChannel = interaction.member.voice.channel;
+        const voiceChannel = interaction.member?.voice?.channel;
 
         if (!query && !file) {
             return interaction.reply({ content: '❌ Bạn phải nhập tên bài hát hoặc đính kèm một file nhạc!', flags: MessageFlags.Ephemeral });
