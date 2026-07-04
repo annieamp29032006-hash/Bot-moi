@@ -737,7 +737,7 @@ async function playNext(guildId, textChannel) {
         }
     } catch (err) {
         console.error('Lỗi khi phát nhạc:', err);
-        textChannel?.send(`❌ Không thể phát bài **${song.title}**. Đang bỏ qua...`);
+        textChannel?.send(`❌ Không thể phát bài **${song.title}** (Lỗi: \`${err.message}\`). Đang bỏ qua...`);
         state.queue.shift();
         playNext(guildId, textChannel);
     }
