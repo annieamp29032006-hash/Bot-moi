@@ -4055,6 +4055,89 @@ const QUOTES_TYDC = [
     "☠️ Tình yêu Discord cũng như Wi-Fi công cộng: lúc đầu kết nối rất nhanh, dùng một thời gian mới biết... ai cũng đang truy cập."
 ];
 
+const BIEN_SO_JOKES = {
+    "11": { name: "Cao Bằng", joke: "11 Cao Bằng, đi bằng đường nào thì cũng thấy núi." },
+    "12": { name: "Lạng Sơn", joke: "12 Lạng Sơn, đi buôn lậu... à nhầm, đi chợ biên giới hơi nhiều." },
+    "14": { name: "Quảng Ninh", joke: "14 Quảng Ninh, nhà có than nên anh không than thở." },
+    "15": { name: "Hải Phòng", joke: "15 Hải Phòng, không lòng vòng, yêu là cưới." },
+    "16": { name: "Hải Phòng", joke: "16 Hải Phòng, hoa phượng đỏ nhưng tính không nhỏ nhen." },
+    "17": { name: "Thái Bình", joke: "17 Thái Bình, đất mỏ cày nhưng trai gái đắm say." },
+    "18": { name: "Nam Định", joke: "18 Nam Định, phở ngon nhưng người Nam Định còn ngọt hơn." },
+    "19": { name: "Phú Thọ", joke: "19 Phú Thọ, quê cha đất tổ, đi đâu cũng nhớ đường về." },
+    "20": { name: "Thái Nguyên", joke: "20 Thái Nguyên, trà xanh đắng chát nhưng tình cảm ngọt ngào." },
+    "21": { name: "Yên Bái", joke: "21 Yên Bái, con gái Yên Bái không bắt thì cũng thái thành tư." },
+    "22": { name: "Tuyên Quang", joke: "22 Tuyên Quang, chè Thái gái Tuyên, xinh vô đối." },
+    "23": { name: "Hà Giang", joke: "23 Hà Giang, hoa tam giác mạch và những cú drift đèo rợn tóc gáy." },
+    "24": { name: "Lào Cai", joke: "24 Lào Cai, Sa Pa tuyết rơi nhưng lòng người lúc nào cũng ấm." },
+    "25": { name: "Lai Châu", joke: "25 Lai Châu, xa xôi hẻo lánh nhưng đã yêu là dính." },
+    "26": { name: "Sơn La", joke: "26 Sơn La, mận Mộc Châu chua chua ngọt ngọt như tình đầu." },
+    "27": { name: "Điện Biên", joke: "27 Điện Biên, lịch sử hào hùng, trai gái thủy chung." },
+    "28": { name: "Hòa Bình", joke: "28 Hòa Bình, cam Cao Phong ngọt ngào, đường vào tim em cũng thế." },
+    "29": { name: "Hà Nội", joke: "29 Hà Nội, trà đá vỉa hè và những cú tắc đường đi vào lòng người." },
+    "30": { name: "Hà Nội", joke: "30 Hà Nội, mùa thu hoa sữa thơm lừng... hoặc nhức đầu tuỳ bạn." },
+    "31": { name: "Hà Nội", joke: "31 Hà Nội, đặc sản là \"bạn biết bố tôi là ai không?\"" },
+    "32": { name: "Hà Nội", joke: "32 Hà Nội, ra đường ngắm phố cổ, về nhà ngắm em." },
+    "33": { name: "Hà Nội", joke: "33 Hà Tây xưa nay là Hà Nội, thịt chó Quốc Oai mãi đỉnh." },
+    "34": { name: "Hải Dương", joke: "34 Hải Dương, bánh đậu xanh ăn nghẹn nhưng tình cảm không bao giờ tắc." },
+    "35": { name: "Ninh Bình", joke: "35 Ninh Bình, thịt dê cơm cháy, ăn xong là cháy máy với em." },
+    "36": { name: "Thanh Hóa", joke: "36 Thanh Hóa, nem chua bao ngon, không xin vương quốc riêng nữa đâu." },
+    "37": { name: "Nghệ An", joke: "37 Nghệ An, trai cá gỗ nhưng tốt bụng vô cùng." },
+    "38": { name: "Hà Tĩnh", joke: "38 Hà Tĩnh, kẹo cu đơ cứng ngắc nhưng tình yêu thì dẻo dai." },
+    "39": { name: "Đồng Nai", joke: "39 Đồng Nai, Biên Hòa sầm uất, trai Đồng Nai chất phác thật thà." },
+    "40": { name: "Hà Nội", joke: "40 Hà Nội, biển mới keng, ra đường vẫn cứ tắc." },
+    "41": { name: "TP. Hồ Chí Minh", joke: "41 Sài Gòn, biển 41 dạo này chạy đầy đường, kẹt xe vẫn không giảm." },
+    "43": { name: "Đà Nẵng", joke: "43 Đà Nẵng, thành phố đáng sống và cũng đáng để yêu." },
+    "47": { name: "Đắk Lắk", joke: "47 Đắk Lắk, cưỡi voi đi đón dâu là có thật." },
+    "48": { name: "Đắk Nông", joke: "48 Đắk Nông, hồ Tà Đùng đẹp như Vịnh Hạ Long trên núi." },
+    "49": { name: "Lâm Đồng", joke: "49 Lâm Đồng, Đà Lạt sương mù, đi 2 về 1." },
+    "50": { name: "TP. Hồ Chí Minh", joke: "50 Sài Gòn, đặc sản kẹt xe và ngập nước mỗi khi triều cường." },
+    "51": { name: "TP. Hồ Chí Minh", joke: "51 Sài Gòn, ra đường là thấy quán cà phê." },
+    "52": { name: "TP. Hồ Chí Minh", joke: "52 Sài Gòn, hủ tiếu gõ gõ mòn đêm khuya." },
+    "53": { name: "TP. Hồ Chí Minh", joke: "53 Sài Gòn, có hai mùa: mùa nóng và mùa cực nóng." },
+    "54": { name: "TP. Hồ Chí Minh", joke: "54 Sài Gòn, hoa lệ: hoa cho người giàu, lệ cho người nghèo." },
+    "55": { name: "TP. Hồ Chí Minh", joke: "55 Sài Gòn, anh ba khía miền Tây lên Sài Gòn lập nghiệp." },
+    "56": { name: "TP. Hồ Chí Minh", joke: "56 Sài Gòn, cơm tấm sườn bì chả ăn là ghiền." },
+    "57": { name: "TP. Hồ Chí Minh", joke: "57 Sài Gòn, nhịp sống nhanh nhưng anh yêu em thì chầm chậm." },
+    "58": { name: "TP. Hồ Chí Minh", joke: "58 Sài Gòn, đường phố sáng rực, tim em cũng rực sáng vì anh." },
+    "59": { name: "TP. Hồ Chí Minh", joke: "59 Sài Gòn, kẹt xe ở vòng xoay Dân Chủ là đặc sản." },
+    "60": { name: "Đồng Nai", joke: "60 Đồng Nai, đi ngang khu công nghiệp nghe tiếng còi tan tầm." },
+    "61": { name: "Bình Dương", joke: "61 Bình Dương, phố đèn đỏ ngã tư 550... à nhầm, thủ phủ công nghiệp." },
+    "62": { name: "Long An", joke: "62 Long An, rượu đế Gò Đen uống say quên cả đường về." },
+    "63": { name: "Tiền Giang", joke: "63 Tiền Giang, hủ tiếu Mỹ Tho ngon nức nở." },
+    "64": { name: "Vĩnh Long", joke: "64 Vĩnh Long, đi chợ nổi Trà Ôn vớt cả trái tim anh." },
+    "65": { name: "Cần Thơ", joke: "65 Cần Thơ, gạo trắng nước trong, ai đi đến đó lòng không muốn về." },
+    "66": { name: "Đồng Tháp", joke: "66 Đồng Tháp, mười hai bến nước biết bến nào trong, hoa sen nở rộ khắp vùng." },
+    "67": { name: "An Giang", joke: "67 An Giang, thốt nốt ngọt lịm, núi Sam linh thiêng." },
+    "68": { name: "Kiên Giang", joke: "68 Kiên Giang, Phú Quốc vẫy gọi, nhưng ví tiền thì bảo không." },
+    "69": { name: "Cà Mau", joke: "69 Cà Mau, đất mũi xa xôi, cua Cà Mau thì bự chà bá lửa." },
+    "70": { name: "Tây Ninh", joke: "70 Tây Ninh, muối tôm mà không có tôm, bánh tráng phơi sương nhai mỏi hàm." },
+    "71": { name: "Bến Tre", joke: "71 Bến Tre, cái gì cũng dừa, yêu em thì đừng chừa anh ra." },
+    "72": { name: "Bà Rịa - Vũng Tàu", joke: "72 Vũng Tàu, tắm biển Vũng Tàu cẩn thận kẹt xe lúc về." },
+    "73": { name: "Quảng Bình", joke: "73 Quảng Bình, gió Lào cát trắng, hang động to nhất thế giới." },
+    "74": { name: "Quảng Trị", joke: "74 Quảng Trị, mảnh đất anh hùng, gió sương không cản bước." },
+    "75": { name: "Thừa Thiên Huế", joke: "75 Huế, mộng mơ tĩnh lặng, bún bò huế rắc thêm chút thơ." },
+    "76": { name: "Quảng Ngãi", joke: "76 Quảng Ngãi, tỏi Lý Sơn vừa cay vừa nồng như tình yêu chúng mình." },
+    "77": { name: "Bình Định", joke: "77 Bình Định, con gái múa quyền, con trai thì ăn bánh xèo tôm nhảy." },
+    "78": { name: "Phú Yên", joke: "78 Phú Yên, hoa vàng trên cỏ xanh, em thì lanh chanh trong tim anh." },
+    "79": { name: "Khánh Hòa", joke: "79 Nha Trang, yến sào đại bổ, tắm bùn xong thì thơm phức." },
+    "81": { name: "Gia Lai", joke: "81 Gia Lai, đôi mắt Pleiku biển hồ đầy, anh nhìn là đắm say." },
+    "82": { name: "Kon Tum", joke: "82 Kon Tum, ngã ba Đông Dương, một tiếng gà gáy ba nước cùng nghe." },
+    "83": { name: "Sóc Trăng", joke: "83 Sóc Trăng, bánh pía sầu riêng, ai không ăn được thì chịu." },
+    "84": { name: "Trà Vinh", joke: "84 Trà Vinh, thành phố trong rừng sao đen mát rượi." },
+    "85": { name: "Ninh Thuận", joke: "85 Ninh Thuận, nắng như phang, gió như rang, nho thì ngọt lịm." },
+    "86": { name: "Bình Thuận", joke: "86 Bình Thuận, thanh long đỏ rực, đồi cát bay ngút ngàn." },
+    "88": { name: "Vĩnh Phúc", joke: "88 Vĩnh Phúc, Tam Đảo mờ sương, xe máy lên đèo cháy cả phanh." },
+    "89": { name: "Hưng Yên", joke: "89 Hưng Yên, nhãn lồng tiến vua, gái Hưng Yên vừa ngoan vừa giỏi." },
+    "90": { name: "Hà Nam", joke: "90 Hà Nam, quê hương Chí Phèo, thiếu Thị Nở nên đành ế." },
+    "92": { name: "Quảng Nam", joke: "92 Quảng Nam, Hội An cổ kính, mì Quảng ăn mãi không chán." },
+    "93": { name: "Bình Phước", joke: "93 Bình Phước, bạt ngàn cao su, rớt hạt điều uổng phí cả đời." },
+    "94": { name: "Bạc Liêu", joke: "94 Bạc Liêu, công tử Bạc Liêu đốt tiền nấu trứng, còn em đốt tim anh." },
+    "95": { name: "Hậu Giang", joke: "95 Hậu Giang, miền quê yên ả, con gái dịu dàng hiền hậu." },
+    "97": { name: "Bắc Kạn", joke: "97 Bắc Kạn, hồ Ba Bể xanh biếc, yêu em không biết mệt mỏi." },
+    "98": { name: "Bắc Giang", joke: "98 Bắc Giang, vải thiều Lục Ngạn ngọt như lời em hứa." },
+    "99": { name: "Bắc Ninh", joke: "99 Bắc Ninh, quan họ giao duyên, nghe xong muốn làm rể hội lim." }
+};
+
 let QUOTES_THINH = [];
 try {
     const thinhData = fs.readFileSync(path.join(__dirname, 'thinh_genz.txt'), 'utf8');
@@ -6068,6 +6151,36 @@ client.on('messageCreate', async (message) => {
             .setFooter({ text: `Yêu cầu bởi ${message.author.username}` })
             .setTimestamp();
         return message.reply({ embeds: [tydcEmbed] });
+    }
+
+    if (content.startsWith(`${prefix}bienso`) || content.startsWith(`${prefix}bs`)) {
+        let query;
+        if (content.startsWith(`${prefix}bienso `)) query = message.content.slice((`${prefix}bienso `).length).trim().toLowerCase();
+        else if (content.startsWith(`${prefix}bs `)) query = message.content.slice((`${prefix}bs `).length).trim().toLowerCase();
+        else query = "";
+        
+        if (!query) return message.reply(`❌ Cú pháp: \`${prefix}bienso <số biển hoặc tên tỉnh>\``);
+        
+        let found = null;
+        for (const [code, info] of Object.entries(BIEN_SO_JOKES)) {
+            if (code === query || info.name.toLowerCase().includes(query)) {
+                found = { code, ...info };
+                break;
+            }
+        }
+        
+        if (!found) {
+            return message.reply('❌ Không tìm thấy thông tin biển số hoặc tỉnh thành này (chỉ hỗ trợ mã từ 11 đến 99)!');
+        }
+        
+        const embed = new EmbedBuilder()
+            .setTitle(`🚗 Biển số: ${found.code} - ${found.name}`)
+            .setDescription(`> *"${found.joke}"*`)
+            .setColor('#F1C40F')
+            .setFooter({ text: `Yêu cầu bởi ${message.author.username}` })
+            .setTimestamp();
+            
+        return message.reply({ embeds: [embed] });
     }
 
     for (const [key, reply] of Object.entries(autoReplies)) {
