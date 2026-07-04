@@ -203,37 +203,62 @@ async function ytdlpGetInfo(url) {
     }
 }
 
-// Stream audio từ YouTube: lấy URL trực tiếp qua yt-dlp (có fallback nhiều player_client), rồi stream qua ffmpeg
+// Stream audio từ YouTube bằng yt-dlp pipe trực tiếp
+// Có retry qua nhiều player_client nếu bị YouTube chặn trên VPS
 async function ytdlpStreamWithFallback(url) {
-    // Bước 1: Lấy direct audio URL bằng ytdlpExecWithFallback (có retry qua nhiều player_client)
-    const baseArgs = ['-f', 'bestaudio/best', '--no-playlist', '-g', '--quiet', '--no-warnings'];
-    const directUrl = (await ytdlpExecWithFallback(baseArgs, url)).trim();
-    
-    if (!directUrl || !directUrl.startsWith('http')) {
-        throw new Error('Không lấy được URL stream từ yt-dlp');
+    const cookiesPath = getCookiesPath();
+    const hasCookies = fs.existsSync(cookiesPath);
+    const clients = hasCookies ? [null] : YT_PLAYER_CLIENTS;
+    const { PassThrough } = require('stream');
+
+    for (let i = 0; i < clients.length; i++) {
+        const args = ['-f', 'bestaudio[ext=webm]/bestaudio/best', '--no-playlist', '-q', '-o', '-'];
+
+        if (hasCookies) {
+            args.push('--cookies', cookiesPath);
+        } else {
+            args.push('--extractor-args', `youtube:player_client=${clients[i]}`);
+            args.push('--user-agent', YTDLP_USER_AGENT);
+        }
+        args.push(url);
+
+        const result = await new Promise((resolve) => {
+            const proc = spawn(YTDLP_PATH, args);
+            let gotData = false;
+            let stderrData = '';
+
+            const timeout = setTimeout(() => {
+                if (!gotData) { proc.kill(); resolve(null); }
+            }, 15000);
+
+            proc.stdout.once('data', (chunk) => {
+                gotData = true;
+                clearTimeout(timeout);
+                const pt = new PassThrough();
+                pt.write(chunk);
+                proc.stdout.pipe(pt);
+                proc.on('close', () => pt.end());
+                resolve(pt);
+            });
+
+            proc.stderr.on('data', (d) => { stderrData += d.toString(); });
+            proc.on('close', () => {
+                clearTimeout(timeout);
+                if (!gotData) {
+                    if (i < clients.length - 1) {
+                        console.warn(`[yt-dlp stream] player_client=${clients[i]} thất bại, thử ${clients[i + 1]}...`);
+                    }
+                    resolve(null);
+                }
+            });
+        });
+
+        if (result) {
+            console.log(`[Stream] ✅ Thành công với player_client=${clients[i] || 'cookies'}`);
+            return result;
+        }
     }
-
-    console.log('[Stream] Đã lấy được direct URL, bắt đầu stream qua ffmpeg...');
-
-    // Bước 2: Stream từ direct URL qua ffmpeg → output raw PCM s16le cho discord.js
-    const ffmpegProcess = spawn(ffmpegPath, [
-        '-reconnect', '1',
-        '-reconnect_streamed', '1',
-        '-reconnect_delay_max', '5',
-        '-i', directUrl,
-        '-vn',
-        '-ar', '48000',
-        '-ac', '2',
-        '-f', 's16le',
-        'pipe:1'
-    ], { stdio: ['pipe', 'pipe', 'pipe'] });
-
-    ffmpegProcess.stderr.on('data', () => {}); // Suppress ffmpeg logs
-    ffmpegProcess.on('error', (err) => {
-        console.error('Lỗi ffmpeg stream:', err.message);
-    });
-
-    return ffmpegProcess.stdout;
+    throw new Error('[yt-dlp stream] Tất cả player_client đều bị chặn. Cần thêm cookies.txt!');
 }
 
 const configPath = './config.json';
@@ -630,7 +655,7 @@ async function playNext(guildId, textChannel) {
                 resource = createAudioResource(stream.stream, { inputType: stream.type, inlineVolume: true });
             } else {
                 const audioStream = await ytdlpStreamWithFallback(song.url);
-                resource = createAudioResource(audioStream, { inputType: StreamType.Raw, inlineVolume: true });
+                resource = createAudioResource(audioStream, { inlineVolume: true });
             }
         } catch(err) {
             console.error('Stream failed, fallback to yt-dlp:', err.message);
@@ -639,7 +664,7 @@ async function playNext(guildId, textChannel) {
                 resource = createAudioResource(response.data, { inlineVolume: true });
             } else {
                 const audioStream = await ytdlpStreamWithFallback(song.url);
-                resource = createAudioResource(audioStream, { inputType: StreamType.Raw, inlineVolume: true });
+                resource = createAudioResource(audioStream, { inlineVolume: true });
             }
         }
 
