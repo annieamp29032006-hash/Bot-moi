@@ -6153,6 +6153,20 @@ client.on('messageCreate', async (message) => {
         return message.reply({ embeds: [tydcEmbed] });
     }
 
+    // Auto-detect biển số xe nếu tin nhắn chỉ chứa số (có 2 chữ số)
+    const trimContent = content.trim();
+    if (/^\d{2}$/.test(trimContent) && BIEN_SO_JOKES[trimContent]) {
+        const found = BIEN_SO_JOKES[trimContent];
+        const embed = new EmbedBuilder()
+            .setTitle(`🚗 Biển số: ${trimContent} - ${found.name}`)
+            .setDescription(`> *"${found.joke}"*`)
+            .setColor('#F1C40F')
+            .setFooter({ text: `Auto-rep biển số xe` })
+            .setTimestamp();
+            
+        return message.reply({ embeds: [embed] });
+    }
+
     if (content.startsWith(`${prefix}bienso`) || content.startsWith(`${prefix}bs`)) {
         let query;
         if (content.startsWith(`${prefix}bienso `)) query = message.content.slice((`${prefix}bienso `).length).trim().toLowerCase();
