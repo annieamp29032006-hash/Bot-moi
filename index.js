@@ -6816,7 +6816,7 @@ client.on('messageCreate', async (message) => {
             .setTimestamp();
         
         message.delete().catch(() => {});
-        return message.channel.send({ content: '@everyone', embeds: [embed] });
+        return message.channel.send({ embeds: [embed] });
     }
 
     // Cập nhật yt-dlp
