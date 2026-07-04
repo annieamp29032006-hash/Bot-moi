@@ -47,7 +47,7 @@ const YTDLP_PATH = path.join(__dirname, process.platform === 'win32' ? 'yt-dlp.e
 // Lấy thông tin video bằng yt-dlp (JSON)
 // Danh sách player_client thử theo thứ tự khi không có cookies
 // android_vr & mediaconnect hoạt động tốt nhất trên server/VPS năm 2025
-const YT_PLAYER_CLIENTS = ['default', 'ios', 'android_vr', 'tv_embedded', 'android', 'mweb', 'web_creator'];
+const YT_PLAYER_CLIENTS = ['android_vr', 'tv_embedded', 'ios', 'android', 'mweb', 'web_creator', 'default'];
 
 // User-agent giả lập Android mobile để tránh bot-check
 const YTDLP_USER_AGENT = 'Mozilla/5.0 (Linux; Android 12; Pixel 6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Mobile Safari/537.36';
@@ -653,7 +653,7 @@ async function playNext(guildId, textChannel) {
             if (song.isAttachment) {
                 const response = await axios({ url: song.url, method: 'GET', responseType: 'stream' });
                 resource = createAudioResource(response.data, { inlineVolume: true });
-            } else if (song.url.includes('soundcloud.com') || song.url.includes('on.soundcloud.com') || song.url.includes('youtube.com') || song.url.includes('youtu.be')) {
+            } else if (song.url.includes('soundcloud.com') || song.url.includes('on.soundcloud.com')) {
                 const play = require('play-dl');
                 const stream = await play.stream(song.url);
                 resource = createAudioResource(stream.stream, { inputType: stream.type, inlineVolume: true });
