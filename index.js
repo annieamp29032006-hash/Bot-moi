@@ -158,25 +158,17 @@ async function ytdlpGetInfo(url) {
             searchQuery = `${spotInfo.title} ${spotInfo.artist}`;
         }
         
-        // Nếu là link (kể cả soundcloud), ưu tiên dùng play-dl, fallback yt-dlp
+        // Nếu là link, dùng play-dl cho SoundCloud, yt-dlp cho YouTube/khác
         if (searchQuery.startsWith('http')) {
             try {
-                const play = require('play-dl');
                 if (searchQuery.includes('soundcloud.com')) {
+                    const play = require('play-dl');
                     const soInfo = await play.soundcloud(searchQuery);
                     return {
                         title: soInfo.name,
                         webpage_url: soInfo.url,
                         duration: soInfo.durationInSec || 0,
                         thumbnail: soInfo.thumbnail || ''
-                    };
-                } else if (searchQuery.includes('youtube.com') || searchQuery.includes('youtu.be')) {
-                    const ytInfo = await play.video_info(searchQuery);
-                    return {
-                        title: ytInfo.video_details.title,
-                        webpage_url: ytInfo.video_details.url,
-                        duration: ytInfo.video_details.durationInSec || 0,
-                        thumbnail: ytInfo.video_details.thumbnails[0]?.url || ''
                     };
                 }
             } catch(e) {
