@@ -202,59 +202,35 @@ async function ytdlpGetInfo(url) {
     }
 }
 
-// Stream audio từ YouTube bằng yt-dlp pipe vào ffmpeg
-// Có fallback qua nhiều player_client nếu bị YouTube chặn trên VPS
-function ytdlpStream(url, clientIndex = 0) {
-    const cookiesPath = getCookiesPath();
-    const hasCookies = fs.existsSync(cookiesPath);
-
-    const args = [
-        '-f', 'bestaudio[ext=webm]/bestaudio/best',
-        '--no-playlist',
-        '-q',
-        '-o', '-'
-    ];
-
-    if (hasCookies) {
-        args.push('--cookies', cookiesPath);
-    } else {
-        const client = YT_PLAYER_CLIENTS[clientIndex] || YT_PLAYER_CLIENTS[0];
-        args.push('--extractor-args', `youtube:player_client=${client}`);
-        args.push('--user-agent', YTDLP_USER_AGENT);
+// Stream audio từ YouTube: lấy URL trực tiếp qua yt-dlp (có fallback nhiều player_client), rồi stream qua ffmpeg
+async function ytdlpStreamWithFallback(url) {
+    // Bước 1: Lấy direct audio URL bằng ytdlpExecWithFallback (có retry qua nhiều player_client)
+    const baseArgs = ['-f', 'bestaudio/best', '--no-playlist', '-g', '--quiet', '--no-warnings'];
+    const directUrl = (await ytdlpExecWithFallback(baseArgs, url)).trim();
+    
+    if (!directUrl || !directUrl.startsWith('http')) {
+        throw new Error('Không lấy được URL stream từ yt-dlp');
     }
 
-    args.push(url);
+    // Bước 2: Stream từ direct URL qua ffmpeg (ổn định, có reconnect)
+    const ffmpegProcess = spawn(ffmpegPath, [
+        '-reconnect', '1',
+        '-reconnect_streamed', '1',
+        '-reconnect_delay_max', '5',
+        '-i', directUrl,
+        '-vn',
+        '-f', 'opus',
+        '-ar', '48000',
+        '-ac', '2',
+        'pipe:1'
+    ], { stdio: ['pipe', 'pipe', 'pipe'] });
 
-    const ytdlp = spawn(YTDLP_PATH, args);
-    let stderrData = '';
-
-    ytdlp.stderr.on('data', (data) => {
-        stderrData += data.toString();
+    ffmpegProcess.stderr.on('data', () => {}); // Suppress ffmpeg logs
+    ffmpegProcess.on('error', (err) => {
+        console.error('Lỗi ffmpeg stream:', err.message);
     });
 
-    ytdlp.stdout.on('close', () => {
-        ytdlp.kill();
-    });
-
-    ytdlp.on('error', (err) => {
-        console.error('Lỗi tiến trình yt-dlp:', err);
-    });
-
-    ytdlp.on('close', (code) => {
-        if (code !== 0 && !hasCookies) {
-            const isBlocked = stderrData.includes('Sign in to confirm') ||
-                stderrData.includes('bot') ||
-                stderrData.includes('429');
-            if (isBlocked && clientIndex < YT_PLAYER_CLIENTS.length - 1) {
-                console.warn(`[yt-dlp stream] player_client=${YT_PLAYER_CLIENTS[clientIndex]} bị chặn, thử ${YT_PLAYER_CLIENTS[clientIndex + 1]}...`);
-                // Không retry stream trực tiếp được, chỉ log lỗi
-            } else if (isBlocked) {
-                console.error('[yt-dlp stream] Tất cả player_client bị chặn. Cần thêm cookies.txt!');
-            }
-        }
-    });
-
-    return ytdlp.stdout;
+    return ffmpegProcess.stdout;
 }
 
 const configPath = './config.json';
@@ -650,16 +626,16 @@ async function playNext(guildId, textChannel) {
                 const stream = await play.stream(song.url);
                 resource = createAudioResource(stream.stream, { inputType: stream.type, inlineVolume: true });
             } else {
-                const audioStream = ytdlpStream(song.url);
+                const audioStream = await ytdlpStreamWithFallback(song.url);
                 resource = createAudioResource(audioStream, { inlineVolume: true });
             }
         } catch(err) {
-            console.error('play-dl or stream failed, fallback to yt-dlp:', err.message);
+            console.error('Stream failed, fallback to yt-dlp:', err.message);
             if (song.isAttachment) {
                 const response = await axios({ url: song.url, method: 'GET', responseType: 'stream' });
                 resource = createAudioResource(response.data, { inlineVolume: true });
             } else {
-                const audioStream = ytdlpStream(song.url);
+                const audioStream = await ytdlpStreamWithFallback(song.url);
                 resource = createAudioResource(audioStream, { inlineVolume: true });
             }
         }
