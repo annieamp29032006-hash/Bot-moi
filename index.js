@@ -103,7 +103,7 @@ function ytdlpExecWithFallback(baseArgs, query, opts = {}) {
             });
 
             if (result.retry) continue;
-            if (result.err) return reject(result.err);
+            if (result.err && (!result.stdout || result.stdout.trim().length === 0)) return reject(result.err);
             return resolve(result.stdout);
         }
         reject(new Error('Tất cả player_client đều bị YouTube chặn. Vui lòng thêm cookies.txt (xem export_cookies_guide.md).'));
@@ -157,7 +157,7 @@ async function ytdlpGetInfo(url) {
         // Nếu là link (nhưng không phải YouTube), dùng yt-dlp lấy info
         if (searchQuery.startsWith('http')) {
             const isPlaylist = searchQuery.includes('/sets/') || searchQuery.includes('playlist');
-            const baseArgs = ['--dump-json', isPlaylist ? '--yes-playlist' : '--no-playlist', '--quiet', '--no-warnings'];
+            const baseArgs = ['--dump-json', isPlaylist ? '--yes-playlist' : '--no-playlist', '--quiet', '--no-warnings', '--ignore-errors'];
             const stdout = await ytdlpExecWithFallback(baseArgs, searchQuery);
             
             const lines = stdout.split('\n').filter(Boolean);
@@ -180,7 +180,7 @@ async function ytdlpGetInfo(url) {
         }
         
         // Tìm kiếm bằng chữ thì dùng SoundCloud qua yt-dlp (scsearch1:)
-        const baseArgs = ['--dump-json', '--no-playlist', '--quiet', '--no-warnings'];
+        const baseArgs = ['--dump-json', '--no-playlist', '--quiet', '--no-warnings', '--ignore-errors'];
         const stdout = await ytdlpExecWithFallback(baseArgs, `scsearch1:${searchQuery}`);
         const info = JSON.parse(stdout);
         
