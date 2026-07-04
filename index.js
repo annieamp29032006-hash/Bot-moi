@@ -678,7 +678,9 @@ async function playNext(guildId, textChannel) {
 
         resource.playStream.on('error', (err) => {
             console.error('Lỗi resource playStream:', err);
-            textChannel?.send(`❌ Lỗi stream: ${err.message}`);
+            if (!err.message || !err.message.toLowerCase().includes('aborted')) {
+                textChannel?.send(`❌ Lỗi stream: ${err.message}`);
+            }
         });
 
         if (!state.player) {
@@ -692,7 +694,9 @@ async function playNext(guildId, textChannel) {
 
             state.player.on('error', (err) => {
                 console.error('Lỗi audio player:', err);
-                textChannel?.send(`❌ Lỗi phát nhạc: ${err.message}`);
+                if (!err.message || !err.message.toLowerCase().includes('aborted')) {
+                    textChannel?.send(`❌ Lỗi phát nhạc: ${err.message}`);
+                }
                 state.queue.shift();
                 playNext(guildId, textChannel);
             });
@@ -3910,6 +3914,29 @@ async function handleMarketCommand(userId, msgOrInteraction) {
     }
 }
 
+const QUOTES_TYDC = [
+    "💙 Tình yêu Discord là thứ duy nhất online 24/7 nhưng tương lai thì offline mãi.",
+    "🎧 Yêu qua Discord, chia tay qua Discord, block xong vẫn chung server.",
+    "💀 \"Mãi mãi\" trên Discord thường kéo dài đến khi người ta đổi avatar.",
+    "😮💨 Hứa cưới nhau sau vài đêm call, sáng hôm sau thấy đang ghép đôi với người khác.",
+    "🤡 Discord không thiếu tình yêu, chỉ thiếu người yêu mình thật lòng.",
+    "💔 Có người xem Discord là nơi chơi game, có người xem là nơi thay người yêu theo từng season.",
+    "🥀 Tình yêu Discord giống Nitro: hết hạn là mất quyền lợi.",
+    "😆 \"Em chỉ nói chuyện với mình anh thôi.\" — 5 phút sau thấy đang ở voice room khác.",
+    "🎭 Yêu trên Discord là bài kiểm tra niềm tin, còn kết quả thì toàn điểm liệt.",
+    "📱 Tin nhắn thì ghim, lời hứa thì quên.",
+    "🫠 Trên Discord ai cũng là \"bé cưng\", chỉ có mình là tưởng mình đặc biệt.",
+    "🎮 Call đêm đến 4 giờ sáng không chứng minh được tình yêu, chỉ chứng minh cả hai đều chưa buồn ngủ.",
+    "💀 Avatar đôi, bio đôi, status đôi... nhưng ngoài đời thì chẳng ai biết nhau là ai.",
+    "🥲 Đừng ghen khi người yêu Discord rep chậm, biết đâu họ đang rep nhanh hơn với người khác.",
+    "🤝 Discord giúp kết nối mọi người... và cũng giúp mọi người kết nối với người yêu của bạn.",
+    "😌 Yêu Discord không đáng sợ, đáng sợ là nghĩ người kia cũng yêu mình như mình yêu họ.",
+    "🚩 Cờ đỏ trên Discord không phải role màu đỏ, mà là câu \"Anh với nó chỉ là bạn\".",
+    "💬 Một câu \"ngủ ngon\" được copy paste cho cả danh sách bạn bè.",
+    "🗿 Voice call hàng nghìn giờ nhưng gặp mặt thì \"để khi nào có dịp\".",
+    "🎪 Tình yêu Discord giống event giới hạn: lúc mới thì đông vui, hết event là chẳng còn ai nhớ."
+];
+
 let QUOTES_THINH = [];
 try {
     const thinhData = fs.readFileSync(path.join(__dirname, 'thinh_genz.txt'), 'utf8');
@@ -5880,10 +5907,14 @@ client.on('messageCreate', async (message) => {
     }
 
     if (content.includes('tydc')) {
+        const quote = QUOTES_TYDC[Math.floor(Math.random() * QUOTES_TYDC.length)];
         const tydcEmbed = new EmbedBuilder()
-            .setColor('#2b2d31')
-            .setDescription(`💜 Tình yêu Discord be like:\n\n💖 Avatar đôi.\n💍 Bio cặp.\n🎧 Call xuyên đêm.\n😚 "Vợ ơi."\n🥰 "Chồng ơi."\n\n...\n\n📅 Một tuần sau.\n\n🖤 Avatar mặc định.\n✏️ Nick đổi.\n❌ Unfriend.\n🚫 Block.\n\nNhưng...\n\n🏠 Server chung: ✔️\n👀 Vẫn thấy nhau online mỗi ngày.\n\nDiscord đúng là nơi...\nYêu nhanh như Nitro ⚡\nMà chia tay còn nhanh hơn tốc độ mạng. 💀`)
-            .setFooter({ text: 'by Hima in here' });
+            .setTitle('🤡 Tình Yêu Discord')
+            .setDescription(`> *"${quote}"*`)
+            .setColor('#2F3136')
+            .setThumbnail(message.author.displayAvatarURL({ dynamic: true }))
+            .setFooter({ text: `Yêu cầu bởi ${message.author.username}` })
+            .setTimestamp();
         return message.reply({ embeds: [tydcEmbed] });
     }
 
