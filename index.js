@@ -203,62 +203,57 @@ async function ytdlpGetInfo(url) {
     }
 }
 
-// Stream audio từ YouTube bằng yt-dlp pipe trực tiếp
-// Có retry qua nhiều player_client nếu bị YouTube chặn trên VPS
-async function ytdlpStreamWithFallback(url) {
+// Stream audio từ YouTube bằng yt-dlp pipe vào ffmpeg
+function ytdlpStream(url, clientIndex = 0) {
     const cookiesPath = getCookiesPath();
     const hasCookies = fs.existsSync(cookiesPath);
-    const clients = hasCookies ? [null] : YT_PLAYER_CLIENTS;
-    const { PassThrough } = require('stream');
 
-    for (let i = 0; i < clients.length; i++) {
-        const args = ['-f', 'bestaudio[ext=webm]/bestaudio/best', '--no-playlist', '-q', '-o', '-'];
+    const args = [
+        '-f', 'bestaudio[ext=webm]/bestaudio/best',
+        '--no-playlist',
+        '-q',
+        '-o', '-'
+    ];
 
-        if (hasCookies) {
-            args.push('--cookies', cookiesPath);
-        } else {
-            args.push('--extractor-args', `youtube:player_client=${clients[i]}`);
-            args.push('--user-agent', YTDLP_USER_AGENT);
-        }
-        args.push(url);
-
-        const result = await new Promise((resolve) => {
-            const proc = spawn(YTDLP_PATH, args);
-            let gotData = false;
-            let stderrData = '';
-
-            const timeout = setTimeout(() => {
-                if (!gotData) { proc.kill(); resolve(null); }
-            }, 15000);
-
-            proc.stdout.once('data', (chunk) => {
-                gotData = true;
-                clearTimeout(timeout);
-                const pt = new PassThrough();
-                pt.write(chunk);
-                proc.stdout.pipe(pt);
-                proc.on('close', () => pt.end());
-                resolve(pt);
-            });
-
-            proc.stderr.on('data', (d) => { stderrData += d.toString(); });
-            proc.on('close', () => {
-                clearTimeout(timeout);
-                if (!gotData) {
-                    if (i < clients.length - 1) {
-                        console.warn(`[yt-dlp stream] player_client=${clients[i]} thất bại, thử ${clients[i + 1]}...`);
-                    }
-                    resolve(null);
-                }
-            });
-        });
-
-        if (result) {
-            console.log(`[Stream] ✅ Thành công với player_client=${clients[i] || 'cookies'}`);
-            return result;
-        }
+    if (hasCookies) {
+        args.push('--cookies', cookiesPath);
+    } else {
+        const client = YT_PLAYER_CLIENTS[clientIndex] || YT_PLAYER_CLIENTS[0];
+        args.push('--extractor-args', `youtube:player_client=${client}`);
+        args.push('--user-agent', YTDLP_USER_AGENT);
     }
-    throw new Error('[yt-dlp stream] Tất cả player_client đều bị chặn. Cần thêm cookies.txt!');
+
+    args.push(url);
+
+    const ytdlp = spawn(YTDLP_PATH, args);
+    let stderrData = '';
+
+    ytdlp.stderr.on('data', (data) => {
+        stderrData += data.toString();
+    });
+
+    ytdlp.stdout.on('close', () => {
+        ytdlp.kill();
+    });
+
+    ytdlp.on('error', (err) => {
+        console.error('Lỗi tiến trình yt-dlp:', err);
+    });
+
+    ytdlp.on('close', (code) => {
+        if (code !== 0 && !hasCookies) {
+            const isBlocked = stderrData.includes('Sign in to confirm') ||
+                stderrData.includes('bot') ||
+                stderrData.includes('429');
+            if (isBlocked && clientIndex < YT_PLAYER_CLIENTS.length - 1) {
+                console.warn(`[yt-dlp stream] player_client=${YT_PLAYER_CLIENTS[clientIndex]} bị chặn, thử ${YT_PLAYER_CLIENTS[clientIndex + 1]}...`);
+            } else if (isBlocked) {
+                console.error('[yt-dlp stream] Tất cả player_client bị chặn. Cần thêm cookies.txt!');
+            }
+        }
+    });
+
+    return ytdlp.stdout;
 }
 
 const configPath = './config.json';
@@ -654,7 +649,7 @@ async function playNext(guildId, textChannel) {
                 const stream = await play.stream(song.url);
                 resource = createAudioResource(stream.stream, { inputType: stream.type, inlineVolume: true });
             } else {
-                const audioStream = await ytdlpStreamWithFallback(song.url);
+                const audioStream = ytdlpStream(song.url);
                 resource = createAudioResource(audioStream, { inlineVolume: true });
             }
         } catch(err) {
@@ -663,7 +658,7 @@ async function playNext(guildId, textChannel) {
                 const response = await axios({ url: song.url, method: 'GET', responseType: 'stream' });
                 resource = createAudioResource(response.data, { inlineVolume: true });
             } else {
-                const audioStream = await ytdlpStreamWithFallback(song.url);
+                const audioStream = ytdlpStream(song.url);
                 resource = createAudioResource(audioStream, { inlineVolume: true });
             }
         }
