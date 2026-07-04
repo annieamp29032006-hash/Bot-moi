@@ -29,15 +29,6 @@ const raidTracker = new Map(); // Lưu: { guildId: [ timestamp, timestamp ] }
 const spamTracker = new Map(); // Lưu: { userId: [{ content, timestamp }] }
 
 const BANNED_USERS = ['1141650026049830963'];
-const play = require('play-dl');
-play.getFreeClientID().then((clientID) => {
-    play.setToken({
-        soundcloud : {
-            client_id : clientID
-        }
-    });
-}).catch(console.error);
-
 
 // Chỉ định đường dẫn FFmpeg cho prism-media (dùng cho @discordjs/voice)
 process.env.FFMPEG_PATH = ffmpegPath;
@@ -148,6 +139,10 @@ async function ytdlpGetInfo(url) {
     try {
         let searchQuery = url;
 
+        if (url.includes('youtube.com') || url.includes('youtu.be')) {
+            throw new Error('Bot hiện tại chỉ hỗ trợ phát nhạc từ SoundCloud và Spotify. Tính năng YouTube đã bị vô hiệu hóa.');
+        }
+
         // Resolve SoundCloud short URL trước
         if (url.includes('on.soundcloud.com')) {
             searchQuery = await resolveSoundCloudShortUrl(url);
@@ -159,24 +154,8 @@ async function ytdlpGetInfo(url) {
             searchQuery = `${spotInfo.title} ${spotInfo.artist}`;
         }
         
-        // Nếu là link, dùng play-dl cho SoundCloud, yt-dlp cho YouTube/khác
+        // Nếu là link (nhưng không phải YouTube), dùng yt-dlp lấy info
         if (searchQuery.startsWith('http')) {
-            try {
-                if (searchQuery.includes('soundcloud.com')) {
-                    const play = require('play-dl');
-                    const soInfo = await play.soundcloud(searchQuery);
-                    return {
-                        title: soInfo.name,
-                        webpage_url: soInfo.url,
-                        duration: soInfo.durationInSec || 0,
-                        thumbnail: soInfo.thumbnail || ''
-                    };
-                }
-            } catch(e) {
-                console.error('play-dl getInfo error:', e.message);
-            }
-            
-            // Fallback yt-dlp
             const baseArgs = ['--dump-json', '--no-playlist', '--quiet', '--no-warnings'];
             const stdout = await ytdlpExecWithFallback(baseArgs, searchQuery);
             const info = JSON.parse(stdout);
@@ -188,18 +167,22 @@ async function ytdlpGetInfo(url) {
             };
         }
         
-        // Tìm kiếm bằng chữ thì dùng YouTubeSR cho nhanh
-        const video = await YouTubeSR.searchOne(searchQuery);
-        if (!video || !video.id) return null;
+        // Tìm kiếm bằng chữ thì dùng SoundCloud qua yt-dlp (scsearch1:)
+        const baseArgs = ['--dump-json', '--no-playlist', '--quiet', '--no-warnings'];
+        const stdout = await ytdlpExecWithFallback(baseArgs, `scsearch1:${searchQuery}`);
+        const info = JSON.parse(stdout);
+        
+        if (!info || !info.title) return null;
+        
         return {
-            title: video.title,
-            webpage_url: `https://www.youtube.com/watch?v=${video.id}`,
-            duration: video.duration / 1000,
-            thumbnail: video.thumbnail?.url || ''
+            title: info.title,
+            webpage_url: info.webpage_url || info.url,
+            duration: info.duration || 0,
+            thumbnail: info.thumbnail || ''
         };
     } catch (err) {
         console.error('Lỗi khi lấy info bài hát:', err.message || err);
-        return null;
+        throw err; // Ném lỗi ra ngoài để user thấy
     }
 }
 
@@ -640,27 +623,12 @@ async function playNext(guildId, textChannel) {
 
     try {
         let resource;
-        try {
-            if (song.isAttachment) {
-                const response = await axios({ url: song.url, method: 'GET', responseType: 'stream' });
-                resource = createAudioResource(response.data, { inlineVolume: true });
-            } else if (song.url.includes('soundcloud.com') || song.url.includes('on.soundcloud.com')) {
-                const play = require('play-dl');
-                const stream = await play.stream(song.url);
-                resource = createAudioResource(stream.stream, { inputType: stream.type, inlineVolume: true });
-            } else {
-                const audioStream = ytdlpStream(song.url);
-                resource = createAudioResource(audioStream, { inlineVolume: true });
-            }
-        } catch(err) {
-            console.error('Stream failed, fallback to yt-dlp:', err.message);
-            if (song.isAttachment) {
-                const response = await axios({ url: song.url, method: 'GET', responseType: 'stream' });
-                resource = createAudioResource(response.data, { inlineVolume: true });
-            } else {
-                const audioStream = ytdlpStream(song.url);
-                resource = createAudioResource(audioStream, { inlineVolume: true });
-            }
+        if (song.isAttachment) {
+            const response = await axios({ url: song.url, method: 'GET', responseType: 'stream' });
+            resource = createAudioResource(response.data, { inlineVolume: true });
+        } else {
+            const audioStream = ytdlpStream(song.url);
+            resource = createAudioResource(audioStream, { inlineVolume: true });
         }
 
         // Áp dụng âm lượng hiện tại
