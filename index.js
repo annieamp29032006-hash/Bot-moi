@@ -11,7 +11,8 @@ const fs = require('fs');
 const axios = require('axios');
 const {
     joinVoiceChannel, createAudioPlayer, createAudioResource,
-    AudioPlayerStatus, VoiceConnectionStatus, getVoiceConnection, entersState
+    AudioPlayerStatus, VoiceConnectionStatus, getVoiceConnection, entersState,
+    StreamType
 } = require('@discordjs/voice');
 const { execFile, spawn } = require('child_process');
 const path = require('path');
@@ -212,16 +213,18 @@ async function ytdlpStreamWithFallback(url) {
         throw new Error('Không lấy được URL stream từ yt-dlp');
     }
 
-    // Bước 2: Stream từ direct URL qua ffmpeg (ổn định, có reconnect)
+    console.log('[Stream] Đã lấy được direct URL, bắt đầu stream qua ffmpeg...');
+
+    // Bước 2: Stream từ direct URL qua ffmpeg → output raw PCM s16le cho discord.js
     const ffmpegProcess = spawn(ffmpegPath, [
         '-reconnect', '1',
         '-reconnect_streamed', '1',
         '-reconnect_delay_max', '5',
         '-i', directUrl,
         '-vn',
-        '-f', 'opus',
         '-ar', '48000',
         '-ac', '2',
+        '-f', 's16le',
         'pipe:1'
     ], { stdio: ['pipe', 'pipe', 'pipe'] });
 
@@ -627,7 +630,7 @@ async function playNext(guildId, textChannel) {
                 resource = createAudioResource(stream.stream, { inputType: stream.type, inlineVolume: true });
             } else {
                 const audioStream = await ytdlpStreamWithFallback(song.url);
-                resource = createAudioResource(audioStream, { inlineVolume: true });
+                resource = createAudioResource(audioStream, { inputType: StreamType.Raw, inlineVolume: true });
             }
         } catch(err) {
             console.error('Stream failed, fallback to yt-dlp:', err.message);
@@ -636,7 +639,7 @@ async function playNext(guildId, textChannel) {
                 resource = createAudioResource(response.data, { inlineVolume: true });
             } else {
                 const audioStream = await ytdlpStreamWithFallback(song.url);
-                resource = createAudioResource(audioStream, { inlineVolume: true });
+                resource = createAudioResource(audioStream, { inputType: StreamType.Raw, inlineVolume: true });
             }
         }
 
