@@ -10766,19 +10766,23 @@ client.on('interactionCreate', async (interaction) => {
         const voiceChannel = interaction.member?.voice?.channel;
 
         if (!query && !file) {
-            return interaction.reply({ content: '❌ Bạn phải nhập tên bài hát hoặc đính kèm một file nhạc!', flags: MessageFlags.Ephemeral });
+            return interaction.reply({ content: '❌ Bạn phải nhập tên bài hát hoặc đính kèm một file nhạc!', flags: MessageFlags.Ephemeral }).catch(() => {});
         }
 
         if (!voiceChannel) {
-            return interaction.reply({ content: '❌ Bạn cần vào **voice channel** trước!', flags: MessageFlags.Ephemeral });
+            return interaction.reply({ content: '❌ Bạn cần vào **voice channel** trước!', flags: MessageFlags.Ephemeral }).catch(() => {});
         }
 
         const perms = voiceChannel.permissionsFor(client.user);
         if (!perms.has(PermissionsBitField.Flags.Connect) || !perms.has(PermissionsBitField.Flags.Speak)) {
-            return interaction.reply({ content: '❌ Bot không có quyền vào kênh thoại này!', flags: MessageFlags.Ephemeral });
+            return interaction.reply({ content: '❌ Bot không có quyền vào kênh thoại này!', flags: MessageFlags.Ephemeral }).catch(() => {});
         }
 
-        await interaction.deferReply();
+        try {
+            await interaction.deferReply();
+        } catch (err) {
+            return; // Interaction expired, skip doing heavy work
+        }
 
         try {
             let songInfo;
