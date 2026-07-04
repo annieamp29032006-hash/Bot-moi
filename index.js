@@ -167,7 +167,7 @@ async function ytdlpGetInfo(url) {
                 title: info.title,
                 webpage_url: info.webpage_url || info.url,
                 duration: info.duration || 0,
-                thumbnail: info.thumbnail || ''
+                thumbnail: info.thumbnail || null
             });
 
             if (lines.length === 1) {
@@ -190,7 +190,7 @@ async function ytdlpGetInfo(url) {
             title: info.title,
             webpage_url: info.webpage_url || info.url,
             duration: info.duration || 0,
-            thumbnail: info.thumbnail || ''
+            thumbnail: info.thumbnail || null
         };
     } catch (err) {
         console.error('Lỗi khi lấy info bài hát:', err.message || err);
@@ -779,6 +779,21 @@ async function downloadYouTubeVideo(url) {
         });
     });
 }
+
+// ========================
+// IMAGE RESTRICTION CONFIG
+// ========================
+const imageChannelsPath = './image_channels.json';
+let imageChannelConfig = {};
+function loadImageChannels() {
+    if (!fs.existsSync(imageChannelsPath)) return {};
+    try { return JSON.parse(fs.readFileSync(imageChannelsPath, 'utf8')); }
+    catch { return {}; }
+}
+function saveImageChannels() {
+    fs.writeFileSync(imageChannelsPath, JSON.stringify(imageChannelConfig, null, 2));
+}
+imageChannelConfig = loadImageChannels();
 
 // ========================
 // COIN SYSTEM
@@ -5656,6 +5671,39 @@ client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
     if (BANNED_USERS.includes(message.author.id)) return;
     
+    // --- IMAGE RESTRICTION LOGIC ---
+    if (imageChannelConfig[message.channelId]) {
+        const allowedChannel = imageChannelConfig[message.channelId];
+        const hasImageAttachment = message.attachments.some(a => a.contentType && a.contentType.startsWith('image/'));
+        const hasImageLink = /(https?:\/\/.*\.(?:png|jpg|jpeg|gif|webp))/i.test(message.content);
+        
+        if (hasImageAttachment || hasImageLink) {
+            await message.delete().catch(() => {});
+            const embed = new EmbedBuilder()
+                .setTitle('⚠️ Cảnh báo gửi ảnh')
+                .setDescription(`Kênh này không cho phép gửi ảnh! Vui lòng gửi ảnh sang kênh <#${allowedChannel}> nhé.`)
+                .setColor('#FF0000')
+                .setFooter({ text: `Người gửi: ${message.author.tag}`, iconURL: message.author.displayAvatarURL() });
+            const warningMsg = await message.channel.send({ content: `<@${message.author.id}>`, embeds: [embed] });
+            setTimeout(() => warningMsg.delete().catch(()=> {}), 10000);
+            return;
+        }
+    }
+
+    // !setimagechannel <restricted> <allowed>
+    const imgPrefix = getPrefix(message.guildId);
+    if (message.content.startsWith(`${imgPrefix}setimagechannel`)) {
+        if (!message.member.permissions.has(PermissionsBitField.Flags.ManageChannels)) return message.reply('❌ Bạn cần quyền Manage Channels!');
+        const args = message.content.split(' ').slice(1);
+        if (args.length < 2) return message.reply(`❌ Cú pháp: \`${imgPrefix}setimagechannel <ID_kênh_cấm> <ID_kênh_được_phép>\`\nVí dụ: \`${imgPrefix}setimagechannel 123456789 987654321\``);
+        const restricted = args[0].replace(/<#|>/g, '');
+        const allowed = args[1].replace(/<#|>/g, '');
+        
+        imageChannelConfig[restricted] = allowed;
+        saveImageChannels();
+        return message.reply(`✅ Đã thiết lập: Cấm ảnh ở <#${restricted}> và nhắc chuyển sang <#${allowed}>.`);
+    }
+
     // --- ANTI-SPAM CHECK ---
     if (message.guild) {
         const config = getGuildConfig(message.guild.id);
@@ -6859,7 +6907,7 @@ client.on('messageCreate', async (message) => {
             let firstSongInfo = null;
             for (const info of items) {
                 const d = parseInt(info.duration) || 0;
-                const songInfo = { title: info.title, url: info.webpage_url, duration: `${Math.floor(d/60)}:${String(d%60).padStart(2,'0')}`, thumbnail: info.thumbnail, requestedBy: message.author.tag, requestedById: message.author.id };
+                const songInfo = { title: info.title, url: info.webpage_url, duration: `${Math.floor(d/60)}:${String(d%60).padStart(2,'0')}`, thumbnail: info.thumbnail || null, requestedBy: message.author.tag, requestedById: message.author.id };
                 state.queue.push(songInfo);
                 if (!firstSongInfo) firstSongInfo = songInfo;
             }
@@ -10543,7 +10591,7 @@ client.on('interactionCreate', async (interaction) => {
                         title: info.title,
                         url: info.webpage_url,
                         duration: `${mins}:${String(secs).padStart(2, '0')}`,
-                        thumbnail: info.thumbnail,
+                        thumbnail: info.thumbnail || null,
                         requestedBy: interaction.user.tag,
                         requestedById: interaction.user.id
                     };
