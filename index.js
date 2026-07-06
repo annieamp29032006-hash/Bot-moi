@@ -7086,18 +7086,23 @@ Bao gồm:
     if (content === `${prefix}noti` || content === `${prefix}update`) {
         if (!message.member.permissions.has(PermissionsBitField.Flags.Administrator)) return message.reply('❌ Chỉ Admin mới có quyền gửi thông báo!');
         const embed = new EmbedBuilder()
-            .setTitle('📢 THÔNG BÁO CẬP NHẬT & HƯỚNG DẪN SỬ DỤNG')
-            .setDescription('Chào mừng các bạn đến với bản cập nhật mới nhất của **Hima Bot**! ❄️\nDưới đây là một số thay đổi và hướng dẫn cơ bản để bạn trải nghiệm bot tốt nhất.')
-            .addFields(
-                { name: '🎵 Âm Nhạc & Tiện Ích', value: '• **Lõi phát nhạc mới:** Ổn định, không đứt quãng, hỗ trợ **SoundCloud Playlists**.\n• **Tải YouTube:** Tính năng tải video YouTube nhanh chóng.\n• **Voice & Kênh Hình Ảnh:** Chống spam chữ kênh ảnh, tối ưu tag im lặng kênh voice.', inline: false },
-                { name: '🛡️ Hệ Thống Bảo Vệ & Quản Trị', value: '• **Bảo mật:** Bật tự động Anti-Nuke, Anti-Raid và Anti-Spam.\n• **Cải tạo (Jail):** Lệnh `/setjail`, tắt anti-spam ở kênh nhà tù để phạm nhân spam.\n• **Lệnh 1ar & Setup UI:** Bảng điều khiển cấp role nhanh, setup Welcome & Ping game trực quan.', inline: false },
-                { name: '💻 Game & Kinh Tế Mới', value: '• **Dark Web & Hacking:** Mua Laptop, Virus, Tường Lửa ở shop và chơi minigame hack tài khoản người khác!\n• **Đầu Tư:** Lệnh `/dautu` đầu tư sinh lời ngẫu nhiên với thị trường ảo.\n• **Nối Từ:** Thêm tính năng nối từ Tiếng Anh, tối ưu từ điển tiếng Việt.', inline: false },
-                { name: '🎁 Nâng Cấp Khác', value: '• **Giveaway:** Hiển thị số lượng người tham gia trực tiếp, tuỳ chỉnh banner.\n• **Kết Hôn:** Giờ đây có thể cầu hôn thả ga ở bất kỳ kênh nào.\n• **Túi Đồ & Level:** Sửa lỗi hiển thị túi đồ RPG và tắt thông báo thăng cấp ở kênh tuỳ chọn.', inline: false },
-                { name: '📖 Hướng Dẫn Nhanh', value: `Gõ \`${prefix}help\` hoặc \`/help\` để xem toàn bộ chi tiết cách chơi từng tính năng nhé!`, inline: false }
-            )
-            .setColor('#00FFFF')
-            .setThumbnail(client.user.displayAvatarURL())
-            .setFooter({ text: 'Cảm ơn bạn đã sử dụng Hima Bot ❤️' })
+            .setTitle('💖 BẢNG GIÁ CODE BOT DISCORD 💖')
+            .setDescription(`
+**Bot riêng (Custom Bot)**
+
+**400.000 VNĐ / 1 Bot / 1 Server**
+
+📅 **Phí duy trì**
+
+**60.000 VNĐ / tháng**
+Bao gồm:
+- Host bot 24/7
+- Bảo trì & sửa lỗi
+- Cập nhật tính năng nhỏ (nếu có)
+
+✅ Giá trên áp dụng cho 01 bot hoạt động trên 01 server Discord. Nếu cần thêm tính năng hoặc triển khai cho nhiều server, chi phí sẽ được báo riêng.
+            `)
+            .setColor('#FFB6C1')
             .setTimestamp();
         
         message.delete().catch(() => {});
