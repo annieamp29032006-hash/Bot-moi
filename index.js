@@ -9735,11 +9735,16 @@ client.on('interactionCreate', async (interaction) => {
             if (!interaction.member.permissions.has(PermissionsBitField.Flags.ManageMessages))
                 return interaction.reply({ content: '❌ Bạn không có quyền!', flags: MessageFlags.Ephemeral });
             const addInfo = interaction.customId.replace('confirm_payment_', '');
-            const updatedRow = new ActionRowBuilder().addComponents(
-                new ButtonBuilder().setCustomId('confirmed').setLabel('Đã xác nhận thanh toán').setStyle(ButtonStyle.Secondary).setDisabled(true)
-            );
-            await interaction.update({ components: [updatedRow] });
-            await interaction.channel.send(`🎉 **Xác nhận thành công!** Đã nhận thanh toán cho: **${addInfo}**.`);
+            
+            const randomCode = 'MH' + Math.floor(10000 + Math.random() * 90000); // MH + 5 số tự nhiên ngẫu nhiên
+            const successEmbed = new EmbedBuilder()
+                .setTitle('🎉 ĐÃ THANH TOÁN THÀNH CÔNG 🎉')
+                .setDescription(`Đã nhận thanh toán thành công cho: **${addInfo}**\n\n🔹 **Mã giao dịch:** ${randomCode}`)
+                .setColor('#2ECC71')
+                .setFooter({ text: 'Xác nhận thanh toán tự động' })
+                .setTimestamp();
+                
+            await interaction.update({ content: null, embeds: [successEmbed], components: [] });
         }
 
         // === XỬ LÝ NÚT KẾT HÔN ===
