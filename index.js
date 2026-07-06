@@ -4725,6 +4725,8 @@ const client = new Client({
     allowedMentions: { parse: ['users', 'roles'], repliedUser: true }
 });
 
+client.setMaxListeners(0);
+
 // Khởi tạo Giveaway Manager
 const manager = new GiveawaysManager(client, {
     storage: './giveaways.json',
@@ -5708,25 +5710,25 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
         if (voiceNotifyEnabled) {
             if (!oldState.channelId && newState.channelId) {
                 const channel = newState.channel;
-                if (channel && channel.permissionsFor(newState.guild.members.me).has('SendMessages')) {
+                if (channel && channel.permissionsFor(newState.guild.members.me)?.has('SendMessages')) {
                     const embed = new EmbedBuilder().setDescription(`🔔 <@${userId}> vừa tham gia kênh thoại **${channel.name}**! Vô chém gió nào mọi người.`).setColor('#57F287');
                     await channel.send({ embeds: [embed], allowedMentions: { parse: [] } }).catch(() => {});
                 }
             } else if (oldState.channelId && !newState.channelId) {
                 const channel = oldState.channel;
-                if (channel && channel.permissionsFor(oldState.guild.members.me).has('SendMessages')) {
+                if (channel && channel.permissionsFor(oldState.guild.members.me)?.has('SendMessages')) {
                     const embed = new EmbedBuilder().setDescription(`👋 <@${userId}> đã ngắt kết nối hoàn toàn khỏi kênh thoại **${channel.name}**.`).setColor('#ED4245');
                     await channel.send({ embeds: [embed], allowedMentions: { parse: [] } }).catch(() => {});
                 }
             } else if (oldState.channelId && newState.channelId && oldState.channelId !== newState.channelId) {
                 const oldChannel = oldState.channel;
                 const newChannel = newState.channel;
-                if (oldChannel && oldChannel.permissionsFor(oldState.guild.members.me).has('SendMessages')) {
-                    const embed = new EmbedBuilder().setDescription(`👋 <@${userId}> đã rời khỏi đây và chuyển sang kênh **${newChannel.name}**.`).setColor('#ED4245');
+                if (oldChannel && oldChannel.permissionsFor(oldState.guild.members.me)?.has('SendMessages')) {
+                    const embed = new EmbedBuilder().setDescription(`👋 <@${userId}> đã rời khỏi đây và chuyển sang kênh **${newChannel?.name || 'ẩn/không xác định'}**.`).setColor('#ED4245');
                     await oldChannel.send({ embeds: [embed], allowedMentions: { parse: [] } }).catch(() => {});
                 }
-                if (newChannel && newChannel.permissionsFor(newState.guild.members.me).has('SendMessages')) {
-                    const embed = new EmbedBuilder().setDescription(`🔔 <@${userId}> vừa chuyển từ kênh **${oldChannel.name}** sang kênh này!`).setColor('#FEE75C');
+                if (newChannel && newChannel.permissionsFor(newState.guild.members.me)?.has('SendMessages')) {
+                    const embed = new EmbedBuilder().setDescription(`🔔 <@${userId}> vừa chuyển từ kênh **${oldChannel?.name || 'ẩn/không xác định'}** sang kênh này!`).setColor('#FEE75C');
                     await newChannel.send({ embeds: [embed], allowedMentions: { parse: [] } }).catch(() => {});
                 }
             }
