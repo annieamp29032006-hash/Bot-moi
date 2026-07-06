@@ -4742,7 +4742,7 @@ client.giveawaysManager = manager;
 // Từ khóa auto-reply
 const autoReplies = {
     'hello': 'Xin chào bạn nhé!',
-    'hima': 'Dạ, Hima nghe đây ạ!'
+    'hima': `Hima chào bạn ạ, bạn cần làm code bot custom cho server liên hệ với ${ADMIN_ID} . Cảm ơn bạn ạ`
 };
 
 // ========================
