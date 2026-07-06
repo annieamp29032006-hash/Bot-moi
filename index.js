@@ -5511,15 +5511,8 @@ client.on('guildMemberAdd', async (member) => {
         
         channel.send(messageOptions);
         
-        // Gửi DM riêng cho user với thiết kế LAVIE
-        const dmEmbed = new EmbedBuilder()
-            .setTitle('Giữa hàng triệu cuộc gặp gỡ trên thế giới, thật vui vì hôm nay chúng ta lại có thêm một cái tên xuất hiện tại L A V I E 🐶')
-            .setDescription('Mừng bạn đã đến với L A V I E , chúc bạn có những kỉ niệm thật đẹp ở đây.\n\n> Cảm ơn vì giữa vô vàn điểm dừng chân, bạn đã chọn ghé lại nơi đây.\n> Hy vọng LAVIE sẽ trở thành một khoảng trời nhỏ, nơi bạn có thể tìm thấy niềm vui, sự đồng điệu và những người bạn tuyệt vời.\n\nChúc bạn có thật nhiều kỷ niệm đẹp cùng chúng mình.\n💧 **Và đừng quên uống đủ nước nhé.**')
-            .setColor('#2b2d31')
-            .setImage('https://cdn.discordapp.com/attachments/1492161415388069968/1522638402326102036/ChatGPT_Image_23_21_06_3_thg_7_2026.png?ex=6a493304&is=6a47e184&hm=0b105358fb59188657d3e236fcd422de4ba27f9e60afa52dae68cf259239613e&')
-            .setFooter({ text: 'づ♡ど' });
-
-        member.send({ embeds: [dmEmbed] }).catch(() => {});
+        // Gửi DM riêng cho user bằng chính embed đã cài đặt cho server đó (không kèm tag role)
+        member.send({ embeds: [embed] }).catch(() => {});
     } catch (error) {
         console.error('Lỗi khi gửi lời chào:', error);
     }
