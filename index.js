@@ -7124,8 +7124,7 @@ Bao gồm:
         if (!args.length) return message.reply(`❌ Cú pháp: \`${prefix}qr <số tiền> [nội dung]\``);
         const amount = args[0];
         let baseInfo = args.slice(1).join(' ').replace(/[^a-zA-Z0-9 ]/g, '');
-        let addInfo = baseInfo ? `${baseInfo} ${qrOrderCount}` : `Thanh toan don ${qrOrderCount}`;
-        qrOrderCount++;
+        let addInfo = baseInfo ? `${baseInfo} MH${Math.floor(10000 + Math.random() * 90000)}` : `MH${Math.floor(10000 + Math.random() * 90000)}`;
         if (isNaN(amount) || amount <= 0) return message.reply('❌ Số tiền không hợp lệ.');
         const bankId = process.env.BANK_ID, accountNo = process.env.ACCOUNT_NO, accountName = process.env.ACCOUNT_NAME;
         if (!bankId || !accountNo || bankId === 'YOUR_BANK_ID_HERE') return message.reply('❌ Chưa cấu hình thông tin ngân hàng trong `.env`.');
@@ -9736,10 +9735,9 @@ client.on('interactionCreate', async (interaction) => {
                 return interaction.reply({ content: '❌ Bạn không có quyền!', flags: MessageFlags.Ephemeral });
             const addInfo = interaction.customId.replace('confirm_payment_', '');
             
-            const randomCode = 'MH' + Math.floor(10000 + Math.random() * 90000); // MH + 5 số tự nhiên ngẫu nhiên
             const successEmbed = new EmbedBuilder()
                 .setTitle('🎉 ĐÃ THANH TOÁN THÀNH CÔNG 🎉')
-                .setDescription(`Đã nhận thanh toán thành công cho: **${addInfo}**\n\n🔹 **Mã giao dịch:** ${randomCode}`)
+                .setDescription(`Cảm ơn bạn đã thanh toán!\n\n🔹 **Nội dung / Mã giao dịch:** ${addInfo}`)
                 .setColor('#2ECC71')
                 .setFooter({ text: 'Xác nhận thanh toán tự động' })
                 .setTimestamp();
@@ -11391,8 +11389,7 @@ client.on('interactionCreate', async (interaction) => {
         const amount = interaction.options.getInteger('amount');
         const baseInfo = interaction.options.getString('content') || '';
         const safeBaseInfo = baseInfo.replace(/[^a-zA-Z0-9 ]/g, '');
-        let addInfo = safeBaseInfo ? `${safeBaseInfo} ${qrOrderCount}` : `Thanh toan don ${qrOrderCount}`;
-        qrOrderCount++;
+        let addInfo = safeBaseInfo ? `${safeBaseInfo} MH${Math.floor(10000 + Math.random() * 90000)}` : `MH${Math.floor(10000 + Math.random() * 90000)}`;
         if (amount <= 0) return interaction.reply({ content: '❌ Số tiền phải lớn hơn 0.', flags: MessageFlags.Ephemeral });
         const bankId = process.env.BANK_ID, accountNo = process.env.ACCOUNT_NO, accountName = process.env.ACCOUNT_NAME;
         if (!bankId || !accountNo || bankId === 'YOUR_BANK_ID_HERE') return interaction.reply({ content: '❌ Chưa cấu hình ngân hàng trong `.env`.', flags: MessageFlags.Ephemeral });
