@@ -6431,8 +6431,8 @@ client.on('messageCreate', async (message) => {
     if (content === '1tuyensinh') {
         if (message.author.id !== ADMIN_ID) return message.reply('❌ Lệnh này chỉ dành riêng cho Chủ Bot!');
         const embed = new EmbedBuilder()
-            .setTitle('🎓 Thông Tin Tuyển Sinh - Đại Học Sư Phạm Kỹ Thuật Hưng Yên (UTEHY)')
-            .setDescription('Dưới đây là các thông tin cơ bản về tuyển sinh của trường Đại học Sư phạm Kỹ thuật Hưng Yên:')
+            .setTitle('🎓 Thông Tin Tuyển Sinh Năm 2026 - Đại Học Sư Phạm Kỹ Thuật Hưng Yên (UTEHY)')
+            .setDescription('Dưới đây là các thông tin cơ bản về tuyển sinh năm 2026 của trường Đại học Sư phạm Kỹ thuật Hưng Yên:')
             .setColor('#1E8449')
             .setThumbnail('https://upload.wikimedia.org/wikipedia/vi/thumb/9/90/Logo_%C4%90%E1%BA%A1i_h%E1%BB%8Dc_S%C6%B0_ph%E1%BA%A1m_K%E1%BB%B9_thu%E1%BA%ADt_H%C6%B0ng_Y%C3%AAn.png/220px-Logo_%C4%90%E1%BA%A1i_h%E1%BB%8Dc_S%C6%B0_ph%E1%BA%A1m_K%E1%BB%B9_thu%E1%BA%ADt_H%C6%B0ng_Y%C3%AAn.png')
             .addFields(
