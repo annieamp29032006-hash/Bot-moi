@@ -6202,6 +6202,15 @@ client.on('messageCreate', async (message) => {
 
         if (result.success) {
             try {
+                // Rút gọn link video để tránh bị dài ngoằng
+                let shortVideoUrl = result.videoUrl;
+                try {
+                    const tinyRes = await axios.get(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(result.videoUrl)}`);
+                    if (tinyRes.data) shortVideoUrl = tinyRes.data;
+                } catch (err) {
+                    console.error('Lỗi khi rút gọn link:', err.message);
+                }
+
                 // Gửi video trực tiếp bằng cách embed URL (Discord sẽ embed video)
                 const embed = new EmbedBuilder()
                     .setAuthor({ name: `👤 ${result.author}`, iconURL: result.cover })
@@ -6217,7 +6226,7 @@ client.on('messageCreate', async (message) => {
 
                 await loadingMsg.delete();
                 await message.channel.send({
-                    content: `📱 **Video TikTok từ @${result.author}**\n${result.videoUrl}`,
+                    content: `📱 **Video TikTok từ @${result.author}**\n${shortVideoUrl}`,
                     embeds: [embed]
                 });
                 // Xóa tin nhắn gốc để giao diện gọn hơn (chỉ khi có quyền)
