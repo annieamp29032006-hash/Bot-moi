@@ -1,0 +1,769 @@
+﻿commit ba58dfd867a93318350de19e6765bb2c529d1cc5
+Author: annieamp29032006-hash <annieamp29032006@gmail.com>
+Date:   Wed Jul 1 18:49:50 2026 +0700
+
+    feat: Add stock market feature, remove invest, and update help menu
+
+diff --git a/index.js b/index.js
+index a8e317f..b3f24cc 100644
+--- a/index.js
++++ b/index.js
+@@ -358,7 +358,7 @@ function buildHelpPages(prefix) {
+             .setDescription('Gß╗¡i tiß╗ün v├áo bank ─æß╗â bß║úo to├án t├ái sß║ún (tr├ính mß║Ñt khi thua cß╗¥ bß║íc), ─æß║ºu t╞░ sinh lß╗¥i hoß║╖c liß╗üu m├¼nh c╞░ß╗¢p bank!')
+             .addFields(
+                 { name: `\`${prefix}bank\` hoß║╖c \`/bank\``, value: '≡ƒÅª Mß╗ƒ bß║úng ng├ón h├áng c├í nh├ón vß╗¢i 4 n├║t bß║Ñm:\nΓÇó ≡ƒôÑ **Gß╗¡i Tiß╗ün** ΓÇö Nhß║¡p sß╗æ tiß╗ün muß╗æn chuyß╗ân tß╗½ v├¡ ΓåÆ bank\nΓÇó ≡ƒôñ **R├║t Tiß╗ün** ΓÇö Nhß║¡p sß╗æ tiß╗ün muß╗æn r├║t tß╗½ bank ΓåÆ v├¡\nΓÇó ≡ƒÅå **Top Bank** ΓÇö Xem bß║úng xß║┐p hß║íng ng╞░ß╗¥i gi├áu nhß║Ñt bank\nΓÇó ≡ƒöä **L├ám mß╗¢i** ΓÇö Cß║¡p nhß║¡t lß║íi sß╗æ d╞░ hiß╗çn tß║íi', inline: false },
+-                { name: `\`${prefix}dautu <sß╗æ tiß╗ün>\` hoß║╖c \`/dautu\``, value: '≡ƒôè ─Éß║ºu t╞░ cß╗ò phiß║┐u ngß║½u nhi├¬n:\nΓÇó C├│ thß╗â **l├úi tß╗æi ─æa +80%** sß╗æ tiß╗ün ─æß║ºu t╞░\nΓÇó C├│ thß╗â **lß╗ù tß╗æi ─æa -50%** sß╗æ tiß╗ün ─æß║ºu t╞░\nΓÇó Kß║┐t quß║ú hiß╗çn ngay sau khi bß║Ñm x├íc nhß║¡n\nΓÇó V├¡ dß╗Ñ: ─Éß║ºu t╞░ 1,000,000 ΓåÆ l├úi +800,000 hoß║╖c lß╗ù -500,000', inline: false },
++                { name: `\`${prefix}market\` (hoß║╖c \`${prefix}mk\`) / \`/market\``, value: '≡ƒôè S├án Chß╗⌐ng Kho├ín Vß║¡t Phß║⌐m:\nΓÇó Xem gi├í nguy├¬n liß╗çu cß║¡p nhß║¡t mß╗ùi 5 ph├║t (t─âng/giß║úm ngß║½u nhi├¬n)\nΓÇó Xem biß╗âu ─æß╗ô lß╗ïch sß╗¡ gi├í\nΓÇó D├╣ng lß╗çnh `!inv` (hoß║╖c `/inv`) ─æß╗â b├ín vß║¡t liß╗çu theo gi├í s├án hiß╗çn tß║íi', inline: false },
+                 { name: `\`${prefix}robbank\` hoß║╖c \`/robbank\``, value: '≡ƒÅª **C╞░ß╗¢p ng├ón h├áng hß╗ç thß╗æng:**\nΓÇó 15% th├ánh c├┤ng ΓåÆ nhß║¡n th╞░ß╗ƒng lß╗¢n\nΓÇó Thß║Ñt bß║íi ΓåÆ mß║Ñt 50% tiß╗ün mß║╖t + bß╗ï t├╣ 5 ph├║t', inline: false },
+                 { name: `\`${prefix}robbank @user\` hoß║╖c \`/robbank @user\``, value: '≡ƒÑ╖ **C╞░ß╗¢p ng├ón h├áng ng╞░ß╗¥i kh├íc:**\nΓÇó 40% th├ánh c├┤ng ΓåÆ lß║Ñy 10ΓÇô30% tiß╗ün bank cß╗ºa hß╗ì\nΓÇó Thß║Ñt bß║íi ΓåÆ mß║Ñt 30% tiß╗ün mß║╖t + bß╗ï t├╣ 3 ph├║t', inline: false },
+                 { name: `\`${prefix}nopphat\` hoß║╖c \`/nopphat\``, value: '≡ƒÜô ─Éang bß╗ï t├╣? Nß╗Öp **100,000 ≡ƒ¬Ö** ─æß╗â hß╗æi lß╗Ö v├á ─æ╞░ß╗úc thß║ú tß╗▒ do ngay lß║¡p tß╗⌐c!', inline: false },
+@@ -390,7 +390,7 @@ function buildHelpPages(prefix) {
+                 { name: 'ΓÜö∩╕Å PVP ─Éß║ñU TR╞»ß╗£NG', value: `\`${prefix}pvp @user <c╞░ß╗úc>\` hoß║╖c \`/pvp\` ΓÇö Th├ích ─æß║Ñu 1v1 nh├ón vß║¡t RPG\nΓÇó D├╣ng stat thß║¡t (ATK, DEF, HP + trang bß╗ï + class)\nΓÇó 20% chance ─æ├▓n ch├¡ mß║íng x2 DMG\nΓÇó Ng╞░ß╗¥i thß║»ng nhß║¡n coin c╞░ß╗úc x2 ΓÇó Cooldown: 5 ph├║t`, inline: false },
+                 { name: '≡ƒÄ» NHIß╗åM Vß╗ñ H├ÇNG NG├ÇY', value: `\`${prefix}nv\` hoß║╖c \`/quest\` ΓÇö Xem & nhß║¡n th╞░ß╗ƒng nhiß╗çm vß╗Ñ\nΓÇó 3 nhiß╗çm vß╗Ñ ngß║½u nhi├¬n mß╗ùi ng├áy (─æ├ính qu├íi, bß║»t pet, PvP...)\nΓÇó Ho├án th├ánh cß║ú 3 ΓåÆ **BONUS 100K ≡ƒ¬Ö + 200 EXP**\nΓÇó Tß╗▒ ─æß╗Öng tracking, reset l├║c 0:00`, inline: false },
+                 { name: '≡ƒÅà CLASS NH├éN Vß║¼T', value: `\`${prefix}class\` hoß║╖c \`/class\` ΓÇö Chß╗ìn/─æß╗òi class (Lv.5+)\nΓÇó ΓÜö∩╕Å **Chiß║┐n Binh** ΓÇö +30% ATK\nΓÇó ≡ƒ¢í∩╕Å **Hiß╗çp S─⌐** ΓÇö +30% DEF, +20% HP\nΓÇó ≡ƒºÖ **Ph├íp S╞░** ΓÇö +20% ATK, +15% coin hunt\nΓÇó ─Éß╗òi class: 5M ≡ƒ¬Ö (lß║ºn ─æß║ºu miß╗àn ph├¡)`, inline: false },
+-                { name: '≡ƒÉ▓ RAID BOSS & CHß║╛ Tß║áO', value: `\`${prefix}spawnraid\` ΓÇö D├╣ng vß║¡t liß╗çu gß╗ìi Boss Thß║┐ Giß╗¢i\n\`${prefix}raid\` ΓÇö Tham gia ─æ├ính Boss Thß║┐ Giß╗¢i ─æß╗â nhß║¡n th╞░ß╗ƒng khß╗ºng\n\`${prefix}setuprpg\` ΓÇö ─É─âng k├╜ Role th├┤ng b├ío Raid Boss\n\`${prefix}gather\` (\`${prefix}g\`) ΓÇö Thu thß║¡p nguy├¬n liß╗çu theo khu vß╗▒c\n\`${prefix}craft\` (\`${prefix}cr\`) ΓÇö Chß║┐ tß║ío v┼⌐ kh├¡/gi├íp tß╗½ vß║¡t liß╗çu ─æ├ính Boss/Hunt\n\`${prefix}equip\` (\`${prefix}eq\`) / \`${prefix}unequip\` (\`${prefix}uneq\`) ΓÇö Mß║╖c/Th├ío trang bß╗ï`, inline: false },
++                { name: '≡ƒÉ▓ RAID BOSS & CHß║╛ Tß║áO', value: `\`${prefix}raid\` (hoß║╖c \`${prefix}rb\`) / \`/raid\` ΓÇö Xem trß║íng th├íi Boss hoß║╖c tß║Ñn c├┤ng Boss\n\`${prefix}setuprpg\` ΓÇö ─É─âng k├╜ Role th├┤ng b├ío Raid Boss\n\`${prefix}gather\` (\`${prefix}g\`) ΓÇö Thu thß║¡p nguy├¬n liß╗çu theo khu vß╗▒c\n\`${prefix}craft\` (\`${prefix}cr\`) ΓÇö Chß║┐ tß║ío v┼⌐ kh├¡/gi├íp tß╗½ vß║¡t liß╗çu ─æ├ính Boss/Hunt\n\`${prefix}equip\` (\`${prefix}eq\`) / \`${prefix}unequip\` (\`${prefix}uneq\`) ΓÇö Mß║╖c/Th├ío trang bß╗ï`, inline: false },
+                 { name: '≡ƒÄü R╞»╞áNG & TIß║╛N H├ôA & TOP', value: `\`${prefix}ob\` hoß║╖c \`/openbox\` ΓÇö Mß╗ƒ r╞░╞íng nhß║¡n loot (v┼⌐ kh├¡, gi├íp, coin, danh hiß╗çu...)\n\`${prefix}ev\` hoß║╖c \`/evolve\` ΓÇö Chuyß╗ân Pokemon d╞░ th├ánh ≡ƒì¼ Candy ─æß╗â tiß║┐n h├│a\n\`${prefix}rt\` hoß║╖c \`/rpgtop\` ΓÇö Bß║úng xß║┐p hß║íng RPG (Level, Power, Dungeon, Pokemon, PvP)`, inline: false },
+                 { name: '≡ƒî╛ N├öNG TRß║áI (FARM)', value: `\`${prefix}farm\` (\`${prefix}f\`) ΓÇö Quß║ún l├╜ N├┤ng Trß║íi c├í nh├ón\nΓÇó \`${prefix}f shop\` ΓÇö Mua hß║ít giß╗æng\nΓÇó \`${prefix}f plant <├┤> <hß║ít>\` ΓÇö Trß╗ông c├óy\nΓÇó \`${prefix}f harvest all\` ΓÇö Thu hoß║ích\nΓÇó \`${prefix}f expand\` ΓÇö Mua th├¬m ├┤ ─æß║Ñt`, inline: false }
+             )
+@@ -1211,6 +1211,45 @@ const DUNGEONS = [
+         boss: { name: 'Quß╗╖ V╞░╞íng Hß╗ºy Diß╗çt', hp: 8000, atk: 600, def: 300, emoji: '≡ƒæ┐≡ƒææ' },
+         rewards: { coin: 1000000, exp: 12000, chestChance: 1.0, chestType: 'legendary' },
+         cooldown: 120 * 60 * 1000
++    },
++    {
++        id: 'endless_abyss', name: '≡ƒîÇ Vß╗▒c Thß║│m V├┤ Tß║¡n', minLevel: 30,
++        floors: [
++            { name: 'Tinh Linh H╞░ Kh├┤ng', hp: 5000, atk: 500, def: 250, emoji: '≡ƒæ╛' },
++            { name: 'Kß║╗ Nuß╗æt Chß╗¡ng', hp: 6000, atk: 600, def: 280, emoji: '≡ƒº┐' },
++            { name: 'B├│ng Ma Khß╗òng Lß╗ô', hp: 7500, atk: 700, def: 300, emoji: '≡ƒæ╗' },
++            { name: 'X├║c Tu Hß║»c ├üm', hp: 9000, atk: 800, def: 350, emoji: '≡ƒÉÖ' },
++            { name: 'Thß╗æng So├íi Vß╗▒c Thß║│m', hp: 11000, atk: 900, def: 400, emoji: '≡ƒ¢í∩╕Å' },
++        ],
++        boss: { name: 'Ch├║a Tß╗â H╞░ Kh├┤ng', hp: 20000, atk: 1200, def: 600, emoji: '≡ƒîî≡ƒææ' },
++        rewards: { coin: 2500000, exp: 25000, chestChance: 1.0, chestType: 'legendary' },
++        cooldown: 180 * 60 * 1000
++    },
++    {
++        id: 'divine_realm', name: 'Γ¢░∩╕Å V╞░╞íng Quß╗æc Thß║ºn Linh', minLevel: 40,
++        floors: [
++            { name: 'Vß╗ç Binh Thi├¬n Thß║ºn', hp: 12000, atk: 1000, def: 500, emoji: '≡ƒæ╝' },
++            { name: 'Chiß║┐n Binh ├ünh S├íng', hp: 15000, atk: 1200, def: 600, emoji: 'ΓÜö∩╕Å' },
++            { name: 'S╞░ Tß╗¡ Thß║ºn', hp: 18000, atk: 1500, def: 700, emoji: '≡ƒªü' },
++            { name: 'Ph├íp S╞░ Tß╗æi Cao', hp: 16000, atk: 2000, def: 400, emoji: '≡ƒºÖΓÇìΓÖé∩╕Å' },
++            { name: 'Tß╗òng L├únh Thi├¬n Thß║ºn', hp: 22000, atk: 1800, def: 800, emoji: '≡ƒòè∩╕Å' },
++        ],
++        boss: { name: 'Thß║ºn ├ünh S├íng', hp: 45000, atk: 2500, def: 1200, emoji: 'ΓÿÇ∩╕Å≡ƒææ' },
++        rewards: { coin: 6000000, exp: 50000, chestChance: 1.0, chestType: 'legendary' },
++        cooldown: 240 * 60 * 1000
++    },
++    {
++        id: 'shattered_heaven', name: '≡ƒîá Thi├¬n ─É├¼nh G├úy N├ít', minLevel: 50,
++        floors: [
++            { name: 'Mß║únh Vß╗í Hß╗ùn Mang', hp: 25000, atk: 2200, def: 1000, emoji: 'Γÿä∩╕Å' },
++            { name: 'T├án D╞░ Thß║ºn Linh', hp: 30000, atk: 2500, def: 1200, emoji: '≡ƒºƒ' },
++            { name: 'Th├║ C╞░ß╗íi Bß║ío Ch├║a', hp: 35000, atk: 3000, def: 1500, emoji: '≡ƒÉà' },
++            { name: 'B├│ng ─Éen Thß╗¥i Gian', hp: 40000, atk: 3500, def: 1800, emoji: 'ΓÅ│' },
++            { name: 'Kß║╗ Hß╗ºy Diß╗çt Thß║┐ Giß╗¢i', hp: 50000, atk: 4000, def: 2000, emoji: '≡ƒîì≡ƒÆÑ' },
++        ],
++        boss: { name: 'S├íng Thß║┐ Thß║ºn ─Éß╗ìa Lß║íc', hp: 100000, atk: 6000, def: 3000, emoji: '≡ƒîî≡ƒÄ¡' },
++        rewards: { coin: 15000000, exp: 120000, chestChance: 1.0, chestType: 'legendary' },
++        cooldown: 360 * 60 * 1000
+     }
+ ];
+ 
+@@ -1405,6 +1444,82 @@ function loadConfig() {
+ }
+ function saveConfig(data) { fs.writeFileSync(configPath, JSON.stringify(data, null, 2)); }
+ 
++const marketPath = './market.json';
++const MARKET_ITEMS = ['iron_ore', 'magic_dust', 'dragon_scale', 'void_shard', 'obsidian'];
++
++function loadMarket() {
++    if (!fs.existsSync(marketPath)) {
++        const initData = { lastUpdate: Date.now(), items: {} };
++        for (const item of MARKET_ITEMS) {
++            initData.items[item] = {
++                currentPrice: RPG_ITEMS.materials[item]?.price || 5000,
++                history: [RPG_ITEMS.materials[item]?.price || 5000]
++            };
++        }
++        saveMarket(initData);
++        return initData;
++    }
++    try { return JSON.parse(fs.readFileSync(marketPath, 'utf8')); } catch { return { lastUpdate: Date.now(), items: {} }; }
++}
++
++function saveMarket(data) { fs.writeFileSync(marketPath, JSON.stringify(data, null, 2)); }
++
++function updateMarketPrices() {
++    const data = loadMarket();
++    const now = Date.now();
++    // Cß║¡p nhß║¡t sau mß╗ùi 5 ph├║t
++    if (now - data.lastUpdate >= 5 * 60 * 1000) {
++        for (const item of MARKET_ITEMS) {
++            if (!data.items[item]) {
++                data.items[item] = {
++                    currentPrice: RPG_ITEMS.materials[item]?.price || 5000,
++                    history: [RPG_ITEMS.materials[item]?.price || 5000]
++                };
++            }
++            const oldPrice = data.items[item].currentPrice;
++            const changePercent = (Math.random() * 0.3) - 0.15;
++            let newPrice = Math.floor(oldPrice * (1 + changePercent));
++            if (newPrice < 1000) newPrice = 1000;
++            if (newPrice > 500000) newPrice = Math.floor(newPrice * 0.9);
++            data.items[item].currentPrice = newPrice;
++            data.items[item].history.push(newPrice);
++            if (data.items[item].history.length > 20) data.items[item].history.shift();
++        }
++        data.lastUpdate = now;
++        saveMarket(data);
++    }
++    return data;
++}
++
++const raidPath = './raid.json';
++function loadRaid() {
++    if (!fs.existsSync(raidPath)) return {};
++    try { return JSON.parse(fs.readFileSync(raidPath, 'utf8')); } catch { return {}; }
++}
++function saveRaid(data) { fs.writeFileSync(raidPath, JSON.stringify(data, null, 2)); }
++function getRaidBoss() {
++    const data = loadRaid();
++    const now = Date.now();
++    if (!data.boss || (data.boss.status === 'dead' && now - data.boss.deathTime > 12 * 60 * 60 * 1000)) {
++        let maxHp = 5000000;
++        let def = 100;
++        let name = 'Hß║»c Long V╞░╞íng';
++        let emoji = '≡ƒÉë';
++        if (data.boss && data.boss.level) {
++            maxHp = Math.floor(data.boss.maxHp * 1.5);
++            def = Math.floor(data.boss.def * 1.2);
++            name = 'Ma Thß║ºn H╞░ Kh├┤ng';
++            emoji = '≡ƒæ┐';
++        }
++        data.boss = {
++            name, emoji, maxHp, hp: maxHp, level: data.boss ? data.boss.level + 10 : 50, def,
++            participants: {}, status: 'alive'
++        };
++        saveRaid(data);
++    }
++    return data.boss;
++}
++
+ function getPlayer(userId) {
+     const data = loadRPG();
+     if (!data[userId]) {
+@@ -1446,8 +1561,16 @@ function getPlayer(userId) {
+         if (!data[userId].pets) { data[userId].pets = {}; changed = true; }
+         if (data[userId].lastCatch === undefined) { data[userId].lastCatch = 0; changed = true; }
+         if (data[userId].partner === undefined) { data[userId].partner = null; changed = true; }
+-        if (data[userId].investAmount === undefined) { data[userId].investAmount = 0; changed = true; }
+-        if (data[userId].investTime === undefined) { data[userId].investTime = 0; changed = true; }
++        if (data[userId].investAmount > 0) {
++            const coinsData = loadCoins();
++            if (!coinsData[userId]) coinsData[userId] = { coins: 0, bank: 0 };
++            coinsData[userId].coins += data[userId].investAmount;
++            saveCoins(coinsData);
++            console.log(`Refunded ${data[userId].investAmount} investAmount to ${userId}`);
++            changed = true;
++        }
++        if (data[userId].investAmount !== undefined) { delete data[userId].investAmount; changed = true; }
++        if (data[userId].investTime !== undefined) { delete data[userId].investTime; changed = true; }
+         if (data[userId].messageCount === undefined) { data[userId].messageCount = 0; changed = true; }
+         if (data[userId].voiceTime === undefined) { data[userId].voiceTime = 0; changed = true; }
+         // Migrate new RPG fields
+@@ -2672,17 +2795,18 @@ async function handleDungeon(userId, msgOrInteraction) {
+     }
+ 
+     // Build dungeon selection
+-    const options = DUNGEONS.map(d => 
+-        new StringSelectMenuOptionBuilder()
++    const options = DUNGEONS.map(d => {
++        const emoji = d.name.match(/^[\p{Emoji_Presentation}\p{Extended_Pictographic}]+/u)?.[0] || '≡ƒÅ░';
++        return new StringSelectMenuOptionBuilder()
+             .setLabel(d.name.replace(/[^\w\s├Ç-ß╗╣]/g, '').trim())
+             .setValue(d.id)
+             .setDescription(`Cß║Ñp tß╗æi thiß╗âu: Lv.${d.minLevel} | Th╞░ß╗ƒng: ${d.rewards.coin.toLocaleString()} ≡ƒ¬Ö`)
+-            .setEmoji(d.id === 'goblin_cave' ? '≡ƒÅÜ∩╕Å' : d.id === 'magic_tower' ? '≡ƒù╝' : '≡ƒöÑ')
+-    );
++            .setEmoji(emoji);
++    });
+ 
+     const embed = new EmbedBuilder()
+         .setTitle('≡ƒÅ░ CHß╗îN DUNGEON')
+-        .setDescription(`**${p.level >= 10 ? '≡ƒöÑ' : p.level >= 5 ? '≡ƒù╝' : '≡ƒÅÜ∩╕Å'} Cß║Ñp ─æß╗Ö cß╗ºa bß║ín: Lv.${p.level}**\n\n` +
++        .setDescription(`**${p.level >= 50 ? '≡ƒîá' : p.level >= 40 ? 'Γ¢░∩╕Å' : p.level >= 30 ? '≡ƒîÇ' : p.level >= 20 ? '≡ƒîæ' : p.level >= 15 ? 'Γ¥ä∩╕Å' : p.level >= 10 ? '≡ƒöÑ' : p.level >= 5 ? '≡ƒù╝' : '≡ƒÅÜ∩╕Å'} Cß║Ñp ─æß╗Ö cß╗ºa bß║ín: Lv.${p.level}**\n\n` +
+             DUNGEONS.map(d => {
+                 const locked = p.level < d.minLevel;
+                 return `${locked ? '≡ƒöÆ' : 'Γ£à'} **${d.name}** (Lv.${d.minLevel}+)\n> Th╞░ß╗ƒng: ${d.rewards.coin.toLocaleString()} ≡ƒ¬Ö + ${d.rewards.exp} EXP\n> Boss: ${d.boss.emoji} ${d.boss.name}`;
+@@ -2720,13 +2844,47 @@ async function handleDungeon(userId, msgOrInteraction) {
+         const combatLog = [];
+         let cleared = true;
+         let floorReached = 0;
++        let extraCoins = 0;
++        const extraChests = {};
+ 
+         // Fight through floors
+         for (let f = 0; f < dungeon.floors.length; f++) {
+             const monster = dungeon.floors[f];
+-            let mHp = monster.hp;
++            
++            let eventMsg = '';
++            let isElite = false;
++            const eventRoll = Math.random();
++            
++            if (eventRoll < 0.05) {
++                const trapDmg = Math.floor(p.maxHp * 0.1);
++                playerHp -= trapDmg;
++                eventMsg = ` ΓÜá∩╕Å Bß║½y (-${trapDmg} HP)`;
++            } else if (eventRoll < 0.15) {
++                const healAmt = Math.floor(p.maxHp * 0.2);
++                playerHp = Math.min(p.maxHp, playerHp + healAmt);
++                eventMsg = ` Γ¢▓ Suß╗æi ti├¬n (+${healAmt} HP)`;
++            } else if (eventRoll < 0.25) {
++                isElite = true;
++                eventMsg = ` ≡ƒÆÇ Qu├íi Tinh Anh (x2 th╞░ß╗ƒng)!`;
++            } else if (eventRoll < 0.35) {
++                const type = Math.random() < 0.5 ? 'wood' : 'iron';
++                extraChests[type] = (extraChests[type] || 0) + 1;
++                eventMsg = ` ≡ƒôª Nhß║╖t ─æ╞░ß╗úc ${type === 'wood' ? 'R╞░╞íng Gß╗ù' : 'R╞░╞íng Sß║»t'}!`;
++            }
++
++            if (playerHp <= 0) {
++                combatLog.push(`Γ¥î Tß║ºng ${f + 1}: Bß╗ï cß║ím bß║½y hß║í gß╗Ñc tr╞░ß╗¢c khi ─æ├ính!`);
++                cleared = false;
++                floorReached = f + 1;
++                break;
++            }
++
++            let mHp = isElite ? monster.hp * 1.5 : monster.hp;
++            let mAtk = isElite ? monster.atk * 1.5 : monster.atk;
++            let mName = isElite ? `[ELITE] ${monster.name}` : monster.name;
++
+             const pDmg = Math.max(1, stats.atk - monster.def);
+-            const mDmg = Math.max(1, monster.atk - stats.def);
++            const mDmg = Math.max(1, mAtk - stats.def);
+             let rounds = 0;
+ 
+             while (mHp > 0 && playerHp > 0 && rounds < 20) {
+@@ -2737,17 +2895,19 @@ async function handleDungeon(userId, msgOrInteraction) {
+             }
+ 
+             if (playerHp <= 0) {
+-                combatLog.push(`Γ¥î Tß║ºng ${f + 1}: ${monster.emoji} **${monster.name}** ─æ├ú hß║í gß╗Ñc bß║ín!`);
++                combatLog.push(`Γ¥î Tß║ºng ${f + 1}: ${monster.emoji} **${mName}** ─æ├ú hß║í gß╗Ñc bß║ín!${eventMsg}`);
+                 cleared = false;
+                 floorReached = f + 1;
+                 break;
+             }
+-            combatLog.push(`Γ£à Tß║ºng ${f + 1}: ─É├ính bß║íi ${monster.emoji} **${monster.name}** (HP c├▓n: ${playerHp})`);
++            if (isElite) extraCoins += Math.floor(dungeon.rewards.coin / dungeon.floors.length);
++            combatLog.push(`Γ£à Tß║ºng ${f + 1}: ─É├ính bß║íi ${monster.emoji} **${mName}** (HP c├▓n: ${Math.floor(playerHp)})${eventMsg}`);
+             floorReached = f + 1;
+         }
+ 
+         // Boss fight
+         let bossDefeated = false;
++        let rareMaterial = null;
+         if (cleared && playerHp > 0) {
+             const boss = dungeon.boss;
+             let bHp = boss.hp;
+@@ -2768,6 +2928,12 @@ async function handleDungeon(userId, msgOrInteraction) {
+             } else {
+                 combatLog.push(`\n≡ƒÅå **BOSS** ─É├ính bß║íi ${boss.emoji} **${boss.name}**!`);
+                 bossDefeated = true;
++                
++                // Drop Rare Material for end-game dungeons
++                if (dungeon.minLevel >= 20 && Math.random() < 0.4) {
++                    const materials = ['obsidian', 'void_shard', 'dragon_scale', 'demon_horn', 'mega_stone', 'z_crystal'];
++                    rareMaterial = materials[Math.floor(Math.random() * materials.length)];
++                }
+             }
+         }
+ 
+@@ -2789,13 +2955,20 @@ async function handleDungeon(userId, msgOrInteraction) {
+ 
+         // Update player
+         updatePlayer(userId, dp => {
+-            dp.hp = Math.max(0, playerHp);
++            dp.hp = Math.max(0, Math.floor(playerHp));
+             dp.lastDungeon = now;
+             dp.exp += expReward;
+             if (bossDefeated) dp.dungeonClears = (dp.dungeonClears || 0) + 1;
+             if (chestDropped) dp.chests[chestDropped] = (dp.chests[chestDropped] || 0) + 1;
++            for (const cType in extraChests) {
++                dp.chests[cType] = (dp.chests[cType] || 0) + extraChests[cType];
++            }
++            if (rareMaterial) {
++                if (!dp.inventory) dp.inventory = {};
++                dp.inventory[rareMaterial] = (dp.inventory[rareMaterial] || 0) + 1;
++            }
+         });
+-        addCoins(userId, coinReward);
++        addCoins(userId, coinReward + extraCoins);
+ 
+         if (bossDefeated) trackQuestProgress(userId, 'dungeon', 1);
+ 
+@@ -2804,16 +2977,28 @@ async function handleDungeon(userId, msgOrInteraction) {
+             .setTitle(bossDefeated ? `≡ƒÅå ${dungeon.name} ΓÇö HO├ÇN TH├ÇNH!` : `≡ƒÆÇ ${dungeon.name} ΓÇö THß║ñT Bß║áI`)
+             .setDescription(combatLog.join('\n'))
+             .addFields(
+-                { name: '≡ƒÆ░ Coin', value: `+${coinReward.toLocaleString()} ≡ƒ¬Ö`, inline: true },
++                { name: '≡ƒÆ░ Coin', value: `+${(coinReward + extraCoins).toLocaleString()} ≡ƒ¬Ö`, inline: true },
+                 { name: 'Γ¡É EXP', value: `+${expReward}`, inline: true },
+-                { name: 'Γ¥ñ∩╕Å HP c├▓n lß║íi', value: `${Math.max(0, playerHp)}/${p.maxHp}`, inline: true }
++                { name: 'Γ¥ñ∩╕Å HP c├▓n lß║íi', value: `${Math.max(0, Math.floor(playerHp))}/${p.maxHp}`, inline: true }
+             )
+             .setColor(bossDefeated ? '#2ECC71' : '#E74C3C')
+             .setTimestamp();
+ 
+-        if (chestDropped) {
+-            const chest = RPG_CHESTS[chestDropped];
+-            resultEmbed.addFields({ name: '≡ƒÄü R╞░╞íng Drop!', value: `${chest.emoji} **${chest.name}** ΓÇö D├╣ng \`/openbox\` ─æß╗â mß╗ƒ!`, inline: false });
++        if (chestDropped || rareMaterial || Object.keys(extraChests).length > 0) {
++            const lootLog = [];
++            if (chestDropped) {
++                const chest = RPG_CHESTS[chestDropped];
++                lootLog.push(`${chest.emoji} **${chest.name}**`);
++            }
++            if (rareMaterial) {
++                const mat = RPG_ITEMS.materials[rareMaterial];
++                lootLog.push(`Γ£¿ ${mat.emoji} **${mat.name}** (Rß╗¢t tß╗½ Boss)`);
++            }
++            for (const type in extraChests) {
++                const chest = RPG_CHESTS[type];
++                lootLog.push(`${chest.emoji} **${chest.name}** x${extraChests[type]}`);
++            }
++            resultEmbed.addFields({ name: '≡ƒÄü Loot nhß║¡n ─æ╞░ß╗úc!', value: lootLog.join('\n') + '\n*D├╣ng `/openbox` ─æß╗â mß╗ƒ r╞░╞íng!*', inline: false });
+         }
+ 
+         await i.editReply({ embeds: [resultEmbed], components: [] });
+@@ -3554,58 +3739,41 @@ async function handleRobbank(userId, msgOrInteraction, targetId = null) {
+     }
+ }
+ 
+-// Invest
+-async function handleInvest(userId, amount, msgOrInteraction) {
+-    let p = getPlayer(userId);
+-    const cash = getUserCoins(userId);
+-    
+-    if (amount === 'all') amount = Math.min(cash, 1000000); 
+-    else {
+-        amount = parseInt(amount);
+-        if (isNaN(amount) || amount <= 0) return replyMsg(msgOrInteraction, 'Γ¥î Sß╗æ tiß╗ün kh├┤ng hß╗úp lß╗ç!');
+-    }
+-    
+-    if (amount > 2000000) return replyMsg(msgOrInteraction, 'Γ¥î Quß╗╣ ─æß║ºu t╞░ chß╗ë nhß║¡n tß╗æi ─æa 2,000,000 ≡ƒ¬Ö mß╗Öt lß║ºn ─æß╗â tr├ính rß╗ºi ro ph├í sß║ún!');
+-    if (cash < amount) return replyMsg(msgOrInteraction, 'Γ¥î Kh├┤ng ─æß╗º tiß╗ün mß║╖t!');
+-    if (p.investAmount && p.investAmount > 0) return replyMsg(msgOrInteraction, 'Γ¥î Bß║ín ─æang c├│ khoß║ún ─æß║ºu t╞░ ch╞░a r├║t! D├╣ng `!claim-invest` tr╞░ß╗¢c.');
++// --- S├ÇN CHß╗¿NG KHO├üN (MARKET) ---
++async function handleMarketCommand(userId, msgOrInteraction) {
++    const data = updateMarketPrices();
+     
+-    addCoins(userId, -amount);
+-    updatePlayer(userId, dp => {
+-        dp.investAmount = amount;
+-        dp.investTime = Date.now();
++    // Tß║ío mß║úng dß╗» liß╗çu ─æß╗â vß║╜ biß╗âu ─æß╗ô cho 3 vß║¡t phß║⌐m ─æß║íi diß╗çn
++    const datasets = MARKET_ITEMS.slice(0, 3).map((item, index) => { 
++        const colors = ['rgb(149,165,166)', 'rgb(231,76,60)', 'rgb(155,89,182)'];
++        return `{label:'${RPG_ITEMS.materials[item].name}',data:[${data.items[item].history.join(',')}],fill:false,borderColor:'${colors[index]}'}`;
+     });
+     
+-    return replyMsg(msgOrInteraction, `≡ƒôê Bß║ín ─æ├ú n├⌐m **${amount.toLocaleString()} ≡ƒ¬Ö** v├áo Quß╗╣ ─Éß║ºu T╞░ rß╗ºi ro cao. H├úy quay lß║íi d├╣ng lß╗çnh \`!claim-invest\` sau 1 giß╗¥ ─æß╗â xem kß║┐t quß║ú!`);
+-}
+-
+-async function handleClaimInvest(userId, msgOrInteraction) {
+-    let p = getPlayer(userId);
+-    if (!p.investAmount || p.investAmount <= 0) return replyMsg(msgOrInteraction, 'Γ¥î Bß║ín ch╞░a c├│ khoß║ún ─æß║ºu t╞░ n├áo ─æang hoß║ít ─æß╗Öng!');
+-    
+-    const now = Date.now();
+-    const passed = now - p.investTime;
+-    if (passed < 3600000 && userId !== ADMIN_ID) { // 1 hour
+-        const r = 3600000 - passed;
+-        return replyMsg(msgOrInteraction, `ΓÅ│ Thß╗ï tr╞░ß╗¥ng ch╞░a ─æ├│ng cß╗¡a! ─Éß╗úi th├¬m **${Math.floor(r/60000)} ph├║t** nß╗»a!`);
+-    }
++    const labels = data.items[MARKET_ITEMS[0]].history.map((_, i) => `'-${(data.items[MARKET_ITEMS[0]].history.length - i) * 5}m'`).join(',');
+     
+-    // Tß╗ë suß║Ñt -40% ─æß║┐n +50%
+-    const rate = (Math.random() * 0.9) - 0.4; // -0.4 to 0.5
+-    const original = p.investAmount;
+-    const finalAmount = Math.floor(original * (1 + rate));
++    const chartUrl = `https://quickchart.io/chart?c={type:'line',data:{labels:[${labels}],datasets:[${datasets.join(',')}]}}`;
+     
+-    updatePlayer(userId, dp => {
+-        dp.investAmount = 0;
+-        dp.investTime = 0;
+-    });
++    let desc = '> Cß╗⌐ mß╗ùi 5 ph├║t, gi├í vß║¡t phß║⌐m sß║╜ biß║┐n ─æß╗Öng ngß║½u nhi├¬n.\n> H├úy d├╣ng lß╗çnh `/inv` hoß║╖c N├║t [B├ín] trong t├║i ─æß╗ô ─æß╗â xß║ú h├áng l├║c gi├í tß║ío ─æß╗ënh!\n\n';
+     
+-    addCoins(userId, finalAmount);
++    for (const item of MARKET_ITEMS) {
++        const h = data.items[item].history;
++        const current = h[h.length - 1];
++        const prev = h.length > 1 ? h[h.length - 2] : current;
++        let diff = current - prev;
++        let icon = diff >= 0 ? (diff === 0 ? 'Γ₧û' : '≡ƒôê') : '≡ƒôë';
++        let percent = prev > 0 ? (Math.abs(diff) / prev * 100).toFixed(1) : 0;
++        
++        desc += `${RPG_ITEMS.materials[item].emoji} **${RPG_ITEMS.materials[item].name}**: ${current.toLocaleString()} ≡ƒ¬Ö (${icon} ${percent}%)\n`;
++    }
+     
+-    let desc = rate >= 0 
+-        ? `≡ƒƒó Cß╗ò phiß║┐u l├¬n ─æß╗ënh! Lß╗úi nhuß║¡n: **+${(rate*100).toFixed(1)}%**. Bß║ín thu vß╗ü **${finalAmount.toLocaleString()} ≡ƒ¬Ö** (L├úi: ${(finalAmount - original).toLocaleString()})!`
+-        : `≡ƒö┤ Thß╗ï tr╞░ß╗¥ng sß╗Ñp ─æß╗ò! Thua lß╗ù: **${(rate*100).toFixed(1)}%**. Bß║ín chß╗ë c├▓n lß║íi **${finalAmount.toLocaleString()} ≡ƒ¬Ö** (Lß╗ù: ${(original - finalAmount).toLocaleString()})!`;
++    const embed = new EmbedBuilder()
++        .setTitle('≡ƒôè S├ÇN CHß╗¿NG KHO├üN Vß║¼T PHß║¿M')
++        .setDescription(desc)
++        .setImage(chartUrl)
++        .setColor('#F1C40F')
++        .setFooter({ text: 'Thß╗ï tr╞░ß╗¥ng thß╗¥i gian thß╗▒c - Cß║¡p nhß║¡t 5 ph├║t/lß║ºn' });
+         
+-    return replyMsg(msgOrInteraction, `≡ƒôè **Kß║╛T QUß║ó ─Éß║ªU T╞»**\n${desc}`);
++    return replyMsg(msgOrInteraction, { embeds: [embed] });
+ }
+ 
+ let QUOTES_THINH = [];
+@@ -4408,12 +4576,8 @@ const slashCommands = [
+         .setName('nopphat')
+         .setDescription('≡ƒÜô Hß╗æi lß╗Ö c├┤ng an 100,000 ≡ƒ¬Ö ─æß╗â ra t├╣ sß╗¢m.'),
+     new SlashCommandBuilder()
+-        .setName('invest')
+-        .setDescription('≡ƒôê N├⌐m tiß╗ün v├áo quß╗╣ ─æß║ºu t╞░ (C├│ thß╗â L├úi to hoß║╖c Lß╗ù nß║╖ng).')
+-        .addStringOption(o => o.setName('amount').setDescription('Sß╗æ tiß╗ün (hoß║╖c "all")').setRequired(true)),
+-    new SlashCommandBuilder()
+-        .setName('claiminvest')
+-        .setDescription('≡ƒôè R├║t khoß║ún ─æß║ºu t╞░ sau khi ─æß╗úi 1 tiß║┐ng.'),
++        .setName('market')
++        .setDescription('≡ƒôè Xem S├án Chß╗⌐ng Kho├ín Vß║¡t Phß║⌐m thß╗¥i gian thß╗▒c.'),
+     new SlashCommandBuilder()
+         .setName('marry')
+         .setDescription('≡ƒÆì Gh├⌐p ─æ├┤i ngß║½u nhi├¬n hoß║╖c cß║ºu h├┤n (Ph├¡ nhß║½n 50,000 Coin).')
+@@ -4615,6 +4779,9 @@ const slashCommands = [
+     new SlashCommandBuilder()
+         .setName('dungeon')
+         .setDescription('≡ƒÅ░ V├áo Dungeon ─æ├ính qu├íi nhiß╗üu tß║ºng + Boss.'),
++    new SlashCommandBuilder()
++        .setName('raid')
++        .setDescription('ΓÜö∩╕Å Tham gia ─æ├ính Raid Boss To├án M├íy Chß╗º c├╣ng mß╗ìi ng╞░ß╗¥i.'),
+     new SlashCommandBuilder()
+         .setName('pvp')
+         .setDescription('ΓÜö∩╕Å Th├ích ─æß║Ñu PvP 1v1 vß╗¢i ng╞░ß╗¥i ch╞íi kh├íc.')
+@@ -6040,106 +6207,6 @@ client.on('messageCreate', async (message) => {
+         return message.reply('Γ£à ─É├ú c├ái ─æß║╖t th├ánh c├┤ng role RPG v├á gß╗¡i bß║úng ─æ─âng k├╜!');
+     }
+ 
+-    if (content === `${prefix}spawnraid`) {
+-        if (!message.member.permissions.has(PermissionsBitField.Flags.Administrator)) return message.reply('Γ¥î Chß╗ë admin mß╗¢i ─æ╞░ß╗úc gß╗ìi Raid Boss!');
+-        if (global.RAID_BOSS) return message.reply('Γ¥î ─É├ú c├│ Raid Boss xuß║Ñt hiß╗çn rß╗ôi!');
+-        global.RAID_BOSS = {
+-            name: 'Ma V╞░╞íng ├ünh S├íng M├╣ L├▓a',
+-            hp: 500000,
+-            maxHp: 500000,
+-            atk: 1500,
+-            def: 600,
+-            emoji: '≡ƒæ╣',
+-            participants: new Map(),
+-            endTime: Date.now() + 60 * 60 * 1000 // 1 hour
+-        };
+-        const embed = new EmbedBuilder()
+-            .setTitle('≡ƒÜ¿ Cß║óNH B├üO: RAID BOSS ─É├â XUß║ñT HIß╗åN ≡ƒÜ¿')
+-            .setDescription(`**${global.RAID_BOSS.emoji} ${global.RAID_BOSS.name}** ─æ├ú gi├íng trß║ºn!\n\n> ≡ƒ⌐╕ M├íu: **${global.RAID_BOSS.maxHp.toLocaleString()}**\n> ΓÜö∩╕Å Tß║Ñn c├┤ng: **${global.RAID_BOSS.atk}**\n\nTß║Ñt cß║ú ng╞░ß╗¥i ch╞íi h├úy d├╣ng lß╗çnh \`${prefix}raid\` ─æß╗â tß║Ñn c├┤ng Boss! Kß║╗ kß║┐t liß╗àu hoß║╖c g├óy s├ít th╞░╞íng cao nhß║Ñt sß║╜ nhß║¡n ─æ╞░ß╗úc phß║ºn th╞░ß╗ƒng khß╗òng lß╗ô!`)
+-            .setColor('#FF0000')
+-            .setImage('https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExcDdvMnAwaGFwa3RwbzlkdzIzZ3Rza2g0NThwa3BxanIxbWhpYWl3ciZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/LwsCiZPppEIJIIGmO1/giphy.gif');
+-        const config = loadConfig();
+-        let msgContent = '';
+-        if (config.rpgRoleId) msgContent = `<@&${config.rpgRoleId}>`;
+-        return message.channel.send({ content: msgContent, embeds: [embed] });
+-    }
+-
+-    if (content === `${prefix}raid`) {
+-        if (!global.RAID_BOSS) return message.reply('Γ¥î Kh├┤ng c├│ Raid Boss n├áo ─æang xuß║Ñt hiß╗çn!');
+-        if (Date.now() > global.RAID_BOSS.endTime) {
+-            global.RAID_BOSS = null;
+-            return message.reply('ΓÅ│ Raid Boss ─æ├ú bß╗Å ─æi v├¼ hß║┐t thß╗¥i gian!');
+-        }
+-        const pData = getPlayer(uid);
+-        const stats = getPlayerStats(pData);
+-        
+-        // Bß╗Å giß╗¢i hß║ín level 5 ─æß╗â mß╗ìi ng╞░ß╗¥i ─æß╗üu c├│ thß╗â ─æ├ính Raid Boss
+-        // if (pData.level < 5) return message.reply('Γ¥î Bß║ín cß║ºn ─æß║ít ├¡t nhß║Ñt Level 5 ─æß╗â tham gia Raid Boss!');
+-        
+-        // Bß╗Å cooldown boss ─æß╗â mß╗ìi ng╞░ß╗¥i ─æ├ính li├¬n tß╗Ñc
+-        // if (pData.lastRaid && Date.now() - pData.lastRaid < 5 * 60 * 1000) {
+-        //     const r = 5 * 60 * 1000 - (Date.now() - pData.lastRaid);
+-        //     return message.reply(`ΓÅ│ ─Éang hß╗ôi sß╗⌐c! H├úy quay lß║íi sau **${Math.ceil(r/1000)}s** nß╗»a.`);
+-        // }
+-
+-        let dmg = Math.max(1, stats.atk - Math.floor(global.RAID_BOSS.def / 10));
+-        if (Math.random() < 0.2) dmg = Math.floor(dmg * 1.5);
+-        
+-        global.RAID_BOSS.hp -= dmg;
+-        pData.lastRaid = Date.now();
+-        updatePlayer(uid, p => p.lastRaid = pData.lastRaid);
+-
+-        let playerDmg = global.RAID_BOSS.participants.get(uid) || 0;
+-        global.RAID_BOSS.participants.set(uid, playerDmg + dmg);
+-
+-        if (global.RAID_BOSS.hp <= 0) {
+-            const bossName = global.RAID_BOSS.name;
+-            const participants = global.RAID_BOSS.participants;
+-            global.RAID_BOSS = null;
+-
+-            const sorted = Array.from(participants.entries()).sort((a, b) => b[1] - a[1]);
+-            const cData = loadCoins();
+-            const rData = loadRPG();
+-            
+-            let rewardText = '';
+-            sorted.forEach(([playerId, damage], index) => {
+-                if (!cData[playerId]) cData[playerId] = { coins: 0, bank: 0 };
+-                if (!rData[playerId]) rData[playerId] = getPlayer(playerId);
+-                
+-                let coinReward = 0;
+-
+-                if (index === 0) {
+-                    coinReward = 1000000;
+-                    rData[playerId].chests.legendary = (rData[playerId].chests.legendary || 0) + 1;
+-                    rewardText += `≡ƒÑç <@${playerId}>: **${damage.toLocaleString()}** DMG Γ₧í∩╕Å 1,000,000 ≡ƒ¬Ö + 1 R╞░╞íng Huyß╗ün Thoß║íi\n`;
+-                } else if (index === 1) {
+-                    coinReward = 500000;
+-                    rData[playerId].chests.gold = (rData[playerId].chests.gold || 0) + 1;
+-                    rewardText += `≡ƒÑê <@${playerId}>: **${damage.toLocaleString()}** DMG Γ₧í∩╕Å 500,000 ≡ƒ¬Ö + 1 R╞░╞íng V├áng\n`;
+-                } else if (index === 2) {
+-                    coinReward = 250000;
+-                    rData[playerId].chests.iron = (rData[playerId].chests.iron || 0) + 1;
+-                    rewardText += `≡ƒÑë <@${playerId}>: **${damage.toLocaleString()}** DMG Γ₧í∩╕Å 250,000 ≡ƒ¬Ö + 1 R╞░╞íng Sß║»t\n`;
+-                } else {
+-                    coinReward = 50000;
+-                    rewardText += `≡ƒÅà <@${playerId}>: **${damage.toLocaleString()}** DMG Γ₧í∩╕Å 50,000 ≡ƒ¬Ö\n`;
+-                }
+-                cData[playerId].coins = (cData[playerId].coins || 0) + coinReward;
+-            });
+-            
+-            saveCoins(cData);
+-            saveRPG(rData);
+-
+-            const embed = new EmbedBuilder()
+-                .setTitle(`≡ƒÅå RAID BOSS ─É├â Bß╗è TI├èU DIß╗åT!`)
+-                .setDescription(`**${bossName}** ─æ├ú bß╗ï ─æ├ính bß║íi bß╗ƒi sß╗⌐c mß║ính ─æo├án kß║┐t cß╗ºa to├án server!\nNg╞░ß╗¥i tung ─æ├▓n kß║┐t liß╗àu: <@${uid}>\n\n**Bß║óNG Xß║╛P Hß║áNG S├üT TH╞»╞áNG:**\n${rewardText}`)
+-                .setColor('#FFD700');
+-            return message.reply({ embeds: [embed] });
+-        } else {
+-            return message.reply(`ΓÜö∩╕Å Bß║ín ─æ├ú ch├⌐m **${global.RAID_BOSS.name}** g├óy ra **${dmg.toLocaleString()}** s├ít th╞░╞íng!\n≡ƒ⌐╕ M├íu Boss c├▓n lß║íi: **${global.RAID_BOSS.hp.toLocaleString()} / ${global.RAID_BOSS.maxHp.toLocaleString()}**`);
+-        }
+-    }
+-
+     if (content === `${prefix}craft`) {
+         const pData = getPlayer(uid);
+         let desc = 'Sß╗¡ dß╗Ñng nguy├¬n liß╗çu ─æß╗â chß║┐ tß║ío ─æß╗ô cß╗▒c phß║⌐m!\nC├║ ph├íp: `!craft <id>`\n\n**Kho nguy├¬n liß╗çu cß╗ºa bß║ín:**\n';
+@@ -7162,17 +7229,8 @@ client.on('messageCreate', async (message) => {
+         const robTarget = message.mentions.users.first();
+         return handleRobbank(message.author.id, message, robTarget ? robTarget.id : null);
+     }
+-    if (content.startsWith(`${prefix}invest`)) {
+-        const p = getPlayer(message.author.id);
+-        if (p.investAmount && p.investAmount > 0) {
+-            return handleClaimInvest(message.author.id, message);
+-        }
+-        const args = message.content.split(' ');
+-        if (!args[1]) return message.reply(`Γ¥î C├║ ph├íp: \`${prefix}invest <sß╗æ tiß╗ün|all>\`\n*(Nß║┐u bß║ín ─æang ─æß║ºu t╞░ rß╗ôi, g├╡ \`${prefix}invest\` ─æß╗â xem kß║┐t quß║ú!)*`);
+-        return handleInvest(message.author.id, args[1].toLowerCase(), message);
+-    }
+-    if (content === `${prefix}claiminvest`) {
+-        return handleClaimInvest(message.author.id, message);
++    if (content === `${prefix}market` || content === `${prefix}mk`) {
++        return handleMarketCommand(message.author.id, message);
+     }
+     if (content.startsWith(`${prefix}marry`)) {
+         let targetId = null;
+@@ -7513,6 +7571,9 @@ client.on('messageCreate', async (message) => {
+     if (content === `${prefix}dungeon` || content === `${prefix}dg`) {
+         return handleDungeon(message.author.id, message);
+     }
++    if (content === `${prefix}raid` || content === `${prefix}rb`) {
++        return handleRaidCommand(message.author.id, message);
++    }
+     if (content.startsWith(`${prefix}farm`) || content.startsWith(`${prefix}f `) || content === `${prefix}f`) {
+         const args = content.split(/\s+/);
+         return handleFarmCommand(message.author.id, message, args);
+@@ -7658,56 +7719,7 @@ client.on('messageCreate', async (message) => {
+         return message.reply(`≡ƒÅÑ ─É├ú trß║ú **${healCost} ≡ƒ¬Ö** cho Y T├í ─æß╗â hß╗ôi phß╗Ñc to├án bß╗Ö sinh lß╗▒c! **Γ¥ñ∩╕Å ${p.maxHp}/${p.maxHp}**`);
+     }
+ 
+-    // !dautu
+-    if (content.startsWith(`${prefix}dautu`) || content.startsWith(`${prefix}invest`)) {
+-        const args = content.split(' ');
+-        const amountStr = args[1];
+-        if (!amountStr) return message.reply(`Γ¥î C├║ ph├íp: \`${prefix}dautu <sß╗æ tiß╗ün/all>\``);
+-
+-        const uid = message.author.id;
+-        
+-        if (dautuCooldowns.has(uid)) {
+-            const remaining = dautuCooldowns.get(uid) - Date.now();
+-            if (remaining > 0) return message.reply(`ΓÅ▒∩╕Å ─Éang chß╗¥ ph├ón t├¡ch thß╗ï tr╞░ß╗¥ng... Vui l├▓ng ─æß╗úi **${Math.ceil(remaining/1000)}s** nß╗»a tr╞░ß╗¢c khi ─æß║ºu t╞░ tiß║┐p!`);
+-        }
+-        
+-        const coins = getUserCoins(uid);
+-        let amount = 0;
+-
+-        if (amountStr.toLowerCase() === 'all') amount = coins;
+-        else amount = parseInt(amountStr);
+-
+-        if (isNaN(amount) || amount <= 0) return message.reply('Γ¥î Sß╗æ tiß╗ün ─æß║ºu t╞░ kh├┤ng hß╗úp lß╗ç!');
+-        if (coins < amount) return message.reply(`Γ¥î Bß║ín kh├┤ng ─æß╗º tiß╗ün! (Hiß╗çn c├│: **${coins.toLocaleString()} ≡ƒ¬Ö**)`);
+-
+-        dautuCooldowns.set(uid, Date.now() + DAUTU_COOLDOWN_MS);
+ 
+-        // Gacha logic: 40% win (up to +80%), 60% lose (up to -50%)
+-        const roll = Math.random();
+-        let isWin = roll < 0.40;
+-        let multiplier = 0;
+-
+-        if (isWin) {
+-            multiplier = Math.random() * (0.8 - 0.1) + 0.1; // +10% to +80%
+-        } else {
+-            multiplier = -(Math.random() * (0.5 - 0.1) + 0.1); // -10% to -50%
+-        }
+-
+-        const profit = Math.floor(amount * multiplier);
+-        addCoins(uid, profit);
+-
+-        const embed = new EmbedBuilder()
+-            .setTitle('≡ƒôê Kß║╛T QUß║ó ─Éß║ªU T╞»')
+-            .setDescription(`Bß║ín ─æ├ú ─æß║ºu t╞░ **${amount.toLocaleString()} ≡ƒ¬Ö** v├áo thß╗ï tr╞░ß╗¥ng chß╗⌐ng kho├ín.`)
+-            .addFields(
+-                { name: 'Thß╗ï tr╞░ß╗¥ng', value: isWin ? 'T─âng gi├í! ≡ƒÜÇ' : 'Sß║¡p s├án! ≡ƒôë', inline: false },
+-                { name: isWin ? 'Lß╗úi nhuß║¡n' : 'Thua lß╗ù', value: `**${Math.abs(profit).toLocaleString()} ≡ƒ¬Ö** (${(multiplier * 100).toFixed(1)}%)`, inline: false },
+-                { name: 'Sß╗æ d╞░ v├¡', value: `**${getUserCoins(uid).toLocaleString()} ≡ƒ¬Ö**`, inline: false }
+-            )
+-            .setColor(isWin ? '#00FF00' : '#FF0000');
+-
+-        return message.reply({ embeds: [embed] });
+-    }
+ 
+     // ========================
+     // ADMIN - PREFIX COMMANDS
+@@ -7941,6 +7953,92 @@ client.on('interactionCreate', async (interaction) => {
+     if (interaction.isMessageComponent()) {
+         const cid = interaction.customId;
+ 
++        if (interaction.isButton() && (cid === 'raid_attack' || cid === 'raid_top')) {
++            const uid = interaction.user.id;
++            const p = getPlayer(uid);
++            const boss = getRaidBoss();
++
++            if (cid === 'raid_top') {
++                const sorted = Object.entries(boss.participants).sort((a, b) => b[1].dmg - a[1].dmg);
++                if (sorted.length === 0) return interaction.reply({ content: 'Ch╞░a c├│ ai tß║Ñn c├┤ng Boss!', flags: MessageFlags.Ephemeral });
++                
++                const top10 = sorted.slice(0, 10);
++                const desc = top10.map((entry, i) => {
++                    const rankEmojis = ['≡ƒÑç', '≡ƒÑê', '≡ƒÑë', '4∩╕ÅΓâú', '5∩╕ÅΓâú', '6∩╕ÅΓâú', '7∩╕ÅΓâú', '8∩╕ÅΓâú', '9∩╕ÅΓâú', '≡ƒöƒ'];
++                    return `${rankEmojis[i]} <@${entry[0]}> ΓÇö **${entry[1].dmg.toLocaleString()}** DMG`;
++                }).join('\n');
++                
++                const embed = new EmbedBuilder()
++                    .setTitle(`≡ƒôè Bß║óNG S├üT TH╞»╞áNG RAID BOSS`)
++                    .setDescription(desc)
++                    .setColor('#3498DB');
++                    
++                return interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
++            }
++
++            if (p.hp <= 0) return interaction.reply({ content: 'Γ¥î Bß║ín ─æ├ú hß║┐t m├íu! D├╣ng `/heal` tr╞░ß╗¢c.', flags: MessageFlags.Ephemeral });
++            if (boss.status === 'dead') return interaction.reply({ content: '≡ƒÄë Boss ─æ├ú bß╗ï ti├¬u diß╗çt rß╗ôi!', flags: MessageFlags.Ephemeral });
++            
++            const pData = boss.participants[uid] || { dmg: 0, lastHit: 0 };
++            const now = Date.now();
++            if (now - pData.lastHit < 10 * 60 * 1000) {
++                const wait = Math.ceil((10 * 60 * 1000 - (now - pData.lastHit)) / 60000);
++                return interaction.reply({ content: `ΓÅ│ Bß║ín ─æang kiß╗çt sß╗⌐c! H├úy chß╗¥ **${wait} ph├║t** nß╗»a ─æß╗â ─æ├ính tiß║┐p.`, flags: MessageFlags.Ephemeral });
++            }
++            
++            const stats = getPlayerStats(p);
++            const isCrit = Math.random() < 0.2;
++            let dmg = Math.max(1, stats.atk - boss.def);
++            if (isCrit) dmg *= 2;
++            dmg = Math.floor(dmg * (0.9 + Math.random() * 0.2));
++            
++            boss.hp -= dmg;
++            pData.dmg += dmg;
++            pData.lastHit = now;
++            boss.participants[uid] = pData;
++            
++            if (boss.hp <= 0) {
++                boss.hp = 0;
++                boss.status = 'dead';
++                boss.deathTime = now;
++                boss.lastHitBy = uid;
++            }
++            
++            const data = loadRaid();
++            data.boss = boss;
++            saveRaid(data);
++            
++            if (boss.status === 'dead') {
++                const sorted = Object.entries(boss.participants).sort((a, b) => b[1].dmg - a[1].dmg);
++                const results = [];
++                for (let i = 0; i < sorted.length; i++) {
++                    const [pid, pd] = sorted[i];
++                    let coinReward = 50000;
++                    let expReward = 1000;
++                    let chest = 'iron';
++                    if (i === 0) { coinReward = 1000000; expReward = 10000; chest = 'legendary'; }
++                    else if (i === 1) { coinReward = 500000; expReward = 5000; chest = 'gold'; }
++                    else if (i === 2) { coinReward = 200000; expReward = 2500; chest = 'gold'; }
++                    
++                    if (pid === uid) coinReward += 200000; // Last hit bonus
++                    
++                    updatePlayer(pid, pl => {
++                        pl.exp += expReward;
++                        pl.chests[chest] = (pl.chests[chest] || 0) + 1;
++                    });
++                    addCoins(pid, coinReward);
++                    
++                    if (i < 3 || pid === uid) {
++                        results.push(`<@${pid}>: ${pd.dmg.toLocaleString()} DMG (${i < 3 ? `Top ${i+1}` : 'Last Hit'})`);
++                    }
++                }
++                
++                return interaction.reply({ content: `≡ƒÄë **${boss.name}** ─æ├ú bß╗ï TI├èU DIß╗åT bß╗ƒi ─æ├▓n kß║┐t liß╗àu cß╗ºa <@${uid}>! (-${dmg} DMG${isCrit ? ' ≡ƒÆÑ' : ''})\n\n≡ƒÅå **VINH DANH:**\n${results.join('\n')}\n*(Qu├á ─æ├ú ─æ╞░ß╗úc ph├ít cho tß║Ñt cß║ú ng╞░ß╗¥i tham gia)*` });
++            } else {
++                return interaction.reply({ content: `ΓÜö∩╕Å Bß║ín ─æ├ú tung ─æ├▓n tß║Ñn c├┤ng (-${dmg} DMG${isCrit ? ' ≡ƒÆÑ' : ''}) v├áo **${boss.name}**!\nC├╣ng k├¬u gß╗ìi mß╗ìi ng╞░ß╗¥i ─æ├ính tiß║┐p nh├⌐!` });
++            }
++        }
++
+         // INVENTORY INTERACTIVE SYSTEM
+         if (interaction.isStringSelectMenu() && cid.startsWith('inv_select_')) {
+             const ownerId = cid.replace('inv_select_', '');
+@@ -8198,7 +8296,14 @@ client.on('interactionCreate', async (interaction) => {
+             
+             if (action === 'sell' || action === 'sellall') {
+                 const sellQty = action === 'sellall' ? userQty : 1;
+-                const sellPrice = Math.floor((itemDef.price || 0) * 0.5) * sellQty;
++                let unitPrice = Math.floor((itemDef.price || 0) * 0.5);
++                
++                if (MARKET_ITEMS.includes(itemId)) {
++                    const marketData = updateMarketPrices();
++                    unitPrice = marketData.items[itemId]?.currentPrice || unitPrice;
++                }
++                
++                const sellPrice = unitPrice * sellQty;
+                 
+                 updatePlayer(uid, dp => {
+                     if (isPet) {
+@@ -10629,6 +10734,12 @@ client.on('interactionCreate', async (interaction) => {
+     if (commandName === 'dungeon') {
+         return handleDungeon(interaction.user.id, interaction);
+     }
++    if (commandName === 'market') {
++        return handleMarketCommand(interaction.user.id, interaction);
++    }
++    if (commandName === 'raid') {
++        return handleRaidCommand(interaction.user.id, interaction);
++    }
+     if (commandName === 'pvp') {
+         const target = interaction.options.getUser('user');
+         const bet = interaction.options.getInteger('bet');

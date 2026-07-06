@@ -1,5 +1,5 @@
 require('dotenv').config();
-const { MessageFlags, 
+const { MessageFlags, ChannelType,
     Client, GatewayIntentBits, EmbedBuilder, PermissionsBitField,
     ActionRowBuilder, ButtonBuilder, ButtonStyle, REST, Routes, SlashCommandBuilder,
     StringSelectMenuBuilder, StringSelectMenuOptionBuilder, ComponentType, UserSelectMenuBuilder,
@@ -277,8 +277,21 @@ function getGuildConfig(guildId) {
     return {};
 }
 
+async function sendAdvLog(guild, type, embed) {
+    if (!guild) return;
+    const config = getGuildConfig(guild.id);
+    if (!config.advLogs || !config.advLogs[type + '-log']) return;
+    const channel = guild.channels.cache.get(config.advLogs[type + '-log']);
+    if (channel) {
+        try {
+            await channel.send({ embeds: [embed] });
+        } catch (error) {
+            console.error(`Error sending adv log ${type}:`, error);
+        }
+    }
+}
+
 function updateGuildConfig(guildId, key, value) {
-    if (!guildId) return;
     const config = loadConfig();
     if (!config.guilds) config.guilds = {};
     if (!config.guilds[guildId]) config.guilds[guildId] = {};
@@ -374,7 +387,7 @@ function buildHelpPages(prefix) {
             .setDescription('Gửi tiền vào bank để bảo toàn tài sản (tránh mất khi thua cờ bạc), đầu tư sinh lời hoặc liều mình cướp bank!')
             .addFields(
                 { name: `\`${prefix}bank\` hoặc \`/bank\``, value: '🏦 Mở bảng ngân hàng cá nhân với 4 nút bấm:\n• 📥 **Gửi Tiền** — Nhập số tiền muốn chuyển từ ví → bank\n• 📤 **Rút Tiền** — Nhập số tiền muốn rút từ bank → ví\n• 🏆 **Top Bank** — Xem bảng xếp hạng người giàu nhất bank\n• 🔄 **Làm mới** — Cập nhật lại số dư hiện tại', inline: false },
-                { name: `\`${prefix}market\` (hoặc \`${prefix}mk\`) / \`/market\``, value: '📊 Sàn Chứng Khoán Vật Phẩm:\n• Xem giá nguyên liệu cập nhật mỗi 5 phút (tăng/giảm ngẫu nhiên)\n• Xem biểu đồ lịch sử giá\n• Dùng lệnh `!inv` (hoặc `/inv`) để bán vật liệu theo giá sàn hiện tại', inline: false },
+                { name: `\`${prefix}dautu <số tiền>\` hoặc \`/dautu\``, value: '📈 Đầu tư cổ phiếu ngẫu nhiên:\n• Có thể **lãi tối đa +80%** số tiền đầu tư\n• Có thể **lỗ tối đa -50%** số tiền đầu tư\n• Kết quả hiện ngay sau khi bấm xác nhận\n• Ví dụ: Đầu tư 1,000,000 → lãi +800,000 hoặc lỗ -500,000', inline: false },
                 { name: `\`${prefix}robbank\` hoặc \`/robbank\``, value: '🏦 **Cướp ngân hàng hệ thống:**\n• 15% thành công → nhận thưởng lớn\n• Thất bại → mất 50% tiền mặt + bị tù 5 phút', inline: false },
                 { name: `\`${prefix}robbank @user\` hoặc \`/robbank @user\``, value: '🥷 **Cướp ngân hàng người khác:**\n• 40% thành công → lấy 10–30% tiền bank của họ\n• Thất bại → mất 30% tiền mặt + bị tù 3 phút', inline: false },
                 { name: `\`${prefix}nopphat\` hoặc \`/nopphat\``, value: '🚓 Đang bị tù? Nộp **100,000 🪙** để hối lộ và được thả tự do ngay lập tức!', inline: false },
@@ -1490,54 +1503,7 @@ function loadConfig() {
 }
 function saveConfig(data) { fs.writeFileSync(configPath, JSON.stringify(data, null, 2)); }
 
-const marketPath = './market.json';
-const MARKET_ITEMS = ['iron_ore', 'magic_dust', 'dragon_scale', 'void_shard', 'obsidian'];
 
-function loadMarket() {
-    let data;
-    if (!fs.existsSync(marketPath)) {
-        data = { lastUpdate: Date.now(), items: {} };
-    } else {
-        try { data = JSON.parse(fs.readFileSync(marketPath, 'utf8')); } 
-        catch { data = { lastUpdate: Date.now(), items: {} }; }
-    }
-    
-    let needsSave = false;
-    for (const item of MARKET_ITEMS) {
-        if (!data.items[item] || !data.items[item].history) {
-            data.items[item] = {
-                currentPrice: RPG_ITEMS.materials[item]?.price || 5000,
-                history: [RPG_ITEMS.materials[item]?.price || 5000]
-            };
-            needsSave = true;
-        }
-    }
-    if (needsSave) saveMarket(data);
-    return data;
-}
-
-function saveMarket(data) { fs.writeFileSync(marketPath, JSON.stringify(data, null, 2)); }
-
-function updateMarketPrices() {
-    const data = loadMarket();
-    const now = Date.now();
-    // Cập nhật sau mỗi 5 phút
-    if (now - data.lastUpdate >= 5 * 60 * 1000) {
-        for (const item of MARKET_ITEMS) {
-            const oldPrice = data.items[item].currentPrice;
-            const changePercent = (Math.random() * 0.3) - 0.15;
-            let newPrice = Math.floor(oldPrice * (1 + changePercent));
-            if (newPrice < 1000) newPrice = 1000;
-            if (newPrice > 500000) newPrice = Math.floor(newPrice * 0.9);
-            data.items[item].currentPrice = newPrice;
-            data.items[item].history.push(newPrice);
-            if (data.items[item].history.length > 20) data.items[item].history.shift();
-        }
-        data.lastUpdate = now;
-        saveMarket(data);
-    }
-    return data;
-}
 
 const raidPath = './raid.json';
 function loadRaid() {
@@ -3827,7 +3793,7 @@ async function handleRobbank(userId, msgOrInteraction, targetId = null) {
     }
 }
 
-// --- SÀN CHỨNG KHOÁN (MARKET) ---
+
 // ========================
 // HACKING SYSTEM (DARK WEB)
 // ========================
@@ -3880,57 +3846,7 @@ async function handleHackCommand(userId, targetId, msgOrInteraction) {
     return replyMsg(msgOrInteraction, { embeds: [embed] });
 }
 
-async function handleMarketCommand(userId, msgOrInteraction) {
-    try {
-        const data = updateMarketPrices();
-        
-        // Build chart config as a proper JSON object then encode it
-        const chartConfig = {
-            type: 'line',
-            data: {
-                labels: data.items[MARKET_ITEMS[0]].history.map((_, i) => 
-                    `-${(data.items[MARKET_ITEMS[0]].history.length - i) * 5}m`
-                ),
-                datasets: MARKET_ITEMS.slice(0, 3).map((item, index) => {
-                    const colors = ['#95A5A6', '#E74C3C', '#9B59B6'];
-                    return {
-                        label: RPG_ITEMS.materials[item].name,
-                        data: data.items[item].history,
-                        fill: false,
-                        borderColor: colors[index]
-                    };
-                })
-            }
-        };
-        
-        const chartUrl = `https://quickchart.io/chart?c=${encodeURIComponent(JSON.stringify(chartConfig))}`;
-        
-        let desc = '> C\u1ee9 m\u1ed7i 5 ph\u00fat, gi\u00e1 v\u1eadt ph\u1ea9m s\u1ebd bi\u1ebfn \u0111\u1ed9ng ng\u1eabu nhi\u00ean.\n> H\u00e3y d\u00f9ng l\u1ec7nh `/inv` ho\u1eb7c N\u00fat [B\u00e1n] trong t\u00fai \u0111\u1ed3 \u0111\u1ec3 x\u1ea3 h\u00e0ng l\u00fac gi\u00e1 t\u1ea1o \u0111\u1ec9nh!\n\n';
-        
-        for (const item of MARKET_ITEMS) {
-            const h = data.items[item].history;
-            const current = h[h.length - 1];
-            const prev = h.length > 1 ? h[h.length - 2] : current;
-            let diff = current - prev;
-            let icon = diff >= 0 ? (diff === 0 ? '\u27a1\ufe0f' : '\ud83d\udcc8') : '\ud83d\udcc9';
-            let percent = prev > 0 ? (Math.abs(diff) / prev * 100).toFixed(1) : 0;
-            
-            desc += `${RPG_ITEMS.materials[item].emoji} **${RPG_ITEMS.materials[item].name}**: ${current.toLocaleString()} \ud83e\ude99 (${icon} ${percent}%)\n`;
-        }
-        
-        const embed = new EmbedBuilder()
-            .setTitle('\ud83d\udcca S\u00c0N CH\u1ee8NG KHO\u00c1N V\u1eacT PH\u1ea8M')
-            .setDescription(desc)
-            .setImage(chartUrl)
-            .setColor('#F1C40F')
-            .setFooter({ text: 'Th\u1ecb tr\u01b0\u1eddng th\u1eddi gian th\u1ef1c - C\u1eadp nh\u1eadt 5 ph\u00fat/l\u1ea7n' });
-            
-        return replyMsg(msgOrInteraction, { embeds: [embed] });
-    } catch (err) {
-        console.error('Market command error:', err);
-        return replyMsg(msgOrInteraction, '\u274c \u0110\u00e3 x\u1ea3y ra l\u1ed7i khi t\u1ea3i d\u1eef li\u1ec7u s\u00e0n ch\u1ee9ng kho\u00e1n. Vui l\u00f2ng th\u1eed l\u1ea1i!');
-    }
-}
+
 
 const QUOTES_TYDC = [
     "💙 Tình yêu Discord là thứ duy nhất online 24/7 nhưng tương lai thì offline mãi.",
@@ -4926,6 +4842,10 @@ const slashCommands = [
         .setDefaultMemberPermissions(PermissionsBitField.Flags.Administrator)
         .addChannelOption(o => o.setName('channel').setDescription('Kênh sẽ gửi lời chào').setRequired(true)),
     new SlashCommandBuilder()
+        .setName('setupadvlogs')
+        .setDescription('🛠️ (Admin) Tự động tạo hệ thống Log Nâng Cao 12 kênh.')
+        .setDefaultMemberPermissions(PermissionsBitField.Flags.Administrator),
+    new SlashCommandBuilder()
         .setName('deposit')
         .setDescription('🏦 Gửi tiền mặt vào Ngân Hàng.')
         .addStringOption(o => o.setName('amount').setDescription('Số tiền (hoặc gõ "all")').setRequired(true)),
@@ -4970,8 +4890,9 @@ const slashCommands = [
         .setDescription('💻 Xâm nhập hệ thống lấy trộm tiền từ người chơi khác (Cần Laptop & Virus).')
         .addUserOption(o => o.setName('user').setDescription('Mục tiêu bị hack').setRequired(true)),
     new SlashCommandBuilder()
-        .setName('market')
-        .setDescription('📊 Xem Sàn Chứng Khoán Vật Phẩm thời gian thực.'),
+        .setName('dautu')
+        .setDescription('📈 Đầu tư cổ phiếu ngẫu nhiên (Lãi to hoặc Lỗ nặng).')
+        .addStringOption(o => o.setName('amount').setDescription('Số tiền (hoặc "all")').setRequired(true)),
     new SlashCommandBuilder()
         .setName('marry')
         .setDescription('💍 Ghép đôi ngẫu nhiên hoặc cầu hôn (Phí nhẫn 50,000 Coin).')
@@ -5520,6 +5441,15 @@ client.once('clientReady', async () => {
 // ========================
 client.on('guildMemberAdd', async (member) => {
     try {
+        // LOGGING
+        const logEmbed = new EmbedBuilder()
+            .setTitle('📥 THÀNH VIÊN MỚI')
+            .setDescription(`**${member.user.tag}** (<@${member.id}>) đã tham gia server.\nSố lượng thành viên: ${member.guild.memberCount}`)
+            .setColor('#2ECC71')
+            .setThumbnail(member.user.displayAvatarURL())
+            .setTimestamp();
+        sendAdvLog(member.guild, 'member', logEmbed);
+
         const config = getGuildConfig(member.guild.id);
         
         // --- ANTI-RAID CHECK ---
@@ -5587,6 +5517,34 @@ client.on('guildMemberAdd', async (member) => {
 // BOOST NOTIFICATION
 // ========================
 client.on('guildMemberUpdate', async (oldMember, newMember) => {
+    // LOGGING
+    if (oldMember.nickname !== newMember.nickname) {
+        const logEmbed = new EmbedBuilder()
+            .setTitle('📝 CẬP NHẬT BIỆT DANH')
+            .setDescription(`**${newMember.user.tag}** (<@${newMember.id}>)`)
+            .addFields(
+                { name: 'Cũ', value: oldMember.nickname || 'Không có', inline: true },
+                { name: 'Mới', value: newMember.nickname || 'Không có', inline: true }
+            )
+            .setColor('#3498DB')
+            .setTimestamp();
+        sendAdvLog(newMember.guild, 'member', logEmbed);
+    }
+    if (oldMember.roles.cache.size !== newMember.roles.cache.size) {
+        const addedRoles = newMember.roles.cache.filter(role => !oldMember.roles.cache.has(role.id));
+        const removedRoles = oldMember.roles.cache.filter(role => !newMember.roles.cache.has(role.id));
+        if (addedRoles.size > 0 || removedRoles.size > 0) {
+            const logEmbed = new EmbedBuilder()
+                .setTitle('🎭 CẬP NHẬT ROLE')
+                .setDescription(`**${newMember.user.tag}** (<@${newMember.id}>)`)
+                .setColor('#9B59B6')
+                .setTimestamp();
+            if (addedRoles.size > 0) logEmbed.addFields({ name: 'Role Thêm', value: addedRoles.map(r => `<@&${r.id}>`).join(', ') });
+            if (removedRoles.size > 0) logEmbed.addFields({ name: 'Role Xóa', value: removedRoles.map(r => `<@&${r.id}>`).join(', ') });
+            sendAdvLog(newMember.guild, 'member', logEmbed);
+        }
+    }
+
     // Check if the member just started boosting the server
     if (!oldMember.premiumSince && newMember.premiumSince) {
         try {
@@ -5617,6 +5575,31 @@ client.on('guildMemberUpdate', async (oldMember, newMember) => {
 // VOICE STATE - NOTIFY
 // ========================
 client.on('voiceStateUpdate', async (oldState, newState) => {
+    // LOGGING
+    if (oldState.channelId !== newState.channelId) {
+        const member = newState.member || oldState.member;
+        if (member && !member.user.bot) {
+            let desc = '';
+            let color = '#3498DB';
+            if (!oldState.channelId && newState.channelId) {
+                desc = `**${member.user.tag}** đã tham gia kênh thoại <#${newState.channelId}>`;
+                color = '#2ECC71';
+            } else if (oldState.channelId && !newState.channelId) {
+                desc = `**${member.user.tag}** đã rời khỏi kênh thoại <#${oldState.channelId}>`;
+                color = '#E74C3C';
+            } else {
+                desc = `**${member.user.tag}** đã chuyển từ <#${oldState.channelId}> sang <#${newState.channelId}>`;
+                color = '#F1C40F';
+            }
+            const logEmbed = new EmbedBuilder()
+                .setTitle('🎙️ CẬP NHẬT KÊNH THOẠI')
+                .setDescription(desc)
+                .setColor(color)
+                .setTimestamp();
+            sendAdvLog(member.guild, 'voice', logEmbed);
+        }
+    }
+
     const userId = newState.member?.user?.id || oldState.member?.user?.id;
     if (userId && !newState.member?.user?.bot) {
         const oldChannelId = oldState.channelId;
@@ -6711,6 +6694,37 @@ client.on('messageCreate', async (message) => {
         return message.reply('✅ Đã **TẮT** tính năng chào mừng thành viên mới! (Dùng lệnh setwelcome để bật lại)');
     }
 
+    if (content.startsWith(`${prefix}setupadvlogs`)) {
+        if (!message.member.permissions.has(PermissionsBitField.Flags.Administrator)) return message.reply('❌ Bạn không có quyền!');
+        const msg = await message.reply('⏳ Đang khởi tạo hệ thống Log Nâng Cao (12 kênh)... Vui lòng đợi!');
+        try {
+            const guild = message.guild;
+            const category = await guild.channels.create({
+                name: 'SERVER LOGS',
+                type: ChannelType.GuildCategory,
+                permissionOverwrites: [
+                    { id: guild.id, deny: [PermissionsBitField.Flags.ViewChannel] },
+                    { id: guild.client.user.id, allow: [PermissionsBitField.Flags.ViewChannel] }
+                ]
+            });
+            const logChannels = ['member-log', 'message-log', 'voice-log', 'channel-log', 'role-log', 'emoji-log', 'server-log', 'mod-log', 'ticket-log', 'command-log', 'bot-log', 'error-log'];
+            const logConfig = {};
+            for (const name of logChannels) {
+                const ch = await guild.channels.create({
+                    name: name,
+                    type: ChannelType.GuildText,
+                    parent: category.id
+                });
+                logConfig[name] = ch.id;
+            }
+            updateGuildConfig(guild.id, 'advLogs', logConfig);
+            return msg.edit(`✅ Đã tạo thành công danh mục **SERVER LOGS** và 12 kênh log!`);
+        } catch (error) {
+            console.error(error);
+            return msg.edit('❌ Có lỗi xảy ra khi tạo kênh. Vui lòng kiểm tra quyền của Bot!');
+        }
+    }
+
     if (content.startsWith(`${prefix}setwelcome`)) {
         if (!message.member.permissions.has(PermissionsBitField.Flags.Administrator)) return message.reply('❌ Bạn không có quyền!');
         
@@ -7033,7 +7047,7 @@ client.on('messageCreate', async (message) => {
             .addFields(
                 { name: '🎵 Âm Nhạc & Tiện Ích', value: '• **Lõi phát nhạc mới:** Ổn định, không đứt quãng, hỗ trợ **SoundCloud Playlists**.\n• **Tải YouTube:** Tính năng tải video YouTube nhanh chóng.\n• **Voice & Kênh Hình Ảnh:** Chống spam chữ kênh ảnh, tối ưu tag im lặng kênh voice.', inline: false },
                 { name: '🛡️ Hệ Thống Bảo Vệ & Quản Trị', value: '• **Bảo mật:** Bật tự động Anti-Nuke, Anti-Raid và Anti-Spam.\n• **Cải tạo (Jail):** Lệnh `/setjail`, tắt anti-spam ở kênh nhà tù để phạm nhân spam.\n• **Lệnh 1ar & Setup UI:** Bảng điều khiển cấp role nhanh, setup Welcome & Ping game trực quan.', inline: false },
-                { name: '💻 Game & Kinh Tế Mới', value: '• **Dark Web & Hacking:** Mua Laptop, Virus, Tường Lửa ở shop và chơi minigame hack tài khoản người khác!\n• **Thị Trường Chứng Khoán:** Lệnh `/market` xem biểu đồ giá tài nguyên biến động thực tế.\n• **Nối Từ:** Thêm tính năng nối từ Tiếng Anh, tối ưu từ điển tiếng Việt.', inline: false },
+                { name: '💻 Game & Kinh Tế Mới', value: '• **Dark Web & Hacking:** Mua Laptop, Virus, Tường Lửa ở shop và chơi minigame hack tài khoản người khác!\n• **Đầu Tư:** Lệnh `/dautu` đầu tư sinh lời ngẫu nhiên với thị trường ảo.\n• **Nối Từ:** Thêm tính năng nối từ Tiếng Anh, tối ưu từ điển tiếng Việt.', inline: false },
                 { name: '🎁 Nâng Cấp Khác', value: '• **Giveaway:** Hiển thị số lượng người tham gia trực tiếp, tuỳ chỉnh banner.\n• **Kết Hôn:** Giờ đây có thể cầu hôn thả ga ở bất kỳ kênh nào.\n• **Túi Đồ & Level:** Sửa lỗi hiển thị túi đồ RPG và tắt thông báo thăng cấp ở kênh tuỳ chọn.', inline: false },
                 { name: '📖 Hướng Dẫn Nhanh', value: `Gõ \`${prefix}help\` hoặc \`/help\` để xem toàn bộ chi tiết cách chơi từng tính năng nhé!`, inline: false }
             )
@@ -7834,8 +7848,55 @@ client.on('messageCreate', async (message) => {
         const targetId = message.mentions.users.first()?.id;
         return handleHackCommand(message.author.id, targetId, message);
     }
-    if (content === `${prefix}market` || content === `${prefix}mk`) {
-        return handleMarketCommand(message.author.id, message);
+    // !dautu
+    if (content.startsWith(`${prefix}dautu`) || content.startsWith(`${prefix}invest`)) {
+        const args = content.split(' ');
+        const amountStr = args[1];
+        if (!amountStr) return message.reply(`❌ Cú pháp: \`${prefix}dautu <số tiền/all>\``);
+
+        const uid = message.author.id;
+        
+        if (dautuCooldowns.has(uid)) {
+            const remaining = dautuCooldowns.get(uid) - Date.now();
+            if (remaining > 0) return message.reply(`⏳ Đang chờ phân tích thị trường... Vui lòng đợi **${Math.ceil(remaining/1000)}s** nữa trước khi đầu tư tiếp!`);
+        }
+        
+        const coins = getUserCoins(uid);
+        let amount = 0;
+
+        if (amountStr.toLowerCase() === 'all') amount = coins;
+        else amount = parseInt(amountStr);
+
+        if (isNaN(amount) || amount <= 0) return message.reply('❌ Số tiền đầu tư không hợp lệ!');
+        if (coins < amount) return message.reply(`❌ Bạn không đủ tiền! (Hiện có: **${coins.toLocaleString()} 🪙**)`);
+
+        dautuCooldowns.set(uid, Date.now() + DAUTU_COOLDOWN_MS);
+
+        // Gacha logic: 40% win (up to +80%), 60% lose (up to -50%)
+        const roll = Math.random();
+        let isWin = roll < 0.40;
+        let multiplier = 0;
+
+        if (isWin) {
+            multiplier = Math.random() * (0.8 - 0.1) + 0.1; // +10% to +80%
+        } else {
+            multiplier = -(Math.random() * (0.5 - 0.1) + 0.1); // -10% to -50%
+        }
+
+        const profit = Math.floor(amount * multiplier);
+        addCoins(uid, profit);
+
+        const embed = new EmbedBuilder()
+            .setTitle('📈 KẾT QUẢ ĐẦU TƯ')
+            .setDescription(`Bạn đã đầu tư **${amount.toLocaleString()} 🪙** vào thị trường chứng khoán.`)
+            .addFields(
+                { name: 'Thị trường', value: isWin ? 'Tăng giá! 🚀' : 'Sập sàn! 📉', inline: false },
+                { name: isWin ? 'Lợi nhuận' : 'Thua lỗ', value: `**${Math.abs(profit).toLocaleString()} 🪙** (${(multiplier * 100).toFixed(1)}%)`, inline: false },
+                { name: 'Số dư ví', value: `**${getUserCoins(uid).toLocaleString()} 🪙**`, inline: false }
+            )
+            .setColor(isWin ? '#00FF00' : '#FF0000');
+
+        return message.reply({ embeds: [embed] });
     }
     if (content.startsWith(`${prefix}marry`)) {
         let targetId = null;
@@ -8912,10 +8973,7 @@ client.on('interactionCreate', async (interaction) => {
                 const sellQty = action === 'sellall' ? userQty : 1;
                 let unitPrice = Math.floor((itemDef.price || 0) * 0.5);
                 
-                if (MARKET_ITEMS.includes(itemId)) {
-                    const marketData = updateMarketPrices();
-                    unitPrice = marketData.items[itemId]?.currentPrice || unitPrice;
-                }
+
                 
                 const sellPrice = unitPrice * sellQty;
                 
@@ -11114,6 +11172,39 @@ client.on('interactionCreate', async (interaction) => {
         return interaction.reply({ embeds: [embed], components: [row], flags: MessageFlags.Ephemeral });
     }
 
+    if (commandName === 'setupadvlogs') {
+        if (!interaction.member || !interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) 
+            return interaction.reply({ content: '❌ Bạn không có quyền!', flags: MessageFlags.Ephemeral });
+        
+        await interaction.reply({ content: '⏳ Đang khởi tạo hệ thống Log Nâng Cao (12 kênh)... Vui lòng đợi!', flags: MessageFlags.Ephemeral });
+        try {
+            const guild = interaction.guild;
+            const category = await guild.channels.create({
+                name: 'SERVER LOGS',
+                type: ChannelType.GuildCategory,
+                permissionOverwrites: [
+                    { id: guild.id, deny: [PermissionsBitField.Flags.ViewChannel] },
+                    { id: guild.client.user.id, allow: [PermissionsBitField.Flags.ViewChannel] }
+                ]
+            });
+            const logChannels = ['member-log', 'message-log', 'voice-log', 'channel-log', 'role-log', 'emoji-log', 'server-log', 'mod-log', 'ticket-log', 'command-log', 'bot-log', 'error-log'];
+            const logConfig = {};
+            for (const name of logChannels) {
+                const ch = await guild.channels.create({
+                    name: name,
+                    type: ChannelType.GuildText,
+                    parent: category.id
+                });
+                logConfig[name] = ch.id;
+            }
+            updateGuildConfig(guild.id, 'advLogs', logConfig);
+            return interaction.editReply({ content: `✅ Đã tạo thành công danh mục **SERVER LOGS** và 12 kênh log!` });
+        } catch (error) {
+            console.error(error);
+            return interaction.editReply({ content: '❌ Có lỗi xảy ra khi tạo kênh. Vui lòng kiểm tra quyền của Bot!' });
+        }
+    }
+
     if (commandName === 'setwelcome') {
         if (!interaction.member || !interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) 
             return interaction.reply({ content: '❌ Bạn không có quyền!', flags: MessageFlags.Ephemeral });
@@ -11628,8 +11719,50 @@ client.on('interactionCreate', async (interaction) => {
         const targetUser = interaction.options.getUser('user');
         return handleHackCommand(interaction.user.id, targetUser ? targetUser.id : null, interaction);
     }
-    if (commandName === 'market') {
-        return handleMarketCommand(interaction.user.id, interaction);
+    if (commandName === 'dautu') {
+        const amountStr = interaction.options.getString('amount');
+        const uid = interaction.user.id;
+        
+        if (dautuCooldowns.has(uid)) {
+            const remaining = dautuCooldowns.get(uid) - Date.now();
+            if (remaining > 0) return interaction.reply({ content: `⏳ Đang chờ phân tích thị trường... Vui lòng đợi **${Math.ceil(remaining/1000)}s** nữa trước khi đầu tư tiếp!`, ephemeral: true });
+        }
+        
+        const coins = getUserCoins(uid);
+        let amount = 0;
+
+        if (amountStr.toLowerCase() === 'all') amount = coins;
+        else amount = parseInt(amountStr);
+
+        if (isNaN(amount) || amount <= 0) return interaction.reply({ content: '❌ Số tiền đầu tư không hợp lệ!', ephemeral: true });
+        if (coins < amount) return interaction.reply({ content: `❌ Bạn không đủ tiền! (Hiện có: **${coins.toLocaleString()} 🪙**)`, ephemeral: true });
+
+        dautuCooldowns.set(uid, Date.now() + DAUTU_COOLDOWN_MS);
+
+        const roll = Math.random();
+        let isWin = roll < 0.40;
+        let multiplier = 0;
+
+        if (isWin) {
+            multiplier = Math.random() * (0.8 - 0.1) + 0.1;
+        } else {
+            multiplier = -(Math.random() * (0.5 - 0.1) + 0.1);
+        }
+
+        const profit = Math.floor(amount * multiplier);
+        addCoins(uid, profit);
+
+        const embed = new EmbedBuilder()
+            .setTitle('📈 KẾT QUẢ ĐẦU TƯ')
+            .setDescription(`Bạn đã đầu tư **${amount.toLocaleString()} 🪙** vào thị trường chứng khoán.`)
+            .addFields(
+                { name: 'Thị trường', value: isWin ? 'Tăng giá! 🚀' : 'Sập sàn! 📉', inline: false },
+                { name: isWin ? 'Lợi nhuận' : 'Thua lỗ', value: `**${Math.abs(profit).toLocaleString()} 🪙** (${(multiplier * 100).toFixed(1)}%)`, inline: false },
+                { name: 'Số dư ví', value: `**${getUserCoins(uid).toLocaleString()} 🪙**`, inline: false }
+            )
+            .setColor(isWin ? '#00FF00' : '#FF0000');
+
+        return interaction.reply({ embeds: [embed] });
     }
     if (commandName === 'raid') {
         return handleRaidCommand(interaction.user.id, interaction);
@@ -11969,11 +12102,232 @@ client.on('channelDelete', channel => {
 client.on('roleDelete', role => {
     if (role.guild) checkAntiNuke(role.guild, 'ROLE_DELETE');
 });
-client.on('guildBanAdd', ban => {
+client.on('guildBanAdd', async ban => {
     if (ban.guild) checkAntiNuke(ban.guild, 'MEMBER_BAN');
+    const executor = await fetchAuditLogExecutor(ban.guild, AuditLogEvent.MemberBanAdd, ban.user.id);
+    const logEmbed = new EmbedBuilder()
+        .setTitle('🔨 THÀNH VIÊN BỊ BAN')
+        .setDescription(`**${ban.user.tag}** (<@${ban.user.id}>) đã bị cấm khỏi server.`)
+        .addFields({ name: 'Người thực hiện', value: executor ? `<@${executor.id}>` : 'Không xác định' })
+        .setColor('#C0392B')
+        .setThumbnail(ban.user.displayAvatarURL())
+        .setTimestamp();
+    sendAdvLog(ban.guild, 'member', logEmbed);
+    sendAdvLog(ban.guild, 'mod', logEmbed);
 });
-client.on('guildMemberRemove', member => {
+client.on('guildMemberRemove', async member => {
     if (member.guild) checkAntiNuke(member.guild, 'MEMBER_KICK');
+    const kickExecutor = await fetchAuditLogExecutor(member.guild, AuditLogEvent.MemberKick, member.id);
+    
+    if (member.guild) {
+        const logEmbed = new EmbedBuilder()
+            .setTitle(kickExecutor ? '👢 THÀNH VIÊN BỊ KICK' : '📤 THÀNH VIÊN RỜI ĐI')
+            .setDescription(`**${member.user.tag}** (<@${member.id}>) đã ${kickExecutor ? 'bị đuổi' : 'rời'} khỏi server.\nSố lượng thành viên: ${member.guild.memberCount}`)
+            .setColor('#E74C3C')
+            .setThumbnail(member.user.displayAvatarURL())
+            .setTimestamp();
+        if (kickExecutor) {
+            logEmbed.addFields({ name: 'Người thực hiện', value: `<@${kickExecutor.id}>` });
+            sendAdvLog(member.guild, 'mod', logEmbed);
+        }
+        sendAdvLog(member.guild, 'member', logEmbed);
+    }
+});
+
+client.on('messageDelete', message => {
+    if (message.partial || message.author?.bot || !message.guild) return;
+    const logEmbed = new EmbedBuilder()
+        .setTitle('🗑️ TIN NHẮN BỊ XÓA')
+        .setDescription(`Tin nhắn của **${message.author.tag}** (<@${message.author.id}>) bị xóa ở kênh <#${message.channel.id}>:\n\n${message.content || '[Không có nội dung chữ]'}`)
+        .setColor('#E74C3C')
+        .setTimestamp();
+    sendAdvLog(message.guild, 'message', logEmbed);
+});
+
+client.on('messageUpdate', (oldMessage, newMessage) => {
+    if (oldMessage.partial || oldMessage.author?.bot || !oldMessage.guild) return;
+    if (oldMessage.content === newMessage.content) return;
+    const logEmbed = new EmbedBuilder()
+        .setTitle('✏️ TIN NHẮN ĐƯỢC SỬA')
+        .setDescription(`Tin nhắn của **${oldMessage.author.tag}** được sửa ở kênh <#${oldMessage.channel.id}> [Đi tới tin nhắn](${newMessage.url})`)
+        .addFields(
+            { name: 'Trước', value: oldMessage.content || '[Trống]' },
+            { name: 'Sau', value: newMessage.content || '[Trống]' }
+        )
+        .setColor('#F1C40F')
+        .setTimestamp();
+    sendAdvLog(oldMessage.guild, 'message', logEmbed);
+});
+
+// Helper for fetching Audit Log executor
+async function fetchAuditLogExecutor(guild, type, targetId) {
+    if (!guild.members.me.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return null;
+    try {
+        const auditLogs = await guild.fetchAuditLogs({ type: type, limit: 1 });
+        const entry = auditLogs.entries.first();
+        if (entry && (!targetId || entry.target?.id === targetId) && Date.now() - entry.createdTimestamp < 5000) {
+            return entry.executor;
+        }
+    } catch (e) {
+        console.error(e);
+    }
+    return null;
+}
+
+// ========================
+// ADVANCED LOGS EVENTS
+// ========================
+
+// CHANNEL LOG
+client.on('channelCreate', async channel => {
+    if (!channel.guild) return;
+    const executor = await fetchAuditLogExecutor(channel.guild, AuditLogEvent.ChannelCreate, channel.id);
+    const logEmbed = new EmbedBuilder()
+        .setTitle('📢 KÊNH ĐƯỢC TẠO')
+        .setDescription(`Kênh <#${channel.id}> (\`${channel.name}\`) vừa được tạo.`)
+        .addFields({ name: 'Người thực hiện', value: executor ? `<@${executor.id}>` : 'Không xác định' })
+        .setColor('#2ECC71')
+        .setTimestamp();
+    sendAdvLog(channel.guild, 'channel', logEmbed);
+    
+    // TICKET LOG
+    if (channel.name.includes('ticket-')) {
+        const ticketEmbed = new EmbedBuilder()
+            .setTitle('🎟️ TICKET MỚI')
+            .setDescription(`Ticket <#${channel.id}> vừa được tạo bởi ${executor ? `<@${executor.id}>` : 'hệ thống'}.`)
+            .setColor('#3498DB')
+            .setTimestamp();
+        sendAdvLog(channel.guild, 'ticket', ticketEmbed);
+    }
+});
+
+client.on('channelDelete', async channel => {
+    if (!channel.guild) return;
+    const executor = await fetchAuditLogExecutor(channel.guild, AuditLogEvent.ChannelDelete, channel.id);
+    const logEmbed = new EmbedBuilder()
+        .setTitle('📢 KÊNH BỊ XÓA')
+        .setDescription(`Kênh \`${channel.name}\` vừa bị xóa.`)
+        .addFields({ name: 'Người thực hiện', value: executor ? `<@${executor.id}>` : 'Không xác định' })
+        .setColor('#E74C3C')
+        .setTimestamp();
+    sendAdvLog(channel.guild, 'channel', logEmbed);
+
+    // TICKET LOG
+    if (channel.name.includes('ticket-')) {
+        const ticketEmbed = new EmbedBuilder()
+            .setTitle('🎟️ TICKET ĐÓNG/XÓA')
+            .setDescription(`Ticket \`${channel.name}\` vừa bị xóa bởi ${executor ? `<@${executor.id}>` : 'hệ thống'}.`)
+            .setColor('#E74C3C')
+            .setTimestamp();
+        sendAdvLog(channel.guild, 'ticket', ticketEmbed);
+    }
+});
+
+client.on('channelUpdate', async (oldChannel, newChannel) => {
+    if (!oldChannel.guild) return;
+    if (oldChannel.name !== newChannel.name) {
+        const executor = await fetchAuditLogExecutor(newChannel.guild, AuditLogEvent.ChannelUpdate, newChannel.id);
+        const logEmbed = new EmbedBuilder()
+            .setTitle('📢 KÊNH ĐƯỢC ĐỔI TÊN')
+            .setDescription(`Kênh <#${newChannel.id}> vừa được đổi tên.`)
+            .addFields(
+                { name: 'Tên cũ', value: oldChannel.name, inline: true },
+                { name: 'Tên mới', value: newChannel.name, inline: true },
+                { name: 'Người thực hiện', value: executor ? `<@${executor.id}>` : 'Không xác định', inline: false }
+            )
+            .setColor('#F1C40F')
+            .setTimestamp();
+        sendAdvLog(newChannel.guild, 'channel', logEmbed);
+    }
+});
+
+// ROLE LOG
+client.on('roleCreate', async role => {
+    const executor = await fetchAuditLogExecutor(role.guild, AuditLogEvent.RoleCreate, role.id);
+    const logEmbed = new EmbedBuilder()
+        .setTitle('🎭 ROLE ĐƯỢC TẠO')
+        .setDescription(`Role <@&${role.id}> (\`${role.name}\`) vừa được tạo.`)
+        .addFields({ name: 'Người thực hiện', value: executor ? `<@${executor.id}>` : 'Không xác định' })
+        .setColor('#2ECC71')
+        .setTimestamp();
+    sendAdvLog(role.guild, 'role', logEmbed);
+});
+
+client.on('roleDelete', async role => {
+    const executor = await fetchAuditLogExecutor(role.guild, AuditLogEvent.RoleDelete, role.id);
+    const logEmbed = new EmbedBuilder()
+        .setTitle('🎭 ROLE BỊ XÓA')
+        .setDescription(`Role \`${role.name}\` vừa bị xóa.`)
+        .addFields({ name: 'Người thực hiện', value: executor ? `<@${executor.id}>` : 'Không xác định' })
+        .setColor('#E74C3C')
+        .setTimestamp();
+    sendAdvLog(role.guild, 'role', logEmbed);
+});
+
+client.on('roleUpdate', async (oldRole, newRole) => {
+    if (oldRole.name !== newRole.name || oldRole.permissions.bitfield !== newRole.permissions.bitfield) {
+        const executor = await fetchAuditLogExecutor(newRole.guild, AuditLogEvent.RoleUpdate, newRole.id);
+        const logEmbed = new EmbedBuilder()
+            .setTitle('🎭 ROLE ĐƯỢC CẬP NHẬT')
+            .setDescription(`Role <@&${newRole.id}> (\`${newRole.name}\`) vừa thay đổi.`)
+            .addFields(
+                { name: 'Tên cũ', value: oldRole.name, inline: true },
+                { name: 'Tên mới', value: newRole.name, inline: true },
+                { name: 'Người thực hiện', value: executor ? `<@${executor.id}>` : 'Không xác định', inline: false }
+            )
+            .setColor('#F1C40F')
+            .setTimestamp();
+        sendAdvLog(newRole.guild, 'role', logEmbed);
+    }
+});
+
+// SERVER LOG
+client.on('guildUpdate', async (oldGuild, newGuild) => {
+    if (oldGuild.name !== newGuild.name || oldGuild.icon !== newGuild.icon) {
+        const executor = await fetchAuditLogExecutor(newGuild, AuditLogEvent.GuildUpdate, newGuild.id);
+        const logEmbed = new EmbedBuilder()
+            .setTitle('⚙️ SERVER ĐƯỢC CẬP NHẬT')
+            .setDescription(`Thông tin Server **${newGuild.name}** vừa thay đổi.`)
+            .addFields({ name: 'Người thực hiện', value: executor ? `<@${executor.id}>` : 'Không xác định' })
+            .setColor('#9B59B6')
+            .setTimestamp();
+        sendAdvLog(newGuild, 'server', logEmbed);
+    }
+});
+
+// EMOJI & STICKER LOG
+client.on('emojiCreate', async emoji => {
+    const executor = await fetchAuditLogExecutor(emoji.guild, AuditLogEvent.EmojiCreate, emoji.id);
+    const logEmbed = new EmbedBuilder()
+        .setTitle('😀 EMOJI ĐƯỢC TẠO')
+        .setDescription(`Emoji ${emoji} (\`${emoji.name}\`) vừa được tạo.`)
+        .addFields({ name: 'Người thực hiện', value: executor ? `<@${executor.id}>` : 'Không xác định' })
+        .setColor('#2ECC71')
+        .setTimestamp();
+    sendAdvLog(emoji.guild, 'emoji', logEmbed);
+});
+
+client.on('emojiDelete', async emoji => {
+    const executor = await fetchAuditLogExecutor(emoji.guild, AuditLogEvent.EmojiDelete, emoji.id);
+    const logEmbed = new EmbedBuilder()
+        .setTitle('😀 EMOJI BỊ XÓA')
+        .setDescription(`Emoji \`${emoji.name}\` vừa bị xóa.`)
+        .addFields({ name: 'Người thực hiện', value: executor ? `<@${executor.id}>` : 'Không xác định' })
+        .setColor('#E74C3C')
+        .setTimestamp();
+    sendAdvLog(emoji.guild, 'emoji', logEmbed);
+});
+
+// COMMAND LOG
+client.on('interactionCreate', async interaction => {
+    if (interaction.isCommand()) {
+        const logEmbed = new EmbedBuilder()
+            .setTitle('💻 LỆNH SLASH ĐƯỢC SỬ DỤNG')
+            .setDescription(`Người dùng <@${interaction.user.id}> đã sử dụng lệnh \`/${interaction.commandName}\` tại kênh <#${interaction.channelId}>.`)
+            .setColor('#34495E')
+            .setTimestamp();
+        sendAdvLog(interaction.guild, 'command', logEmbed);
+    }
 });
 
 // ========================
@@ -11987,12 +12341,28 @@ if (!token || token === 'YOUR_DISCORD_BOT_TOKEN_HERE') {
     client.login(token);
 }
 
+// Cảnh báo lỗi gửi vào Discord
+function sendErrorLog(errTitle, errBody) {
+    const logEmbed = new EmbedBuilder()
+        .setTitle(errTitle)
+        .setDescription(`\`\`\`js\n${String(errBody).substring(0, 4000)}\n\`\`\``)
+        .setColor('#E74C3C')
+        .setTimestamp();
+    // Phát tới TẤT CẢ guild có cài đặt advLogs
+    client.guilds.cache.forEach(guild => {
+        sendAdvLog(guild, 'error', logEmbed);
+        sendAdvLog(guild, 'bot', logEmbed);
+    });
+}
+
 // Anti-crash system
 process.on('unhandledRejection', (reason, promise) => {
     console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+    sendErrorLog('❌ Unhandled Rejection', reason);
 });
 process.on('uncaughtException', (err) => {
     console.error('Uncaught Exception:', err);
+    sendErrorLog('❌ Uncaught Exception', err.stack || err);
 });
 process.on('uncaughtExceptionMonitor', (err, origin) => {
     console.error('Uncaught Exception Monitor:', err, origin);
