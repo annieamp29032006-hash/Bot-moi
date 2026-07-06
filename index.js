@@ -6436,7 +6436,7 @@ client.on('messageCreate', async (message) => {
             .setColor('#1E8449')
             .setThumbnail(client.user.displayAvatarURL())
             .addFields(
-                { name: '🏫 Các cơ sở đào tạo', value: '• **Cơ sở 1 (Trụ sở chính):** Dân Tiến, Khoái Châu, Hưng Yên\n• **Cơ sở 2:** Phường Nhân Hòa, Thị xã Mỹ Hào, Hưng Yên\n• **Cơ sở 3:** Phường Tân Bình, TP. Hải Dương', inline: false },
+                { name: '🏫 Các cơ sở đào tạo', value: '• **Cơ sở 1 (Trụ sở chính):** Xã Việt Tiến, Huyện Khoái Châu, Hưng Yên\n• **Cơ sở 2:** Phường Mỹ Hào, Thị xã Mỹ Hào, Hưng Yên\n• **Cơ sở 3:** Phường Lê Thanh Nghị, TP. Hải Dương', inline: false },
                 { name: '📝 Các phương thức xét tuyển', value: '1️⃣ Xét tuyển dựa vào kết quả thi tốt nghiệp THPT\n2️⃣ Xét tuyển dựa vào kết quả học tập THPT (Học bạ)\n3️⃣ Xét tuyển thẳng theo quy định của Bộ GD&ĐT\n4️⃣ Xét tuyển kết hợp thi đánh giá năng lực', inline: false },
                 { name: '🌐 Thông tin liên hệ & Hỗ trợ', value: '• **Website:** [tuyensinh.utehy.edu.vn](http://tuyensinh.utehy.edu.vn/)\n• **Điện thoại:** 02213.689.888 - 02213.689.555\n• **Fanpage:** [Tuyển sinh - Đại học SPKT Hưng Yên](https://www.facebook.com/TuyensinhUTEHY)', inline: false }
             )
