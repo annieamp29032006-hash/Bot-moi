@@ -4742,7 +4742,7 @@ client.giveawaysManager = manager;
 // Từ khóa auto-reply
 const autoReplies = {
     'hello': 'Xin chào bạn nhé!',
-    'hima': `Hima chào bạn ạ, bạn cần làm code bot custom cho server liên hệ với ${ADMIN_ID} . Cảm ơn bạn ạ`
+    'hima': `Hima chào bạn ạ, bạn cần làm code bot custom cho server liên hệ với <@${ADMIN_ID}> . Cảm ơn bạn ạ`
 };
 
 // ========================
@@ -6187,7 +6187,7 @@ client.on('messageCreate', async (message) => {
 
     for (const [key, reply] of Object.entries(autoReplies)) {
         if (content.includes(key)) {
-            message.reply(reply);
+            message.reply({ content: reply, allowedMentions: { repliedUser: true, parse: [] } });
             break;
         }
     }
