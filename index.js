@@ -6427,6 +6427,24 @@ client.on('messageCreate', async (message) => {
             message.react(emojis[Math.floor(Math.random() * emojis.length)]).catch(() => {});
         }
     }
+    // --- 1TUYENSINH COMMAND (NO PREFIX, BYPASS DISABLE) ---
+    if (content === '1tuyensinh') {
+        if (message.author.id !== ADMIN_ID) return message.reply('❌ Lệnh này chỉ dành riêng cho Chủ Bot!');
+        const embed = new EmbedBuilder()
+            .setTitle('🎓 Thông Tin Tuyển Sinh - Đại Học Sư Phạm Kỹ Thuật Hưng Yên (UTEHY)')
+            .setDescription('Dưới đây là các thông tin cơ bản về tuyển sinh của trường Đại học Sư phạm Kỹ thuật Hưng Yên:')
+            .setColor('#1E8449')
+            .setThumbnail('https://upload.wikimedia.org/wikipedia/vi/thumb/9/90/Logo_%C4%90%E1%BA%A1i_h%E1%BB%8Dc_S%C6%B0_ph%E1%BA%A1m_K%E1%BB%B9_thu%E1%BA%ADt_H%C6%B0ng_Y%C3%AAn.png/220px-Logo_%C4%90%E1%BA%A1i_h%E1%BB%8Dc_S%C6%B0_ph%E1%BA%A1m_K%E1%BB%B9_thu%E1%BA%ADt_H%C6%B0ng_Y%C3%AAn.png')
+            .addFields(
+                { name: '🏫 Các cơ sở đào tạo', value: '• **Cơ sở 1 (Trụ sở chính):** Dân Tiến, Khoái Châu, Hưng Yên\n• **Cơ sở 2:** Phường Nhân Hòa, Thị xã Mỹ Hào, Hưng Yên\n• **Cơ sở 3:** Phường Tân Bình, TP. Hải Dương', inline: false },
+                { name: '📝 Các phương thức xét tuyển', value: '1️⃣ Xét tuyển dựa vào kết quả thi tốt nghiệp THPT\n2️⃣ Xét tuyển dựa vào kết quả học tập THPT (Học bạ)\n3️⃣ Xét tuyển thẳng theo quy định của Bộ GD&ĐT\n4️⃣ Xét tuyển kết hợp thi đánh giá năng lực', inline: false },
+                { name: '🌐 Thông tin liên hệ & Hỗ trợ', value: '• **Website:** [tuyensinh.utehy.edu.vn](http://tuyensinh.utehy.edu.vn/)\n• **Điện thoại:** 02213.689.888 - 02213.689.555\n• **Fanpage:** [Tuyển sinh - Đại học SPKT Hưng Yên](https://www.facebook.com/TuyensinhUTEHY)', inline: false }
+            )
+            .setFooter({ text: 'Trường Đại học Sư phạm Kỹ thuật Hưng Yên' })
+            .setTimestamp();
+        
+        return message.channel.send({ embeds: [embed] });
+    }
 
     // --- PREFIX COMMANDS ---
     if (!content.startsWith(prefix)) return;
