@@ -5495,13 +5495,31 @@ client.on('guildMemberAdd', async (member) => {
             .setFooter({ text: 'づ♡ど' })
             .setImage('https://cdn.discordapp.com/attachments/1492161415388069968/1522638402326102036/ChatGPT_Image_23_21_06_3_thg_7_2026.png?ex=6a493304&is=6a47e184&hm=0b105358fb59188657d3e236fcd422de4ba27f9e60afa52dae68cf259239613e&');
         
-        // Ping user (không tag role)
-        const messageOptions = { content: `<@${member.user.id}>`, embeds: [embed] };
+        // Ping user và role đón khách trên kênh
+        let pingContent = `<@${member.user.id}>`;
+        if (config.welcomePingRoles) {
+            pingContent += ` | ${config.welcomePingRoles} ra đón khách kìa! 🎉`;
+        } else if (config.welcomeRoleId) {
+            pingContent += ` | <@&${config.welcomeRoleId}> ra đón khách kìa! 🎉`;
+        } else if (receptionistRoleId && receptionistRoleId !== 'YOUR_RECEPTIONIST_ROLE_ID_HERE') {
+            pingContent += ` | <@&${receptionistRoleId}> ra đón khách kìa! 🎉`;
+        } else {
+            pingContent += ` | <@&1491977303473914036> ra đón thành viên mới kìa! 🎉`;
+        }
+        
+        const messageOptions = { content: pingContent, embeds: [embed] };
         
         channel.send(messageOptions);
         
-        // Gửi DM riêng cho user
-        member.send({ embeds: [embed] }).catch(() => {});
+        // Gửi DM riêng cho user với thiết kế LAVIE
+        const dmEmbed = new EmbedBuilder()
+            .setTitle('Giữa hàng triệu cuộc gặp gỡ trên thế giới, thật vui vì hôm nay chúng ta lại có thêm một cái tên xuất hiện tại L A V I E 🐶')
+            .setDescription('Mừng bạn đã đến với L A V I E , chúc bạn có những kỉ niệm thật đẹp ở đây.\n\n> Cảm ơn vì giữa vô vàn điểm dừng chân, bạn đã chọn ghé lại nơi đây.\n> Hy vọng LAVIE sẽ trở thành một khoảng trời nhỏ, nơi bạn có thể tìm thấy niềm vui, sự đồng điệu và những người bạn tuyệt vời.\n\nChúc bạn có thật nhiều kỷ niệm đẹp cùng chúng mình.\n💧 **Và đừng quên uống đủ nước nhé.**')
+            .setColor('#2b2d31')
+            .setImage('https://cdn.discordapp.com/attachments/1492161415388069968/1522638402326102036/ChatGPT_Image_23_21_06_3_thg_7_2026.png?ex=6a493304&is=6a47e184&hm=0b105358fb59188657d3e236fcd422de4ba27f9e60afa52dae68cf259239613e&')
+            .setFooter({ text: 'づ♡ど' });
+
+        member.send({ embeds: [dmEmbed] }).catch(() => {});
     } catch (error) {
         console.error('Lỗi khi gửi lời chào:', error);
     }
