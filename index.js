@@ -6487,6 +6487,30 @@ client.on('messageCreate', async (message) => {
         return message.reply('🔓 Bạn đã nộp **100,000 🪙** cho công an và được thả tự do!');
     }
 
+    if (content === `${prefix}sell`) {
+        const embed = new EmbedBuilder()
+            .setTitle('💖 BẢNG GIÁ CODE BOT DISCORD 💖')
+            .setDescription(`
+:mlz_heart~3: **Bot riêng (Custom Bot)**
+
+:divine: **400.000 VNĐ / 1 Bot / 1 Server** :hanh_VIP: 
+
+📅 **Phí duy trì**
+
+:PinkRightArrowBounce: **60.000 VNĐ / tháng**
+Bao gồm:
+:PinkRightArrowBounce: Host bot 24/7
+:PinkRightArrowBounce: Bảo trì & sửa lỗi
+:PinkRightArrowBounce: Cập nhật tính năng nhỏ (nếu có)
+
+:PinkRightArrowBounce:✅ Giá trên áp dụng cho 01 bot hoạt động trên 01 server Discord. Nếu cần thêm tính năng hoặc triển khai cho nhiều server, chi phí sẽ được báo riêng.
+            `)
+            .setColor('#FFB6C1')
+            .setTimestamp();
+        
+        return message.channel.send({ embeds: [embed] });
+    }
+
     if (content === `${prefix}rank`) {
         const levelData = loadLevels();
         const data = levelData[message.author.id] || { xp: 0, level: 1, messages: 0, voiceTime: 0 };
