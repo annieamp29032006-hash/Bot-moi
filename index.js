@@ -6434,7 +6434,7 @@ client.on('messageCreate', async (message) => {
             .setTitle('🎓 Thông Tin Tuyển Sinh Năm 2026 - Đại Học Sư Phạm Kỹ Thuật Hưng Yên (UTEHY)')
             .setDescription('Dưới đây là các thông tin cơ bản về tuyển sinh năm 2026 của trường Đại học Sư phạm Kỹ thuật Hưng Yên:')
             .setColor('#1E8449')
-            .setThumbnail('https://upload.wikimedia.org/wikipedia/vi/thumb/9/90/Logo_%C4%90%E1%BA%A1i_h%E1%BB%8Dc_S%C6%B0_ph%E1%BA%A1m_K%E1%BB%B9_thu%E1%BA%ADt_H%C6%B0ng_Y%C3%AAn.png/220px-Logo_%C4%90%E1%BA%A1i_h%E1%BB%8Dc_S%C6%B0_ph%E1%BA%A1m_K%E1%BB%B9_thu%E1%BA%ADt_H%C6%B0ng_Y%C3%AAn.png')
+            .setThumbnail(client.user.displayAvatarURL())
             .addFields(
                 { name: '🏫 Các cơ sở đào tạo', value: '• **Cơ sở 1 (Trụ sở chính):** Dân Tiến, Khoái Châu, Hưng Yên\n• **Cơ sở 2:** Phường Nhân Hòa, Thị xã Mỹ Hào, Hưng Yên\n• **Cơ sở 3:** Phường Tân Bình, TP. Hải Dương', inline: false },
                 { name: '📝 Các phương thức xét tuyển', value: '1️⃣ Xét tuyển dựa vào kết quả thi tốt nghiệp THPT\n2️⃣ Xét tuyển dựa vào kết quả học tập THPT (Học bạ)\n3️⃣ Xét tuyển thẳng theo quy định của Bộ GD&ĐT\n4️⃣ Xét tuyển kết hợp thi đánh giá năng lực', inline: false },
