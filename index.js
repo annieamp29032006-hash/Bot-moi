@@ -5495,21 +5495,13 @@ client.on('guildMemberAdd', async (member) => {
             .setFooter({ text: 'づ♡ど' })
             .setImage('https://cdn.discordapp.com/attachments/1492161415388069968/1522638402326102036/ChatGPT_Image_23_21_06_3_thg_7_2026.png?ex=6a493304&is=6a47e184&hm=0b105358fb59188657d3e236fcd422de4ba27f9e60afa52dae68cf259239613e&');
         
-        // Ping user và role đón khách
-        let pingContent = `<@${member.user.id}>`;
-        if (config.welcomePingRoles) {
-            pingContent += ` | ${config.welcomePingRoles} ra đón khách kìa! 🎉`;
-        } else if (config.welcomeRoleId) {
-            pingContent += ` | <@&${config.welcomeRoleId}> ra đón khách kìa! 🎉`;
-        } else if (receptionistRoleId && receptionistRoleId !== 'YOUR_RECEPTIONIST_ROLE_ID_HERE') {
-            pingContent += ` | <@&${receptionistRoleId}> ra đón khách kìa! 🎉`;
-        } else {
-            pingContent += ` | <@&1491977303473914036> ra đón thành viên mới kìa! 🎉`;
-        }
-        
-        const messageOptions = { content: pingContent, embeds: [embed] };
+        // Ping user (không tag role)
+        const messageOptions = { content: `<@${member.user.id}>`, embeds: [embed] };
         
         channel.send(messageOptions);
+        
+        // Gửi DM riêng cho user
+        member.send({ embeds: [embed] }).catch(() => {});
     } catch (error) {
         console.error('Lỗi khi gửi lời chào:', error);
     }
