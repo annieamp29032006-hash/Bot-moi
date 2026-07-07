@@ -5643,7 +5643,7 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
     // LUÔN LUÔN xử lý việc xóa phòng J2C nếu có người/bot rời đi và phòng trống
     if (oldState.channelId) {
         const oldChannel = oldState.channel;
-        if (oldChannel && oldChannel.members.size === 0 && (j2cChannels.has(oldState.channelId) || oldChannel.name.startsWith('🔊 Phòng của'))) {
+        if (oldChannel && oldChannel.members.size === 0 && (j2cChannels.has(oldState.channelId) || oldChannel.name.startsWith('🔊'))) {
             try {
                 await oldChannel.delete('J2C Channel empty');
                 j2cChannels.delete(oldState.channelId);
@@ -5751,7 +5751,14 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
                 }
             }, 1500);
 
-            const newChannelName = `🔊 Phòng của ${member.user.username}`;
+            const j2cPrefixes = [
+                'Lãnh địa', 'Động', 'Quán net', 'Căn cứ', 'Góc chill',
+                'Phi thuyền', 'Biệt thự', 'Tẩm cung', 'Trạm không gian',
+                'Nhà kho', 'Lều', 'Đảo hoang', 'Trụ sở', 'Đấu trường',
+                'Quốc gia riêng', 'Nơi trú ẩn'
+            ];
+            const randomPrefix = j2cPrefixes[Math.floor(Math.random() * j2cPrefixes.length)];
+            const newChannelName = `🔊 ${randomPrefix} của ${member.user.username}`;
             let createdChannel;
             try {
                 createdChannel = await newState.guild.channels.create({
