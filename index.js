@@ -12221,8 +12221,8 @@ client.on('messageUpdate', (oldMessage, newMessage) => {
         .setTitle('✏️ TIN NHẮN ĐƯỢC SỬA')
         .setDescription(`Tin nhắn của **${oldMessage.author.tag}** được sửa ở kênh <#${oldMessage.channel.id}> [Đi tới tin nhắn](${newMessage.url})`)
         .addFields(
-            { name: 'Trước', value: oldMessage.content || '[Trống]' },
-            { name: 'Sau', value: newMessage.content || '[Trống]' }
+            { name: 'Trước', value: oldMessage.content ? oldMessage.content.substring(0, 1000) + (oldMessage.content.length > 1000 ? '...' : '') : '[Trống]' },
+            { name: 'Sau', value: newMessage.content ? newMessage.content.substring(0, 1000) + (newMessage.content.length > 1000 ? '...' : '') : '[Trống]' }
         )
         .setColor('#F1C40F')
         .setTimestamp();
