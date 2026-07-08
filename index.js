@@ -7110,9 +7110,6 @@ Bao gồm:
         collector.on('collect', async i => {
             const page = parseInt(i.values[0]);
             if (page === 13) {
-                if (i.user.id !== ADMIN_ID) {
-                    return i.reply({ content: '🔒 **Danh mục này chỉ dành riêng cho Chủ Bot!**', flags: MessageFlags.Ephemeral });
-                }
                 await i.update({ embeds: [pages[page]], components: [row] });
                 return;
             }
@@ -10907,9 +10904,6 @@ client.on('interactionCreate', async (interaction) => {
         collector.on('collect', async i => {
             const page = parseInt(i.values[0]);
             if (page === 13) {
-                if (i.user.id !== ADMIN_ID) {
-                    return i.reply({ content: '🔒 **Danh mục này chỉ dành riêng cho Chủ Bot!**', flags: MessageFlags.Ephemeral });
-                }
                 await i.update({ embeds: [pages[page]], components: [row] });
                 return;
             }
