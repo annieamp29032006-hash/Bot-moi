@@ -6136,6 +6136,19 @@ client.on('messageCreate', async (message) => {
         return message.reply(`🏓 Pong! Độ trễ của bot là **${client.ws.ping}ms**`);
     }
 
+    if (content === 'ndcp' || content.includes(' ndcp ') || content.startsWith('ndcp ') || content.endsWith(' ndcp')) {
+        const ndcpEmbed = new EmbedBuilder()
+            .setTitle('⚖️ Nghị định 174/2026/NĐ-CP')
+            .setColor('#FF0000')
+            .addFields(
+                { name: '📜 Điều 4', value: 'Mức phạt trong Nghị định áp dụng cho tổ chức.\nCá nhân bị phạt bằng 1/2 mức phạt của tổ chức, trừ khi có quy định khác.', inline: false },
+                { name: '🚨 Điều 95', value: 'Xử phạt hành vi đăng tải, chia sẻ thông tin vi phạm trên mạng xã hội như: tin giả, sai sự thật, vu khống, xúc phạm danh dự, xuyên tạc, kích động, hoặc nội dung trái pháp luật.\nMức phạt có thể lên đến **50 triệu đồng** đối với tổ chức (tối đa **25 triệu đồng** đối với cá nhân theo Điều 4), tùy theo tính chất và mức độ vi phạm.', inline: false }
+            )
+            .setFooter({ text: 'Hãy cẩn trọng với ngôn từ của bạn trên không gian mạng!' })
+            .setTimestamp();
+        return message.reply({ embeds: [ndcpEmbed] });
+    }
+
     if (content.includes('tydc')) {
         const quote = QUOTES_TYDC[Math.floor(Math.random() * QUOTES_TYDC.length)];
         const tydcEmbed = new EmbedBuilder()
