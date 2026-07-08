@@ -4752,8 +4752,35 @@ const manager = new GiveawaysManager(client, {
 client.giveawaysManager = manager;
 
 // Từ khóa auto-reply
+const greetingResponses = [
+    // Dễ thương / Cute
+    "Nya~ Xin chào cậu chủ nhỏ! (✿◠‿◠)",
+    "Hí luuu! Cậu có khỏe khum dạ? 🌸",
+    "Meow meow, chào đằng ấy nha! 🐾",
+    "Xin chào người đẹp! Chúc cậu một ngày đầy nắng và tiếng cười! ✨",
+    "Uwaaa, gặp được cậu ở đây thật là dui quá đi! (≧◡≦) ♡",
+    "Bíp bíp! Bot Hima xin gửi đến bạn một cái ôm ấm áp! 🤗",
+    
+    // Nghiêm túc / Lịch sự
+    "Xin chào bạn. Tôi có thể giúp gì cho bạn hôm nay?",
+    "Chào bạn! Chúc bạn một ngày làm việc và học tập hiệu quả.",
+    "Kính chào quý khách. Rất hân hạnh được phục vụ.",
+    "Xin chào. Hệ thống Hima Bot luôn sẵn sàng hỗ trợ bạn.",
+    
+    // Ngầu / Lạnh lùng
+    "Chào. Có việc gì không?",
+    "Hừm... chào. Đang bận chút nhưng vẫn nghe đây.",
+    "Sup! Cần gì nói lẹ đê bro. 😎",
+    
+    // Hài hước / Lầy lội
+    "Ủa ai gọi đó? Có tôi đây! Xin chào nha!",
+    "Chào thì chào, không chào thì trúng đòn! 🥊",
+    "Chào người anh em thiện lành! Ăn cơm chưa?",
+    "Xin chào! Bạn đã nạp năng lượng cho ngày mới chưa đấy? 🔋",
+    "Hello bóng hồng/nam thần! Lâu rồi không gặp!"
+];
+
 const autoReplies = {
-    'hello': 'Xin chào bạn nhé!',
     'hima': `Hima chào bạn ạ, bạn cần làm code bot custom cho server liên hệ với <@${ADMIN_ID}> . Cảm ơn bạn ạ`
 };
 
@@ -6220,10 +6247,20 @@ client.on('messageCreate', async (message) => {
         return message.reply({ embeds: [embed] });
     }
 
-    for (const [key, reply] of Object.entries(autoReplies)) {
-        if (content.includes(key)) {
-            message.reply({ content: reply, allowedMentions: { repliedUser: true, parse: [] } });
-            break;
+    const greetingWords = ['hello', 'hi', 'chào', 'helo', 'chao', 'alo', 'hey', 'chòa', 'hí', 'hiii', 'heloo', 'hii'];
+    // Tách các từ trong tin nhắn để tránh trigger sai (VD: "chào mào")
+    const words = content.split(/[\s,.\!\?]+/);
+    
+    // Nếu tin nhắn có chứa một trong các từ chào
+    if (words.some(w => greetingWords.includes(w))) {
+        const randomGreeting = greetingResponses[Math.floor(Math.random() * greetingResponses.length)];
+        message.reply({ content: randomGreeting, allowedMentions: { repliedUser: true, parse: [] } });
+    } else {
+        for (const [key, reply] of Object.entries(autoReplies)) {
+            if (content.includes(key)) {
+                message.reply({ content: reply, allowedMentions: { repliedUser: true, parse: [] } });
+                break;
+            }
         }
     }
 
