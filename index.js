@@ -7511,6 +7511,48 @@ Bao gồm:
         return message.guild.leave().catch(console.error);
     }
 
+    // !muteall
+    if (content === `${prefix}muteall`) {
+        if (!message.member.permissions.has(PermissionsBitField.Flags.MuteMembers)) {
+            return message.reply('❌ Bạn không có quyền Tắt tiếng thành viên!');
+        }
+        const voiceChannel = message.member.voice.channel;
+        if (!voiceChannel) {
+            return message.reply('❌ Bạn phải đang ở trong một kênh thoại để dùng lệnh này!');
+        }
+        
+        await message.reply(`⏳ Đang tắt mic tất cả mọi người trong kênh **${voiceChannel.name}**...`);
+        let count = 0;
+        for (const [memberId, member] of voiceChannel.members) {
+            if (!member.user.bot && !member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+                await member.voice.setMute(true).catch(() => {});
+                count++;
+            }
+        }
+        return message.channel.send(`✅ Đã tắt mic **${count}** người trong kênh thoại!`);
+    }
+
+    // !unmuteall
+    if (content === `${prefix}unmuteall`) {
+        if (!message.member.permissions.has(PermissionsBitField.Flags.MuteMembers)) {
+            return message.reply('❌ Bạn không có quyền Tắt tiếng thành viên!');
+        }
+        const voiceChannel = message.member.voice.channel;
+        if (!voiceChannel) {
+            return message.reply('❌ Bạn phải đang ở trong một kênh thoại để dùng lệnh này!');
+        }
+        
+        await message.reply(`⏳ Đang bật mic lại cho tất cả mọi người trong kênh **${voiceChannel.name}**...`);
+        let count = 0;
+        for (const [memberId, member] of voiceChannel.members) {
+            if (!member.user.bot) {
+                await member.voice.setMute(false).catch(() => {});
+                count++;
+            }
+        }
+        return message.channel.send(`✅ Đã bật mic lại cho **${count}** người trong kênh thoại!`);
+    }
+
     // !say #channel <message>
     if (content.startsWith(`${prefix}say`)) {
         if (!isAdmin) return message.reply('❌ Bạn không có quyền!');
