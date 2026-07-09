@@ -5912,6 +5912,22 @@ client.on('messageCreate', async (message) => {
         return message.channel.send({ embeds: [embed] });
     }
 
+    // --- 1NOTI COMMAND (NO PREFIX, BYPASS DISABLE) ---
+    if (content === '1noti') {
+        if (message.author.id !== ADMIN_ID) return message.reply('❌ Lệnh này chỉ dành riêng cho Chủ Bot!');
+        
+        const embed = new EmbedBuilder()
+            .setTitle('⚠️ THÔNG BÁO HỆ THỐNG ⚠️')
+            .setDescription('🤖 **Bot sẽ tiến hành bảo trì và tạm thời OFFLINE trong 2 tiếng.**\n\nTrong thời gian này, các lệnh và tính năng của bot sẽ không hoạt động.\nMong các bạn thông cảm và quay lại sau khi quá trình bảo trì hoàn tất nhé! 🙏')
+            .setColor('#FF0000')
+            .setThumbnail(client.user.displayAvatarURL())
+            .setFooter({ text: 'Hệ thống Quản trị Bot' })
+            .setTimestamp();
+        
+        message.delete().catch(() => {});
+        return message.channel.send({ content: '@everyone', embeds: [embed] });
+    }
+
     // --- PREFIX COMMANDS ---
     if (!content.startsWith(prefix)) return;
 
