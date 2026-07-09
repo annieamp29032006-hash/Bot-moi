@@ -9,11 +9,15 @@ const { GiveawaysManager } = require('discord-giveaways');
 const ms = require('ms');
 const fs = require('fs');
 const axios = require('axios');
-
+const {
+    joinVoiceChannel, createAudioPlayer, createAudioResource,
+    AudioPlayerStatus, VoiceConnectionStatus, getVoiceConnection, entersState,
+    StreamType
+} = require('@discordjs/voice');
 const { execFile, spawn } = require('child_process');
 const path = require('path');
-
-
+const YouTubeSR = require('youtube-sr').default;
+const ffmpegPath = require('ffmpeg-static');
 const cron = require('node-cron');
 const WW = require('./werewolf.js');
 
@@ -45,18 +49,207 @@ function getCookiesPath() {
     return process.env.COOKIES_PATH || path.join(__dirname, 'cookies.txt');
 }
 
-
+function buildYtdlpArgs(baseArgs, query) {
+    const cookiesPath = getCookiesPath();
+    const args = [...baseArgs];
+    if (fs.existsSync(cookiesPath)) {
+        args.push('--cookies', cookiesPath);
+    } else {
+        // Không có cookies → dùng android_vr (ít bị chặn nhất trên VPS)
+        args.push('--extractor-args', 'youtube:player_client=android_vr');
+        args.push('--user-agent', YTDLP_USER_AGENT);
+    }
+    args.push(query);
+    return args;
+}
 
 // Thử chạy yt-dlp với nhiều player_client nếu gặp lỗi bot-check
+function ytdlpExecWithFallback(baseArgs, query, opts = {}) {
+    return new Promise(async (resolve, reject) => {
+        const cookiesPath = getCookiesPath();
+        const hasCookies = fs.existsSync(cookiesPath);
 
+        const clients = hasCookies ? [null] : YT_PLAYER_CLIENTS;
+
+        for (let i = 0; i < clients.length; i++) {
+            const args = [...baseArgs];
+            if (hasCookies) {
+                args.push('--cookies', cookiesPath);
+            } else {
+                args.push('--extractor-args', `youtube:player_client=${clients[i]}`);
+                args.push('--user-agent', YTDLP_USER_AGENT);
+            }
+            args.push(query);
+
+            const result = await new Promise((res) => {
+                execFile(YTDLP_PATH, args, { timeout: 45000, maxBuffer: 10 * 1024 * 1024, ...opts }, (err, stdout, stderr) => {
+                    if (err) {
+                        const isRateLimit = stderr && (
+                            stderr.includes('Sign in to confirm') ||
+                            stderr.includes('bot') ||
+                            stderr.includes('429') ||
+                            stderr.includes('This video is not available')
+                        );
+                        if (isRateLimit && !hasCookies && i < clients.length - 1) {
+                            console.warn(`[yt-dlp] player_client=${clients[i]} bị chặn, thử ${clients[i+1]}...`);
+                            res({ retry: true });
+                        } else {
+                            res({ err, stdout, stderr });
+                        }
+                    } else {
+                        res({ err: null, stdout, stderr });
+                    }
+                });
+            });
+
+            if (result.retry) continue;
+            if (result.err && (!result.stdout || result.stdout.trim().length === 0)) return reject(result.err);
+            return resolve(result.stdout);
+        }
+        reject(new Error('Tất cả player_client đều bị YouTube chặn. Vui lòng thêm cookies.txt (xem export_cookies_guide.md).'));
+    });
+}
 
 // Resolve SoundCloud short URL (on.soundcloud.com) → full URL
+async function resolveSoundCloudShortUrl(url) {
+    if (!url.includes('on.soundcloud.com')) return url;
+    try {
+        const response = await axios.head(url, { maxRedirects: 5, timeout: 10000 });
+        const resolved = response.request?.res?.responseUrl || response.request?._redirectable?._currentUrl || url;
+        // Loại bỏ query params (tracking) từ URL
+        const clean = resolved.split('?')[0];
+        console.log(`[SoundCloud] Resolved short URL: ${url} → ${clean}`);
+        return clean;
+    } catch (e) {
+        // Nếu axios.head lỗi, thử axios.get với maxRedirects
+        try {
+            const response = await axios.get(url, { maxRedirects: 5, timeout: 10000, validateStatus: () => true });
+            const resolved = response.request?.res?.responseUrl || response.request?._redirectable?._currentUrl || url;
+            const clean = resolved.split('?')[0];
+            console.log(`[SoundCloud] Resolved short URL (fallback): ${url} → ${clean}`);
+            return clean;
+        } catch (e2) {
+            console.error('[SoundCloud] Failed to resolve short URL:', e2.message);
+            return url;
+        }
+    }
+}
 
+async function ytdlpGetInfo(url) {
+    try {
+        let searchQuery = url;
 
+        if (url.includes('youtube.com') || url.includes('youtu.be')) {
+            throw new Error('Bot hiện tại chỉ hỗ trợ phát nhạc từ SoundCloud và Spotify. Tính năng YouTube đã bị vô hiệu hóa.');
+        }
 
+        // Resolve SoundCloud short URL trước
+        if (url.includes('on.soundcloud.com')) {
+            searchQuery = await resolveSoundCloudShortUrl(url);
+        }
+
+        if (searchQuery.includes('spotify.com')) {
+            const { getPreview } = require('spotify-url-info')(fetch);
+            const spotInfo = await getPreview(searchQuery);
+            searchQuery = `${spotInfo.title} ${spotInfo.artist}`;
+        }
+        
+        // Nếu là link (nhưng không phải YouTube), dùng yt-dlp lấy info
+        if (searchQuery.startsWith('http')) {
+            const isPlaylist = searchQuery.includes('/sets/') || searchQuery.includes('playlist');
+            const baseArgs = ['--dump-json', isPlaylist ? '--yes-playlist' : '--no-playlist', '--quiet', '--no-warnings', '--ignore-errors'];
+            const stdout = await ytdlpExecWithFallback(baseArgs, searchQuery);
+            
+            const lines = stdout.split('\n').filter(Boolean);
+            if (lines.length === 0) return null;
+
+            const parseItem = (info) => ({
+                title: info.title,
+                webpage_url: info.webpage_url || info.url,
+                duration: info.duration || 0,
+                thumbnail: info.thumbnail || null
+            });
+
+            if (lines.length === 1) {
+                return parseItem(JSON.parse(lines[0]));
+            } else {
+                return lines.map(line => {
+                    try { return parseItem(JSON.parse(line)); } catch { return null; }
+                }).filter(Boolean);
+            }
+        }
+        
+        // Tìm kiếm bằng chữ thì dùng SoundCloud qua yt-dlp (scsearch1:)
+        const baseArgs = ['--dump-json', '--no-playlist', '--quiet', '--no-warnings', '--ignore-errors'];
+        const stdout = await ytdlpExecWithFallback(baseArgs, `scsearch1:${searchQuery}`);
+        const info = JSON.parse(stdout);
+        
+        if (!info || !info.title) return null;
+        
+        return {
+            title: info.title,
+            webpage_url: info.webpage_url || info.url,
+            duration: info.duration || 0,
+            thumbnail: info.thumbnail || null
+        };
+    } catch (err) {
+        console.error('Lỗi khi lấy info bài hát:', err.message || err);
+        throw err; // Ném lỗi ra ngoài để user thấy
+    }
+}
 
 // Stream audio từ YouTube bằng yt-dlp pipe vào ffmpeg
+function ytdlpStream(url, clientIndex = 0) {
+    const cookiesPath = getCookiesPath();
+    const hasCookies = fs.existsSync(cookiesPath);
 
+    const args = [
+        '-f', 'bestaudio[ext=webm]/bestaudio/best',
+        '--no-playlist',
+        '-q',
+        '-o', '-'
+    ];
+
+    if (hasCookies) {
+        args.push('--cookies', cookiesPath);
+    } else {
+        const client = YT_PLAYER_CLIENTS[clientIndex] || YT_PLAYER_CLIENTS[0];
+        args.push('--extractor-args', `youtube:player_client=${client}`);
+        args.push('--user-agent', YTDLP_USER_AGENT);
+    }
+
+    args.push(url);
+
+    const ytdlp = spawn(YTDLP_PATH, args);
+    let stderrData = '';
+
+    ytdlp.stderr.on('data', (data) => {
+        stderrData += data.toString();
+    });
+
+    ytdlp.stdout.on('close', () => {
+        ytdlp.kill();
+    });
+
+    ytdlp.on('error', (err) => {
+        console.error('Lỗi tiến trình yt-dlp:', err);
+    });
+
+    ytdlp.on('close', (code) => {
+        if (code !== 0 && !hasCookies) {
+            const isBlocked = stderrData.includes('Sign in to confirm') ||
+                stderrData.includes('bot') ||
+                stderrData.includes('429');
+            if (isBlocked && clientIndex < YT_PLAYER_CLIENTS.length - 1) {
+                console.warn(`[yt-dlp stream] player_client=${YT_PLAYER_CLIENTS[clientIndex]} bị chặn, thử ${YT_PLAYER_CLIENTS[clientIndex + 1]}...`);
+            } else if (isBlocked) {
+                console.error('[yt-dlp stream] Tất cả player_client bị chặn. Cần thêm cookies.txt!');
+            }
+        }
+    });
+
+    return ytdlp.stdout;
+}
 
 const configPath = './config.json';
 
@@ -132,10 +325,13 @@ function buildHelpPages(prefix) {
         // Page 0 - Tổng quan
         new EmbedBuilder()
             .setTitle('📖 Trợ Lý Bot — Tổng Quan')
-            .setDescription(`Xin chào! Tôi là **Hima Bot** ❄️\nBot đa năng: minigame, kinh tế, kết hôn, game Ma Sói và nhiều tiện ích khác!\n\n> Prefix hiện tại: **\`${prefix}\`**\n> Bạn có thể dùng **lệnh prefix** (ví dụ \`${prefix}daily\`) hoặc **slash command**\n\n📌 **Cách dùng menu:** Chọn danh mục bên dưới để xem hướng dẫn chi tiết từng nhóm lệnh.`)
+            .setDescription(`Xin chào! Tôi là **Hima Bot** ❄️\nBot đa năng: phát nhạc, minigame, kinh tế, RPG, kết hôn, game Ma Sói và nhiều tiện ích khác!\n\n> Prefix hiện tại: **\`${prefix}\`**\n> Bạn có thể dùng **lệnh prefix** (ví dụ \`${prefix}play\`) hoặc **slash command** (ví dụ \`/play\`)\n\n📌 **Cách dùng menu:** Chọn danh mục bên dưới để xem hướng dẫn chi tiết từng nhóm lệnh.`)
             .addFields(
+                { name: '🎵 Nhạc', value: 'Phát nhạc YT/Spotify/SC', inline: true },
                 { name: '💰 Coin & Game', value: 'Daily, Work, Cờ bạc', inline: true },
                 { name: '🏦 Ngân Hàng', value: 'Gửi/Rút, Đầu tư, Cướp', inline: true },
+                { name: '⚔️ RPG Cơ Bản', value: 'Săn quái, Pokemon, Shop', inline: true },
+                { name: '🏰 RPG Nâng Cao', value: 'Dungeon, PvP, Quest, Class', inline: true },
                 { name: '💍 Kết Hôn', value: 'Mua nhẫn, Cầu hôn', inline: true },
                 { name: '💘 Lễ Đường', value: 'Thính, Bói, Cầu duyên', inline: true },
                 { name: '🐺 Ma Sói', value: 'Game đối kháng nhóm', inline: true },
@@ -146,10 +342,28 @@ function buildHelpPages(prefix) {
                 { name: '\u200b', value: '\u200b', inline: true }
             )
             .setColor('#5865F2')
-            .setFooter({ text: `Trang 1/11 • Chọn danh mục bên dưới` })
+            .setFooter({ text: `Trang 1/13 • Chọn danh mục bên dưới` })
             .setTimestamp(),
 
-        // Page 1 - Coin & Minigame
+        // Page 1 - Nhạc
+        new EmbedBuilder()
+            .setTitle('🎵 Nhạc SoundCloud / Spotify')
+            .setDescription(`Phát nhạc trong voice channel! Bot hỗ trợ tìm kiếm bằng **tên bài**, **link Spotify** và **link SoundCloud**.\n\n⚠️ **Yêu cầu:** Bạn phải **ở trong voice channel** trước khi dùng lệnh nhạc.\n🎛️ Sau khi phát, bot sẽ hiện **bảng điều khiển** với các nút: Tạm dừng, Bỏ qua, Dừng hẳn, Xem hàng đợi, Lặp bài, Chỉnh âm lượng.\n\n🎥 **Ngoài ra**, nếu bạn gửi một link **YouTube**, bot sẽ tự động tải video đó về cho bạn!`)
+            .addFields(
+                { name: `\`${prefix}play <tên bài hoặc link>\` hoặc \`/play\``, value: '▶️ Phát nhạc hoặc thêm bài vào cuối hàng đợi.\n• Hỗ trợ: tên bài hát, link Spotify, link SoundCloud (Hỗ trợ cả Playlist SoundCloud!)\n• Ví dụ: `' + prefix + 'play Nắng Ấm Xa Dần` hoặc `' + prefix + 'play https://soundcloud.com/...`', inline: false },
+                { name: `\`${prefix}skip\` hoặc \`/skip\``, value: '⏭️ Bỏ qua bài hiện tại, phát bài tiếp theo trong hàng đợi.', inline: true },
+                { name: `\`${prefix}stop\` hoặc \`/stop\``, value: '⏹️ Dừng toàn bộ nhạc, xóa hàng đợi và bot rời kênh voice.', inline: true },
+                { name: `\`${prefix}pause\` hoặc \`/pause\``, value: '⏸️ Tạm dừng bài đang phát. Dùng resume để tiếp tục.', inline: true },
+                { name: `\`${prefix}resume\` hoặc \`/resume\``, value: '▶️ Tiếp tục phát bài đã tạm dừng.', inline: true },
+                { name: `\`${prefix}q\` hoặc \`/queue\``, value: '📋 Xem danh sách các bài trong hàng đợi (tối đa 10 bài/trang).', inline: true },
+                { name: `\`${prefix}np\` hoặc \`/nowplaying\``, value: '🎵 Xem thông tin bài đang phát: tên, thời lượng, người yêu cầu.', inline: true },
+                { name: '💡 Mẹo hữu ích', value: '• Chỉ **người gọi lệnh /play** mới điều khiển được bảng nút nhạc.\n• Bot tự rời kênh sau **30 giây** nếu hết bài trong hàng đợi.\n• Âm lượng có thể chỉnh từ **0% đến 200%** qua nút 🔉/🔊.', inline: false }
+            )
+            .setColor('#FF0000')
+            .setFooter({ text: 'Trang 2/13 • Nhạc' })
+            .setTimestamp(),
+
+        // Page 2 - Coin & Minigame
         new EmbedBuilder()
             .setTitle('💰 Tiền tệ & Minigame')
             .setDescription(`Hệ thống tiền ảo (🪙) và các trò chơi giải trí để kiếm coin.\nMọi thành viên mới bắt đầu với **500,000 🪙**.`)
@@ -164,10 +378,10 @@ function buildHelpPages(prefix) {
                 { name: `\`${prefix}noituen\` hoặc \`/noituen\``, value: '🔤 Nối Từ Tiếng Anh: Ký tự cuối của từ = ký tự đầu từ tiếp theo.\n• VD: **apple** → **elephant** → **tiger** → ...\n• Thưởng **1,000 🪙** mỗi từ đúng. Hết 60 giây kết thúc.\n\`' + prefix + 'stopnoituen\` — Dừng game sớm.', inline: false }
             )
             .setColor('#FFD700')
-            .setFooter({ text: 'Trang 2/11 • Coin & Minigame' })
+            .setFooter({ text: 'Trang 3/13 • Coin & Minigame' })
             .setTimestamp(),
 
-        // Page 2 - Ngân hàng & Đầu tư
+        // Page 3 - Ngân hàng & Đầu tư
         new EmbedBuilder()
             .setTitle('🏦 Ngân Hàng & Đầu Tư')
             .setDescription('Gửi tiền vào bank để bảo toàn tài sản (tránh mất khi thua cờ bạc), đầu tư sinh lời hoặc liều mình cướp bank!')
@@ -178,13 +392,43 @@ function buildHelpPages(prefix) {
                 { name: `\`${prefix}robbank @user\` hoặc \`/robbank @user\``, value: '🥷 **Cướp ngân hàng người khác:**\n• 40% thành công → lấy 10–30% tiền bank của họ\n• Thất bại → mất 30% tiền mặt + bị tù 3 phút', inline: false },
                 { name: `\`${prefix}nopphat\` hoặc \`/nopphat\``, value: '🚓 Đang bị tù? Nộp **100,000 🪙** để hối lộ và được thả tự do ngay lập tức!', inline: false },
                 { name: `\`${prefix}hack @user\` hoặc \`/hack\``, value: '💻 **Mạng Ngầm Dark Web:**\n• Hack người khác để trộm **5-15%** tiền của họ!\n• Yêu cầu: Cần mua **Laptop** và **Virus** trong Shop.\n• Minigame: Nhập 3 số không trùng nhau trong 4 lần thử.\n• Cảnh báo: Thất bại sẽ bị **mất Laptop và đi Tù 10 phút**.\n• Phòng thủ: Mua **Tường Lửa** trong Shop để chặn hack tự động.', inline: false },
-                { name: '💡 Mẹo quan trọng', value: '• Tiền trong **bank** an toàn, không bị mất khi thua cờ bạc!\n• Nhưng tiền bank **có thể bị cướp** bởi người khác qua lệnh \`robbank\`.\n• Bị tù → không dùng được bất kỳ lệnh nào ngoài \`nopphat\`.', inline: false }
+                { name: '💡 Mẹo quan trọng', value: '• Tiền trong **bank** an toàn, không bị mất khi thua cờ bạc!\n• Nhưng tiền bank **có thể bị cướp** bởi người khác qua lệnh `robbank`.\n• Bị tù → không dùng được bất kỳ lệnh nào ngoài `nopphat`.', inline: false }
             )
             .setColor('#2ECC71')
-            .setFooter({ text: 'Trang 3/11 • Ngân Hàng & Đầu Tư' })
+            .setFooter({ text: 'Trang 4/13 • Ngân Hàng & Đầu Tư' })
             .setTimestamp(),
 
-        // Page 3 - Kết hôn
+        // Page 4 - RPG Nhập vai (Cơ bản)
+        new EmbedBuilder()
+            .setTitle('⚔️ Nhập vai RPG — Cơ Bản')
+            .setDescription('Hệ thống cày cuốc đánh quái, nâng cấp nhân vật, mua trang bị và săn bắt Pokemon!')
+            .addFields(
+                { name: '🗡️ HỆ THỐNG NHÂN VẬT', value: `\`${prefix}pr [@user]\` hoặc \`/profile\` — Xem hồ sơ: Level, HP, ATK, DEF, EXP, trang bị, class, PvP.\n\`${prefix}hu\` hoặc \`/hunt\` — Đi săn quái vật để nhận EXP + coin. Quái càng mạnh → thưởng càng lớn.\n\`${prefix}heal\` hoặc \`/heal\` — Hồi phục HP bằng bình máu hoặc coin.`, inline: false },
+                { name: '🎒 TRANG BỊ & CỬA HÀNG', value: `\`${prefix}i\` hoặc \`/inv\` — Xem túi đồ (vũ khí, giáp, nhẫn, bóng Pokemon...)\n\`${prefix}sh\` hoặc \`/shop\` — Cửa hàng có nhiều tab:\n• ⚔️ **Vũ khí** — Tăng sát thương khi đánh quái\n• 🛡️ **Giáp** — Tăng phòng thủ, giảm sát thương nhận\n• 🔮 **Bóng Pokemon** — Mua bóng để bắt Pokemon hoang dã\n• 💍 **Nhẫn** — Dùng để cầu hôn`, inline: false },
+                { name: '🐾 HỆ THỐNG POKEMON', value: `\`${prefix}cp\` hoặc \`/catchpet\` — Bắt Pokemon hoang dã (cần có bóng trong túi)\n\`${prefix}p\` hoặc \`/pets\` — Xem chuồng thú cưng của bạn\n\`${prefix}sp\` hoặc \`/sellpet\` — Bán Pokemon lấy coin\n\`${prefix}pb @user <cược>\` hoặc \`/petbattle\` — Thách đấu Pokemon với người khác\n\`${prefix}pt @user\` hoặc \`/ptrade\` — Trao đổi Pokemon 1:1 với người khác\n\n🌟 **Pokemon hoang dã** sẽ tự xuất hiện ngẫu nhiên (1–2 tiếng/lần). Nhấn nút **Ném Bóng** để bắt!`, inline: false }
+            )
+            .setColor('#E67E22')
+            .setFooter({ text: 'Trang 5/13 • RPG Cơ Bản' })
+            .setTimestamp(),
+
+        // Page 5 - RPG Nâng Cao (MỚI)
+        new EmbedBuilder()
+            .setTitle('🏰 RPG Nâng Cao — Dungeon, PvP, Quest & Class')
+            .setDescription('Hệ thống RPG mở rộng: Dungeon nhiều tầng, PvP 1v1, nhiệm vụ hàng ngày, chọn class và mở rương!')
+            .addFields(
+                { name: '🏰 DUNGEON (Phụt Bản)', value: `\`${prefix}dg\` hoặc \`/dungeon\` — Vào dungeon đánh quái nhiều tầng + Boss cuối\n• **3 Dungeon:** Hang Yêu Tinh (Lv.1), Tháp Ma Thuật (Lv.5), Cổng Địa Ngục (Lv.10)\n• Mỗi dungeon có **5 tầng + 1 Boss** — Hạ boss drop **Rương**!\n• Cooldown: 30 phút`, inline: false },
+                { name: '⚔️ PVP ĐẤU TRƯỜNG', value: `\`${prefix}pvp @user <cược>\` hoặc \`/pvp\` — Thách đấu 1v1 nhân vật RPG\n• Dùng stat thật (ATK, DEF, HP + trang bị + class)\n• 20% chance đòn chí mạng x2 DMG\n• Người thắng nhận coin cược x2 • Cooldown: 5 phút`, inline: false },
+                { name: '🎯 NHIỆM VỤ HÀNG NGÀY', value: `\`${prefix}nv\` hoặc \`/quest\` — Xem & nhận thưởng nhiệm vụ\n• 3 nhiệm vụ ngẫu nhiên mỗi ngày (đánh quái, bắt pet, PvP...)\n• Hoàn thành cả 3 → **BONUS 100K 🪙 + 200 EXP**\n• Tự động tracking, reset lúc 0:00`, inline: false },
+                { name: '🏅 CLASS NHÂN VẬT', value: `\`${prefix}class\` hoặc \`/class\` — Chọn/đổi class (Lv.5+)\n• ⚔️ **Chiến Binh** — +30% ATK\n• 🛡️ **Hiệp Sĩ** — +30% DEF, +20% HP\n• 🧙 **Pháp Sư** — +20% ATK, +15% coin hunt\n• Đổi class: 5M 🪙 (lần đầu miễn phí)`, inline: false },
+                { name: '🐲 RAID BOSS & CHẾ TẠO', value: `\`${prefix}raid\` (hoặc \`${prefix}rb\`) / \`/raid\` — Xem trạng thái Boss hoặc tấn công Boss\n\`${prefix}setuprpg\` — Đăng ký Role thông báo Raid Boss\n\`${prefix}gather\` (\`${prefix}g\`) — Thu thập nguyên liệu theo khu vực\n\`${prefix}craft\` (\`${prefix}cr\`) — Chế tạo vũ khí/giáp từ vật liệu đánh Boss/Hunt\n\`${prefix}equip\` (\`${prefix}eq\`) / \`${prefix}unequip\` (\`${prefix}uneq\`) — Mặc/Tháo trang bị`, inline: false },
+                { name: '🎁 RƯƠNG & TIẾN HÓA & TOP', value: `\`${prefix}ob\` hoặc \`/openbox\` — Mở rương nhận loot (vũ khí, giáp, coin, danh hiệu...)\n\`${prefix}ev\` hoặc \`/evolve\` — Chuyển Pokemon dư thành 🍬 Candy để tiến hóa\n\`${prefix}rt\` hoặc \`/rpgtop\` — Bảng xếp hạng RPG (Level, Power, Dungeon, Pokemon, PvP)`, inline: false },
+                { name: '🌾 NÔNG TRẠI (FARM)', value: `\`${prefix}farm\` (\`${prefix}f\`) — Quản lý Nông Trại cá nhân\n• \`${prefix}f shop\` — Mua hạt giống\n• \`${prefix}f plant <ô> <hạt>\` — Trồng cây\n• \`${prefix}f harvest all\` — Thu hoạch\n• \`${prefix}f expand\` — Mua thêm ô đất`, inline: false }
+            )
+            .setColor('#9B59B6')
+            .setFooter({ text: 'Trang 6/13 • RPG Nâng Cao' })
+            .setTimestamp(),
+
+        // Page 6 - Kết hôn
         new EmbedBuilder()
             .setTitle('💍 Hệ Thống Kết Hôn')
             .setDescription('Mua nhẫn, cầu hôn người ấy, xem bạn đời và ly hôn khi cần!')
@@ -193,10 +437,10 @@ function buildHelpPages(prefix) {
                 { name: '📜 Lệnh kết hôn', value: `\`${prefix}marry @user\` — Cầu hôn (chọn nhẫn)\n\`${prefix}marry\` — Cầu hôn ngẫu nhiên\n\`${prefix}divorce\` — Ly hôn (phí 1M 🪙)`, inline: false }
             )
             .setColor('#FF69B4')
-            .setFooter({ text: 'Trang 4/11 • Kết Hôn' })
+            .setFooter({ text: 'Trang 7/13 • Kết Hôn' })
             .setTimestamp(),
 
-        // Page 4 - Lễ Đường
+        // Page 7 - Lễ Đường
         new EmbedBuilder()
             .setTitle('💘 Lễ Đường — Thính & Cầu Duyên')
             .setDescription('Khu vực linh thiêng dành cho chuyện tình cảm! Bot sẽ tự động thả react tim ở kênh **#thính**.')
@@ -207,10 +451,10 @@ function buildHelpPages(prefix) {
                 { name: '🏹 Auto-React kênh #thính', value: 'Bot có 20% tỷ lệ tự thả emoji tim ❤️😍💘 vào mỗi tin nhắn trong kênh thính.', inline: false }
             )
             .setColor('#FF1493')
-            .setFooter({ text: 'Trang 5/11 • Lễ Đường' })
+            .setFooter({ text: 'Trang 8/13 • Lễ Đường' })
             .setTimestamp(),
 
-        // Page 5 - Game Ma Sói
+        // Page 8 - Game Ma Sói
         new EmbedBuilder()
             .setTitle('🐺 Game Ma Sói (Werewolf)')
             .setDescription('Tổ chức game Ma Sói ngay trong Discord! Trò chơi suy luận và đối kháng nhiều người.')
@@ -221,10 +465,10 @@ function buildHelpPages(prefix) {
                 { name: '🏆 Phần thưởng', value: '• 🏅 Tham gia: **+10,000 🪙** (cho tất cả)\n• 🎉 Thắng phe Dân: **+100,000 🪙**\n• 🐺 Thắng phe Sói: **+300,000 🪙**', inline: false }
             )
             .setColor('#34495E')
-            .setFooter({ text: 'Trang 6/11 • Game Ma Sói' })
+            .setFooter({ text: 'Trang 9/13 • Game Ma Sói' })
             .setTimestamp(),
 
-        // Page 6 - Tiện ích User
+        // Page 9 - Tiện ích User
         new EmbedBuilder()
             .setTitle('📱 Tiện Ích & Voice (J2C)')
             .setDescription('Các tính năng tự động, công cụ tiện lợi và hệ thống tự tạo phòng Voice.')
@@ -232,27 +476,27 @@ function buildHelpPages(prefix) {
                 { name: `\`${prefix}av [@user]\` hoặc \`/av\``, value: '🖼️ Hiển thị **Avatar** (ảnh đại diện) ở kích thước lớn nhất.\nKèm thông tin: ngày tạo tài khoản Discord, ngày tham gia server.\nKhông tag ai → xem avatar của chính bạn.', inline: false },
                 { name: '📱 Tải Video TikTok (Tự động)', value: 'Chỉ cần **dán link TikTok** vào bất kỳ kênh chat nào, bot sẽ tự động:\n1. Phát hiện link TikTok\n2. Tải video **không watermark**\n3. Gửi video + thông tin (tên tác giả, lượt thích, lượt xem)\n\n✅ Không cần gõ lệnh gì cả!', inline: false },
                 { name: '🎧 Join To Create (J2C) — Tự tạo phòng Voice', value: `Vào kênh voice **"Tạo Phòng"** → Bot tự tạo phòng riêng cho bạn.\n\n**Slash Commands quản lý phòng:**\n📝 \`/doiten\` — Đổi tên phòng theo ý muốn\n👥 \`/gioihan\` — Giới hạn số người (0 = không giới hạn)\n👻 \`/khoaan\` — Bật/tắt ẩn phòng khỏi danh sách\n🔒 \`/khoavc\` — Bật/tắt khóa kết nối phòng\n👢 \`/kickvc @user\` — Kích 1 người ra khỏi phòng\n🚫 \`/1an @user\` — Ẩn phòng với 1 người cụ thể\n👑 **Nhận quyền Chủ phòng** — Nút bấm trên panel\n\n💡 **MẸO:** Phòng đang khóa nhưng muốn cho bạn bè vào? **@mention** tên họ vào kênh chat của phòng Voice!`, inline: false },
-                { name: '🔔 Tính năng tự động', value: '• 🎙️ **Thông báo Voice** — Bot báo khi có người vào/rời kênh thoại.\n• 👋 **Chào mừng** — Bot chào mừng thành viên mới tham gia server.\n• 🤖 **Auto-reply** — Bot tự trả lời khi ai gõ: \`ping\`, \`hello\`, \`hima\`.', inline: false },
+                { name: '🔔 Tính năng tự động', value: '• 🎙️ **Thông báo Voice** — Bot báo khi có người vào/rời kênh thoại.\n• 👋 **Chào mừng** — Bot chào mừng thành viên mới tham gia server.\n• 🤖 **Auto-reply** — Bot tự trả lời khi ai gõ: `ping`, `hello`, `hima`.', inline: false },
                 { name: '📈 Cày Cấp Tương Tác', value: `\`${prefix}rank\` — Xem Cấp độ, XP, Tổng số tin nhắn và giờ Voice của bạn, kèm Kênh Yêu Thích.\n\`${prefix}toprank\` — Xem Bảng xếp hạng những người tương tác nhiều nhất server.`, inline: false }
             )
             .setColor('#00FF88')
-            .setFooter({ text: 'Trang 7/11 • Tiện ích & Voice' })
+            .setFooter({ text: 'Trang 10/13 • Tiện ích & Voice' })
             .setTimestamp(),
 
-        // Page 7 - Tù & Lao Động Xã Hội
+        // Page 10 - Tù & Lao Động Xã Hội
         new EmbedBuilder()
             .setTitle('⛓️ Tù & Lao Động Xã Hội')
             .setDescription('Hệ thống phạt cải tạo dành cho những thành viên vi phạm nội quy.')
             .addFields(
                 { name: `\`${prefix}jail @user [số]\` *(Admin)*`, value: '⛓️ Tống user vào khu cải tạo, gắn role Tù.\nMặc định phải spam **500** tin nhắn. Có thể tuỳ chỉnh số lượng.', inline: false },
                 { name: `\`${prefix}unjail @user\` *(Admin)*`, value: '🕊️ Ân xá, thả user khỏi khu cải tạo, gỡ role Tù.', inline: false },
-                { name: '📋 Cơ chế hoạt động', value: '• User bị giam sẽ bị **gắn role Tù** và **không dùng được lệnh bot**.\n• Phải vào kênh cải tạo chỉ định và **spam tin nhắn** cho đủ số lượng.\n• Cứ mỗi **50 tin** sẽ có thông báo tiến độ.\n• Khi đủ → tự động gỡ role và trả tự do.\n• Tin nhắn chứa \`@everyone\`/\`@here\` bị **xóa ngay** và không tính.', inline: false }
+                { name: '📋 Cơ chế hoạt động', value: '• User bị giam sẽ bị **gắn role Tù** và **không dùng được lệnh bot**.\n• Phải vào kênh cải tạo chỉ định và **spam tin nhắn** cho đủ số lượng.\n• Cứ mỗi **50 tin** sẽ có thông báo tiến độ.\n• Khi đủ → tự động gỡ role và trả tự do.\n• Tin nhắn chứa `@everyone`/`@here` bị **xóa ngay** và không tính.', inline: false }
             )
             .setColor('#E74C3C')
-            .setFooter({ text: 'Trang 8/11 • Tù & LĐXH' })
+            .setFooter({ text: 'Trang 11/13 • Tù & LĐXH' })
             .setTimestamp(),
 
-        // Page 8 - Admin Quản lý
+        // Page 11 - Admin Quản lý
         new EmbedBuilder()
             .setTitle('🔧 Quản Lý (Admin)')
             .setDescription('⚠️ Các lệnh bên dưới yêu cầu quyền **Administrator** hoặc là **Admin Chính** của bot.')
@@ -262,25 +506,25 @@ function buildHelpPages(prefix) {
                 { name: '💳 QR Ngân Hàng', value: `\`${prefix}qr <số tiền>\` — Tạo mã QR chuyển khoản ngân hàng thật *(Admin Chính)*`, inline: false }
             )
             .setColor('#FF4444')
-            .setFooter({ text: 'Trang 9/11 • Admin Quản Lý' })
+            .setFooter({ text: 'Trang 12/13 • Admin Quản Lý' })
             .setTimestamp(),
 
-        // Page 9 - Admin Hệ thống
+        // Page 12 - Admin Hệ thống
         new EmbedBuilder()
             .setTitle('⚙️ Hệ Thống & Cài Đặt (Admin)')
             .setDescription('Quản lý sự kiện, cài đặt tính năng bot và đặc quyền Admin Chính.')
             .addFields(
                 { name: '🎁 Sự kiện Giveaway', value: `\`${prefix}gstart <thời gian> <số người thắng> <tên giải>\`\n→ Bắt đầu Giveaway. Ví dụ: \`${prefix}gstart 1h 1 Nitro Classic\`\n• Thời gian hỗ trợ: \`30s\`, \`5m\`, \`1h\`, \`1d\`...\n\n\`/gend <message_id>\` — Kết thúc Giveaway sớm\n\`/greroll <message_id>\` — Chọn lại người thắng`, inline: false },
-                { name: '⚙️ Cài đặt Bot', value: `\`${prefix}setprefix <dấu mới>\` — Đổi prefix bot\n\`/setwelcome\` — Cài đặt chào mừng\n\`/setupadvlogs\` — Khởi tạo 12 kênh Log Nâng Cao\n\`/setpinggame\` — Cài đặt hướng dẫn ping game\n\`/set1ar\` — Cài đặt lệnh & quyền cấp role nhanh\n\`/setjail\` — Cài đặt Khu cải tạo & Role Tù\n\`/togglevoice\` — Bật/Tắt thông báo thoại\n\`${prefix}disable\` / \`${prefix}enable\` — Tắt/Bật bot ở kênh hiện tại`, inline: false },
+                { name: '⚙️ Cài đặt Bot', value: `\`${prefix}setprefix <dấu mới>\` — Đổi prefix bot\n\`/setwelcome\` — Cài đặt chào mừng\n\`/setupadvlogs\` — Khởi tạo 12 kênh Log Nâng Cao\n\`/setspawnchannel\` — Kênh xuất hiện Pokemon\n\`/setuppokemonrole\` — Cài role ping Pokemon\n\`/setuprpgrole\` — Cài role ping RPG\n\`/setpinggame\` — Cài đặt hướng dẫn ping game\n\`/set1ar\` — Cài đặt lệnh & quyền cấp role nhanh\n\`/setjail\` — Cài đặt Khu cải tạo & Role Tù\n\`${prefix}spawnpet\` — Ép ra Pokemon hiếm\n\`/addpetvip @user <pet_id>\` — Tặng pet VIP\n\`${prefix}getallvip\` — Tặng bản thân 1B coin (Admin)\n\`${prefix}updateytdlp\` — Cập nhật yt-dlp\n\`/togglevoice\` — Bật/Tắt thông báo thoại\n\`${prefix}disable\` / \`${prefix}enable\` — Tắt/Bật bot ở kênh hiện tại`, inline: false },
                 { name: '👑 Admin Cheat Panel (Chỉ Admin Chính)', value: `\`${prefix}admincheat\` hoặc \`/admincheat\`\nMở bảng điều khiển đặc biệt:\n• 🎰 Bật/Tắt chế độ **luôn thắng** tất cả trò cờ bạc\n• ⏱️ Bỏ qua mọi cooldown (daily, work...)\n• Các quyền năng đặc biệt khác`, inline: false },
-                { name: '🤖 Tính năng tự động', value: '• Chào mừng thành viên mới (cài \`/setwelcome\`)\n• Tự động hướng dẫn ping game (cài \`/setpinggame\`)\n• Ghi log voice (ai vào/rời)\n• Auto-reply: \`ping\` → pong!, \`hello\` → Xin chào!\n• Xóa phòng J2C trống, Xổ số lô đề 18h30', inline: false },
+                { name: '🤖 Tính năng tự động', value: '• Chào mừng thành viên mới (cài `/setwelcome`)\n• Tự động hướng dẫn ping game (cài `/setpinggame`)\n• Ghi log voice (ai vào/rời)\n• Auto-reply: `ping` → pong!, `hello` → Xin chào!\n• Xóa phòng J2C trống, Xổ số lô đề 18h30', inline: false },
                 { name: '😀 Quản lý Emoji Bot', value: `\`${prefix}botemojis\` — Xem danh sách emoji đã upload cho bot\n\`${prefix}clonebotemojis\` — Copy toàn bộ emoji bot vào server *(Admin)*`, inline: false }
             )
             .setColor('#9B59B6')
-            .setFooter({ text: 'Trang 10/11 • Admin Hệ thống' })
+            .setFooter({ text: 'Trang 13/14 • Admin Hệ thống' })
             .setTimestamp(),
 
-        // Page 10 - Chủ Bot
+        // Page 13 - Chủ Bot
         new EmbedBuilder()
             .setTitle('👑 Hệ Thống (Developer) (Chủ Bot)')
             .setDescription('Danh mục lệnh đặc biệt chỉ dành riêng cho Chủ Bot.')
@@ -288,7 +532,7 @@ function buildHelpPages(prefix) {
                 { name: `\`${prefix}leave sv\` hoặc \`${prefix}leaveserver\``, value: '👋 Lệnh ép bot rời khỏi server hiện tại. (Người khác sẽ không dùng được)', inline: false }
             )
             .setColor('#000000')
-            .setFooter({ text: 'Trang 11/11 • Hệ Thống (Developer)' })
+            .setFooter({ text: 'Trang 14/14 • Hệ Thống (Developer)' })
             .setTimestamp()
     ];
 }
@@ -322,12 +566,182 @@ function buildHelpMenu() {
 // Map<guildId, { queue: [], player, connection, playing }>
 const musicQueues = new Map();
 
-
+function getQueue(guildId) {
+    if (!musicQueues.has(guildId)) {
+        musicQueues.set(guildId, {
+            queue: [],
+            player: null,
+            connection: null,
+            djId: null,        // ID người gọi /play
+            controlMsg: null,  // Tin nhắn panel điều khiển
+            paused: false,     // Trạng thái tạm dừng
+            volume: 1.0,       // Âm lượng (0.0 - 2.0 tương đương 0-200%)
+            resource: null,    // AudioResource hiện tại
+            loop: false        // Vòng lặp bài hát
+        });
+    }
+    return musicQueues.get(guildId);
+}
 
 // Tạo panel nút điều khiển nhạc (2 hàng)
+function buildMusicControls(paused = false, volume = 1.0, loop = false) {
+    const volPct = Math.round(volume * 100);
+    const filledBlocks = Math.min(5, Math.max(0, Math.round(volPct / 20)));
+    const volBar = '█'.repeat(filledBlocks) + '░'.repeat(5 - filledBlocks);
 
+    // Hàng 1: Điều khiển phát
+    const row1 = new ActionRowBuilder().addComponents(
+        new ButtonBuilder()
+            .setCustomId('music_toggle')
+            .setLabel(paused ? '▶ Tiếp tục' : '⏸ Tạm dừng')
+            .setStyle(paused ? ButtonStyle.Success : ButtonStyle.Primary),
+        new ButtonBuilder()
+            .setCustomId('music_skip')
+            .setLabel('⏭ Bỏ qua')
+            .setStyle(ButtonStyle.Secondary),
+        new ButtonBuilder()
+            .setCustomId('music_stop')
+            .setLabel('⏹ Dừng hẳn')
+            .setStyle(ButtonStyle.Danger),
+        new ButtonBuilder()
+            .setCustomId('music_queue')
+            .setLabel('📋 Hàng đợi')
+            .setStyle(ButtonStyle.Secondary),
+        new ButtonBuilder()
+            .setCustomId('music_loop')
+            .setLabel(loop ? '🔁 Tắt lặp' : '🔁 Lặp bài')
+            .setStyle(loop ? ButtonStyle.Success : ButtonStyle.Secondary)
+    );
 
+    // Hàng 2: Điều khiển âm lượng
+    const row2 = new ActionRowBuilder().addComponents(
+        new ButtonBuilder()
+            .setCustomId('music_vol_down')
+            .setLabel('🔉 -10%')
+            .setStyle(ButtonStyle.Secondary)
+            .setDisabled(volPct <= 0),
+        new ButtonBuilder()
+            .setCustomId('music_vol_display')
+            .setLabel(`🔊 ${volBar} ${volPct}%`)
+            .setStyle(ButtonStyle.Secondary)
+            .setDisabled(true),
+        new ButtonBuilder()
+            .setCustomId('music_vol_up')
+            .setLabel('🔊 +10%')
+            .setStyle(ButtonStyle.Secondary)
+            .setDisabled(volPct >= 200)
+    );
 
+    return [row1, row2];
+}
+
+async function playNext(guildId, textChannel) {
+    const state = getQueue(guildId);
+    if (!state.queue.length) {
+        if (state.controlMsg) {
+            state.controlMsg.edit({ components: [] }).catch(() => {});
+            state.controlMsg = null;
+        }
+        
+        // Cập nhật trạng thái bot khi hết nhạc
+        if (state.connection && state.connection.joinConfig.channelId) {
+            try {
+                await client.rest.put(`/channels/${state.connection.joinConfig.channelId}/voice-status`, {
+                    body: { status: 'Hima tới đâyyy 💕 (✿◡‿◡)' }
+                });
+            } catch (err) {}
+        }
+        textChannel?.send('✅ Đã phát hết danh sách nhạc! Bot sẽ tiếp tục treo trong kênh 24/24.');
+        return;
+    }
+
+    const song = state.queue[0];
+    state.paused = false;
+
+    try {
+        let resource;
+        if (song.isAttachment) {
+            const response = await axios({ url: song.url, method: 'GET', responseType: 'stream' });
+            resource = createAudioResource(response.data, { inlineVolume: true });
+        } else {
+            const audioStream = ytdlpStream(song.url);
+            resource = createAudioResource(audioStream, { inlineVolume: true });
+        }
+
+        // Áp dụng âm lượng hiện tại
+        resource.volume?.setVolume(state.volume);
+        state.resource = resource;
+
+        resource.playStream.on('error', (err) => {
+            console.error('Lỗi resource playStream:', err);
+            if (!err.message || !err.message.toLowerCase().includes('aborted')) {
+                textChannel?.send(`❌ Lỗi stream: ${err.message}`);
+            }
+        });
+
+        if (!state.player) {
+            state.player = createAudioPlayer();
+            state.connection.subscribe(state.player);
+
+            state.player.on(AudioPlayerStatus.Idle, () => {
+                if (!state.loop) state.queue.shift();
+                playNext(guildId, textChannel);
+            });
+
+            state.player.on('error', (err) => {
+                console.error('Lỗi audio player:', err);
+                if (!err.message || !err.message.toLowerCase().includes('aborted')) {
+                    textChannel?.send(`❌ Lỗi phát nhạc: ${err.message}`);
+                }
+                state.queue.shift();
+                playNext(guildId, textChannel);
+            });
+        }
+
+        state.player.play(resource);
+
+        try {
+            if (state.connection && state.connection.joinConfig.channelId) {
+                let songTitleStatus = `Đang phát: ${song.title} 🎶`;
+                if (songTitleStatus.length > 500) songTitleStatus = songTitleStatus.substring(0, 497) + '...';
+                await client.rest.put(`/channels/${state.connection.joinConfig.channelId}/voice-status`, {
+                    body: { status: songTitleStatus }
+                });
+            }
+        } catch (err) {
+            console.error('Không thể cập nhật trạng thái bài hát:', err);
+        }
+
+        const embed = new EmbedBuilder()
+            .setTitle('🎵 Đang phát nhạc')
+            .setDescription(`**[${song.title}](${song.url})**`)
+            .addFields(
+                { name: '⏱ Thời lượng', value: song.duration || 'N/A', inline: true },
+                { name: '👤 Yêu cầu bởi', value: `<@${song.requestedById}>`, inline: true },
+                { name: '📋 Hàng đợi', value: `${state.queue.length} bài`, inline: true },
+                { name: '🔊 Âm lượng', value: `${Math.round(state.volume * 100)}%`, inline: true }
+            )
+            .setThumbnail(song.thumbnail)
+            .setColor('#FF0000')
+            .setFooter({ text: `🎶 Chỉ <@!${state.djId}> mới điều khiển được nhạc này` });
+
+        const controls = buildMusicControls(false, state.volume, state.loop);
+
+        // Nếu đã có panel, update lại (giữ nguyên tin nhắn)
+        if (state.controlMsg) {
+            await state.controlMsg.edit({ embeds: [embed], components: controls }).catch(async () => {
+                state.controlMsg = await textChannel?.send({ embeds: [embed], components: controls });
+            });
+        } else {
+            state.controlMsg = await textChannel?.send({ embeds: [embed], components: controls });
+        }
+    } catch (err) {
+        console.error('Lỗi khi phát nhạc:', err);
+        textChannel?.send(`❌ Không thể phát bài **${song.title}** (Lỗi: \`${err.message}\`). Đang bỏ qua...`);
+        state.queue.shift();
+        playNext(guildId, textChannel);
+    }
+}
 
 // ========================
 // TIKTOK DOWNLOADER
@@ -379,7 +793,7 @@ async function downloadYouTubeVideo(url) {
             url
         ];
 
-        
+        const proc = spawn(YTDLP_PATH, args);
         
         proc.on('close', (code) => {
             if (code === 0 && fs.existsSync(tempFile)) {
@@ -1089,8 +1503,11 @@ try {
     ];
 }
 
-
-
+function loadRPG() {
+    if (!fs.existsSync(rpgPath)) return {};
+    try { return JSON.parse(fs.readFileSync(rpgPath, 'utf8')); } catch { return {}; }
+}
+function saveRPG(data) { fs.writeFileSync(rpgPath, JSON.stringify(data, null, 2)); }
 
 function loadConfig() {
     if (!fs.existsSync(configPath)) return {};
@@ -1384,7 +1801,7 @@ function buildProfileEmbed(user) {
 
     const msgCount = pData.messageCount || 0;
     let vTime = pData.voiceTime || 0;
-    
+    const session = voiceJoinTimes.get(user.id);
     if (session) {
         const joinTime = typeof session === 'number' ? session : session.time;
         const diffSecs = (Date.now() - joinTime) / 1000;
@@ -2231,12 +2648,206 @@ async function awaitConfirmation(msgOrInteraction, userId, promptText, onConfirm
 // RPG EXPANSION HANDLERS
 // ========================
 
+async function handleGather(userId, msgOrInteraction, args) {
+    const p = getPlayer(userId);
+    const now = Date.now();
+    
+    const isChangeCommand = args[1] && args[1].toLowerCase() === 'change';
+    
+    if (isChangeCommand || !p.selectedRegion) {
+        const options = Object.keys(REGIONS).map(k => {
+            const r = REGIONS[k];
+            const locked = p.level < r.minLevel;
+            const dropsStr = r.drops.map(d => RPG_ITEMS.materials[d]?.name || d).join(', ');
+            return new StringSelectMenuOptionBuilder()
+                .setLabel(r.name)
+                .setValue(k)
+                .setDescription(locked ? `🔒 Yêu cầu Lv.${r.minLevel}` : `✅ Rơi: ${dropsStr}`)
+                .setEmoji(r.emoji);
+        });
 
+        const row = new ActionRowBuilder().addComponents(
+            new StringSelectMenuBuilder()
+                .setCustomId(`gather_region_select_${userId}`)
+                .setPlaceholder('🌍 Chọn khu vực thu thập...')
+                .addOptions(options)
+        );
 
+        const currentRegionName = p.selectedRegion && REGIONS[p.selectedRegion] ? REGIONS[p.selectedRegion].name : 'Chưa chọn';
+        const embed = new EmbedBuilder()
+            .setTitle('🌍 Chọn Khu Vực Thu Thập')
+            .setDescription(`Hãy chọn một khu vực từ menu bên dưới để bắt đầu farm tại đó.\nKhu vực hiện tại: **${currentRegionName}**`)
+            .setColor('#2ECC71');
 
+        return replyMsg(msgOrInteraction, { embeds: [embed], components: [row] });
+    }
+
+    // Cooldown 1 min (Removed to allow continuous gathering)
+    // if (now - (p.lastGather || 0) < 60 * 1000) {
+    //     const secs = Math.ceil((60 * 1000 - (now - p.lastGather)) / 1000);
+    //     
+    //     // If it's a button interaction, we can reply ephemerally so we don't spam
+    //     if (msgOrInteraction.isButton && msgOrInteraction.isButton()) {
+    //         return msgOrInteraction.reply({ content: `⏳ Khu vực đang hồi tài nguyên! Hãy nhấn lại sau **${secs} giây**.`, flags: MessageFlags.Ephemeral });
+    //     }
+    //     return replyMsg(msgOrInteraction, `⏳ Khu vực đang hồi tài nguyên! Hãy quay lại sau **${secs} giây**.`);
+    // }
+
+    const regionKey = p.selectedRegion;
+    const r = REGIONS[regionKey];
+    if (!r) return replyMsg(msgOrInteraction, `❌ Khu vực không hợp lệ! Hãy dùng lệnh \`!gather change\`.`);
+    
+    if (p.level < r.minLevel) {
+        return replyMsg(msgOrInteraction, `❌ Bạn cần đạt **Cấp ${r.minLevel}** để tới ${r.emoji} **${r.name}**! (Đổi khu vực bằng \`!gather change\`)`);
+    }
+
+    // Determine drop
+    const rand = Math.random();
+    let cumChance = 0;
+    let droppedItem = r.drops[0];
+    for (let i = 0; i < r.drops.length; i++) {
+        cumChance += r.chances[i];
+        if (rand <= cumChance) {
+            droppedItem = r.drops[i];
+            break;
+        }
+    }
+
+    const dropQty = Math.floor(Math.random() * 3) + 1; // 1-3 items
+    updatePlayer(userId, dp => {
+        dp.lastGather = now;
+        dp.inventory[droppedItem] = (dp.inventory[droppedItem] || 0) + dropQty;
+        dp.exp += 15; // Small exp for gathering
+    });
+
+    const itemDef = RPG_ITEMS.materials[droppedItem];
+    const embed = new EmbedBuilder()
+        .setTitle(`${r.emoji} Thu thập tại ${r.name}`)
+        .setDescription(`Bạn đã cất công tìm kiếm và thu được:\n\n💎 **${itemDef.emoji} ${itemDef.name} x${dropQty}**\n⭐ **+15 EXP**\n\n*(Khu vực hiện tại: ${r.name} - Đổi khu vực: \`!gather change\`)*`)
+        .setColor('#2ECC71');
+
+    const row = new ActionRowBuilder().addComponents(
+        new ButtonBuilder().setCustomId(`gather_again_${userId}`).setLabel('🔁 Tiếp Tục Thu Thập').setStyle(ButtonStyle.Primary)
+    );
+
+    if (msgOrInteraction.isButton && msgOrInteraction.isButton()) {
+        return msgOrInteraction.update({ embeds: [embed], components: [row] });
+    }
+    return replyMsg(msgOrInteraction, { embeds: [embed], components: [row] });
+}
+
+async function handleCraft(userId, msgOrInteraction, args) {
+    const p = getPlayer(userId);
+    const itemId = args && args[1] ? args[1].toLowerCase() : null;
+    
+    if (!itemId || !CRAFTING_RECIPES[itemId]) {
+        const embed = new EmbedBuilder()
+            .setTitle('🛠️ Lò Rèn & Chế Tạo')
+            .setDescription('Chọn món đồ bạn muốn chế tạo từ menu bên dưới.\nBạn có thể nhấp chọn để xem yêu cầu nguyên liệu.')
+            .setColor('#E67E22');
+            
+        const options = [];
+        for (const [k, v] of Object.entries(CRAFTING_RECIPES)) {
+            const reqs = Object.entries(v.req).map(([mat, qty]) => `${RPG_ITEMS.materials[mat]?.emoji || ''}${qty}`).join(', ');
+            options.push(new StringSelectMenuOptionBuilder()
+                .setLabel(`${v.name}`)
+                .setValue(`craft_${k}`)
+                .setDescription(`🪙 ${v.coin.toLocaleString()} | 📦 ${reqs}`)
+                .setEmoji(v.emoji));
+        }
+        
+        const row = new ActionRowBuilder().addComponents(
+            new StringSelectMenuBuilder()
+                .setCustomId(`craft_select_${userId}`)
+                .setPlaceholder('🔨 Chọn món đồ muốn chế tạo...')
+                .addOptions(options.slice(0, 25))
+        );
+        
+        return replyMsg(msgOrInteraction, { embeds: [embed], components: [row] });
+    }
+
+    const recipe = CRAFTING_RECIPES[itemId];
+    
+    // Check coins
+    if (getUserCoins(userId) < recipe.coin) {
+        return replyMsg(msgOrInteraction, `❌ Bạn cần **${recipe.coin.toLocaleString()} 🪙** để rèn vật phẩm này!`);
+    }
+    
+    // Check materials
+    for (const [mat, qty] of Object.entries(recipe.req)) {
+        if (!p.inventory[mat] || p.inventory[mat] < qty) {
+            const matDef = RPG_ITEMS.materials[mat];
+            return replyMsg(msgOrInteraction, `❌ Bạn thiếu nguyên liệu **${matDef.emoji} ${matDef.name}** (Cần ${qty}, có ${p.inventory[mat] || 0}).`);
+        }
+    }
+    
+    // Process crafting
+    addCoins(userId, -recipe.coin);
+    updatePlayer(userId, dp => {
+        for (const [mat, qty] of Object.entries(recipe.req)) {
+            dp.inventory[mat] -= qty;
+            if (dp.inventory[mat] <= 0) delete dp.inventory[mat];
+        }
+        dp.inventory[itemId] = (dp.inventory[itemId] || 0) + 1;
+        if (recipe.type === 'weapon') dp.weapon = itemId;
+        else if (recipe.type === 'armor') dp.armor = itemId;
+        else if (recipe.type === 'artifact') dp.artifact = itemId;
+    });
+    
+    const embed = new EmbedBuilder()
+        .setTitle('🛠️ Chế Tạo Thành Công!')
+        .setDescription(`Bạn đã rèn thành công **${recipe.emoji} ${recipe.name}**!\nTrang bị đã được **tự động mặc** lên người.`)
+        .setColor('#F1C40F');
+        
+    return replyMsg(msgOrInteraction, { embeds: [embed] });
+}
 
 // --- FARMING SYSTEM ---
+async function handleFarmCommand(userId, msgOrInteraction) {
+    const p = getPlayer(userId);
+    const now = Date.now();
+    
+    if (!p.farm) {
+        updatePlayer(userId, dp => { dp.farm = { slots: 3, plants: {} }; });
+        p.farm = { slots: 3, plants: {} };
+    }
 
+    const embed = new EmbedBuilder().setTitle('🏡 Nông Trại Của Bạn').setColor('#2ECC71');
+    let desc = `**Số ô đất:** ${p.farm.slots}\n\n`;
+    for (let i = 1; i <= p.farm.slots; i++) {
+        const plant = p.farm.plants[i];
+        if (!plant) {
+            desc += `[Ô ${i}] 🟫 Đất trống\n`;
+        } else {
+            const seedDef = RPG_ITEMS.seeds[plant.seed];
+            const elapsed = now - plant.plantedAt;
+            if (elapsed >= seedDef.growTime) {
+                desc += `[Ô ${i}] ${RPG_ITEMS.crops[seedDef.yieldItem].emoji} **${RPG_ITEMS.crops[seedDef.yieldItem].name}** (Đã chín! Có thể thu hoạch)\n`;
+            } else {
+                const remainMins = Math.ceil((seedDef.growTime - elapsed) / 60000);
+                desc += `[Ô ${i}] 🌱 **${seedDef.name}** (Còn ${remainMins} phút)\n`;
+            }
+        }
+    }
+    embed.setDescription(desc);
+
+    const row = new ActionRowBuilder().addComponents(
+        new ButtonBuilder().setCustomId(`farm_plant_${userId}`).setLabel('🌱 Gieo Hạt').setStyle(ButtonStyle.Success),
+        new ButtonBuilder().setCustomId(`farm_harvest_all_${userId}`).setLabel('🌾 Thu Hoạch Nhanh').setStyle(ButtonStyle.Primary),
+        new ButtonBuilder().setCustomId(`farm_refresh_${userId}`).setLabel('🔄 Làm Mới').setStyle(ButtonStyle.Secondary)
+    );
+
+    if (msgOrInteraction.update && typeof msgOrInteraction.update === 'function') {
+        if (msgOrInteraction.replied || msgOrInteraction.deferred) {
+            return msgOrInteraction.message.edit({ embeds: [embed], components: [row] }).catch(() => {});
+        }
+        return msgOrInteraction.update({ embeds: [embed], components: [row] }).catch(err => {
+            if (err.code === 10062) return msgOrInteraction.message.edit({ embeds: [embed], components: [row] }).catch(() => {});
+            console.error('Lỗi update farm:', err);
+        });
+    }
+    return replyMsg(msgOrInteraction, { embeds: [embed], components: [row] });
+}
 
 // --- DUNGEON SYSTEM ---
 async function handleDungeon(userId, msgOrInteraction) {
@@ -3580,7 +4191,29 @@ async function handleDivorce(userId, msgOrInteraction) {
     return replyMsg(msgOrInteraction, `💔 Đã nộp ${DIVORCE_FEE.toLocaleString()} 🪙 án phí. Bạn và <@${partnerId}> đã chính thức đường ai nấy đi!\n⚖️ **Phân chia tài sản:** Toàn bộ Tiền mặt và Ngân hàng đã được gộp chung và cưa đôi. Mỗi người nhận **${halfCoins.toLocaleString()} 🪙** tiền mặt và **${halfBank.toLocaleString()} 🪙** trong ngân hàng.`);
 }
 
-
+async function handleSetBday(userId, msgOrInteraction, bdayInput) {
+    if (!bdayInput) return replyMsg(msgOrInteraction, { content: '❌ Cú pháp: `setbday <ngày/tháng>` (VD: 15/08)', flags: MessageFlags.Ephemeral });
+    
+    // Validate dd/mm
+    const regex = /^(\d{1,2})\/(\d{1,2})$/;
+    const match = bdayInput.match(regex);
+    if (!match) return replyMsg(msgOrInteraction, { content: '❌ Vui lòng nhập đúng định dạng `ngày/tháng` (VD: 15/08)', flags: MessageFlags.Ephemeral });
+    
+    let d = parseInt(match[1]);
+    let m = parseInt(match[2]);
+    if (d < 1 || d > 31 || m < 1 || m > 12) {
+        return replyMsg(msgOrInteraction, { content: '❌ Ngày tháng không hợp lệ!', flags: MessageFlags.Ephemeral });
+    }
+    
+    const bdayStr = `${d.toString().padStart(2, '0')}/${m.toString().padStart(2, '0')}`;
+    const data = loadRPG();
+    if (!data[userId]) getPlayer(userId);
+    
+    
+    data[userId].birthday = bdayStr;
+    saveRPG(data);
+    return replyMsg(msgOrInteraction, { content: `🎉 Đã lưu ngày sinh của bạn là **${bdayStr}**!`, flags: MessageFlags.Ephemeral });
+}
 
 async function handleAdminCheat(userId, msgOrInteraction) {
     if (userId !== ADMIN_ID) return replyMsg(msgOrInteraction, '❌ Bạn không phải là Hệ Thống (Developer)!');
@@ -5037,7 +5670,7 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
 
         if (oldChannelId !== newChannelId) {
             if (oldChannelId) {
-                
+                const session = voiceJoinTimes.get(userId);
                 if (session) {
                     const joinTime = typeof session === 'number' ? session : session.time;
                     const diffSecs = (Date.now() - joinTime) / 1000;
@@ -6004,7 +6637,7 @@ Bao gồm:
         const percent = Math.round((data.xp / xpNeeded) * 100);
 
         let currentVoiceTime = data.voiceTime || 0;
-        
+        const session = voiceJoinTimes.get(message.author.id);
         if (session) {
             const joinTime = typeof session === 'number' ? session : session.time;
             const diffSecs = (Date.now() - joinTime) / 1000;
@@ -6031,7 +6664,18 @@ Bao gồm:
 
     if (content === `${prefix}toprank` || content === `${prefix}tr`) {
         const levelData = loadLevels();
-        
+        const sorted = Object.entries(levelData)
+            .map(([id, d]) => {
+                let currentVoice = d.voiceTime || 0;
+                const session = voiceJoinTimes.get(id);
+                if (session) {
+                    const joinTime = typeof session === 'number' ? session : session.time;
+                    const diffSecs = (Date.now() - joinTime) / 1000;
+                    currentVoice += Math.floor(diffSecs / 60);
+                }
+                return { id, ...d, displayVoice: currentVoice };
+            })
+            .sort((a, b) => (b.level - a.level) || (b.xp - a.xp));
             
         if (sorted.length === 0) return message.reply('❌ Chưa có ai trong bảng xếp hạng tương tác!');
         
@@ -6254,11 +6898,80 @@ Bao gồm:
     }
 
     // --- RPG EXPANSION COMMANDS ---
-    
+    if (content === `${prefix}setuprpg`) {
+        if (message.author.id !== ADMIN_ID) 
+            return message.reply('❌ Lệnh này chỉ dành riêng cho Chủ Bot!');
+        
+        let role = message.guild.roles.cache.find(r => r.name.toLowerCase() === 'rpg player');
+        if (!role) {
+            try {
+                role = await message.guild.roles.create({
+                    name: 'RPG Player',
+                    color: '#FFA500',
+                    mentionable: true,
+                    reason: 'Role cho tính năng thông báo RPG (Raid Boss)'
+                });
+            } catch (err) {
+                return message.reply('❌ Bot không có đủ quyền để tạo role. Vui lòng cấp quyền `Manage Roles` cho bot.');
+            }
+        }
+        
+        const config = loadConfig();
+        config.rpgRoleId = role.id;
+        saveConfig(config);
+        
+        const embed = new EmbedBuilder()
+            .setTitle('⚔️ Đăng Ký Nhận Thông Báo RPG')
+            .setDescription('Bấm vào nút bên dưới để nhận (hoặc hủy) role **RPG Player**.\nBạn sẽ được tag mỗi khi Raid Boss xuất hiện để không bỏ lỡ phần thưởng!')
+            .setColor('#FFA500');
+            
+        const row = new ActionRowBuilder().addComponents(
+            new ButtonBuilder().setCustomId('get_rpg_role').setLabel('Nhận / Hủy Role RPG').setStyle(ButtonStyle.Success).setEmoji('⚔️')
+        );
+        
+        await message.channel.send({ embeds: [embed], components: [row] });
+        return message.reply('✅ Đã cài đặt thành công role RPG và gửi bảng đăng ký!');
+    }
 
-    
+    if (content === `${prefix}craft`) {
+        const pData = getPlayer(uid);
+        let desc = 'Sử dụng nguyên liệu để chế tạo đồ cực phẩm!\nCú pháp: `!craft <id>`\n\n**Kho nguyên liệu của bạn:**\n';
+        for (const [matKey, mat] of Object.entries(RPG_ITEMS.materials)) {
+            desc += `${mat.emoji} ${mat.name}: ${pData.inventory[matKey] || 0}\n`;
+        }
+        desc += '\n**Công thức chế tạo:**\n';
+        
+        for (const [key, item] of Object.entries(CRAFTING_RECIPES)) {
+            const reqTexts = Object.entries(item.req).map(([matKey, qty]) => `${RPG_ITEMS.materials[matKey].emoji} ${qty}`).join(' + ');
+            desc += `**${key}**: ${item.emoji} ${item.name} (Phí: ${item.coin.toLocaleString()} 🪙)\n> Yêu cầu: ${reqTexts}\n\n`;
+        }
+        
+        const embed = new EmbedBuilder()
+            .setTitle('🛠️ Bàn Chế Tạo (Crafting)')
+            .setDescription(desc)
+            .setColor('#E67E22');
+        return message.reply({ embeds: [embed] });
+    }
 
-    
+    if (content.startsWith(`${prefix}evolve `)) {
+        const petId = message.content.split(' ')[1];
+        if (!petId) return message.reply(`❌ Vui lòng nhập ID thú cưng! Ví dụ: \`${prefix}evolve charmander\``);
+        
+        const evoData = EVOLUTION_MAP[petId];
+        if (!evoData) return message.reply('❌ Thú cưng này không thể tiến hóa hoặc ID không đúng!');
+        
+        const pData = getPlayer(uid);
+        if (!pData.pets[petId] || pData.pets[petId] <= 0) return message.reply('❌ Bạn không sở hữu thú cưng này!');
+        
+        updatePlayer(uid, p => {
+            p.pets[petId] -= 1;
+            if (p.pets[petId] <= 0) delete p.pets[petId];
+            p.pets[evoData.to] = (p.pets[evoData.to] || 0) + 1;
+        });
+        
+        const nextPet = PET_LIST.find(p => p.id === evoData.to) || { name: evoData.to, emoji: '✨' };
+        return message.reply(`🌟 Tèn ten ten tén! Thú cưng của bạn đã tiến hóa thành công **${nextPet.emoji} ${nextPet.name}**! (Miễn phí Kẹo)`);
+    }
 
     // Đổi prefix
     if (content.startsWith(`${prefix}setprefix`)) {
@@ -6504,7 +7217,17 @@ Bao gồm:
     }
 
     // Cập nhật yt-dlp
-    
+    if (content === `${prefix}updateytdlp`) {
+        if (!message.member.permissions.has(PermissionsBitField.Flags.Administrator) && message.author.id !== ADMIN_ID) return message.reply('❌ Chỉ Admin mới có thể sử dụng lệnh này!');
+        const loadMsg = await message.reply('⏳ Đang cập nhật yt-dlp... Vui lòng đợi.');
+        execFile(YTDLP_PATH, ['-U'], (err, stdout, stderr) => {
+            if (err) {
+                return loadMsg.edit(`❌ Lỗi cập nhật: ${stderr || err.message}`);
+            }
+            loadMsg.edit(`✅ Cập nhật thành công:\n\`\`\`\n${stdout}\n\`\`\``);
+        });
+        return;
+    }
 
     // QR
     if (content.startsWith(`${prefix}qr`)) {
@@ -6565,13 +7288,83 @@ Bao gồm:
     // ========================
 
     // !play <tên / link>
-    
+    if (content.startsWith(`${prefix}play`) || content.startsWith(`${prefix}p `) || content === `${prefix}p`) {
+        // Fix: dùng slice thay vì regex bị double-escape
+        let query;
+        if (content.toLowerCase().startsWith(`${prefix}play`)) {
+            query = message.content.slice((`${prefix}play`).length).trim();
+        } else {
+            query = message.content.slice((`${prefix}p`).length).trim();
+        }
+        if (!query) return message.reply(`❌ Cú pháp: \`${prefix}play <tên bài / link YouTube>\``);
+
+        const voiceChannel = message.member.voice.channel;
+        if (!voiceChannel) return message.reply('❌ Bạn cần vào **voice channel** trước!');
+        const perms = voiceChannel.permissionsFor(client.user);
+        if (!perms.has(PermissionsBitField.Flags.Connect) || !perms.has(PermissionsBitField.Flags.Speak))
+            return message.reply('❌ Bot không có quyền vào kênh thoại này!');
+
+        const loadMsg = await message.reply('⏳ Đang tìm kiếm bài hát...');
+        try {
+            const infoResult = await ytdlpGetInfo(query);
+            if (!infoResult || (Array.isArray(infoResult) && infoResult.length === 0)) return loadMsg.edit('❌ Không tìm thấy bài hát nào!');
+            
+            const state = getQueue(message.guildId);
+            if (!state.connection) {
+                state.connection = joinVoiceChannel({ channelId: voiceChannel.id, guildId: message.guildId, adapterCreator: message.guild.voiceAdapterCreator, selfDeaf: true });
+                state.connection.on(VoiceConnectionStatus.Disconnected, async () => {
+                    try { await Promise.race([entersState(state.connection, VoiceConnectionStatus.Signalling, 5_000), entersState(state.connection, VoiceConnectionStatus.Connecting, 5_000)]); }
+                    catch { state.connection.destroy(); musicQueues.delete(message.guildId); }
+                });
+            }
+            if (!state.djId) state.djId = message.author.id;
+
+            const isPlaylist = Array.isArray(infoResult);
+            const items = isPlaylist ? infoResult : [infoResult];
+            
+            let firstSongInfo = null;
+            for (const info of items) {
+                const d = parseInt(info.duration) || 0;
+                const songInfo = { title: info.title, url: info.webpage_url, duration: `${Math.floor(d/60)}:${String(d%60).padStart(2,'0')}`, thumbnail: info.thumbnail || null, requestedBy: message.author.tag, requestedById: message.author.id };
+                state.queue.push(songInfo);
+                if (!firstSongInfo) firstSongInfo = songInfo;
+            }
+
+            if (state.queue.length === items.length && (!state.player || state.player.state.status === AudioPlayerStatus.Idle)) {
+                await loadMsg.delete().catch(() => {});
+                await playNext(message.guildId, message.channel);
+            } else {
+                if (isPlaylist) {
+                    const embed = new EmbedBuilder().setTitle('📋 Đã thêm Playlist vào hàng đợi').setDescription(`Thêm **${items.length}** bài hát vào hàng đợi.`).setColor('#FF6600');
+                    await loadMsg.edit({ content: '', embeds: [embed] });
+                } else {
+                    const embed = new EmbedBuilder().setTitle('📋 Đã thêm vào hàng đợi').setDescription(`**[${firstSongInfo.title}](${firstSongInfo.url})**`)
+                        .addFields({ name: '⏱ Thời lượng', value: firstSongInfo.duration || 'N/A', inline: true }, { name: '📍 Vị trí', value: `#${state.queue.length}`, inline: true })
+                        .setThumbnail(firstSongInfo.thumbnail).setColor('#FF6600');
+                    await loadMsg.edit({ content: '', embeds: [embed] });
+                }
+            }
+        } catch (err) { console.error('Lỗi play prefix:', err); loadMsg.edit(`❌ Lỗi: ${err.message}`); }
+        return;
+    }
 
     // !skip
-    
+    if (content === `${prefix}skip` || content === `${prefix}s`) {
+        const state = getQueue(message.guildId);
+        if (!state.player || !state.queue.length) return message.reply('❌ Không có nhạc đang phát!');
+        if (message.author.id !== state.djId) return message.reply(`❌ Chỉ <@${state.djId}> mới có thể điều khiển!`);
+        state.player.stop();
+        return message.reply('⏭ Đã bỏ qua bài nhạc!');
+    }
 
     // !stop
-    
+    if (content === `${prefix}stop` || content === `${prefix}st`) {
+        const state = getQueue(message.guildId);
+        if (!state.connection) return message.reply('❌ Bot không ở trong voice channel!');
+        if (message.author.id !== state.djId) return message.reply(`❌ Chỉ <@${state.djId}> mới có thể điều khiển!`);
+        state.queue.length = 0; state.player?.stop(); state.connection.destroy(); musicQueues.delete(message.guildId);
+        return message.reply('⏹ Đã dừng nhạc và rời kênh thoại!');
+    }
 
     // !leave
     if (content === `${prefix}leave`) {
@@ -6632,16 +7425,48 @@ Bao gồm:
     }
 
     // !pause
-    
+    if (content === `${prefix}pause` || content === `${prefix}pa`) {
+        const state = getQueue(message.guildId);
+        if (!state.player) return message.reply('❌ Không có nhạc đang phát!');
+        if (message.author.id !== state.djId) return message.reply(`❌ Chỉ <@${state.djId}> mới có thể điều khiển!`);
+        state.player.pause(); state.paused = true;
+        return message.reply('⏸ Đã tạm dừng nhạc!');
+    }
 
     // !resume
-    
+    if (content === `${prefix}resume` || content === `${prefix}r`) {
+        const state = getQueue(message.guildId);
+        if (!state.player) return message.reply('❌ Không có nhạc để tiếp tục!');
+        if (message.author.id !== state.djId) return message.reply(`❌ Chỉ <@${state.djId}> mới có thể điều khiển!`);
+        state.player.unpause(); state.paused = false;
+        return message.reply('▶ Đã tiếp tục phát nhạc!');
+    }
 
     // !queue / !q
-    
+    if (content === `${prefix}queue` || content === `${prefix}q`) {
+        const state = getQueue(message.guildId);
+        if (!state.queue.length) return message.reply('📋 Hàng đợi trống!');
+        const queueList = state.queue.slice(0, 10).map((s, i) =>
+            `${i === 0 ? '▶ **[Đang phát]**' : `${i}.`} [${s.title}](${s.url}) • \`${s.duration || 'N/A'}\``
+        ).join('\n');
+        const embed = new EmbedBuilder().setTitle(`📋 Hàng đợi nhạc (${state.queue.length} bài)`).setDescription(queueList)
+            .setColor('#0099ff').setFooter({ text: state.queue.length > 10 ? `... và ${state.queue.length - 10} bài nữa` : '​' });
+        return message.channel.send({ embeds: [embed] });
+    }
 
     // !np / !nowplaying
-    
+    if (content === `${prefix}np` || content === `${prefix}nowplaying`) {
+        const state = getQueue(message.guildId);
+        if (!state.queue.length) return message.reply('❌ Không có bài nào đang phát!');
+        const song = state.queue[0];
+        const embed = new EmbedBuilder().setTitle('🎵 Đang phát').setDescription(`**[${song.title}](${song.url})**`)
+            .addFields(
+                { name: '⏱ Thời lượng', value: song.duration || 'N/A', inline: true },
+                { name: '👤 Yêu cầu bởi', value: `<@${song.requestedById}>`, inline: true },
+                { name: '🔊 Âm lượng', value: `${Math.round(state.volume * 100)}%`, inline: true }
+            ).setThumbnail(song.thumbnail).setColor('#FF0000');
+        return message.channel.send({ embeds: [embed] });
+    }
 
     // !vol <0-200>
     if (content.startsWith(`${prefix}vol`)) {
@@ -6852,17 +7677,73 @@ Bao gồm:
     }
 
     // !catchpet
-    
+    if (content === `${prefix}catchpet` || content === `${prefix}catch` || content === `${prefix}cp`) {
+        return handleCatchPet(message.author.id, message);
+    }
 
     // !pets
-    
+    if (content === `${prefix}pets` || content === `${prefix}p`) {
+        return handlePets(message.author.id, message);
+    }
 
     // !ptrade
-    
-    
+    if (content.startsWith(`${prefix}ptrade`) || content.startsWith(`${prefix}pt`)) {
+        const targetUser = message.mentions.users.first();
+        if (!targetUser) return message.reply('❌ Hãy tag người bạn muốn giao dịch (VD: `!ptrade @user`).');
+        if (targetUser.bot) return message.reply('❌ Không thể giao dịch với Bot!');
+        return handlePetTrade(message.author.id, targetUser.id, message);
+    }
+    if (content === `${prefix}sellpet` || content.startsWith(`${prefix}sellpet `) || content === `${prefix}sp` || content.startsWith(`${prefix}sp `)) {
+        const args = content.split(' ');
+        if (args[1] === 'all') {
+            const uid = message.author.id;
+            let sellCoin = 0;
+            let soldMsg = '';
+            updatePlayer(uid, dp => {
+                let bestPetId = null;
+                let maxPrice = -1;
+                for (const pet of PET_LIST) {
+                    if (dp.pets[pet.id] > 0 && pet.price > maxPrice) {
+                        maxPrice = pet.price;
+                        bestPetId = pet.id;
+                    }
+                }
+                if (!bestPetId) {
+                    soldMsg = `❌ Bạn không có thú cưng nào để bán!`;
+                } else {
+                    for (const pet of PET_LIST) {
+                        if (dp.pets[pet.id]) {
+                            const keepAmount = (pet.id === bestPetId) ? 1 : 0;
+                            const sellAmount = dp.pets[pet.id] - keepAmount;
+                            if (sellAmount > 0) {
+                                sellCoin += sellAmount * pet.price;
+                                dp.pets[pet.id] -= sellAmount;
+                            }
+                        }
+                    }
+                    if (sellCoin > 0) {
+                        const bestPetInfo = PET_LIST.find(p => p.id === bestPetId);
+                        soldMsg = `✅ Bạn đã bán sạch thú cưng dư thừa, chỉ giữ lại đúng 1 bé **${bestPetInfo.name}** ${bestPetInfo.emoji} (xịn nhất) và thu về **${sellCoin.toLocaleString()} 🪙**!`;
+                    } else {
+                        soldMsg = `❌ Bạn chỉ có đúng 1 con thú cưng nên không có gì dư để bán cả!`;
+                    }
+                }
+            });
+            if (sellCoin > 0) addCoins(uid, sellCoin);
+            return message.reply(soldMsg);
+        }
+        return handleSellPet(message.author.id, message);
+    }
 
     // !petbattle
-    
+    if (content.startsWith(`${prefix}petbattle`) || content.startsWith(`${prefix}pb `)) {
+        const target = message.mentions.users.first();
+        const args = message.content.split(' ');
+        const bet = parseInt(args[2]);
+        if (!target || target.bot) return message.reply(`❌ Cú pháp: \`${prefix}pb @user <bet>\``);
+        if (isNaN(bet) || bet < 10) return message.reply('❌ Mức cược phải lớn hơn hoặc bằng 10!');
+        return handlePetBattle(message.author.id, target.id, bet, message);
+    }
 
     // !resetwork
     if (content.startsWith(`${prefix}resetwork`)) {
@@ -7349,37 +8230,323 @@ Bao gồm:
     }
 
     // !profile
-    
+    if (content.startsWith(`${prefix}profile`) || content.startsWith(`${prefix}pr`)) {
+        const target = message.mentions.users.first() || message.author;
+        const profileData = buildProfileEmbed(target);
+        const options = { embeds: [profileData.embed] };
+        if (profileData.attachment) options.files = [profileData.attachment];
+        return message.reply(options);
+    }
 
     // !hunt
-    
+    if (content === `${prefix}hunt` || content === `${prefix}hu`) {
+        const uid = message.author.id;
+        const p = getPlayer(uid);
+        if (p.hp <= 0) return message.reply('❌ Bạn đã hết máu, hãy dùng `!heal` để hồi sinh lực!');
+        const now = Date.now();
+        if (now - p.lastHunt < 60000) return message.reply(`⏳ Đang mệt, hãy nghỉ ngơi **${Math.ceil((60000-(now-p.lastHunt))/1000)}s** nữa!`);
+        
+        const maxLevel = Math.min(Math.max(1, p.level), MONSTERS.length);
+        const m = MONSTERS[Math.floor(Math.random() * maxLevel)];
+        const stats = getPlayerStats(p);
+        
+        let mHp = m.hp, pHp = p.hp;
+        let rounds = 0;
+        let pDmg = Math.max(1, stats.atk - m.def);
+        let mDmg = Math.max(1, m.atk - stats.def);
+        
+        while(mHp > 0 && pHp > 0 && rounds < 20) {
+            mHp -= pDmg;
+            if (mHp <= 0) break;
+            pHp -= mDmg;
+            rounds++;
+        }
+        
+        if (pHp <= 0) {
+            updatePlayer(uid, dp => { dp.hp = 0; dp.lastHunt = now; dp.exp = Math.max(0, dp.exp - Math.floor(m.exp/2)); });
+            return message.reply({ embeds: [new EmbedBuilder()
+                .setTitle('☠️ TỬ TRẬN')
+                .setDescription(`Bạn bị **${m.name}** ${m.emoji} đánh bại!\nChỉ số quái: ⚔️ ${m.atk} | 🛡️ ${m.def}\nMất một ít EXP. Hãy dùng \`!heal\`.`)
+                .setColor('#8B0000')
+                .setThumbnail(message.author.displayAvatarURL({ dynamic: true }))
+            ] });
+        }
+        
+        updatePlayer(uid, dp => { dp.hp = pHp; dp.lastHunt = now; dp.exp += m.exp; });
+        // Class coin bonus
+        let coinGain = m.coin;
+        const pClass = p.rpgClass && RPG_CLASSES[p.rpgClass] ? RPG_CLASSES[p.rpgClass] : null;
+        if (pClass && pClass.coinBonus) coinGain = Math.floor(coinGain * (1 + pClass.coinBonus));
+        addCoins(uid, coinGain);
+        // Chest drop
+        let huntChestMsg = '';
+        if (Math.random() < 0.02) {
+            updatePlayer(uid, dp => { dp.chests.wood = (dp.chests.wood || 0) + 1; });
+            huntChestMsg += '\n🎁 Drop: **📦 Rương Gỗ**! Dùng `!openbox` để mở.';
+        }
+        
+        if (Math.random() < 0.15) {
+            updatePlayer(uid, dp => {
+                if (!dp.inventory) dp.inventory = {};
+                dp.inventory['xp_potion'] = (dp.inventory['xp_potion'] || 0) + 1;
+            });
+            huntChestMsg += '\n🔮 Drop: **1x Bình EXP**! Dùng trong kho đồ (`!i`) để nhận EXP.';
+        }
+        
+        // Material drop
+        let matDropMsg = '';
+        if (Math.random() < 0.3) {
+            const matKeys = Object.keys(RPG_ITEMS.materials);
+            const dropMat = matKeys[Math.floor(Math.random() * matKeys.length)];
+            const dropQty = Math.floor(Math.random() * 2) + 1;
+            updatePlayer(uid, dp => { 
+                dp.inventory[dropMat] = (dp.inventory[dropMat] || 0) + dropQty; 
+            });
+            const matData = RPG_ITEMS.materials[dropMat];
+            matDropMsg = `\n💎 Nhặt được: **${matData.emoji} ${matData.name} x${dropQty}**`;
+        }
+
+        trackQuestProgress(uid, 'hunt', 1);
+        trackQuestProgress(uid, 'earn_coin', coinGain);
+        const nP = getPlayer(uid);
+        
+        const huntEmbed = new EmbedBuilder()
+            .setTitle(`⚔️ Chiến thắng **${m.name}** ${m.emoji}`)
+            .setDescription(`Sau trận chiến, bạn còn lại **❤️ ${pHp}/${p.maxHp} HP**.\nNhận được: **+${m.exp} EXP** và **+${coinGain} 🪙**${pClass && pClass.coinBonus ? ` (bonus ${pClass.emoji})` : ''}\nCấp độ hiện tại: **Lv. ${nP.level}**${huntChestMsg}${matDropMsg}`)
+            .setColor('#2ECC71')
+            .setThumbnail(message.author.displayAvatarURL({ dynamic: true }));
+            
+        return message.reply({ embeds: [huntEmbed] });
+    }
 
     // !shop
-    
+    if (content === `${prefix}shop` || content === `${prefix}sh`) {
+        return handleShop(message.author.id, message);
+    }
 
     // RPG EXPANSION PREFIX COMMANDS
-    
+    if (content.startsWith(`${prefix}gather`) || content.startsWith(`${prefix}g `) || content === `${prefix}g`) {
+        const args = content.split(/\s+/);
+        return handleGather(message.author.id, message, args);
+    }
     if (content === `${prefix}pokesolo`) {
         return handlePokeSolo(message.author.id, message);
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+    if (content.startsWith(`${prefix}craft`) || content.startsWith(`${prefix}cr `) || content === `${prefix}cr`) {
+        const args = content.split(/\s+/);
+        return handleCraft(message.author.id, message, args);
+    }
+    if (content.startsWith(`${prefix}equip`) || content.startsWith(`${prefix}eq `)) {
+        const args = content.split(/\s+/);
+        const itemId = args[1] ? args[1].toLowerCase() : null;
+        if (!itemId) return message.reply(`❌ Cú pháp: \`!equip <mã_trang_bị>\`\n*(Bạn có thể xem mã trong bảng !craft hoặc !inv)*`);
+        
+        let type = null;
+        if (RPG_ITEMS.weapons[itemId]) type = 'weapon';
+        else if (RPG_ITEMS.armors[itemId]) type = 'armor';
+        else if (RPG_ITEMS.artifacts[itemId]) type = 'artifact';
+        else if (MARRY_RINGS[itemId]) type = 'ring';
+        
+        if (!type) return message.reply(`❌ Trang bị không hợp lệ!`);
+        
+        const p = getPlayer(message.author.id);
+        if (type === 'ring') {
+            if (!p.partner) return message.reply(`❌ Bạn phải kết hôn mới được đeo nhẫn!`);
+            if (!p.rings || !p.rings[itemId] || p.rings[itemId] <= 0) {
+                return message.reply(`❌ Bạn không sở hữu chiếc nhẫn này!`);
+            }
+        } else {
+            if (!p.inventory[itemId] || p.inventory[itemId] <= 0) {
+                return message.reply(`❌ Bạn không có sẵn món đồ này trong túi!`);
+            }
+        }
+        
+        updatePlayer(message.author.id, dp => {
+            if (type === 'weapon') dp.weapon = itemId;
+            else if (type === 'armor') dp.armor = itemId;
+            else if (type === 'artifact') dp.artifact = itemId;
+            else if (type === 'ring') dp.equippedRing = itemId;
+        });
+        
+        const typeName = type === 'weapon' ? 'Vũ Khí' : (type === 'armor' ? 'Áo Giáp' : (type === 'ring' ? 'Nhẫn Cưới' : 'Trang Sức'));
+        const itemDef = type === 'ring' ? MARRY_RINGS[itemId] : RPG_ITEMS[`${type}s`][itemId];
+        
+        return message.reply(`✅ Đã mặc **${typeName}** mới: ${itemDef.emoji} **${itemDef.name}**!`);
+    }
+    if (content.startsWith(`${prefix}unequip`) || content.startsWith(`${prefix}uneq `)) {
+        const args = content.split(/\s+/);
+        const typeArg = args[1] ? args[1].toLowerCase() : null;
+        if (!['weapon', 'armor', 'artifact', 'ring'].includes(typeArg)) {
+            return message.reply(`❌ Cú pháp: \`!unequip <weapon|armor|artifact|ring>\``);
+        }
+        
+        updatePlayer(message.author.id, dp => {
+            if (typeArg === 'weapon') dp.weapon = null;
+            else if (typeArg === 'armor') dp.armor = null;
+            else if (typeArg === 'artifact') dp.artifact = null;
+            else if (typeArg === 'ring') dp.equippedRing = null;
+        });
+        
+        return message.reply(`✅ Đã tháo trang bị ô **${typeArg}**!`);
+    }
+    if (content === `${prefix}dungeon` || content === `${prefix}dg`) {
+        return handleDungeon(message.author.id, message);
+    }
+    if (content === `${prefix}raid` || content === `${prefix}rb`) {
+        return handleRaidCommand(message.author.id, message);
+    }
+    if (content.startsWith(`${prefix}farm`) || content.startsWith(`${prefix}f `) || content === `${prefix}f`) {
+        const args = content.split(/\s+/);
+        return handleFarmCommand(message.author.id, message, args);
+    }
+    if (content.startsWith(`${prefix}pvp `)) {
+        const args = content.slice(prefix.length + 4).trim().split(/\s+/);
+        const target = message.mentions.users.first();
+        const bet = parseInt(args[1] || args[0]);
+        if (!target) return message.reply('❌ Vui lòng tag người chơi! VD: `!pvp @user 1000`');
+        if (!bet || bet < 100) return message.reply('❌ Số tiền cược tối thiểu là 100!');
+        return handlePvP(message.author.id, target.id, bet, message);
+    }
+    if (content === `${prefix}quest` || content === `${prefix}nv`) {
+        return handleQuest(message.author.id, message);
+    }
+    if (content === `${prefix}class`) {
+        return handleClass(message.author.id, message);
+    }
+    if (content === `${prefix}openbox` || content === `${prefix}ob`) {
+        return handleOpenBox(message.author.id, message);
+    }
+    if (content === `${prefix}evolve` || content === `${prefix}ev`) {
+        return handleEvolve(message.author.id, message);
+    }
+    if (content === `${prefix}rpgtop` || content === `${prefix}rt`) {
+        return handleRpgTop(message.author.id, message);
+    }
 
     // !inv
-    
+    if (content === `${prefix}inv` || content === `${prefix}i`) {
+        const uid = message.author.id;
+        const p = getPlayer(uid);
+        const embed = new EmbedBuilder()
+            .setTitle(`🎒 Túi Đồ của ${message.author.username}`)
+            .setColor('#F1C40F')
+            .setThumbnail(message.author.displayAvatarURL({ dynamic: true }))
+            .setFooter({ text: 'Sử dụng menu bên dưới để tương tác với đồ vật!' });
+        
+        let equipText = '';
+        if (p.weapon) {
+            const w = RPG_ITEMS.weapons[p.weapon];
+            if (w) equipText += `⚔️ **Vũ khí:** ${w.emoji} ${w.name} (+${w.atk} Atk)\n`;
+        }
+        if (p.armor) {
+            const a = RPG_ITEMS.armors[p.armor];
+            if (a) equipText += `🛡️ **Áo giáp:** ${a.emoji} ${a.name} (+${a.def} Def)\n`;
+        }
+        if (p.artifact) {
+            const art = RPG_ITEMS.artifacts[p.artifact];
+            if (art) equipText += `${art.emoji} **Trang sức:** ${art.name}\n`;
+        }
+        embed.addFields({ name: 'Trang Bị', value: equipText || 'Chưa trang bị gì.', inline: false });
+        
+        const options = [];
+        
+        const items = [];
+        if (p.inventory) {
+            for (const [k, v] of Object.entries(p.inventory)) {
+                if (v > 0) {
+                    let item = RPG_ITEMS.potions?.[k] || RPG_ITEMS.pokeballs?.[k] || RPG_ITEMS.materials?.[k] || RPG_ITEMS.weapons?.[k] || RPG_ITEMS.armors?.[k] || RPG_ITEMS.artifacts?.[k] || RPG_ITEMS.seeds?.[k] || RPG_ITEMS.crops?.[k] || RPG_ITEMS.tools?.[k];
+                    if (item) {
+                        items.push(`${item.emoji || ''} **${item.name}**: ${v}`);
+                        options.push(new StringSelectMenuOptionBuilder()
+                            .setLabel(`${item.name} (x${v})`)
+                            .setValue(`invitem_${k}`)
+                            .setDescription(`Giá bán: ${(item.price * 0.5).toLocaleString()} 🪙/cái`)
+                        );
+                    }
+                }
+            }
+        }
+        let itemsStr = items.length ? items.join('\n') : 'Trống rỗng.';
+        if (itemsStr.length > 1024) itemsStr = itemsStr.substring(0, 1010) + '...';
+        embed.addFields({ name: 'Vật Phẩm', value: itemsStr, inline: true });
+        
+        const rings = [];
+        if (p.rings) {
+            for (const [k, v] of Object.entries(p.rings)) {
+                if (v > 0) {
+                    let r = MARRY_RINGS[k];
+                    if (r) rings.push(`${r.emoji} **${r.name}**: ${v}`);
+                }
+            }
+        }
+        if (rings.length > 0) {
+            let ringsStr = rings.join('\n');
+            if (ringsStr.length > 1024) ringsStr = ringsStr.substring(0, 1010) + '...';
+            embed.addFields({ name: 'Nhẫn Kết Hôn', value: ringsStr, inline: true });
+        }
+        
+        const petsList = [];
+        if (p.pets) {
+            for (const petInfo of PET_LIST) {
+                const amount = p.pets[petInfo.id] || 0;
+                if (amount > 0) {
+                    petsList.push(`${petInfo.emoji || ''} **${petInfo.name}**: ${amount}`);
+                    options.push(new StringSelectMenuOptionBuilder()
+                        .setLabel(`${petInfo.name} (x${amount})`)
+                        .setValue(`invitem_${petInfo.id}`)
+                        .setDescription(`Giá bán: ${(petInfo.price * 0.5).toLocaleString()} 🪙/con`)
+                    );
+                }
+            }
+        }
+        let petsListStr = petsList.length ? petsList.join(', ') : 'Chưa có con nào.';
+        if (petsListStr.length > 1024) {
+            petsListStr = petsListStr.substring(0, 1010) + '... (Xem thêm ở chuồng thú)';
+        }
+        embed.addFields({ name: 'Thú Cưng', value: petsListStr, inline: false });
+        
+        const finalOptions = options.slice(0, 25);
+        let components = [];
+        if (finalOptions.length > 0) {
+            const selectMenu = new StringSelectMenuBuilder()
+                .setCustomId(`inv_select_${uid}`)
+                .setPlaceholder('Chọn vật phẩm để sử dụng hoặc bán...')
+                .addOptions(finalOptions);
+            components.push(new ActionRowBuilder().addComponents(selectMenu));
+        }
+        
+        return message.reply({ embeds: [embed], components });
+    }
 
     // !heal
-    
+    if (content === `${prefix}heal`) {
+        const uid = message.author.id;
+        const p = getPlayer(uid);
+        if (p.hp >= p.maxHp) return message.reply('✅ Máu của bạn đã đầy!');
+        trackQuestProgress(uid, 'heal', 1);
+        
+        // Use potion first
+        let healed = false;
+        if (p.inventory.large_potion > 0) {
+            updatePlayer(uid, dp => { dp.hp = Math.min(dp.maxHp, dp.hp + RPG_ITEMS.potions.large_potion.heal); dp.inventory.large_potion--; });
+            healed = true;
+        } else if (p.inventory.small_potion > 0) {
+            updatePlayer(uid, dp => { dp.hp = Math.min(dp.maxHp, dp.hp + RPG_ITEMS.potions.small_potion.heal); dp.inventory.small_potion--; });
+            healed = true;
+        }
+        
+        if (healed) {
+            const np = getPlayer(uid);
+            return message.reply(`💊 Đã sử dụng bình máu! Sinh lực hiện tại: **❤️ ${np.hp}/${np.maxHp}**`);
+        }
+        
+        // Use coins if no potion
+        const healCost = 10000;
+        if (getUserCoins(uid) < healCost) return message.reply(`❌ Bạn không có bình máu nào, và không đủ **${healCost} 🪙** để dùng dịch vụ hồi máu!`);
+        addCoins(uid, -healCost);
+        updatePlayer(uid, dp => { dp.hp = dp.maxHp; });
+        return message.reply(`🏥 Đã trả **${healCost} 🪙** cho Y Tá để hồi phục toàn bộ sinh lực! **❤️ ${p.maxHp}/${p.maxHp}**`);
+    }
 
 
 
@@ -7389,13 +8556,64 @@ Bao gồm:
     const isAdmin = message.member?.permissions.has(PermissionsBitField.Flags.Administrator);
     
     // !spawnpet
-    
+    if (content === `${prefix}spawnpet`) {
+        if (!isAdmin && message.author.id !== ADMIN_ID) return message.reply('❌ Bạn không có quyền!');
+        
+        spawnWildPet(client, true);
+        return message.reply('✨ Đã ép xuất hiện một Pokemon hiếm! (Kiểm tra kênh spawn mặc định hoặc kênh đang active)');
+    }
     
     // !getallvip
-    
+    if (content === `${prefix}getallvip`) {
+        if (!isAdmin && message.author.id !== ADMIN_ID) return message.reply('❌ Bạn không có quyền!');
+        
+        const uid = message.author.id;
+        
+        // Add 1B coins
+        addCoins(uid, 1000000000);
+        
+        // Max RPG stats and pets
+        updatePlayer(uid, p => {
+            p.weapon = 'diamond_sword';
+            p.armor = 'diamond_armor';
+            
+            if (!p.inventory) p.inventory = {};
+            p.inventory['large_potion'] = (p.inventory['large_potion'] || 0) + 1000;
+            p.inventory['ultra_ball'] = (p.inventory['ultra_ball'] || 0) + 1000;
+            
+            if (!p.pets) p.pets = {};
+            PET_LIST.forEach(pet => {
+                p.pets[pet.id] = (p.pets[pet.id] || 0) + 100;
+            });
+            
+            p.hp = p.maxHp;
+        });
+        
+        return message.reply('👑 **LỆNH TỐI CAO ĐÃ KÍCH HOẠT!** 👑\nNgài đã nhận được:\n- 1 Tỷ 🪙\n- Kiếm Kim Cương & Giáp Kim Cương ⚔️🛡️\n- 1000x Bình Máu Lớn & 1000x Bóng Tối Thượng 💊🔮\n- x100 Tất cả các loại Pet hoang dã 🐉');
+    }
 
     // !addpetvip @user <petId> [amount]
-    
+    if (content.startsWith(`${prefix}addpetvip`)) {
+        if (!isAdmin) return message.reply('❌ Bạn không có quyền!');
+        const args = message.content.split(' ');
+        const target = message.mentions.users.first();
+        if (!target || args.length < 3) return message.reply(`❌ Cú pháp: \`${prefix}addpetvip @user <petId> [số lượng]\``);
+        const petId = args[2];
+        const amount = parseInt(args[3]) || 1;
+        
+        const petInfo = PET_LIST.find(p => p.id === petId);
+        if (!petInfo) return message.reply('❌ Pet ID không hợp lệ! (Ví dụ: pikachu, arceus, lugia...)');
+        
+        return awaitConfirmation(message, message.author.id, `Bạn muốn tặng **${amount}x ${petInfo.emoji} ${petInfo.name}** cho <@${target.id}>?`, async () => {
+            const data = loadRPG();
+            if (!data[target.id]) getPlayer(target.id);
+            if (!data[target.id].pets) data[target.id].pets = {};
+            
+            data[target.id].pets[petId] = (data[target.id].pets[petId] || 0) + amount;
+            saveRPG(data);
+            return `✅ Đã tặng **${amount}x ${petInfo.emoji} ${petInfo.name}** cho <@${target.id}>!`;
+        });
+    }
 
     // !addxp @user <amount>
     if (content.startsWith(`${prefix}addxp`)) {
@@ -7510,7 +8728,15 @@ Bao gồm:
         return message.reply(`✅ Đã gửi tin nhắn vào ${channel}.`);
     }
 
-    
+    if (content.startsWith(`${prefix}togglevoice`)) {
+        if (!isAdmin) return message.reply('❌ Bạn không có quyền Administrator để dùng lệnh này!');
+        const globalConfig = loadConfig();
+        const config = getGuildConfig(message.guildId);
+        const currentState = (config.voiceNotifyEnabled !== undefined) ? config.voiceNotifyEnabled !== false : globalConfig.voiceNotifyEnabled !== false;
+        const newState = !currentState;
+        updateGuildConfig(message.guildId, 'voiceNotifyEnabled', newState);
+        return message.reply(`✅ Đã **${newState ? 'BẬT' : 'TẮT'}** thông báo người ra vào kênh thoại.`);
+    }
 
 });
 
@@ -7707,7 +8933,30 @@ client.on('interactionCreate', async (interaction) => {
             return interaction.update({ content: `✅ Đã chọn khu vực **${REGIONS[selectedRegion].name}** làm nơi farm! Gõ lệnh \`!gather\` để bắt đầu thu thập.`, embeds: [], components: [] });
         }
         
-        
+        if (interaction.isStringSelectMenu() && cid.startsWith('craft_select_')) {
+            const ownerId = cid.replace('craft_select_', '');
+            if (interaction.user.id !== ownerId) {
+                return interaction.reply({ content: '❌ Đây không phải là menu của bạn!', flags: MessageFlags.Ephemeral });
+            }
+            
+            const val = interaction.values[0];
+            const itemId = val.replace('craft_', '');
+            
+            const modal = new ModalBuilder()
+                .setCustomId(`craft_buy_modal_${itemId}`)
+                .setTitle(`Chế tạo số lượng lớn`);
+            
+            const amountInput = new TextInputBuilder()
+                .setCustomId('craft_amount_input')
+                .setLabel('Số lượng muốn rèn')
+                .setStyle(TextInputStyle.Short)
+                .setPlaceholder('Nhập số nguyên lớn hơn 0...')
+                .setValue('1')
+                .setRequired(true);
+            
+            modal.addComponents(new ActionRowBuilder().addComponents(amountInput));
+            return interaction.showModal(modal);
+        }
         
         // =============================================
         // FARM INTERACTION HANDLERS
@@ -7718,15 +8967,131 @@ client.on('interactionCreate', async (interaction) => {
             return handleGather(ownerId, interaction, ['gather']);
         }
 
-        
+        if (cid.startsWith('farm_refresh_')) {
+            const ownerId = cid.replace('farm_refresh_', '');
+            if (interaction.user.id !== ownerId) return interaction.reply({ content: '❌ Nông trại này không phải của bạn!', flags: MessageFlags.Ephemeral });
+            return handleFarmCommand(ownerId, interaction);
+        }
 
-        
+        if (cid.startsWith('farm_harvest_all_')) {
+            const ownerId = cid.replace('farm_harvest_all_', '');
+            if (interaction.user.id !== ownerId) return interaction.reply({ content: '❌ Nông trại này không phải của bạn!', flags: MessageFlags.Ephemeral });
+            const p = getPlayer(ownerId);
+            const now = Date.now();
+            let harvestedCount = 0;
+            let harvestText = '';
+            let totalExp = 0;
+            
+            for (let i = 1; i <= p.farm.slots; i++) {
+                const plant = p.farm.plants[i];
+                if (!plant) continue;
+                const seedDef = RPG_ITEMS.seeds[plant.seed];
+                if (now - plant.plantedAt >= seedDef.growTime) {
+                    const yieldAmt = Math.floor(Math.random() * 2) + 1; // 1-2 items
+                    const cropId = seedDef.yieldItem;
+                    const cropDef = RPG_ITEMS.crops[cropId];
+                    updatePlayer(ownerId, dp => {
+                        delete dp.farm.plants[i];
+                        dp.inventory[cropId] = (dp.inventory[cropId] || 0) + yieldAmt;
+                        dp.exp += 20; // 20 exp per harvest
+                    });
+                    harvestedCount++;
+                    totalExp += 20;
+                    harvestText += `[Ô ${i}] Nhận ${cropDef.emoji} **${cropDef.name}** x${yieldAmt}\n`;
+                }
+            }
+            
+            if (harvestedCount === 0) return interaction.reply({ content: `❌ Không có cây nào chín để thu hoạch!`, flags: MessageFlags.Ephemeral });
+            await interaction.reply({ content: `🌾 **THU HOẠCH THÀNH CÔNG**\n${harvestText}\n⭐ Nhận được **+${totalExp} EXP**!`, flags: MessageFlags.Ephemeral });
+            return handleFarmCommand(ownerId, interaction); // Refresh the UI
+        }
 
-        
+        if (cid.startsWith('farm_plant_') && !cid.startsWith('farm_plant_seed_') && !cid.startsWith('farm_plant_slot_')) {
+            const ownerId = cid.replace('farm_plant_', '');
+            if (interaction.user.id !== ownerId) return interaction.reply({ content: '❌ Nông trại này không phải của bạn!', flags: MessageFlags.Ephemeral });
+            
+            const p = getPlayer(ownerId);
+            const options = [];
+            for (const [k, v] of Object.entries(p.inventory)) {
+                if (RPG_ITEMS.seeds[k]) {
+                    const seedDef = RPG_ITEMS.seeds[k];
+                    options.push(new StringSelectMenuOptionBuilder()
+                        .setLabel(`${seedDef.name} (SL: ${v})`)
+                        .setValue(`farmseed_${k}`)
+                        .setDescription(`Thời gian lớn: ${Math.ceil(seedDef.growTime/60000)} phút`)
+                        .setEmoji(seedDef.emoji));
+                }
+            }
+            if (options.length === 0) return interaction.reply({ content: '❌ Bạn không có hạt giống nào trong túi! Hãy vào cửa hàng mua.', flags: MessageFlags.Ephemeral });
+            
+            const row = new ActionRowBuilder().addComponents(
+                new StringSelectMenuBuilder()
+                    .setCustomId(`farm_plant_seed_${ownerId}`)
+                    .setPlaceholder('Chọn hạt giống muốn trồng...')
+                    .addOptions(options.slice(0, 25))
+            );
+            return interaction.reply({ content: '🌱 Vui lòng chọn hạt giống muốn gieo:', components: [row], flags: MessageFlags.Ephemeral });
+        }
 
-        
+        if (cid.startsWith('farm_plant_seed_')) {
+            const ownerId = cid.replace('farm_plant_seed_', '');
+            if (interaction.user.id !== ownerId) return interaction.reply({ content: '❌ Hành động không hợp lệ!', flags: MessageFlags.Ephemeral });
+            
+            const seedId = interaction.values[0].replace('farmseed_', '');
+            const p = getPlayer(ownerId);
+            
+            const options = [];
+            for (let i = 1; i <= p.farm.slots; i++) {
+                if (!p.farm.plants[i]) {
+                    options.push(new StringSelectMenuOptionBuilder()
+                        .setLabel(`Ô Đất ${i}`)
+                        .setValue(`farmslot_${i}_${seedId}`)
+                        .setDescription(`Ô đất trống`));
+                }
+            }
+            
+            if (options.length === 0) return interaction.update({ content: '❌ Tất cả các ô đất đều đã được gieo hạt!', components: [] });
+            
+            const row = new ActionRowBuilder().addComponents(
+                new StringSelectMenuBuilder()
+                    .setCustomId(`farm_plant_slot_${ownerId}`)
+                    .setPlaceholder('Chọn ô đất trống...')
+                    .addOptions(options)
+            );
+            return interaction.update({ content: `🌱 Bạn đã chọn ${RPG_ITEMS.seeds[seedId].emoji} **${RPG_ITEMS.seeds[seedId].name}**. Hãy chọn ô đất muốn gieo:`, components: [row] });
+        }
 
-        
+        if (cid.startsWith('farm_plant_slot_')) {
+            const ownerId = cid.replace('farm_plant_slot_', '');
+            if (interaction.user.id !== ownerId) return interaction.reply({ content: '❌ Hành động không hợp lệ!', flags: MessageFlags.Ephemeral });
+            
+            const val = interaction.values[0];
+            const valParts = val.replace('farmslot_', '').split('_');
+            const slot = parseInt(valParts[0]);
+            const seedId = valParts.slice(1).join('_');
+            
+            const p = getPlayer(ownerId);
+            if (!p.inventory[seedId] || p.inventory[seedId] <= 0) return interaction.update({ content: '❌ Bạn đã hết hạt giống này!', components: [] });
+            if (p.farm.plants[slot]) return interaction.update({ content: '❌ Ô đất này đã có cây trồng!', components: [] });
+            
+            updatePlayer(ownerId, dp => {
+                dp.inventory[seedId] -= 1;
+                if (dp.inventory[seedId] <= 0) delete dp.inventory[seedId];
+                dp.farm.plants[slot] = { seed: seedId, plantedAt: Date.now() };
+            });
+            
+            const seedDef = RPG_ITEMS.seeds[seedId];
+            await interaction.update({ content: `✅ Đã gieo ${seedDef.emoji} **${seedDef.name}** vào Ô số ${slot}! Cần ${Math.ceil(seedDef.growTime/60000)} phút để chín.`, components: [] });
+            
+            // To properly refresh without conflict, we fetch a new interaction or send a new message.
+            // Since we updated the previous message, handleFarmCommand needs to just reply or edit the original
+            // However handleFarmCommand takes msgOrInteraction. If we pass interaction, it might try to reply/update again.
+            // Let's just edit the original command message if possible, or send a new ephemeral msg to update.
+            // Using handleFarmCommand(ownerId, interaction) will fail if we already called update().
+            // Wait, I can pass a dummy object to handleFarmCommand and it'll send a new message if it's not a button.
+            // But we already have the UI up there. Instead of auto-refresh, let's leave it to user to hit refresh.
+            return;
+        }
         
         if (interaction.isButton() && (cid.startsWith('invuse_') || cid.startsWith('invsell_') || cid.startsWith('invsellall_'))) {
             const uid = interaction.user.id;
@@ -9062,7 +10427,116 @@ client.on('interactionCreate', async (interaction) => {
             }
 
             // --- NÚt TẠM DỬ NG / TIẾP TỤC ---
-            
+            if (interaction.customId === 'music_toggle') {
+                if (state.paused) {
+                    state.player.unpause();
+                    state.paused = false;
+                } else {
+                    state.player.pause();
+                    state.paused = true;
+                }
+                const song = state.queue[0];
+                const embed = new EmbedBuilder()
+                    .setTitle(state.paused ? '⏸ Đang tạm dừng' : '🎵 Đang phát nhạc')
+                    .setDescription(`**[${song.title}](${song.url})**`)
+                    .addFields(
+                        { name: '⏱ Thời lượng', value: song.duration || 'N/A', inline: true },
+                        { name: '👤 Yêu cầu bởi', value: `<@${song.requestedById}>`, inline: true },
+                        { name: '📋 Hàng đợi', value: `${state.queue.length} bài`, inline: true },
+                        { name: '🔊 Âm lượng', value: `${Math.round(state.volume * 100)}%`, inline: true }
+                    )
+                    .setThumbnail(song.thumbnail)
+                    .setColor(state.paused ? '#FFA500' : '#FF0000')
+                    .setFooter({ text: `🎶 Chỉ <@!${state.djId}> mới điều khiển được${state.loop ? ' | 🔁 Đang lặp' : ''}` });
+                const controls = buildMusicControls(state.paused, state.volume, state.loop);
+                await interaction.update({ embeds: [embed], components: controls });
+            }
+
+            // --- NÚT LẶP BÀI ---
+            else if (interaction.customId === 'music_loop') {
+                state.loop = !state.loop;
+                const song = state.queue[0];
+                const embed = new EmbedBuilder()
+                    .setTitle(state.paused ? '⏸ Đang tạm dừng' : '🎵 Đang phát nhạc')
+                    .setDescription(`**[${song.title}](${song.url})**`)
+                    .addFields(
+                        { name: '⏱ Thời lượng', value: song.duration || 'N/A', inline: true },
+                        { name: '👤 Yêu cầu bởi', value: `<@${song.requestedById}>`, inline: true },
+                        { name: '📋 Hàng đợi', value: `${state.queue.length} bài`, inline: true },
+                        { name: '🔊 Âm lượng', value: `${Math.round(state.volume * 100)}%`, inline: true }
+                    )
+                    .setThumbnail(song.thumbnail)
+                    .setColor(state.paused ? '#FFA500' : '#FF0000')
+                    .setFooter({ text: `🎶 Chỉ <@!${state.djId}> mới điều khiển được${state.loop ? ' | 🔁 Đang lặp' : ''}` });
+                
+                const controls = buildMusicControls(state.paused, state.volume, state.loop);
+                await interaction.update({ embeds: [embed], components: controls });
+                return interaction.followUp({ content: state.loop ? '🔁 Đã BẬT chế độ lặp bài hiện tại!' : '➡ Đã TẮT chế độ lặp bài!', flags: MessageFlags.Ephemeral });
+            }
+
+            // --- NÚt BọO QUA ---
+            else if (interaction.customId === 'music_skip') {
+                await interaction.deferUpdate();
+                state.player.stop();
+                // playNext sẽ tự động chạy qua Idle event
+            }
+
+            // --- NÚt DẮNG HẲN ---
+            else if (interaction.customId === 'music_stop') {
+                state.queue.length = 0;
+                await interaction.update({
+                    embeds: [
+                        new EmbedBuilder()
+                            .setTitle('⏹ Đã dừng nhạc')
+                            .setDescription('Bot đã rời khỏi kênh thoại.')
+                            .setColor('#555555')
+                    ],
+                    components: []
+                }).catch(() => {});
+                state.player.stop();
+                state.connection?.destroy();
+                musicQueues.delete(interaction.guildId);
+            }
+
+            // --- NÚt XEM HÀNG ĐỢI ---
+            else if (interaction.customId === 'music_queue') {
+                if (!state.queue.length) {
+                    return interaction.reply({ content: '📋 Hàng đợi trống!', flags: MessageFlags.Ephemeral });
+                }
+                const queueList = state.queue.slice(0, 10).map((s, i) =>
+                    `${i === 0 ? '▶ **[Đang phát]**' : `${i}.`} [${s.title}](${s.url}) • \`${s.duration || 'N/A'}\``
+                ).join('\n');
+                const embed = new EmbedBuilder()
+                    .setTitle(`📋 Hàng đợi nhạc (${state.queue.length} bài)`)
+                    .setDescription(queueList)
+                    .setColor('#0099ff')
+                    .setFooter({ text: state.queue.length > 10 ? `... và ${state.queue.length - 10} bài nữa` : '​' });
+                return interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
+            }
+
+            // --- NÚT ÂM LƯỢNG ---
+            else if (interaction.customId === 'music_vol_down' || interaction.customId === 'music_vol_up') {
+                const delta = interaction.customId === 'music_vol_up' ? 0.1 : -0.1;
+                state.volume = Math.max(0, Math.min(2.0, state.volume + delta));
+                // Áp dụng ngay lập tức vào AudioResource đang chạy
+                if (state.resource?.volume) {
+                    state.resource.volume.setVolume(state.volume);
+                }
+                const song = state.queue[0];
+                const embed = new EmbedBuilder()
+                    .setTitle(state.paused ? '⏸ Đang tạm dừng' : '🎵 Đang phát nhạc')
+                    .setDescription(`**[${song.title}](${song.url})**`)
+                    .addFields(
+                        { name: '⏱ Thời lượng', value: song.duration || 'N/A', inline: true },
+                        { name: '👤 Yêu cầu bởi', value: `<@${song.requestedById}>`, inline: true },
+                        { name: '📋 Hàng đợi', value: `${state.queue.length} bài`, inline: true },
+                        { name: '🔊 Âm lượng', value: `${Math.round(state.volume * 100)}%`, inline: true }
+                    )
+                    .setThumbnail(song.thumbnail)
+                    .setColor(state.paused ? '#FFA500' : '#FF0000')
+                    .setFooter({ text: `🎶 Chỉ <@!${state.djId}> mới điều khiển được${state.loop ? ' | 🔁 Đang lặp' : ''}` });
+                await interaction.update({ embeds: [embed], components: buildMusicControls(state.paused, state.volume, state.loop) });
+        }
     }
 }
 
@@ -9095,7 +10569,56 @@ client.on('interactionCreate', async (interaction) => {
         return interaction.update({ embeds: [embed], components: [row] }).catch(() => {});
     }
 
-    
+    if (interaction.isButton() && (interaction.customId.startsWith('welcome_edit_') || interaction.customId.startsWith('pokemon_edit_') || interaction.customId.startsWith('rpg_edit_') || interaction.customId.startsWith('pinggame_edit_') || interaction.customId === 'pokemon_send' || interaction.customId === 'rpg_send')) {
+        const config = getGuildConfig(interaction.guildId);
+        
+        if (interaction.customId === 'welcome_edit_basic') {
+            const modal = new ModalBuilder().setCustomId('welcome_edit_basic').setTitle('Sửa Tiêu đề & Nội dung');
+            const titleInput = new TextInputBuilder().setCustomId('title_input').setLabel('Tiêu đề').setStyle(TextInputStyle.Short).setValue(config.welcomeTitle || '').setRequired(false);
+            const messageInput = new TextInputBuilder().setCustomId('message_input').setLabel('Nội dung ({user}, {server})').setStyle(TextInputStyle.Paragraph).setValue(config.welcomeMessage || '').setRequired(false);
+            modal.addComponents(new ActionRowBuilder().addComponents(titleInput), new ActionRowBuilder().addComponents(messageInput));
+            return interaction.showModal(modal);
+        }
+        if (interaction.customId === 'welcome_edit_roles') {
+            const modal = new ModalBuilder().setCustomId('welcome_edit_roles').setTitle('Sửa Role Ping');
+            const rolesInput = new TextInputBuilder().setCustomId('roles_input').setLabel('Tag các role muốn ping (VD: @Role1)').setStyle(TextInputStyle.Short).setValue(config.welcomePingRoles || '').setRequired(false);
+            modal.addComponents(new ActionRowBuilder().addComponents(rolesInput));
+            return interaction.showModal(modal);
+        }
+        if (interaction.customId === 'pokemon_edit_basic') {
+            const modal = new ModalBuilder().setCustomId('pokemon_edit_basic').setTitle('Sửa Tiêu đề & Nội dung Pokemon');
+            const titleInput = new TextInputBuilder().setCustomId('title_input').setLabel('Tiêu đề').setStyle(TextInputStyle.Short).setValue(config.pokemonRoleTitle || '').setRequired(false);
+            const messageInput = new TextInputBuilder().setCustomId('message_input').setLabel('Nội dung hướng dẫn').setStyle(TextInputStyle.Paragraph).setValue(config.pokemonRoleMessage || '').setRequired(false);
+            modal.addComponents(new ActionRowBuilder().addComponents(titleInput), new ActionRowBuilder().addComponents(messageInput));
+            return interaction.showModal(modal);
+        }
+        if (interaction.customId === 'rpg_edit_basic') {
+            const modal = new ModalBuilder().setCustomId('rpg_edit_basic').setTitle('Sửa Tiêu đề & Nội dung RPG');
+            const titleInput = new TextInputBuilder().setCustomId('title_input').setLabel('Tiêu đề').setStyle(TextInputStyle.Short).setValue(config.rpgRoleTitle || '').setRequired(false);
+            const messageInput = new TextInputBuilder().setCustomId('message_input').setLabel('Nội dung hướng dẫn').setStyle(TextInputStyle.Paragraph).setValue(config.rpgRoleMessage || '').setRequired(false);
+            modal.addComponents(new ActionRowBuilder().addComponents(titleInput), new ActionRowBuilder().addComponents(messageInput));
+            return interaction.showModal(modal);
+        }
+        if (interaction.customId === 'pinggame_edit_basic') {
+            const modal = new ModalBuilder().setCustomId('pinggame_edit_basic').setTitle('Sửa Nội dung Ping Game');
+            const defaultContent = `Đây là kênh để ping game trong server\nCách ping là @mention game muốn chơi lên ví dụ như là \`@TFT\` ....\nCảm ơn đã đọc ạ`;
+            const messageInput = new TextInputBuilder().setCustomId('message_input').setLabel('Nội dung Auto-Message').setStyle(TextInputStyle.Paragraph).setValue(config.pingGameMessage || defaultContent).setRequired(true);
+            modal.addComponents(new ActionRowBuilder().addComponents(messageInput));
+            return interaction.showModal(modal);
+        }
+        if (interaction.customId === 'pokemon_send' || interaction.customId === 'rpg_send') {
+            const isPokemon = interaction.customId === 'pokemon_send';
+            const title = isPokemon ? (config.pokemonRoleTitle || '🔔 Đăng Ký Nhận Thông Báo Pokemon') : (config.rpgRoleTitle || '⚔️ Đăng Ký Nhận Thông Báo RPG');
+            const msg = isPokemon ? (config.pokemonRoleMessage || 'Bấm vào nút bên dưới để nhận (hoặc hủy) role **Pokemon**.\nBạn sẽ được thông báo ngay lập tức mỗi khi có Pokemon Huyền Thoại xuất hiện!') : (config.rpgRoleMessage || 'Bấm vào nút bên dưới để nhận (hoặc hủy) role **RPG Player**.\nBạn sẽ được tag mỗi khi Raid Boss xuất hiện để không bỏ lỡ phần thưởng!');
+            const color = isPokemon ? '#FF0000' : '#FFA500';
+            const embed = new EmbedBuilder().setTitle(title).setDescription(msg).setColor(color);
+            const row = new ActionRowBuilder().addComponents(
+                new ButtonBuilder().setCustomId(isPokemon ? 'get_pokemon_role' : 'get_rpg_role').setLabel(isPokemon ? 'Nhận / Hủy Role Pokemon' : 'Nhận / Hủy Role RPG').setStyle(isPokemon ? ButtonStyle.Primary : ButtonStyle.Success).setEmoji(isPokemon ? '🐾' : '⚔️')
+            );
+            await interaction.channel.send({ embeds: [embed], components: [row] });
+            return interaction.message.delete().catch(() => {});
+        }
+    }
 
     // === MODAL SUBMIT ===
     if (interaction.isModalSubmit()) {
@@ -9119,7 +10642,54 @@ client.on('interactionCreate', async (interaction) => {
             return interaction.update({ embeds: [embed], components: [row] }).catch(() => {});
         }
 
-        
+        if (interaction.customId.startsWith('welcome_edit_') || interaction.customId.startsWith('pokemon_edit_') || interaction.customId.startsWith('rpg_edit_') || interaction.customId.startsWith('pinggame_edit_')) {
+            const config = getGuildConfig(interaction.guildId);
+            
+            if (interaction.customId === 'welcome_edit_basic') {
+                const newTitle = interaction.fields.getTextInputValue('title_input');
+                const newMessage = interaction.fields.getTextInputValue('message_input');
+                updateGuildConfig(interaction.guildId, 'welcomeTitle', newTitle || null);
+                updateGuildConfig(interaction.guildId, 'welcomeMessage', newMessage || null);
+            } else if (interaction.customId === 'welcome_edit_roles') {
+                const newRoles = interaction.fields.getTextInputValue('roles_input');
+                updateGuildConfig(interaction.guildId, 'welcomePingRoles', newRoles || null);
+            } else if (interaction.customId === 'pokemon_edit_basic') {
+                const newTitle = interaction.fields.getTextInputValue('title_input');
+                const newMessage = interaction.fields.getTextInputValue('message_input');
+                updateGuildConfig(interaction.guildId, 'pokemonRoleTitle', newTitle || null);
+                updateGuildConfig(interaction.guildId, 'pokemonRoleMessage', newMessage || null);
+            } else if (interaction.customId === 'rpg_edit_basic') {
+                const newTitle = interaction.fields.getTextInputValue('title_input');
+                const newMessage = interaction.fields.getTextInputValue('message_input');
+                updateGuildConfig(interaction.guildId, 'rpgRoleTitle', newTitle || null);
+                updateGuildConfig(interaction.guildId, 'rpgRoleMessage', newMessage || null);
+            } else if (interaction.customId === 'pinggame_edit_basic') {
+                const newMessage = interaction.fields.getTextInputValue('message_input');
+                updateGuildConfig(interaction.guildId, 'pingGameMessage', newMessage || null);
+            }
+            
+            const updatedConfig = getGuildConfig(interaction.guildId);
+            let embed;
+            if (interaction.customId.startsWith('welcome_edit_')) {
+                const title = updatedConfig.welcomeTitle || '🎉 Welcome {user} 🎉';
+                const msg = (updatedConfig.welcomeMessage || 'Chào mừng bạn đến với {server}!');
+                const roles = updatedConfig.welcomePingRoles || 'Mặc định';
+                embed = new EmbedBuilder().setTitle('⚙️ BẢNG ĐIỀU KHIỂN CHÀO MỪNG').setDescription(`✅ Đã cập nhật thành công!\n\n**Bản xem trước dữ liệu:**\n- **Tiêu đề:** ${title}\n- **Nội dung:** ${msg.substring(0, 100)}...\n- **Role Ping:** ${roles}\n\n👇 **Sử dụng các nút bên dưới để tiếp tục tuỳ chỉnh.**`).setColor('#2b2d31');
+            } else if (interaction.customId.startsWith('pokemon_edit_')) {
+                const title = updatedConfig.pokemonRoleTitle || '🔔 Đăng Ký Nhận Thông Báo Pokemon';
+                const msg = updatedConfig.pokemonRoleMessage || 'Bấm vào nút bên dưới để nhận (hoặc hủy) role **Pokemon**.\nBạn sẽ được thông báo ngay lập tức mỗi khi có Pokemon Huyền Thoại xuất hiện!';
+                embed = new EmbedBuilder().setTitle('⚙️ BẢNG ĐIỀU KHIỂN POKEMON').setDescription(`✅ Đã cập nhật thành công!\n\n**Bản xem trước dữ liệu:**\n- **Tiêu đề:** ${title}\n- **Nội dung:** ${msg.substring(0, 100)}...\n\n👇 **Kiểm tra xem trước, sau đó bấm Gửi để đăng bảng!**`).setColor('#FF0000');
+            } else if (interaction.customId.startsWith('rpg_edit_')) {
+                const title = updatedConfig.rpgRoleTitle || '⚔️ Đăng Ký Nhận Thông Báo RPG';
+                const msg = updatedConfig.rpgRoleMessage || 'Bấm vào nút bên dưới để nhận (hoặc hủy) role **RPG Player**.\nBạn sẽ được tag mỗi khi Raid Boss xuất hiện để không bỏ lỡ phần thưởng!';
+                embed = new EmbedBuilder().setTitle('⚙️ BẢNG ĐIỀU KHIỂN RPG').setDescription(`✅ Đã cập nhật thành công!\n\n**Bản xem trước dữ liệu:**\n- **Tiêu đề:** ${title}\n- **Nội dung:** ${msg.substring(0, 100)}...\n\n👇 **Kiểm tra xem trước, sau đó bấm Gửi để đăng bảng!**`).setColor('#FFA500');
+            } else if (interaction.customId.startsWith('pinggame_edit_')) {
+                const msg = updatedConfig.pingGameMessage || 'Nội dung mặc định';
+                embed = new EmbedBuilder().setTitle('⚙️ BẢNG ĐIỀU KHIỂN PING GAME').setDescription(`✅ Đã cập nhật thành công!\n\n**Bản xem trước dữ liệu:**\n- **Nội dung:** ${msg.substring(0, 100)}...\n\n👇 **Sử dụng các nút bên dưới để tiếp tục tuỳ chỉnh.**`).setColor('#3498DB');
+            }
+                
+            return interaction.update({ embeds: [embed] }).catch(() => {});
+        }
 
         if (interaction.customId === 'j2c_name_modal') {
             const newName = interaction.fields.getTextInputValue('new_name');
@@ -9256,9 +10826,99 @@ client.on('interactionCreate', async (interaction) => {
             await interaction.update({ embeds: [embed], components: buildBankButtons(ownerId) });
             return interaction.followUp({ content: `✅ Đã rút **${finalAmount.toLocaleString()} 🪙** về ví tiền mặt thành công!`, flags: MessageFlags.Ephemeral });
         }
-        
+        if (interaction.customId.startsWith('craft_buy_modal_')) {
+            const itemId = interaction.customId.replace('craft_buy_modal_', '');
+            const amountStr = interaction.fields.getTextInputValue('craft_amount_input').trim();
+            const amount = parseInt(amountStr);
+            
+            if (isNaN(amount) || amount <= 0) {
+                return interaction.reply({ content: '❌ Số lượng không hợp lệ! Vui lòng nhập số lớn hơn 0.', flags: MessageFlags.Ephemeral });
+            }
+            
+            const recipe = CRAFTING_RECIPES[itemId];
+            if (!recipe) return interaction.reply({ content: '❌ Món đồ không tồn tại!', flags: MessageFlags.Ephemeral });
+            
+            const userId = interaction.user.id;
+            const p = getPlayer(userId);
+            
+            const totalCoin = recipe.coin * amount;
+            if (getUserCoins(userId) < totalCoin) {
+                return interaction.reply({ content: `❌ Bạn không đủ tiền! Cần **${totalCoin.toLocaleString()} 🪙** để rèn ${amount} món này.`, flags: MessageFlags.Ephemeral });
+            }
+            
+            for (const [mat, qty] of Object.entries(recipe.req)) {
+                const totalMatReq = qty * amount;
+                if (!p.inventory[mat] || p.inventory[mat] < totalMatReq) {
+                    const matDef = RPG_ITEMS.materials[mat];
+                    return interaction.reply({ content: `❌ Bạn thiếu **${matDef.emoji} ${matDef.name}** (Cần ${totalMatReq}, có ${p.inventory[mat] || 0}).`, flags: MessageFlags.Ephemeral });
+                }
+            }
+            
+            addCoins(userId, -totalCoin);
+            updatePlayer(userId, dp => {
+                for (const [mat, qty] of Object.entries(recipe.req)) {
+                    dp.inventory[mat] -= (qty * amount);
+                    if (dp.inventory[mat] <= 0) delete dp.inventory[mat];
+                }
+                dp.inventory[itemId] = (dp.inventory[itemId] || 0) + amount;
+                if (amount === 1) { // Only auto-equip if crafting 1
+                    if (recipe.type === 'weapon') dp.weapon = itemId;
+                    else if (recipe.type === 'armor') dp.armor = itemId;
+                    else if (recipe.type === 'artifact') dp.artifact = itemId;
+                }
+            });
+            
+            const embed = new EmbedBuilder()
+                .setTitle('🛠️ Chế Tạo Thành Công!')
+                .setDescription(`Bạn đã rèn thành công **${amount}x ${recipe.emoji} ${recipe.name}**!\nTổng chi phí: **${totalCoin.toLocaleString()} 🪙**`)
+                .setColor('#F1C40F');
+                
+            return interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
+        }
 
-        
+        if (interaction.customId.startsWith('shop_buy_modal_')) {
+            const parts = interaction.customId.replace('shop_buy_modal_', '').split('_');
+            const type = parts[0];
+            const itemCode = parts.slice(1).join('_');
+            
+            const amountStr = interaction.fields.getTextInputValue('buy_amount_input').trim();
+            const amount = parseInt(amountStr);
+            if (isNaN(amount) || amount <= 0) {
+                return interaction.reply({ content: '❌ Số lượng không hợp lệ! Vui lòng nhập số nguyên lớn hơn 0.', flags: MessageFlags.Ephemeral });
+            }
+            
+            let item;
+            if (type === 'ring') item = MARRY_RINGS[itemCode];
+            else if (type === 'potion') item = RPG_ITEMS.potions[itemCode];
+            else if (type === 'pokeball') item = RPG_ITEMS.pokeballs[itemCode];
+            else if (type === 'seed') item = RPG_ITEMS.seeds[itemCode];
+            else if (type === 'tool') item = RPG_ITEMS.tools[itemCode];
+            
+            if (!item) return interaction.reply({ content: '❌ Món đồ không tồn tại!', flags: MessageFlags.Ephemeral });
+            
+            const totalCost = item.price * amount;
+            const coins = getUserCoins(interaction.user.id);
+            
+            if (coins < totalCost) {
+                return interaction.reply({ content: `❌ Bạn không đủ tiền! Cần **${totalCost.toLocaleString()} 🪙** để mua ${amount}x ${item.name}.`, flags: MessageFlags.Ephemeral });
+            }
+            
+            addCoins(interaction.user.id, -totalCost);
+            
+            updatePlayer(interaction.user.id, p => {
+                if (type === 'ring') {
+                    if (!p.rings) p.rings = {};
+                    p.rings[itemCode] = (p.rings[itemCode] || 0) + amount;
+                } else {
+                    p.inventory[itemCode] = (p.inventory[itemCode] || 0) + amount;
+                }
+            });
+            
+            let msgContent = `✅ Bạn đã mua **${amount}x ${item.emoji} ${item.name}** thành công! Đã trừ **${totalCost.toLocaleString()} 🪙**.\nSố dư: **${getUserCoins(interaction.user.id).toLocaleString()} 🪙**`;
+            if (type === 'ring') msgContent += `\n> Dùng lệnh \`/marry\` để cầu hôn với nhẫn này!`;
+            
+            return interaction.reply({ content: msgContent, flags: MessageFlags.Ephemeral });
+        }
     }
 
     // === SLASH COMMANDS ===
