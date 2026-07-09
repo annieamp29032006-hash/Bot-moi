@@ -5033,11 +5033,11 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
 
         if (oldChannelId !== newChannelId) {
             if (oldChannelId) {
-                
+                const session = voiceJoinTimes.get(userId);
                 if (session) {
                     const joinTime = typeof session === 'number' ? session : session.time;
                     const diffSecs = (Date.now() - joinTime) / 1000;
-                    updatePlayer(userId, p => { p.voiceTime = (p.voiceTime || 0) + diffSecs; });
+                    /* updatePlayer(userId, p => { p.voiceTime = (p.voiceTime || 0) + diffSecs; }); */
                     
                     const diffMins = Math.floor(diffSecs / 60);
                     if (diffMins > 0) {
