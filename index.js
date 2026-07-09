@@ -5428,9 +5428,9 @@ client.on('messageCreate', async (message) => {
         }
     }
 
-    updatePlayer(message.author.id, p => {
+    /* updatePlayer(message.author.id, p => {
         p.messageCount = (p.messageCount || 0) + 1;
-    });
+    }); */
 
     // --- INTERACTION LEVELING ---
     const levelData = loadLevels();
