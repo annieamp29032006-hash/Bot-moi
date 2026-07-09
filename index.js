@@ -299,19 +299,16 @@ function buildHelpMenu() {
         .setPlaceholder('📂 Chọn danh mục muốn xem...')
         .addOptions(
             new StringSelectMenuOptionBuilder().setLabel('📖 Tổng quan').setValue('0').setDescription('Tất cả tính năng một cái nhìn').setEmoji('📖'),
-            new StringSelectMenuOptionBuilder().setLabel('🎵 Nhạc').setValue('1').setDescription('YouTube, Spotify, SoundCloud').setEmoji('🎵'),
-            new StringSelectMenuOptionBuilder().setLabel('💰 Coin & Game').setValue('2').setDescription('Daily, Work, Cờ bạc, Nối từ VN & EN').setEmoji('💰'),
-            new StringSelectMenuOptionBuilder().setLabel('🏦 Ngân Hàng').setValue('3').setDescription('Bank, Đầu tư, Cướp bank').setEmoji('🏦'),
-            new StringSelectMenuOptionBuilder().setLabel('⚔️ RPG Cơ Bản').setValue('4').setDescription('Săn quái, Pokemon, Shop').setEmoji('⚔️'),
-            new StringSelectMenuOptionBuilder().setLabel('🏰 RPG Nâng Cao').setValue('5').setDescription('Dungeon, PvP, Quest, Class').setEmoji('🏰'),
-            new StringSelectMenuOptionBuilder().setLabel('💍 Kết Hôn').setValue('6').setDescription('Nhẫn, Cầu hôn, Ly hôn').setEmoji('💍'),
-            new StringSelectMenuOptionBuilder().setLabel('💘 Lễ Đường').setValue('7').setDescription('Thính, Bói tình yêu, Cầu duyên').setEmoji('💘'),
-            new StringSelectMenuOptionBuilder().setLabel('🐺 Ma Sói').setValue('8').setDescription('Game đối kháng nhóm').setEmoji('🐺'),
-            new StringSelectMenuOptionBuilder().setLabel('📱 Tiện Ích').setValue('9').setDescription('Avatar, TikTok, J2C, Voice').setEmoji('📱'),
-            new StringSelectMenuOptionBuilder().setLabel('⛓️ Tù & LĐXH').setValue('10').setDescription('Jail, Unjail, Cải tạo').setEmoji('⛓️'),
-            new StringSelectMenuOptionBuilder().setLabel('🔧 Admin: Quản lý').setValue('11').setDescription('Coin, Server, QR').setEmoji('🔧'),
-            new StringSelectMenuOptionBuilder().setLabel('⚙️ Admin: Hệ thống').setValue('12').setDescription('Giveaway, Cheat, Emoji').setEmoji('⚙️'),
-            new StringSelectMenuOptionBuilder().setLabel('👑 Hệ Thống (Developer)').setValue('13').setDescription('Lệnh riêng biệt của Chủ Bot').setEmoji('👑')
+            new StringSelectMenuOptionBuilder().setLabel('💰 Coin & Game').setValue('1').setDescription('Daily, Work, Cờ bạc, Nối từ VN & EN').setEmoji('💰'),
+            new StringSelectMenuOptionBuilder().setLabel('🏦 Ngân Hàng').setValue('2').setDescription('Bank, Đầu tư, Cướp bank').setEmoji('🏦'),
+            new StringSelectMenuOptionBuilder().setLabel('💍 Kết Hôn').setValue('3').setDescription('Nhẫn, Cầu hôn, Ly hôn').setEmoji('💍'),
+            new StringSelectMenuOptionBuilder().setLabel('💘 Lễ Đường').setValue('4').setDescription('Thính, Bói tình yêu, Cầu duyên').setEmoji('💘'),
+            new StringSelectMenuOptionBuilder().setLabel('🐺 Ma Sói').setValue('5').setDescription('Game đối kháng nhóm').setEmoji('🐺'),
+            new StringSelectMenuOptionBuilder().setLabel('📱 Tiện Ích').setValue('6').setDescription('Avatar, TikTok, J2C, Voice').setEmoji('📱'),
+            new StringSelectMenuOptionBuilder().setLabel('⛓️ Tù & LĐXH').setValue('7').setDescription('Jail, Unjail, Cải tạo').setEmoji('⛓️'),
+            new StringSelectMenuOptionBuilder().setLabel('🔧 Admin: Quản lý').setValue('8').setDescription('Coin, Server, QR').setEmoji('🔧'),
+            new StringSelectMenuOptionBuilder().setLabel('⚙️ Admin: Hệ thống').setValue('9').setDescription('Giveaway, Cheat, Emoji').setEmoji('⚙️'),
+            new StringSelectMenuOptionBuilder().setLabel('👑 Hệ Thống (Developer)').setValue('10').setDescription('Lệnh riêng biệt của Chủ Bot').setEmoji('👑')
         );
 }
 
@@ -6452,11 +6449,11 @@ Bao gồm:
         });
         collector.on('collect', async i => {
             const page = parseInt(i.values[0]);
-            if (page === 13) {
+            if (page === 10) {
                 await i.update({ embeds: [pages[page]], components: [row] });
                 return;
             }
-            if (page === 11 || page === 12) {
+            if (page === 8 || page === 9) {
                 // Trang Admin: chỉ Admin mới được xem, hiển thị ẩn
                 const isAdmin = i.member?.permissions?.has(PermissionsBitField.Flags.Administrator);
                 if (!isAdmin) {
@@ -9299,11 +9296,11 @@ client.on('interactionCreate', async (interaction) => {
         });
         collector.on('collect', async i => {
             const page = parseInt(i.values[0]);
-            if (page === 13) {
+            if (page === 10) {
                 await i.update({ embeds: [pages[page]], components: [row] });
                 return;
             }
-            if (page === 11 || page === 12) {
+            if (page === 8 || page === 9) {
                 // Trang Admin: chỉ Admin mới được xem, hiển thị ẩn
                 const isAdmin = i.member?.permissions?.has(PermissionsBitField.Flags.Administrator);
                 if (!isAdmin) {
