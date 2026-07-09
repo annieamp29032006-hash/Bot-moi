@@ -5918,7 +5918,7 @@ client.on('messageCreate', async (message) => {
         
         const embed = new EmbedBuilder()
             .setTitle('⚠️ THÔNG BÁO HỆ THỐNG ⚠️')
-            .setDescription('🤖 **Bot sẽ tiến hành bảo trì và tạm thời OFFLINE trong 2 tiếng.**\n\nTrong thời gian này, các lệnh và tính năng của bot sẽ không hoạt động.\nMong các bạn thông cảm và quay lại sau khi quá trình bảo trì hoàn tất nhé! 🙏')
+            .setDescription('🤖 **Đúng 2 tiếng nữa, Bot sẽ bắt đầu bảo trì và tạm thời OFFLINE.**\n\nTrong thời gian này, các lệnh và tính năng của bot sẽ không hoạt động.\nMong các bạn thông cảm và quay lại sau khi quá trình bảo trì hoàn tất nhé! 🙏')
             .setColor('#FF0000')
             .setThumbnail(client.user.displayAvatarURL())
             .setFooter({ text: 'Hệ thống Quản trị Bot' })
