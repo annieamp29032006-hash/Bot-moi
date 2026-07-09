@@ -27,7 +27,6 @@ const spamTracker = new Map(); // Lưu: { userId: [{ content, timestamp }] }
 const BANNED_USERS = ['1141650026049830963'];
 
 // Chỉ định đường dẫn FFmpeg cho prism-media (dùng cho @discordjs/voice)
-process.env.FFMPEG_PATH = ffmpegPath;
 
 // Đường dẫn tới yt-dlp (cross-platform)
 const YTDLP_PATH = path.join(__dirname, process.platform === 'win32' ? 'yt-dlp.exe' : 'yt-dlp');
