@@ -4552,7 +4552,7 @@ async function handleLeave(msgOrInteraction) {
 
 async function handleJoin(msgOrInteraction) {
     const member = msgOrInteraction.member;
-    const voiceChannel = member.voice.channel;
+    const voiceChannel = member?.voice?.channel;
     if (!voiceChannel) return replyMsg(msgOrInteraction, '❌ Bạn phải ở trong một voice channel trước!');
     const state = getQueue(msgOrInteraction.guildId);
     state.connection = joinVoiceChannel({
