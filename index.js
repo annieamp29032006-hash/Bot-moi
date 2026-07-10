@@ -133,7 +133,7 @@ function buildHelpPages(prefix) {
         // Page 0 - Tổng quan
         new EmbedBuilder()
             .setTitle('🌟 TỔNG QUAN HỆ THỐNG NEXORA')
-            .setDescription(`Chào mừng bạn đến với **Nexora Bot** ✨\nMột trợ lý đa năng, hiện đại và tối ưu hóa cho cộng đồng của bạn.\n\n\`\`\`🚀 Prefix hiện tại: ${prefix} (Hoặc dùng lệnh Slash /)\`\`\`\n\n📌 **Hướng dẫn:** Vui lòng chọn các danh mục bên dưới qua menu thả xuống để khám phá các tính năng của bot.`)
+            .setDescription(`Chào mừng bạn đến với **Lavie Bot** ✨\nMột trợ lý đa năng, hiện đại và tối ưu hóa cho cộng đồng của bạn.\n\n\`\`\`🚀 Prefix hiện tại: ${prefix} (Hoặc dùng lệnh Slash /)\`\`\`\n\n📌 **Hướng dẫn:** Vui lòng chọn các danh mục bên dưới qua menu thả xuống để khám phá các tính năng của bot.`)
             .addFields(
                 { name: '🎮 Giải Trí & Kinh Tế', value: '> Cày coin, Ngân hàng, Minigame', inline: true },
                 { name: '💕 Xã Hội & Tương Tác', value: '> Kết hôn, Lễ đường, Voice J2C', inline: true },
@@ -509,7 +509,7 @@ function buildBankEmbed(user) {
         .setColor('#00ffcc')
         .setThumbnail(user.displayAvatarURL())
         .setTimestamp()
-        .setFooter({ text: 'Hệ thống Ngân hàng Nexora ❄️' });
+        .setFooter({ text: 'Hệ thống Ngân hàng Lavie ❄️' });
 }
 
 function buildBankButtons(ownerId) {
@@ -4029,13 +4029,13 @@ const greetingResponses = [
     "Meow meow, chào đằng ấy nha! 🐾",
     "Xin chào người đẹp! Chúc cậu một ngày đầy nắng và tiếng cười! ✨",
     "Uwaaa, gặp được cậu ở đây thật là dui quá đi! (≧◡≦) ♡",
-    "Bíp bíp! Bot Nexora xin gửi đến bạn một cái ôm ấm áp! 🤗",
+    "Bíp bíp! Bot Lavie xin gửi đến bạn một cái ôm ấm áp! 🤗",
     
     // Nghiêm túc / Lịch sự
     "Xin chào bạn. Tôi có thể giúp gì cho bạn hôm nay?",
     "Chào bạn! Chúc bạn một ngày làm việc và học tập hiệu quả.",
     "Kính chào quý khách. Rất hân hạnh được phục vụ.",
-    "Xin chào. Hệ thống Nexora Bot luôn sẵn sàng hỗ trợ bạn.",
+    "Xin chào. Hệ thống Lavie Bot luôn sẵn sàng hỗ trợ bạn.",
     
     // Ngầu / Lạnh lùng
     "Chào. Có việc gì không?",
@@ -4051,7 +4051,7 @@ const greetingResponses = [
 ];
 
 const autoReplies = {
-    'nexora': `Nexora chào bạn ạ, bạn cần làm code bot custom cho server liên hệ với <@${ADMIN_ID}> . Cảm ơn bạn ạ`
+    'lavie': `Lavie chào bạn ạ, bạn cần làm code bot custom cho server liên hệ với <@${ADMIN_ID}> . Cảm ơn bạn ạ`
 };
 
 // ========================
@@ -4626,39 +4626,39 @@ client.once('clientReady', async () => {
     
     // Đổi tên và biệt danh tự động
     try {
-        if (client.user.username !== 'Nexora') {
-            await client.user.setUsername('Nexora').catch(() => console.log('Không thể đổi username (có thể do rate limit)'));
+        if (client.user.username !== 'Lavie') {
+            await client.user.setUsername('Lavie').catch(() => console.log('Không thể đổi username (có thể do rate limit)'));
         }
         for (const guild of client.guilds.cache.values()) {
             const botMember = await guild.members.fetchMe().catch(() => null);
-            if (botMember && botMember.nickname !== 'Nexora') {
-                await botMember.setNickname('Nexora').catch(() => {});
+            if (botMember && botMember.nickname !== 'Lavie') {
+                await botMember.setNickname('Lavie').catch(() => {});
             }
         }
-        console.log('✅ Đã cập nhật tên và biệt danh thành Nexora trên toàn bộ server!');
+        console.log('✅ Đã cập nhật tên và biệt danh thành Lavie trên toàn bộ server!');
     } catch (e) {}
     
     const statuses = [
-        "🤖 Nexora | Đồng hành cùng Tuyển sinh UTEHY K26 💙",
-        "💙 Nexora • Welcome to UTEHY Admissions 2026",
-        "🎓 Nexora | Chào mừng K26 đến với UTEHY!",
-        "📚 Nexora | Hỗ trợ tuyển sinh UTEHY 24/7",
-        "🌸 Nexora • Your UTEHY Admissions Assistant",
-        "✨ Nexora | Future Starts Here",
-        "🚀 Nexora • Cùng bạn chinh phục UTEHY K26",
-        "💬 Nexora | Hỏi gì cũng biết về tuyển sinh!",
-        "🎯 Nexora • Đồng hành cùng sĩ tử 2026",
-        "📩 Nexora | Luôn sẵn sàng hỗ trợ bạn",
-        "💙 Nexora • Kết nối ước mơ đến UTEHY",
-        "🎓 Nexora | Admissions Made Easy",
-        "🌟 Nexora • Chào đón Tân sinh viên K26",
-        "📖 Nexora | Tuyển sinh UTEHY 2026",
-        "🚀 Nexora • Your Journey Begins Here",
-        "💙 Nexora | Vì một K26 rực rỡ",
-        "✨ Nexora • Let's Join UTEHY Together",
-        "🎉 Nexora | Welcome Future UTEHY Students",
-        "🌈 Nexora • Nơi mọi câu hỏi đều có lời giải",
-        "🤖 Nexora | Luôn bên bạn trên hành trình vào UTEHY"
+        "🤖 Lavie | Đồng hành cùng Tuyển sinh UTEHY K26 💙",
+        "💙 Lavie • Welcome to UTEHY Admissions 2026",
+        "🎓 Lavie | Chào mừng K26 đến với UTEHY!",
+        "📚 Lavie | Hỗ trợ tuyển sinh UTEHY 24/7",
+        "🌸 Lavie • Your UTEHY Admissions Assistant",
+        "✨ Lavie | Future Starts Here",
+        "🚀 Lavie • Cùng bạn chinh phục UTEHY K26",
+        "💬 Lavie | Hỏi gì cũng biết về tuyển sinh!",
+        "🎯 Lavie • Đồng hành cùng sĩ tử 2026",
+        "📩 Lavie | Luôn sẵn sàng hỗ trợ bạn",
+        "💙 Lavie • Kết nối ước mơ đến UTEHY",
+        "🎓 Lavie | Admissions Made Easy",
+        "🌟 Lavie • Chào đón Tân sinh viên K26",
+        "📖 Lavie | Tuyển sinh UTEHY 2026",
+        "🚀 Lavie • Your Journey Begins Here",
+        "💙 Lavie | Vì một K26 rực rỡ",
+        "✨ Lavie • Let's Join UTEHY Together",
+        "🎉 Lavie | Welcome Future UTEHY Students",
+        "🌈 Lavie • Nơi mọi câu hỏi đều có lời giải",
+        "🤖 Lavie | Luôn bên bạn trên hành trình vào UTEHY"
     ];
     let statusIndex = 0;
     setInterval(() => {
@@ -5003,7 +5003,7 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
         if (newState.channelId && oldState.channelId !== newState.channelId) {
             try {
                 await client.rest.put(`/channels/${newState.channelId}/voice-status`, {
-                    body: { status: 'Nexora tới đâyyy 💕 (✿◡‿◡)' }
+                    body: { status: 'Lavie tới đâyyy 💕 (✿◡‿◡)' }
                 });
             } catch (error) {
                 // Ignore if missing permissions
@@ -5022,7 +5022,7 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
             try {
                 const imgPath = 'C:\\Users\\ADMIN\\.gemini\\antigravity-ide\\brain\\3dc1e042-00bf-48ef-8b3d-beb74a248c25\\god_arrival_1781495845667.png';
                 const embed = new EmbedBuilder()
-                    .setDescription(`👑 **Dev Nexora** <@${ADMIN_ID}> đã vào phòng **${newState.channel.name}**!`)
+                    .setDescription(`👑 **Dev Lavie** <@${ADMIN_ID}> đã vào phòng **${newState.channel.name}**!`)
                     .setColor('#FFD700')
                     .setTimestamp();
 
