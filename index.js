@@ -2018,16 +2018,17 @@ async function handlePetBattle(userId, targetId, bet, msgOrInteraction) {
 
 async function handleTrivia(userId, msgOrInteraction) {
     const questionData = TRIVIA_LIST[Math.floor(Math.random() * TRIVIA_LIST.length)];
+    const gameId = Date.now().toString();
     
     const embed = new EmbedBuilder()
-        .setTitle('🧠 Đố Vui Có Thưởng!')
-        .setDescription(`**Câu hỏi:** ${questionData.question}\n\nBạn có 15 giây để chọn đáp án đúng! Thưởng: **${questionData.reward} ĐT**`)
+        .setTitle('🧠 Đố Vui Tập Thể!')
+        .setDescription(`**Câu hỏi:** ${questionData.question}\n\nMọi người có **30 giây** để chọn đáp án đúng! Phần thưởng: **${questionData.reward} ĐT**`)
         .setColor('#9B59B6');
         
     const labels = ['A', 'B', 'C', 'D'];
     const buttons = questionData.answers.map((ans, index) => {
         return new ButtonBuilder()
-            .setCustomId(`trivia_${index}_${userId}_${Date.now()}`)
+            .setCustomId(`trivia_${index}_${gameId}`)
             .setLabel(`${labels[index]}. ${ans}`)
             .setStyle(ButtonStyle.Primary);
     });
@@ -2046,49 +2047,61 @@ async function handleTrivia(userId, msgOrInteraction) {
         msg = await msgOrInteraction.channel.send({ embeds: [embed], components: [row] });
     }
     
-    const filter = i => i.customId.startsWith('trivia_') && i.customId.includes(userId);
-    const collector = msg.createMessageComponentCollector({ filter, time: 15000, max: 1 });
+    const filter = i => i.customId.startsWith('trivia_') && i.customId.includes(gameId);
+    const collector = msg.createMessageComponentCollector({ filter, time: 30000 });
+    
+    const answeredUsers = new Map();
     
     collector.on('collect', async i => {
-        if (i.user.id !== userId) return i.reply({ content: '❌ Đây không phải câu đố của bạn!', flags: MessageFlags.Ephemeral });
+        if (answeredUsers.has(i.user.id)) {
+            return i.reply({ content: '❌ Bạn đã chọn đáp án rồi, không thể đổi lại!', flags: MessageFlags.Ephemeral });
+        }
         
         const parts = i.customId.split('_');
         const selectedIndex = parseInt(parts[1]);
         
+        answeredUsers.set(i.user.id, selectedIndex);
+        await i.reply({ content: `✅ Bạn đã khóa đáp án **${labels[selectedIndex]}**! Hãy chờ hết giờ để xem kết quả.`, flags: MessageFlags.Ephemeral });
+    });
+    
+    collector.on('end', () => {
         const disabledRow = new ActionRowBuilder().addComponents(
             buttons.map((b, idx) => {
                 const btn = ButtonBuilder.from(b).setDisabled(true);
                 if (idx === questionData.correctIndex) btn.setStyle(ButtonStyle.Success);
-                else if (idx === selectedIndex) btn.setStyle(ButtonStyle.Danger);
                 return btn;
             })
         );
         
-        if (selectedIndex === questionData.correctIndex) {
-            updatePlayer(userId, p => {
-                p.coins += questionData.reward;
-            });
-            embed.setColor('#2ECC71').setDescription(`**Câu hỏi:** ${questionData.question}\n\n✅ **CHÍNH XÁC!** Bạn đã chọn đúng đáp án **${labels[questionData.correctIndex]}** và nhận được **${questionData.reward} ĐT**!`);
+        const winners = [];
+        
+        answeredUsers.forEach((selectedIndex, uId) => {
+            if (selectedIndex === questionData.correctIndex) {
+                winners.push(`<@${uId}>`);
+                updatePlayer(uId, p => {
+                    p.coins += questionData.reward;
+                });
+            }
+        });
+        
+        let resultMsg = `**Câu hỏi:** ${questionData.question}\n\n⏰ **HẾT GIỜ!** Đáp án đúng là **${labels[questionData.correctIndex]}**.\n\n`;
+        
+        if (winners.length > 0) {
+            embed.setColor('#2ECC71');
+            resultMsg += `🎉 **Chúc mừng những người trả lời đúng nhận được ${questionData.reward} ĐT:**\n${winners.join(', ')}`;
         } else {
-            embed.setColor('#E74C3C').setDescription(`**Câu hỏi:** ${questionData.question}\n\n❌ **SAI RỒI!** Đáp án đúng là **${labels[questionData.correctIndex]}**. Chúc bạn may mắn lần sau!`);
+            embed.setColor('#E74C3C');
+            if (answeredUsers.size === 0) {
+                resultMsg += `😢 Không có ai tham gia trả lời.`;
+            } else {
+                resultMsg += `😢 Rất tiếc, không có ai trả lời đúng!`;
+            }
         }
         
-        await i.update({ embeds: [embed], components: [disabledRow] });
-    });
-    
-    collector.on('end', collected => {
-        if (collected.size === 0) {
-            const disabledRow = new ActionRowBuilder().addComponents(
-                buttons.map((b, idx) => {
-                    const btn = ButtonBuilder.from(b).setDisabled(true);
-                    if (idx === questionData.correctIndex) btn.setStyle(ButtonStyle.Success);
-                    return btn;
-                })
-            );
-            embed.setColor('#95A5A6').setDescription(`**Câu hỏi:** ${questionData.question}\n\n⏰ **HẾT GIỜ!** Bạn đã không đưa ra câu trả lời. Đáp án đúng là **${labels[questionData.correctIndex]}**.`);
-            if (msgOrInteraction.editReply) msgOrInteraction.editReply({ embeds: [embed], components: [disabledRow] }).catch(()=>{});
-            else if (msg.edit) msg.edit({ embeds: [embed], components: [disabledRow] }).catch(()=>{});
-        }
+        embed.setDescription(resultMsg);
+        
+        if (msgOrInteraction.editReply) msgOrInteraction.editReply({ embeds: [embed], components: [disabledRow] }).catch(()=>{});
+        else if (msg.edit) msg.edit({ embeds: [embed], components: [disabledRow] }).catch(()=>{});
     });
 }
 
