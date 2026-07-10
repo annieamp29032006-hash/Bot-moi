@@ -9061,6 +9061,41 @@ client.on('interactionCreate', async (interaction) => {
 
     // === MODAL SUBMIT ===
     if (interaction.isModalSubmit()) {
+        if (interaction.customId.startsWith('shop_buy_modal_')) {
+            const parts = interaction.customId.split('_');
+            const type = parts[3];
+            const itemCode = parts.slice(4).join('_');
+            
+            const amountStr = interaction.fields.getTextInputValue('buy_amount_input');
+            const amount = parseInt(amountStr);
+            if (isNaN(amount) || amount <= 0) {
+                return interaction.reply({ content: '❌ Số lượng không hợp lệ!', flags: MessageFlags.Ephemeral });
+            }
+            
+            let item;
+            if (type === 'pokeball') item = RPG_ITEMS.pokeballs[itemCode];
+            else if (type === 'seed') item = RPG_ITEMS.seeds?.[itemCode];
+            else if (type === 'tool') item = RPG_ITEMS.tools?.[itemCode];
+            
+            if (!item) return interaction.reply({ content: '❌ Mã món đồ không tồn tại!', flags: MessageFlags.Ephemeral });
+            
+            const totalCost = item.price * amount;
+            const uid = interaction.user.id;
+            
+            if (getUserCoins(uid) < totalCost) {
+                return interaction.reply({ content: `❌ Bạn không đủ Coin! (Cần ${totalCost.toLocaleString()} 🪙)`, flags: MessageFlags.Ephemeral });
+            }
+            
+            addCoins(uid, -totalCost);
+            updatePlayer(uid, p => {
+                if (!p.inventory) p.inventory = {};
+                p.inventory[itemCode] = (p.inventory[itemCode] || 0) + amount;
+            });
+            
+            trackQuestProgress(uid, 'buy', amount);
+            return interaction.reply({ content: `✅ Bạn đã mua **${amount}x ${item.emoji || ''} ${item.name}** thành công! Số dư: **${getUserCoins(uid).toLocaleString()} 🪙**`, flags: MessageFlags.Ephemeral });
+        }
+
         if (interaction.customId === 'set1ar_edit_command_modal') {
             const newCmd = interaction.fields.getTextInputValue('cmd_input').toLowerCase().trim();
             updateGuildConfig(interaction.guildId, 'arCommandText', newCmd);
