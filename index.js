@@ -1103,7 +1103,7 @@ function loadRaid() {
 }
 function saveRaid(data) { fs.writeFileSync(raidPath, JSON.stringify(data, null, 2)); }
 
-const rpgPath = './rpg.json';
+
 function loadRPG() {
     if (!fs.existsSync(rpgPath)) return {};
     try { return JSON.parse(fs.readFileSync(rpgPath, 'utf8')); } catch { return {}; }
