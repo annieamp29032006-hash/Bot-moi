@@ -3390,18 +3390,18 @@ const QUE_TINH_DUYEN = [
 ];
 
 const MARRY_RINGS = {
-    'grass': { name: 'Nhẫn Cỏ Dại', price: 500000, emoji: '🌿' },
-    'silver': { name: 'Nhẫn Bạc Thô', price: 2000000, emoji: '🥈' },
-    'gold': { name: 'Nhẫn Vàng Cổ Điển', price: 10000000, emoji: '🥇' },
-    'ruby': { name: 'Nhẫn Hồng Ngọc Đam Mê', price: 25000000, emoji: '💖' },
-    'sapphire': { name: 'Nhẫn Lam Ngọc Thuỷ Chung', price: 50000000, emoji: '💙' },
-    'emerald': { name: 'Nhẫn Ngọc Lục Bảo Hy Vọng', price: 80000000, emoji: '💚' },
-    'diamond': { name: 'Nhẫn Kim Cương Lấp Lánh', price: 150000000, emoji: '💎' },
-    'amethyst': { name: 'Nhẫn Tử Tinh Mộng Mơ', price: 300000000, emoji: '💜' },
-    'obsidian': { name: 'Nhẫn Hắc Diện Thạch Bí Ẩn', price: 500000000, emoji: '🖤' },
-    'infinity': { name: 'Nhẫn Quyền Năng Vô Cực', price: 800000000, emoji: '👑' },
-    'eternal': { name: 'Nhẫn Tình Yêu Vĩnh Cửu', price: 1500000000, emoji: '💞' },
-    'celestial': { name: 'Nhẫn Tinh Tú Thiên Hà', price: 3000000000, emoji: '🌌' }
+    'grass': { name: 'Nhẫn Cỏ Dại', price: 10000000, emoji: '🌿' },
+    'silver': { name: 'Nhẫn Bạc Thô', price: 20000000, emoji: '🥈' },
+    'gold': { name: 'Nhẫn Vàng Cổ Điển', price: 30000000, emoji: '🥇' },
+    'ruby': { name: 'Nhẫn Hồng Ngọc Đam Mê', price: 45000000, emoji: '💖' },
+    'sapphire': { name: 'Nhẫn Lam Ngọc Thuỷ Chung', price: 60000000, emoji: '💙' },
+    'emerald': { name: 'Nhẫn Ngọc Lục Bảo Hy Vọng', price: 75000000, emoji: '💚' },
+    'diamond': { name: 'Nhẫn Kim Cương Lấp Lánh', price: 90000000, emoji: '💎' },
+    'amethyst': { name: 'Nhẫn Tử Tinh Mộng Mơ', price: 110000000, emoji: '💜' },
+    'obsidian': { name: 'Nhẫn Hắc Diện Thạch Bí Ẩn', price: 130000000, emoji: '🖤' },
+    'infinity': { name: 'Nhẫn Quyền Năng Vô Cực', price: 150000000, emoji: '👑' },
+    'eternal': { name: 'Nhẫn Tình Yêu Vĩnh Cửu', price: 175000000, emoji: '💞' },
+    'celestial': { name: 'Nhẫn Tinh Tú Thiên Hà', price: 200000000, emoji: '🌌' }
 };
 
 async function handleMarry(userId, targetId, msgOrInteraction) {
