@@ -6637,6 +6637,11 @@ Bao gồm:
         return message.reply({ embeds: [new EmbedBuilder().setTitle('💰 Nhận coin hằng ngày!').setDescription(desc).setColor('#FFD700')] });
     }
 
+    // !shop / !sh
+    if (content === `${prefix}shop` || content === `${prefix}sh`) {
+        return handleShop(message.author.id, message);
+    }
+
     // !balance / !bal / !bank [@user]
     if (content.startsWith(`${prefix}balance`) || content.startsWith(`${prefix}bal`) || content.startsWith(`${prefix}bank`)) {
         const mentioned = message.mentions.users.first();
