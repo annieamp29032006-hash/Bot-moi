@@ -1315,8 +1315,8 @@ function buildProfileEmbed(user) {
             { name: '🔰 Thông Tin Cơ Bản', value: `Cấp độ: **${pData.level}** (${pData.exp}/${pData.level*100} EXP)\nSinh nhật: ${bdayText}\nHôn nhân: ${marryText}`, inline: false },
             { name: '💰 Tài Sản & Hoạt Động', value: `Ví: **${coins.toLocaleString()} 🪙**\nNgân hàng: **${bank.toLocaleString()} 🪙**\nCông việc: ${jobText}`, inline: true },
             { name: '🔥 Tương Tác', value: `💬 Tin nhắn: **${msgCount.toLocaleString()}**\n🎤 Thoại: **${formatVoiceTime(vTime)}**`, inline: true },
-            { name: '⚔️ Chỉ Số RPG', value: `Máu: ❤️ **${pData.hp} / ${stats.maxHp || pData.maxHp}**\nSát thương: 🗡️ **${stats.atk}**\nPhòng thủ: 🛡️ **${stats.def}**${pData.rpgClass && RPG_CLASSES[pData.rpgClass] ? `\nClass: ${RPG_CLASSES[pData.rpgClass].emoji} **${RPG_CLASSES[pData.rpgClass].name}**` : ''}`, inline: true },
-            { name: '🎒 Trang Bị', value: `Vũ khí: ${wName}\nÁo giáp: ${aName}\nTrang sức: ${artName}\nBình máu: 🧪x${smallPot} | 🧴x${largePot}`, inline: true },
+            //{ name: '⚔️ Chỉ Số RPG', value: `Máu: ❤️ **${pData.hp} / ${stats.maxHp || pData.maxHp}**\nSát thương: 🗡️ **${stats.atk}**\nPhòng thủ: 🛡️ **${stats.def}**${pData.rpgClass && RPG_CLASSES[pData.rpgClass] ? `\nClass: ${RPG_CLASSES[pData.rpgClass].emoji} **${RPG_CLASSES[pData.rpgClass].name}**` : ''}`, inline: true },
+            //{ name: '🎒 Trang Bị', value: `Vũ khí: ${wName}\nÁo giáp: ${aName}\nTrang sức: ${artName}\nBình máu: 🧪x${smallPot} | 🧴x${largePot}`, inline: true },
             { name: '📊 Thành Tích', value: `Điểm danh: **${streak}** ngày\n🏰 Dungeon: **${pData.dungeonClears || 0}** lần\n⚔️ PvP: **${pData.pvpWins || 0}W** - **${pData.pvpLosses || 0}L**`, inline: true },
             { name: '🐾 Thú Cưng', value: petsText, inline: false }
         )
