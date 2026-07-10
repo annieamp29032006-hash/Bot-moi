@@ -3462,6 +3462,20 @@ async function handleMarry(userId, targetId, msgOrInteraction) {
     return replyMsg(msgOrInteraction, { embeds: [embed], components: [row] });
 }
 
+async function handleSetBday(userId, msgOrInteraction, dateStr) {
+    if (!dateStr || !/^(0[1-9]|[12]\d|3[01])\/(0[1-9]|1[0-2])$/.test(dateStr)) {
+        return replyMsg(msgOrInteraction, '❌ Định dạng ngày tháng không hợp lệ! Vui lòng dùng định dạng **DD/MM** (ví dụ: 29/03).');
+    }
+    const p = getPlayer(userId);
+    if (p.birthday) {
+        return replyMsg(msgOrInteraction, `❌ Bạn đã cài đặt sinh nhật là **${p.birthday}** rồi! Không thể thay đổi được nữa. Nếu cần đổi, hãy nhờ Admin nhé!`);
+    }
+    updatePlayer(userId, dp => {
+        dp.birthday = dateStr;
+    });
+    return replyMsg(msgOrInteraction, `🎉 Cài đặt sinh nhật thành công! Bot đã ghi nhận sinh nhật của bạn là **${dateStr}**.\nĐến ngày đó hãy gõ \`/profile\` để nhận bất ngờ nhé!`);
+}
+
 async function handleDivorce(userId, msgOrInteraction) {
     const p = getPlayer(userId);
     if (!p.partner) return replyMsg(msgOrInteraction, '❌ Bạn còn đang ế, ly hôn với ai?');
