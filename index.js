@@ -8,6 +8,7 @@ const { MessageFlags, ChannelType,
 const { GiveawaysManager } = require('discord-giveaways');
 const ms = require('ms');
 const fs = require('fs');
+const TRIVIA_LIST = JSON.parse(fs.readFileSync('./trivia.json', 'utf8'));
 const axios = require('axios');
 
 const { execFile, spawn } = require('child_process');
