@@ -6836,17 +6836,28 @@ Bao gồm:
     }
 
     // !catchpet
-    
+    if (content === `${prefix}catchpet` || content === `${prefix}cp`) {
+        return handleCatchPet(message.author.id, message);
+    }
 
     // !pets
-    
+    if (content === `${prefix}pets` || content === `${prefix}p`) {
+        return handlePets(message.author.id, message);
+    }
 
     // !ptrade
-    
-    
+    if (content.startsWith(`${prefix}ptrade`) || content.startsWith(`${prefix}pt`)) {
+        const target = message.mentions.users.first();
+        if (!target) return message.reply(`❌ Cú pháp: \`${prefix}ptrade @user\``);
+        return handlePetTrade(message.author.id, target.id, message);
+    }
 
     // !petbattle
-    
+    if (content.startsWith(`${prefix}petbattle`) || content.startsWith(`${prefix}pb`)) {
+        const target = message.mentions.users.first();
+        if (!target) return message.reply(`❌ Cú pháp: \`${prefix}petbattle @user\``);
+        return handlePetBattle(message.author.id, target.id, message);
+    }
 
     // !resetwork
     if (content.startsWith(`${prefix}resetwork`)) {
