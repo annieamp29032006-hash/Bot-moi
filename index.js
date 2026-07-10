@@ -6251,7 +6251,7 @@ Bao gồm:
     }
 
     // Lệnh Ban
-    if (content.startsWith(`${prefix}ban`)) {
+    if (content.startsWith(`${prefix}ban `) || content === `${prefix}ban`) {
         if (!message.member.permissions.has(PermissionsBitField.Flags.BanMembers) && !message.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
             return message.reply('❌ Bạn không có quyền Ban thành viên!');
         }
