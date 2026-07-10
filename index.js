@@ -150,7 +150,7 @@ function buildHelpPages(prefix) {
             .setTitle('🎮 GIẢI TRÍ & KINH TẾ')
             .setDescription('Hệ thống tiền tệ (🪙) phong phú cùng các trò chơi giải trí, đầu tư và ngân hàng.')
             .addFields(
-                { name: '💰 Kiếm Tiền', value: `> \`${prefix}daily\` - Nhận thưởng hằng ngày\n> \`${prefix}work\` - Làm việc kiếm coin\n> \`${prefix}noitu\` - Chơi nối từ nhận xu`, inline: true },
+                { name: '💰 Kiếm Tiền', value: `> \`${prefix}daily\` - Nhận thưởng hằng ngày\n> \`${prefix}work\` - Làm việc kiếm coin\n\n> \`${prefix}dovui\` - Đố vui có thưởng> \`${prefix}noitu\` - Chơi nối từ nhận xu`, inline: true },
                 { name: '🏦 Ngân Hàng', value: `> \`${prefix}bank\` - Quản lý tài khoản (Gửi/Rút)\n> \`${prefix}robbank\` - Cướp ngân hàng\n> \`${prefix}dautu\` - Đầu tư sinh lời`, inline: true },
                 { name: '🎲 Cờ Bạc & Trò Chơi', value: `\`\`\`\n${prefix}tx    - Tài xỉu\n${prefix}bc    - Bầu cua\n${prefix}bj    - Blackjack\n${prefix}lode  - Lô đề\n${prefix}hack  - Hack tiền người khác\n\`\`\``, inline: false },
                 { name: '🐾 Pokemon & Cửa Hàng', value: `> \`/shop\` - Mua sắm (Pokeball, Hạt giống...)\n> \`${prefix}cp\` (Bắt) | \`${prefix}pets\` (Xem túi) | \`${prefix}pb\` (Đấu)\n> \`${prefix}farm\` - Trồng trọt, thu hoạch`, inline: false },
