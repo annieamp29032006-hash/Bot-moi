@@ -1395,7 +1395,6 @@ function buildShopEmbed(tab) {
 
 function buildShopCategoryRow() {
     return new ActionRowBuilder().addComponents(
-        new ButtonBuilder().setCustomId('shop_tab_rpg').setLabel('⚔️ Trang Bị RPG').setStyle(ButtonStyle.Primary),
         new ButtonBuilder().setCustomId('shop_tab_pet').setLabel('🐾 Bắt Pet').setStyle(ButtonStyle.Success),
         new ButtonBuilder().setCustomId('shop_tab_ring').setLabel('💍 Nhẫn Kết Hôn').setStyle(ButtonStyle.Secondary),
         new ButtonBuilder().setCustomId('shop_tab_farm').setLabel('🏡 Nông Trại').setStyle(ButtonStyle.Danger),
