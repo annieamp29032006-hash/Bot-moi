@@ -153,6 +153,7 @@ function buildHelpPages(prefix) {
                 { name: '💰 Kiếm Tiền', value: `> \`${prefix}daily\` - Nhận thưởng hằng ngày\n> \`${prefix}work\` - Làm việc kiếm coin\n> \`${prefix}noitu\` - Chơi nối từ nhận xu`, inline: true },
                 { name: '🏦 Ngân Hàng', value: `> \`${prefix}bank\` - Quản lý tài khoản (Gửi/Rút)\n> \`${prefix}robbank\` - Cướp ngân hàng\n> \`${prefix}dautu\` - Đầu tư sinh lời`, inline: true },
                 { name: '🎲 Cờ Bạc & Trò Chơi', value: `\`\`\`\n${prefix}tx    - Tài xỉu\n${prefix}bc    - Bầu cua\n${prefix}bj    - Blackjack\n${prefix}lode  - Lô đề\n${prefix}hack  - Hack tiền người khác\n\`\`\``, inline: false },
+                { name: '🐾 Pokemon & Cửa Hàng', value: `> \`/shop\` - Mua sắm (Pokeball, Hạt giống...)\n> \`${prefix}cp\` (Bắt) | \`${prefix}pets\` (Xem túi) | \`${prefix}pb\` (Đấu)\n> \`${prefix}farm\` - Trồng trọt, thu hoạch`, inline: false },
                 { name: '💳 Giao Dịch', value: `> \`${prefix}bal\` (Số dư) | \`${prefix}give\` (Chuyển tiền) | \`${prefix}top\` (BXH Giàu)`, inline: false }
             )
             .setColor(color)
