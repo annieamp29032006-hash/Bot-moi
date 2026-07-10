@@ -1691,13 +1691,7 @@ async function handleCatchPet(userId, msgOrInteraction) {
     const cData = loadCoins();
     const isCheatOn = cData[userId]?.alwaysWin === true;
 
-    if (now - p.lastCatch < CATCH_COOLDOWN && !isCheatOn) {
-        const remaining = CATCH_COOLDOWN - (now - p.lastCatch);
-        const m = Math.floor(remaining / 60000);
-        const s = Math.floor((remaining % 60000) / 1000);
-        const msg = `⏳ Các Pokemon khu vực này đã hoảng sợ bỏ chạy. Hãy đợi **${m} phút ${s} giây** nữa để săn tiếp!`;
-        return msgOrInteraction.reply ? msgOrInteraction.reply({ content: msg, flags: MessageFlags.Ephemeral }) : msgOrInteraction.channel.send(msg);
-    }
+    // cooldown removed
     
     const ballTypes = ['basic_ball', 'great_ball', 'ultra_ball', 'master_ball'];
     let usedBall = null;
@@ -1809,71 +1803,11 @@ async function handlePets(userId, msgOrInteraction) {
         totalPetsCount += op.amount;
     }
     
-    embed.addFields({ name: '📊 Tổng Quan Thú Cưng', value: `Bạn đang sở hữu **${totalPetsCount}** thú cưng thuộc **${ownedPets.length}** loài khác nhau.\n*(Sử dụng menu bên dưới để xem chi tiết từng con)*`, inline: false });
+    embed.addFields({ name: '📊 Tổng Quan Thú Cưng', value: `Bạn đang sở hữu **${totalPetsCount}** thú cưng thuộc **${ownedPets.length}** loài khác nhau.`, inline: false });
 
-    ownedPets.sort((a, b) => b.pet.price - a.pet.price);
-    const options = ownedPets.slice(0, 25).map(p => 
-        new StringSelectMenuOptionBuilder()
-            .setLabel(`Xem ${p.pet.name} (Có: ${p.amount})`)
-            .setValue(`viewpet_${p.pet.id}`)
-            .setDescription(`Độ hiếm: ${p.pet.rarity}`)
-            .setEmoji(p.pet.emoji)
-    );
-
-    const row = new ActionRowBuilder().addComponents(
-        new StringSelectMenuBuilder().setCustomId(`viewpet_select_${userId}`).setPlaceholder('🔍 Chọn thú cưng để xem hình ảnh...').addOptions(options)
-    );
-
-    let msg;
-    if (msgOrInteraction.reply && typeof msgOrInteraction.reply === 'function') {
-        if (msgOrInteraction.isCommand && msgOrInteraction.isCommand()) {
-            await msgOrInteraction.reply({ embeds: [embed], components: [row] });
-            msg = await msgOrInteraction.fetchReply();
-        } else {
-            msg = await msgOrInteraction.reply({ embeds: [embed], components: [row] });
-        }
-    } else {
-        msg = await msgOrInteraction.channel.send({ embeds: [embed], components: [row] });
-    }
-
-    const collector = msg.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 60000 });
-    collector.on('collect', async i => {
-        if (i.user.id !== userId) return i.reply({ content: '❌ Đây không phải là chuồng thú của bạn!', flags: MessageFlags.Ephemeral });
-        
-        const petId = i.values[0].replace('viewpet_', '');
-        const selectedPet = PET_LIST.find(p => p.id === petId);
-        
-        if (selectedPet) {
-            let color = '#FFFFFF';
-            if (selectedPet.rarity === 'Thường') color = '#AAB7B8';
-            if (selectedPet.rarity === 'Hiếm') color = '#3498DB';
-            if (selectedPet.rarity === 'Cực Hiếm') color = '#9B59B6';
-            if (selectedPet.rarity === 'Thần Thoại') color = '#E74C3C';
-            if (selectedPet.rarity === 'Huyền Thoại') color = '#F1C40F';
-            if (selectedPet.rarity === 'Hệ Thống (Developer)') color = '#00FFFF';
-
-            const petAmount = pets[petId] || 0;
-            const detailEmbed = new EmbedBuilder()
-                .setTitle(`${selectedPet.emoji} ${selectedPet.name}`)
-                .addFields(
-                    { name: '🌟 Độ Hiếm', value: `**${selectedPet.rarity}**`, inline: true },
-                    { name: '💰 Giá Trị', value: `**${selectedPet.price.toLocaleString()} 🪙**`, inline: true },
-                    { name: '📦 Số lượng sở hữu', value: `**${petAmount}** con`, inline: true }
-                )
-                .setColor(color)
-                .setImage(selectedPet.imageUrl);
-            
-            await i.reply({ embeds: [detailEmbed], flags: MessageFlags.Ephemeral });
-        } else {
-            await i.reply({ content: '❌ Lỗi: Không tìm thấy thú cưng này.', flags: MessageFlags.Ephemeral });
-        }
-    });
-    
-    collector.on('end', () => {
-        if (msgOrInteraction.editReply) msgOrInteraction.editReply({ components: [] }).catch(() => {});
-        else if (msg.edit) msg.edit({ components: [] }).catch(() => {});
-    });
+    return msgOrInteraction.reply ? msgOrInteraction.reply({ embeds: [embed] }) : msgOrInteraction.channel.send({ embeds: [embed] });
 }
+
 
 async function handleSellPet(userId, msgOrInteraction) {
     const p = getPlayer(userId);
