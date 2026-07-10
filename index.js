@@ -3390,11 +3390,15 @@ const QUE_TINH_DUYEN = [
 ];
 
 const MARRY_RINGS = {
-    'grass': { name: 'Nhẫn Cỏ', price: 10000000, emoji: '🌿', atkBonus: 10, defBonus: 10, hpBonus: 50 },
-    'silver': { name: 'Nhẫn Bạc', price: 50000000, emoji: '🥈', atkBonus: 50, defBonus: 50, hpBonus: 200 },
-    'gold': { name: 'Nhẫn Vàng', price: 200000000, emoji: '🥇', atkBonus: 150, defBonus: 150, hpBonus: 500 },
-    'diamond': { name: 'Nhẫn Kim Cương', price: 500000000, emoji: '💎', atkBonus: 300, defBonus: 300, hpBonus: 1000 },
-    'infinity': { name: 'Nhẫn Vô Cực', price: 1000000000, emoji: '👑', atkBonus: 800, defBonus: 800, hpBonus: 3000 }
+    'grass': { name: 'Nhẫn Cỏ Bốn Lá', price: 5000000, emoji: '🌿', atkBonus: 10, defBonus: 10, hpBonus: 50 },
+    'silver': { name: 'Nhẫn Bạc Tinh Khôi', price: 15000000, emoji: '🥈', atkBonus: 50, defBonus: 50, hpBonus: 200 },
+    'gold': { name: 'Nhẫn Vàng Hạnh Phúc', price: 40000000, emoji: '🥇', atkBonus: 150, defBonus: 150, hpBonus: 500 },
+    'ruby': { name: 'Nhẫn Hồng Ngọc Đam Mê', price: 90000000, emoji: '💖', atkBonus: 250, defBonus: 250, hpBonus: 800 },
+    'sapphire': { name: 'Nhẫn Lam Ngọc Thuỷ Chung', price: 180000000, emoji: '💙', atkBonus: 400, defBonus: 400, hpBonus: 1200 },
+    'diamond': { name: 'Nhẫn Kim Cương Sang Trọng', price: 350000000, emoji: '💎', atkBonus: 600, defBonus: 600, hpBonus: 2000 },
+    'amethyst': { name: 'Nhẫn Tử Tinh Mộng Mơ', price: 600000000, emoji: '💜', atkBonus: 900, defBonus: 900, hpBonus: 3500 },
+    'infinity': { name: 'Nhẫn Quyền Năng Vô Cực', price: 1000000000, emoji: '👑', atkBonus: 1500, defBonus: 1500, hpBonus: 5000 },
+    'eternal': { name: 'Nhẫn Tình Yêu Vĩnh Cửu', price: 2000000000, emoji: '💞', atkBonus: 3000, defBonus: 3000, hpBonus: 10000 }
 };
 
 async function handleMarry(userId, targetId, msgOrInteraction) {
@@ -4216,7 +4220,7 @@ const slashCommands = [
         .addStringOption(o => o.setName('amount').setDescription('Số tiền (hoặc "all")').setRequired(true)),
     new SlashCommandBuilder()
         .setName('marry')
-        .setDescription('💍 Ghép đôi ngẫu nhiên hoặc cầu hôn (Phí nhẫn 50,000 Coin).')
+        .setDescription('💍 Cầu hôn người chơi khác bằng những chiếc nhẫn lãng mạn.')
         .addUserOption(o => o.setName('user').setDescription('Người bạn muốn chung sống (Bỏ trống để ghép ngẫu nhiên)').setRequired(false)),
     new SlashCommandBuilder()
         .setName('togglevoice')
