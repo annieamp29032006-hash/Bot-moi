@@ -3390,15 +3390,18 @@ const QUE_TINH_DUYEN = [
 ];
 
 const MARRY_RINGS = {
-    'grass': { name: 'Nhẫn Cỏ Bốn Lá', price: 5000000, emoji: '🌿', atkBonus: 10, defBonus: 10, hpBonus: 50 },
-    'silver': { name: 'Nhẫn Bạc Tinh Khôi', price: 15000000, emoji: '🥈', atkBonus: 50, defBonus: 50, hpBonus: 200 },
-    'gold': { name: 'Nhẫn Vàng Hạnh Phúc', price: 40000000, emoji: '🥇', atkBonus: 150, defBonus: 150, hpBonus: 500 },
-    'ruby': { name: 'Nhẫn Hồng Ngọc Đam Mê', price: 90000000, emoji: '💖', atkBonus: 250, defBonus: 250, hpBonus: 800 },
-    'sapphire': { name: 'Nhẫn Lam Ngọc Thuỷ Chung', price: 180000000, emoji: '💙', atkBonus: 400, defBonus: 400, hpBonus: 1200 },
-    'diamond': { name: 'Nhẫn Kim Cương Sang Trọng', price: 350000000, emoji: '💎', atkBonus: 600, defBonus: 600, hpBonus: 2000 },
-    'amethyst': { name: 'Nhẫn Tử Tinh Mộng Mơ', price: 600000000, emoji: '💜', atkBonus: 900, defBonus: 900, hpBonus: 3500 },
-    'infinity': { name: 'Nhẫn Quyền Năng Vô Cực', price: 1000000000, emoji: '👑', atkBonus: 1500, defBonus: 1500, hpBonus: 5000 },
-    'eternal': { name: 'Nhẫn Tình Yêu Vĩnh Cửu', price: 2000000000, emoji: '💞', atkBonus: 3000, defBonus: 3000, hpBonus: 10000 }
+    'grass': { name: 'Nhẫn Cỏ Dại', price: 500000, emoji: '🌿' },
+    'silver': { name: 'Nhẫn Bạc Thô', price: 2000000, emoji: '🥈' },
+    'gold': { name: 'Nhẫn Vàng Cổ Điển', price: 10000000, emoji: '🥇' },
+    'ruby': { name: 'Nhẫn Hồng Ngọc Đam Mê', price: 25000000, emoji: '💖' },
+    'sapphire': { name: 'Nhẫn Lam Ngọc Thuỷ Chung', price: 50000000, emoji: '💙' },
+    'emerald': { name: 'Nhẫn Ngọc Lục Bảo Hy Vọng', price: 80000000, emoji: '💚' },
+    'diamond': { name: 'Nhẫn Kim Cương Lấp Lánh', price: 150000000, emoji: '💎' },
+    'amethyst': { name: 'Nhẫn Tử Tinh Mộng Mơ', price: 300000000, emoji: '💜' },
+    'obsidian': { name: 'Nhẫn Hắc Diện Thạch Bí Ẩn', price: 500000000, emoji: '🖤' },
+    'infinity': { name: 'Nhẫn Quyền Năng Vô Cực', price: 800000000, emoji: '👑' },
+    'eternal': { name: 'Nhẫn Tình Yêu Vĩnh Cửu', price: 1500000000, emoji: '💞' },
+    'celestial': { name: 'Nhẫn Tinh Tú Thiên Hà', price: 3000000000, emoji: '🌌' }
 };
 
 async function handleMarry(userId, targetId, msgOrInteraction) {
@@ -3429,16 +3432,28 @@ async function handleMarry(userId, targetId, msgOrInteraction) {
     
     const embed = new EmbedBuilder()
         .setTitle('💍 Chọn Nhẫn Cầu Hôn')
-        .setDescription(`Để cầu hôn <@${finalTargetId}>, bạn cần chuẩn bị một chiếc nhẫn thật xứng đáng.\nHãy chọn loại nhẫn bạn muốn mua:`)
+        .setDescription(`Để cầu hôn <@${finalTargetId}>, bạn cần chuẩn bị một chiếc nhẫn thật xứng đáng.\nHãy chọn loại nhẫn bạn muốn trao:`)
         .setColor('#FF69B4');
         
-    const options = Object.entries(MARRY_RINGS).map(([id, r]) => {
-        return new StringSelectMenuOptionBuilder()
-            .setLabel(`${r.name}`)
-            .setValue(id)
-            .setDescription(`Giá: ${r.price.toLocaleString()} 🪙`)
-            .setEmoji(r.emoji);
-    });
+    const options = [];
+    if (p1.rings) {
+        for (const [id, count] of Object.entries(p1.rings)) {
+            if (count > 0 && MARRY_RINGS[id]) {
+                const r = MARRY_RINGS[id];
+                options.push(
+                    new StringSelectMenuOptionBuilder()
+                        .setLabel(`${r.name}`)
+                        .setValue(id)
+                        .setDescription(`Số lượng đang có: ${count}`)
+                        .setEmoji(r.emoji)
+                );
+            }
+        }
+    }
+
+    if (options.length === 0) {
+        return replyMsg(msgOrInteraction, '❌ Bạn chưa có chiếc nhẫn nào trong túi! Hãy dùng lệnh `/shop` hoặc `!shop` để mua nhẫn trước khi đi cầu hôn nhé!');
+    }
 
     const row = new ActionRowBuilder().addComponents(
         new StringSelectMenuBuilder().setCustomId(`marry_ring_${userId}_${finalTargetId}`).setPlaceholder('💍 Chọn nhẫn...').addOptions(options)
@@ -8522,8 +8537,8 @@ client.on('interactionCreate', async (interaction) => {
                 const p1 = getPlayer(senderId);
                 const hasRing = p1.rings && p1.rings[ringId] > 0;
                 
-                if (!hasRing && getUserCoins(senderId) < ring.price) {
-                    return interaction.reply({ content: `❌ Bạn không có sẵn nhẫn và cần **${ring.price.toLocaleString()} 🪙** để mua ${ring.name}!`, flags: MessageFlags.Ephemeral });
+                if (!hasRing) {
+                    return interaction.reply({ content: `❌ Bạn không còn chiếc ${ring.name} nào trong túi! Hãy vào shop để mua.`, flags: MessageFlags.Ephemeral });
                 }
                 
                 const row = new ActionRowBuilder().addComponents(
@@ -8560,17 +8575,13 @@ client.on('interactionCreate', async (interaction) => {
 
                 const hasRing = p1.rings && p1.rings[ringId] > 0;
 
-                if (!hasRing && getUserCoins(senderId) < ring.price) {
-                    return interaction.reply({ content: `❌ <@${senderId}> không có sẵn nhẫn và không còn đủ ${ring.price.toLocaleString()} 🪙 để mua mới! Lễ cưới bị hủy.`, flags: MessageFlags.Ephemeral });
+                if (!hasRing) {
+                    return interaction.reply({ content: `❌ <@${senderId}> không còn nhẫn trong kho! Lễ cưới bị hủy.`, flags: MessageFlags.Ephemeral });
                 }
                 
-                if (hasRing) {
-                    updatePlayer(senderId, dp => {
-                        dp.rings[ringId] -= 1;
-                    });
-                } else {
-                    addCoins(senderId, -ring.price);
-                }
+                updatePlayer(senderId, dp => {
+                    dp.rings[ringId] -= 1;
+                });
                 updatePlayer(senderId, dp => { dp.partner = targetId; dp.equippedRing = ringId; });
                 updatePlayer(targetId, dp => { dp.partner = senderId; dp.equippedRing = ringId; });
                 
