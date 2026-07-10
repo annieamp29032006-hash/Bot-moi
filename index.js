@@ -2014,6 +2014,83 @@ async function handlePetBattle(userId, targetId, bet, msgOrInteraction) {
     return replyMsg(msgOrInteraction, { content: `<@${targetId}>, bạn có lời thách đấu!`, embeds: [embed], components: [row] });
 }
 
+
+async function handleTrivia(userId, msgOrInteraction) {
+    const questionData = TRIVIA_LIST[Math.floor(Math.random() * TRIVIA_LIST.length)];
+    
+    const embed = new EmbedBuilder()
+        .setTitle('🧠 Đố Vui Có Thưởng!')
+        .setDescription(`**Câu hỏi:** ${questionData.question}\n\nBạn có 15 giây để chọn đáp án đúng! Thưởng: **${questionData.reward} ĐT**`)
+        .setColor('#9B59B6');
+        
+    const labels = ['A', 'B', 'C', 'D'];
+    const buttons = questionData.answers.map((ans, index) => {
+        return new ButtonBuilder()
+            .setCustomId(`trivia_${index}_${userId}_${Date.now()}`)
+            .setLabel(`${labels[index]}. ${ans}`)
+            .setStyle(ButtonStyle.Primary);
+    });
+    
+    const row = new ActionRowBuilder().addComponents(buttons);
+    
+    let msg;
+    if (msgOrInteraction.reply && typeof msgOrInteraction.reply === 'function') {
+        if (msgOrInteraction.isCommand && msgOrInteraction.isCommand()) {
+            await msgOrInteraction.reply({ embeds: [embed], components: [row] });
+            msg = await msgOrInteraction.fetchReply();
+        } else {
+            msg = await msgOrInteraction.reply({ embeds: [embed], components: [row] });
+        }
+    } else {
+        msg = await msgOrInteraction.channel.send({ embeds: [embed], components: [row] });
+    }
+    
+    const filter = i => i.customId.startsWith('trivia_') && i.customId.includes(userId);
+    const collector = msg.createMessageComponentCollector({ filter, time: 15000, max: 1 });
+    
+    collector.on('collect', async i => {
+        if (i.user.id !== userId) return i.reply({ content: '❌ Đây không phải câu đố của bạn!', flags: MessageFlags.Ephemeral });
+        
+        const parts = i.customId.split('_');
+        const selectedIndex = parseInt(parts[1]);
+        
+        const disabledRow = new ActionRowBuilder().addComponents(
+            buttons.map((b, idx) => {
+                const btn = ButtonBuilder.from(b).setDisabled(true);
+                if (idx === questionData.correctIndex) btn.setStyle(ButtonStyle.Success);
+                else if (idx === selectedIndex) btn.setStyle(ButtonStyle.Danger);
+                return btn;
+            })
+        );
+        
+        if (selectedIndex === questionData.correctIndex) {
+            updatePlayer(userId, p => {
+                p.coins += questionData.reward;
+            });
+            embed.setColor('#2ECC71').setDescription(`**Câu hỏi:** ${questionData.question}\n\n✅ **CHÍNH XÁC!** Bạn đã chọn đúng đáp án **${labels[questionData.correctIndex]}** và nhận được **${questionData.reward} ĐT**!`);
+        } else {
+            embed.setColor('#E74C3C').setDescription(`**Câu hỏi:** ${questionData.question}\n\n❌ **SAI RỒI!** Đáp án đúng là **${labels[questionData.correctIndex]}**. Chúc bạn may mắn lần sau!`);
+        }
+        
+        await i.update({ embeds: [embed], components: [disabledRow] });
+    });
+    
+    collector.on('end', collected => {
+        if (collected.size === 0) {
+            const disabledRow = new ActionRowBuilder().addComponents(
+                buttons.map((b, idx) => {
+                    const btn = ButtonBuilder.from(b).setDisabled(true);
+                    if (idx === questionData.correctIndex) btn.setStyle(ButtonStyle.Success);
+                    return btn;
+                })
+            );
+            embed.setColor('#95A5A6').setDescription(`**Câu hỏi:** ${questionData.question}\n\n⏰ **HẾT GIỜ!** Bạn đã không đưa ra câu trả lời. Đáp án đúng là **${labels[questionData.correctIndex]}**.`);
+            if (msgOrInteraction.editReply) msgOrInteraction.editReply({ embeds: [embed], components: [disabledRow] }).catch(()=>{});
+            else if (msg.edit) msg.edit({ embeds: [embed], components: [disabledRow] }).catch(()=>{});
+        }
+    });
+}
+
 function replyMsg(interaction, options) {
     if (typeof options === 'string') options = { content: options };
     if (interaction.reply && typeof interaction.reply === 'function') {
@@ -4035,6 +4112,9 @@ const autoReplies = {
 // SLASH COMMANDS
 // ========================
 const slashCommands = [
+    new SlashCommandBuilder()
+        .setName('dovui')
+        .setDescription('🧠 Tham gia đố vui để nhận tiền thưởng!'),
     new SlashCommandBuilder()
         .setName('help')
         .setDescription('Xem danh sách các tính năng của bot.'),
@@ -6787,6 +6867,11 @@ Bao gồm:
         return handlePetTrade(message.author.id, target.id, message);
     }
 
+    // !dovui
+    if (content.startsWith(`${prefix}dovui`)) {
+        return handleTrivia(message.author.id, message);
+    }
+
     // !petbattle
     if (content.startsWith(`${prefix}petbattle`) || content.startsWith(`${prefix}pb`)) {
         const target = message.mentions.users.first();
@@ -9271,6 +9356,9 @@ client.on('interactionCreate', async (interaction) => {
     }
 
     // --- HELP ---
+    if (commandName === 'dovui') {
+        return handleTrivia(interaction.user.id, interaction);
+    }
     if (commandName === 'help') {
         const prefix = getPrefix(interaction.guildId);
         const pages = buildHelpPages(prefix);

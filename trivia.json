@@ -1,0 +1,92 @@
+[
+  {
+    "question": "Tháng nào trong năm có 28 ngày?",
+    "answers": ["Tháng 2", "Tháng 3", "Tháng 4", "Tháng nào cũng có"],
+    "correctIndex": 3,
+    "reward": 200
+  },
+  {
+    "question": "Con mèo nào cực kỳ sợ chuột?",
+    "answers": ["Mèo máy Doraemon", "Mèo Tom", "Mèo mướp", "Mèo rừng"],
+    "correctIndex": 0,
+    "reward": 250
+  },
+  {
+    "question": "Nắng ba năm tôi không bỏ bạn, mưa 1 ngày sao bạn lại bỏ tôi là cái gì?",
+    "answers": ["Cái bóng", "Cái ô", "Cái áo mưa", "Cái mũ"],
+    "correctIndex": 0,
+    "reward": 300
+  },
+  {
+    "question": "Con gì đập thì sống, không đập thì chết?",
+    "answers": ["Con muỗi", "Con vắt", "Con tim", "Con đỉa"],
+    "correctIndex": 2,
+    "reward": 250
+  },
+  {
+    "question": "Có 1 đàn chim đậu trên cành, người thợ săn bắn cái rằm. Hỏi chết mấy con?",
+    "answers": ["1 con", "15 con", "Tất cả", "Không con nào"],
+    "correctIndex": 1,
+    "reward": 300
+  },
+  {
+    "question": "Cái gì đen khi bạn mua nó, đỏ khi dùng nó và xám xịt khi vứt nó đi?",
+    "answers": ["Viên than", "Tờ giấy", "Đôi giày", "Cái áo"],
+    "correctIndex": 0,
+    "reward": 350
+  },
+  {
+    "question": "Bệnh gì bác sỹ bó tay?",
+    "answers": ["Bệnh gãy tay", "Bệnh dạ dày", "Bệnh ung thư", "Bệnh tim"],
+    "correctIndex": 0,
+    "reward": 250
+  },
+  {
+    "question": "Cái gì người mua biết, người bán biết, người xài bao giờ cũng không biết?",
+    "answers": ["Quan tài", "Áo sơ mi", "Đồ trang sức", "Mũ bảo hiểm"],
+    "correctIndex": 0,
+    "reward": 400
+  },
+  {
+    "question": "Ai cũng biết đỉnh núi Everest cao nhất thế giới. Vậy trước khi đỉnh Everest được khám phá, đỉnh núi nào cao nhất thế giới?",
+    "answers": ["Phan Xi Păng", "K2", "Everest", "Kangchenjunga"],
+    "correctIndex": 2,
+    "reward": 350
+  },
+  {
+    "question": "Cầm trên tay một cây thước và một cây bút, làm thế nào để bạn vẽ được một vòng tròn thật chính xác?",
+    "answers": ["Dùng compa", "Vứt thước đi", "Không thể vẽ được", "Đưa cho người khác vẽ"],
+    "correctIndex": 1,
+    "reward": 400
+  },
+  {
+    "question": "Loại nước giải khát nào chứa sắt và canxi?",
+    "answers": ["Nước cam", "Cà phê", "Nước dừa", "Cafe"],
+    "correctIndex": 3,
+    "reward": 500
+  },
+  {
+    "question": "Từ nào trong tiếng Việt có 9 từ 'h'?",
+    "answers": ["Học hành", "Hoa hồng", "Huyền thoại", "Chính"],
+    "correctIndex": 3,
+    "reward": 450
+  },
+  {
+    "question": "Cái gì chặt không đứt, bứt không rời, phơi không khô, đốt không cháy?",
+    "answers": ["Hòn đá", "Nước", "Sợi dây", "Cục sắt"],
+    "correctIndex": 1,
+    "reward": 200
+  },
+  {
+    "question": "Cắm vào run rẩy toàn thân. Rút ra nước chảy từ chân xuống sàn. Hỡi chàng công tử giàu sang. Cắm vào xin chớ vội vàng rút ra. Là cái gì?",
+    "answers": ["Tủ lạnh", "Điều hòa", "Cái quạt máy", "Bơm nước"],
+    "correctIndex": 0,
+    "reward": 400
+  },
+  {
+    "question": "Cái gì bạn không mượn mà trả?",
+    "answers": ["Tiền bạc", "Lời cảm ơn", "Đồ đạc", "Tình cảm"],
+    "correctIndex": 1,
+    "reward": 350
+  }
+]
