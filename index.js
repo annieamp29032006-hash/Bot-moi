@@ -1474,7 +1474,7 @@ function buildShopSelectRow(tab) {
 }
 
 async function handleShop(userId, msgOrInteraction) {
-    let currentTab = 'rpg';
+    let currentTab = 'pet';
 
     const embed = buildShopEmbed(currentTab);
     const catRow = buildShopCategoryRow();
@@ -1493,12 +1493,12 @@ async function handleShop(userId, msgOrInteraction) {
         if (i.user.id !== userId) return i.reply({ content: '❌ Cửa hàng này không phải của bạn!', flags: MessageFlags.Ephemeral });
 
         // Tab buttons
-        if (i.customId === 'shop_tab_rpg' || i.customId === 'shop_tab_ring' || i.customId === 'shop_tab_pet' || i.customId === 'shop_tab_farm' || i.customId === 'shop_tab_tools') {
+        if (i.customId === 'shop_tab_ring' || i.customId === 'shop_tab_pet' || i.customId === 'shop_tab_farm' || i.customId === 'shop_tab_tools') {
             if (i.customId === 'shop_tab_ring') currentTab = 'ring';
             else if (i.customId === 'shop_tab_pet') currentTab = 'pet';
             else if (i.customId === 'shop_tab_farm') currentTab = 'farm';
             else if (i.customId === 'shop_tab_tools') currentTab = 'tools';
-            else currentTab = 'rpg';
+            else currentTab = 'pet';
             const newEmbed = buildShopEmbed(currentTab);
             const newCatRow = buildShopCategoryRow();
             const newSelectRow = buildShopSelectRow(currentTab);
@@ -7607,91 +7607,7 @@ client.on('interactionCreate', async (interaction) => {
     if (interaction.isMessageComponent()) {
         const cid = interaction.customId;
 
-        if (interaction.isButton() && (cid === 'raid_attack' || cid === 'raid_top')) {
-            const uid = interaction.user.id;
-            const p = getPlayer(uid);
-            const boss = getRaidBoss();
 
-            if (cid === 'raid_top') {
-                const sorted = Object.entries(boss.participants).sort((a, b) => b[1].dmg - a[1].dmg);
-                if (sorted.length === 0) return interaction.reply({ content: 'Chưa có ai tấn công Boss!', flags: MessageFlags.Ephemeral });
-                
-                const top10 = sorted.slice(0, 10);
-                const desc = top10.map((entry, i) => {
-                    const rankEmojis = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'];
-                    return `${rankEmojis[i]} <@${entry[0]}> — **${entry[1].dmg.toLocaleString()}** DMG`;
-                }).join('\n');
-                
-                const embed = new EmbedBuilder()
-                    .setTitle(`📊 BẢNG SÁT THƯƠNG RAID BOSS`)
-                    .setDescription(desc)
-                    .setColor('#3498DB');
-                    
-                return interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
-            }
-
-            if (p.hp <= 0) return interaction.reply({ content: '❌ Bạn đã hết máu! Dùng `/heal` trước.', flags: MessageFlags.Ephemeral });
-            if (boss.status === 'dead') return interaction.reply({ content: '🎉 Boss đã bị tiêu diệt rồi!', flags: MessageFlags.Ephemeral });
-            
-            const pData = boss.participants[uid] || { dmg: 0, lastHit: 0 };
-            const now = Date.now();
-            if (now - pData.lastHit < 10 * 60 * 1000) {
-                const wait = Math.ceil((10 * 60 * 1000 - (now - pData.lastHit)) / 60000);
-                return interaction.reply({ content: `⏳ Bạn đang kiệt sức! Hãy chờ **${wait} phút** nữa để đánh tiếp.`, flags: MessageFlags.Ephemeral });
-            }
-            
-            const stats = getPlayerStats(p);
-            const isCrit = Math.random() < 0.2;
-            let dmg = Math.max(1, stats.atk - boss.def);
-            if (isCrit) dmg *= 2;
-            dmg = Math.floor(dmg * (0.9 + Math.random() * 0.2));
-            
-            boss.hp -= dmg;
-            pData.dmg += dmg;
-            pData.lastHit = now;
-            boss.participants[uid] = pData;
-            
-            if (boss.hp <= 0) {
-                boss.hp = 0;
-                boss.status = 'dead';
-                boss.deathTime = now;
-                boss.lastHitBy = uid;
-            }
-            
-            const data = loadRaid();
-            data.boss = boss;
-            saveRaid(data);
-            
-            if (boss.status === 'dead') {
-                const sorted = Object.entries(boss.participants).sort((a, b) => b[1].dmg - a[1].dmg);
-                const results = [];
-                for (let i = 0; i < sorted.length; i++) {
-                    const [pid, pd] = sorted[i];
-                    let coinReward = 50000;
-                    let expReward = 1000;
-                    let chest = 'iron';
-                    if (i === 0) { coinReward = 1000000; expReward = 10000; chest = 'legendary'; }
-                    else if (i === 1) { coinReward = 500000; expReward = 5000; chest = 'gold'; }
-                    else if (i === 2) { coinReward = 200000; expReward = 2500; chest = 'gold'; }
-                    
-                    if (pid === uid) coinReward += 200000; // Last hit bonus
-                    
-                    updatePlayer(pid, pl => {
-                        pl.exp += expReward;
-                        pl.chests[chest] = (pl.chests[chest] || 0) + 1;
-                    });
-                    addCoins(pid, coinReward);
-                    
-                    if (i < 3 || pid === uid) {
-                        results.push(`<@${pid}>: ${pd.dmg.toLocaleString()} DMG (${i < 3 ? `Top ${i+1}` : 'Last Hit'})`);
-                    }
-                }
-                
-                return interaction.reply({ content: `🎉 **${boss.name}** đã bị TIÊU DIỆT bởi đòn kết liễu của <@${uid}>! (-${dmg} DMG${isCrit ? ' 💥' : ''})\n\n🏆 **VINH DANH:**\n${results.join('\n')}\n*(Quà đã được phát cho tất cả người tham gia)*` });
-            } else {
-                return interaction.reply({ content: `⚔️ Bạn đã tung đòn tấn công (-${dmg} DMG${isCrit ? ' 💥' : ''}) vào **${boss.name}**!\nCùng kêu gọi mọi người đánh tiếp nhé!` });
-            }
-        }
 
         // INVENTORY INTERACTIVE SYSTEM
         if (interaction.isStringSelectMenu() && cid.startsWith('inv_select_')) {
@@ -10248,7 +10164,7 @@ client.on('interactionCreate', async (interaction) => {
         const pots = [];
         for (const [k, v] of Object.entries(p.inventory)) {
             if (v > 0) {
-                let item = RPG_ITEMS.potions?.[k] || RPG_ITEMS.pokeballs?.[k] || RPG_ITEMS.materials?.[k] || RPG_ITEMS.weapons?.[k] || RPG_ITEMS.armors?.[k] || RPG_ITEMS.artifacts?.[k] || RPG_ITEMS.seeds?.[k] || RPG_ITEMS.crops?.[k] || RPG_ITEMS.tools?.[k];
+                let item = RPG_ITEMS.pokeballs?.[k] || RPG_ITEMS.materials?.[k] || RPG_ITEMS.seeds?.[k] || RPG_ITEMS.crops?.[k] || RPG_ITEMS.tools?.[k];
                 if (item) pots.push(`${item.emoji || ''} **${item.name}**: ${v}`);
                 else pots.push(`❓ **${k}**: ${v}`);
             }
