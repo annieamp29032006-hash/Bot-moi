@@ -131,7 +131,7 @@ function buildHelpPages(prefix) {
         // Page 0 - Tổng quan
         new EmbedBuilder()
             .setTitle('📖 Trợ Lý Bot — Tổng Quan')
-            .setDescription(`Xin chào! Tôi là **Hima Bot** ❄️\nBot đa năng: minigame, kinh tế, kết hôn, game Ma Sói và nhiều tiện ích khác!\n\n> Prefix hiện tại: **\`${prefix}\`**\n> Bạn có thể dùng **lệnh prefix** (ví dụ \`${prefix}daily\`) hoặc **slash command**\n\n📌 **Cách dùng menu:** Chọn danh mục bên dưới để xem hướng dẫn chi tiết từng nhóm lệnh.`)
+            .setDescription(`Xin chào! Tôi là **Nexora Bot** ❄️\nBot đa năng: minigame, kinh tế, kết hôn, game Ma Sói và nhiều tiện ích khác!\n\n> Prefix hiện tại: **\`${prefix}\`**\n> Bạn có thể dùng **lệnh prefix** (ví dụ \`${prefix}daily\`) hoặc **slash command**\n\n📌 **Cách dùng menu:** Chọn danh mục bên dưới để xem hướng dẫn chi tiết từng nhóm lệnh.`)
             .addFields(
                 { name: '💰 Coin & Game', value: 'Daily, Work, Cờ bạc', inline: true },
                 { name: '🏦 Ngân Hàng', value: 'Gửi/Rút, Đầu tư, Cướp', inline: true },
@@ -231,7 +231,7 @@ function buildHelpPages(prefix) {
                 { name: `\`${prefix}av [@user]\` hoặc \`/av\``, value: '🖼️ Hiển thị **Avatar** (ảnh đại diện) ở kích thước lớn nhất.\nKèm thông tin: ngày tạo tài khoản Discord, ngày tham gia server.\nKhông tag ai → xem avatar của chính bạn.', inline: false },
                 { name: '📱 Tải Video TikTok (Tự động)', value: 'Chỉ cần **dán link TikTok** vào bất kỳ kênh chat nào, bot sẽ tự động:\n1. Phát hiện link TikTok\n2. Tải video **không watermark**\n3. Gửi video + thông tin (tên tác giả, lượt thích, lượt xem)\n\n✅ Không cần gõ lệnh gì cả!', inline: false },
                 { name: '🎧 Join To Create (J2C) — Tự tạo phòng Voice', value: `Vào kênh voice **"Tạo Phòng"** → Bot tự tạo phòng riêng cho bạn.\n\n**Slash Commands quản lý phòng:**\n📝 \`/doiten\` — Đổi tên phòng theo ý muốn\n👥 \`/gioihan\` — Giới hạn số người (0 = không giới hạn)\n👻 \`/khoaan\` — Bật/tắt ẩn phòng khỏi danh sách\n🔒 \`/khoavc\` — Bật/tắt khóa kết nối phòng\n👢 \`/kickvc @user\` — Kích 1 người ra khỏi phòng\n🚫 \`/1an @user\` — Ẩn phòng với 1 người cụ thể\n👑 **Nhận quyền Chủ phòng** — Nút bấm trên panel\n\n💡 **MẸO:** Phòng đang khóa nhưng muốn cho bạn bè vào? **@mention** tên họ vào kênh chat của phòng Voice!`, inline: false },
-                { name: '🔔 Tính năng tự động', value: '• 🎙️ **Thông báo Voice** — Bot báo khi có người vào/rời kênh thoại.\n• 👋 **Chào mừng** — Bot chào mừng thành viên mới tham gia server.\n• 🤖 **Auto-reply** — Bot tự trả lời khi ai gõ: \`ping\`, \`hello\`, \`hima\`.', inline: false },
+                { name: '🔔 Tính năng tự động', value: '• 🎙️ **Thông báo Voice** — Bot báo khi có người vào/rời kênh thoại.\n• 👋 **Chào mừng** — Bot chào mừng thành viên mới tham gia server.\n• 🤖 **Auto-reply** — Bot tự trả lời khi ai gõ: \`ping\`, \`hello\`, \`nexora\`.', inline: false },
                 { name: '📈 Cày Cấp Tương Tác', value: `\`${prefix}rank\` — Xem Cấp độ, XP, Tổng số tin nhắn và giờ Voice của bạn, kèm Kênh Yêu Thích.\n\`${prefix}toprank\` — Xem Bảng xếp hạng những người tương tác nhiều nhất server.`, inline: false }
             )
             .setColor('#00FF88')
@@ -609,7 +609,7 @@ function buildBankEmbed(user) {
         .setColor('#00ffcc')
         .setThumbnail(user.displayAvatarURL())
         .setTimestamp()
-        .setFooter({ text: 'Hệ thống Ngân hàng Hima ❄️' });
+        .setFooter({ text: 'Hệ thống Ngân hàng Nexora ❄️' });
 }
 
 function buildBankButtons(ownerId) {
@@ -1102,6 +1102,13 @@ function loadRaid() {
     try { return JSON.parse(fs.readFileSync(raidPath, 'utf8')); } catch { return {}; }
 }
 function saveRaid(data) { fs.writeFileSync(raidPath, JSON.stringify(data, null, 2)); }
+
+const rpgPath = './rpg.json';
+function loadRPG() {
+    if (!fs.existsSync(rpgPath)) return {};
+    try { return JSON.parse(fs.readFileSync(rpgPath, 'utf8')); } catch { return {}; }
+}
+function saveRPG(data) { fs.writeFileSync(rpgPath, JSON.stringify(data, null, 2)); }
 function getRaidBoss() {
     const data = loadRaid();
     const now = Date.now();
@@ -4122,13 +4129,13 @@ const greetingResponses = [
     "Meow meow, chào đằng ấy nha! 🐾",
     "Xin chào người đẹp! Chúc cậu một ngày đầy nắng và tiếng cười! ✨",
     "Uwaaa, gặp được cậu ở đây thật là dui quá đi! (≧◡≦) ♡",
-    "Bíp bíp! Bot Hima xin gửi đến bạn một cái ôm ấm áp! 🤗",
+    "Bíp bíp! Bot Nexora xin gửi đến bạn một cái ôm ấm áp! 🤗",
     
     // Nghiêm túc / Lịch sự
     "Xin chào bạn. Tôi có thể giúp gì cho bạn hôm nay?",
     "Chào bạn! Chúc bạn một ngày làm việc và học tập hiệu quả.",
     "Kính chào quý khách. Rất hân hạnh được phục vụ.",
-    "Xin chào. Hệ thống Hima Bot luôn sẵn sàng hỗ trợ bạn.",
+    "Xin chào. Hệ thống Nexora Bot luôn sẵn sàng hỗ trợ bạn.",
     
     // Ngầu / Lạnh lùng
     "Chào. Có việc gì không?",
@@ -4144,7 +4151,7 @@ const greetingResponses = [
 ];
 
 const autoReplies = {
-    'hima': `Hima chào bạn ạ, bạn cần làm code bot custom cho server liên hệ với <@${ADMIN_ID}> . Cảm ơn bạn ạ`
+    'nexora': `Nexora chào bạn ạ, bạn cần làm code bot custom cho server liên hệ với <@${ADMIN_ID}> . Cảm ơn bạn ạ`
 };
 
 // ========================
@@ -4717,27 +4724,41 @@ client.once('clientReady', async () => {
     await initEnglishDictionary();
     console.log(`✅ Bot đã đăng nhập với tên: ${client.user.tag}`);
     
+    // Đổi tên và biệt danh tự động
+    try {
+        if (client.user.username !== 'Nexora') {
+            await client.user.setUsername('Nexora').catch(() => console.log('Không thể đổi username (có thể do rate limit)'));
+        }
+        for (const guild of client.guilds.cache.values()) {
+            const botMember = await guild.members.fetchMe().catch(() => null);
+            if (botMember && botMember.nickname !== 'Nexora') {
+                await botMember.setNickname('Nexora').catch(() => {});
+            }
+        }
+        console.log('✅ Đã cập nhật tên và biệt danh thành Nexora trên toàn bộ server!');
+    } catch (e) {}
+    
     const statuses = [
-        "🤖 Hima | Đồng hành cùng Tuyển sinh UTEHY K26 💙",
-        "💙 Hima • Welcome to UTEHY Admissions 2026",
-        "🎓 Hima | Chào mừng K26 đến với UTEHY!",
-        "📚 Hima | Hỗ trợ tuyển sinh UTEHY 24/7",
-        "🌸 Hima • Your UTEHY Admissions Assistant",
-        "✨ Hima | Future Starts Here",
-        "🚀 Hima • Cùng bạn chinh phục UTEHY K26",
-        "💬 Hima | Hỏi gì cũng biết về tuyển sinh!",
-        "🎯 Hima • Đồng hành cùng sĩ tử 2026",
-        "📩 Hima | Luôn sẵn sàng hỗ trợ bạn",
-        "💙 Hima • Kết nối ước mơ đến UTEHY",
-        "🎓 Hima | Admissions Made Easy",
-        "🌟 Hima • Chào đón Tân sinh viên K26",
-        "📖 Hima | Tuyển sinh UTEHY 2026",
-        "🚀 Hima • Your Journey Begins Here",
-        "💙 Hima | Vì một K26 rực rỡ",
-        "✨ Hima • Let's Join UTEHY Together",
-        "🎉 Hima | Welcome Future UTEHY Students",
-        "🌈 Hima • Nơi mọi câu hỏi đều có lời giải",
-        "🤖 Hima | Luôn bên bạn trên hành trình vào UTEHY"
+        "🤖 Nexora | Đồng hành cùng Tuyển sinh UTEHY K26 💙",
+        "💙 Nexora • Welcome to UTEHY Admissions 2026",
+        "🎓 Nexora | Chào mừng K26 đến với UTEHY!",
+        "📚 Nexora | Hỗ trợ tuyển sinh UTEHY 24/7",
+        "🌸 Nexora • Your UTEHY Admissions Assistant",
+        "✨ Nexora | Future Starts Here",
+        "🚀 Nexora • Cùng bạn chinh phục UTEHY K26",
+        "💬 Nexora | Hỏi gì cũng biết về tuyển sinh!",
+        "🎯 Nexora • Đồng hành cùng sĩ tử 2026",
+        "📩 Nexora | Luôn sẵn sàng hỗ trợ bạn",
+        "💙 Nexora • Kết nối ước mơ đến UTEHY",
+        "🎓 Nexora | Admissions Made Easy",
+        "🌟 Nexora • Chào đón Tân sinh viên K26",
+        "📖 Nexora | Tuyển sinh UTEHY 2026",
+        "🚀 Nexora • Your Journey Begins Here",
+        "💙 Nexora | Vì một K26 rực rỡ",
+        "✨ Nexora • Let's Join UTEHY Together",
+        "🎉 Nexora | Welcome Future UTEHY Students",
+        "🌈 Nexora • Nơi mọi câu hỏi đều có lời giải",
+        "🤖 Nexora | Luôn bên bạn trên hành trình vào UTEHY"
     ];
     let statusIndex = 0;
     setInterval(() => {
@@ -5082,7 +5103,7 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
         if (newState.channelId && oldState.channelId !== newState.channelId) {
             try {
                 await client.rest.put(`/channels/${newState.channelId}/voice-status`, {
-                    body: { status: 'Hima tới đâyyy 💕 (✿◡‿◡)' }
+                    body: { status: 'Nexora tới đâyyy 💕 (✿◡‿◡)' }
                 });
             } catch (error) {
                 // Ignore if missing permissions
@@ -5101,7 +5122,7 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
             try {
                 const imgPath = 'C:\\Users\\ADMIN\\.gemini\\antigravity-ide\\brain\\3dc1e042-00bf-48ef-8b3d-beb74a248c25\\god_arrival_1781495845667.png';
                 const embed = new EmbedBuilder()
-                    .setDescription(`👑 **Dev Hima** <@${ADMIN_ID}> đã vào phòng **${newState.channel.name}**!`)
+                    .setDescription(`👑 **Dev Nexora** <@${ADMIN_ID}> đã vào phòng **${newState.channel.name}**!`)
                     .setColor('#FFD700')
                     .setTimestamp();
 
@@ -9134,6 +9155,16 @@ client.on('interactionCreate', async (interaction) => {
     }
 }
 
+    if (interaction.isButton() && interaction.customId === 'pinggame_edit_basic') {
+        const config = getGuildConfig(interaction.guildId);
+        const modal = new ModalBuilder().setCustomId('pinggame_edit_basic_modal').setTitle('Sửa Nội dung Hướng dẫn');
+        const defaultContent = `Đây là kênh để ping game trong server\nCách ping là @mention game muốn chơi lên ví dụ như là \`@TFT\` ....\nCảm ơn đã đọc ạ`;
+        const currentMsg = config.pingGameMessage || defaultContent;
+        const msgInput = new TextInputBuilder().setCustomId('msg_input').setLabel('Nội dung hướng dẫn ping game').setStyle(TextInputStyle.Paragraph).setValue(currentMsg.substring(0, 4000)).setRequired(true);
+        modal.addComponents(new ActionRowBuilder().addComponents(msgInput));
+        return interaction.showModal(modal);
+    }
+
     if (interaction.isButton() && interaction.customId === 'set1ar_edit_command') {
         const config = getGuildConfig(interaction.guildId);
         const modal = new ModalBuilder().setCustomId('set1ar_edit_command_modal').setTitle('Sửa Cú pháp Lệnh');
@@ -9188,6 +9219,25 @@ client.on('interactionCreate', async (interaction) => {
         }
 
         
+
+        if (interaction.customId === 'pinggame_edit_basic_modal') {
+            const newMsg = interaction.fields.getTextInputValue('msg_input');
+            updateGuildConfig(interaction.guildId, 'pingGameMessage', newMsg);
+            
+            const config = getGuildConfig(interaction.guildId);
+            const channel = interaction.guild?.channels.cache.get(config.pingGameChannelId) || 'Không xác định';
+            
+            const embed = new EmbedBuilder()
+                .setTitle('⚙️ BẢNG ĐIỀU KHIỂN PING GAME')
+                .setDescription(`✅ Đã cập nhật thành công!\n\n**Kênh hiện tại:** ${channel}\n**Bản xem trước dữ liệu:**\n- **Nội dung:** ${newMsg.substring(0, 100)}...\n\n👇 **Sử dụng các nút bên dưới để tuỳ chỉnh nội dung.**`)
+                .setColor('#3498DB');
+                
+            const row = new ActionRowBuilder().addComponents(
+                new ButtonBuilder().setCustomId('pinggame_edit_basic').setLabel('Sửa Nội dung hướng dẫn').setStyle(ButtonStyle.Primary)
+            );
+            
+            return interaction.update({ embeds: [embed], components: [row] }).catch(() => {});
+        }
 
         if (interaction.customId === 'j2c_name_modal') {
             const newName = interaction.fields.getTextInputValue('new_name');
