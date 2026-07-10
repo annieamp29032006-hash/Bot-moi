@@ -4050,8 +4050,18 @@ const greetingResponses = [
     "Hello bóng hồng/nam thần! Lâu rồi không gặp!"
 ];
 
+const anmQuotes = [
+    "📖 **Điều 1 - Phạm vi**\nQuy định về bảo vệ an ninh mạng, quyền và nghĩa vụ của tổ chức, cá nhân trên không gian mạng.",
+    "📖 **Điều 2 - An ninh mạng**\nBảo đảm hệ thống thông tin và dữ liệu an toàn, bảo vệ quyền lợi hợp pháp của tổ chức, cá nhân.",
+    "📖 **Điều 5 - Bảo vệ an ninh mạng**\n• Giám sát hệ thống.\n• Phòng, chống tấn công mạng.\n• Ứng phó sự cố.\n• Ngăn chặn thông tin vi phạm.",
+    "🚫 **Hành vi bị nghiêm cấm**\n• Đăng, chia sẻ tin giả.\n• Xúc phạm, vu khống người khác.\n• Mạo danh cá nhân, tổ chức.\n• Hack, phát tán mã độc.\n• Đánh cắp, mua bán dữ liệu cá nhân.\n• Lừa đảo trên không gian mạng.\n• Kích động bạo lực, chống phá Nhà nước.",
+    "👤 **Trách nhiệm người dùng**\n• Tuân thủ pháp luật.\n• Không phát tán nội dung vi phạm.\n• Bảo vệ tài khoản và thông tin cá nhân.\n• Hợp tác với cơ quan chức năng khi có yêu cầu theo quy định.",
+    "🏢 **Trách nhiệm nền tảng**\n• Bảo vệ dữ liệu người dùng.\n• Gỡ bỏ nội dung vi phạm theo quy định.\n• Phối hợp với cơ quan có thẩm quyền."
+];
+
 const autoReplies = {
-    'lavie': `Lavie chào bạn ạ, bạn cần làm code bot custom cho server liên hệ với <@${ADMIN_ID}> . Cảm ơn bạn ạ`
+    'lavie': `Lavie chào bạn ạ, bạn cần làm code bot custom cho server liên hệ với <@${ADMIN_ID}> . Cảm ơn bạn ạ`,
+    'anm': anmQuotes
 };
 
 // ========================
@@ -5561,7 +5571,11 @@ client.on('messageCreate', async (message) => {
     } else {
         for (const [key, reply] of Object.entries(autoReplies)) {
             if (content.includes(key)) {
-                message.reply({ content: reply, allowedMentions: { repliedUser: true, parse: [] } });
+                let finalReply = reply;
+                if (Array.isArray(reply)) {
+                    finalReply = reply[Math.floor(Math.random() * reply.length)];
+                }
+                message.reply({ content: finalReply, allowedMentions: { repliedUser: true, parse: [] } });
                 break;
             }
         }
