@@ -6790,8 +6790,10 @@ Bao gồm:
     // !petbattle
     if (content.startsWith(`${prefix}petbattle`) || content.startsWith(`${prefix}pb`)) {
         const target = message.mentions.users.first();
-        if (!target) return message.reply(`❌ Cú pháp: \`${prefix}petbattle @user\``);
-        return handlePetBattle(message.author.id, target.id, message);
+        if (!target) return message.reply(`❌ Cú pháp: \`${prefix}petbattle @user [tiền cược]\``);
+        const args = content.split(' ');
+        const bet = parseInt(args[2]) || 1000;
+        return handlePetBattle(message.author.id, target.id, bet, message);
     }
 
     // !resetwork
