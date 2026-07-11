@@ -4830,8 +4830,8 @@ client.on('guildMemberAdd', async (member) => {
             joinTimes = joinTimes.filter(t => Date.now() - t < 10000); // 10 giây
             raidTracker.set(member.guild.id, joinTimes);
             
-            if (joinTimes.length >= 10) {
-                await member.kick('Anti-Raid: Phát hiện mass join').catch(() => {});
+            if (joinTimes.length >= 5) {
+                await member.ban({ reason: 'Anti-Raid: Phát hiện mass join' }).catch(() => {});
                 return; // Kicked, no need to welcome
             }
         }
@@ -5300,9 +5300,9 @@ client.on('messageCreate', async (message) => {
             spamTracker.set(message.author.id, userMsgs);
             
             const sameContentCount = userMsgs.filter(m => m.content === message.content).length;
-            if (userMsgs.length >= 10 || sameContentCount >= 5) {
-                await message.member.timeout(60 * 60 * 1000, 'Anti-Spam: Gửi quá nhiều tin nhắn').catch(() => {});
-                await message.channel.send(`🚨 <@${message.author.id}> đã bị Mute 1 tiếng do nghi ngờ spam!`).catch(() => {});
+            if (userMsgs.length >= 7 || sameContentCount >= 5) {
+                await message.member.timeout(7 * 24 * 60 * 60 * 1000, 'Anti-Spam: Gửi quá nhiều tin nhắn').catch(() => {});
+                await message.channel.send(`🚨 <@${message.author.id}> đã bị Mute **1 Tuần** do nghi ngờ spam!`).catch(() => {});
                 spamTracker.delete(message.author.id);
                 return;
             }
@@ -10892,7 +10892,7 @@ async function checkAntiNuke(guild, actionType) {
         const recentActions = userActions.filter(t => Date.now() - t < 10000);
         guildTracker.set(executor.id, recentActions);
         
-        if (recentActions.length >= 3) {
+        if (recentActions.length >= 2) {
             try {
                 const member = await guild.members.fetch(executor.id);
                 if (member) {
