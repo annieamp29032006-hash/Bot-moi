@@ -6227,6 +6227,82 @@ Bao gồm:
         }
     }
 
+    if (content.startsWith(`${prefix}setupjail`)) {
+        if (!message.member.permissions.has(PermissionsBitField.Flags.Administrator)) return message.reply('❌ Bạn không có quyền Administrator!');
+        
+        const msg = await message.reply('⏳ Đang thiết lập hệ thống nhà tù tự động... (Quá trình này có thể mất vài giây)');
+        try {
+            const guild = message.guild;
+            
+            let jailRole = guild.roles.cache.find(r => r.name === 'Tù Nhân');
+            if (!jailRole) {
+                jailRole = await guild.roles.create({
+                    name: 'Tù Nhân',
+                    color: '#000001',
+                    reason: 'Setup Jail System'
+                });
+            }
+            
+            let jailChannel = guild.channels.cache.find(c => c.name === 'nhà-tù');
+            if (!jailChannel) {
+                jailChannel = await guild.channels.create({
+                    name: 'nhà-tù',
+                    type: ChannelType.GuildText,
+                    permissionOverwrites: [
+                        {
+                            id: guild.id,
+                            deny: [PermissionsBitField.Flags.ViewChannel]
+                        },
+                        {
+                            id: jailRole.id,
+                            allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages]
+                        }
+                    ],
+                    reason: 'Setup Jail System'
+                });
+            }
+            
+            updateGuildConfig(guild.id, 'jailRoleId', jailRole.id);
+            updateGuildConfig(guild.id, 'jailChannelId', jailChannel.id);
+            
+            let successCount = 0;
+            let failCount = 0;
+            const channels = await guild.channels.fetch();
+            for (const [id, ch] of channels) {
+                if (!ch) continue;
+                try {
+                    if (id === jailChannel.id) {
+                        await ch.permissionOverwrites.edit(jailRole.id, {
+                            ViewChannel: true,
+                            SendMessages: true,
+                            ReadMessageHistory: true,
+                            Connect: false
+                        });
+                    } else {
+                        await ch.permissionOverwrites.edit(jailRole.id, {
+                            ViewChannel: false,
+                            Connect: false,
+                            SendMessages: false
+                        });
+                    }
+                    successCount++;
+                } catch (err) {
+                    failCount++;
+                }
+            }
+            
+            const embed = new EmbedBuilder()
+                .setTitle('⛓️ HOÀN TẤT SETUP TỰ ĐỘNG')
+                .setDescription(`✅ Đã tạo Role và Kênh thành công!\n\n- **Role Tù nhân:** ${jailRole}\n- **Kênh Cải tạo:** ${jailChannel}\n- **Đã khóa:** ${successCount} kênh khác.\n\n🔒 Tù nhân bây giờ sẽ **bị cấm tuyệt đối** khỏi mọi kênh chat và voice khác, chỉ có thể hoạt động trong ${jailChannel}!`)
+                .setColor('#2ECC71');
+                
+            return msg.edit({ content: null, embeds: [embed] });
+        } catch (error) {
+            console.error(error);
+            return msg.edit('❌ Có lỗi xảy ra. Hãy đảm bảo Bot có đủ quyền (Administrator) và đứng cao hơn các Role khác!');
+        }
+    }
+
     if (content.startsWith(`${prefix}setwelcome`)) {
         if (!message.member.permissions.has(PermissionsBitField.Flags.Administrator)) return message.reply('❌ Bạn không có quyền!');
         
@@ -9709,6 +9785,8 @@ client.on('interactionCreate', async (interaction) => {
     if (commandName === 'setjail') {
         if (!interaction.member || !interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) return interaction.reply({ content: '❌ Bạn không có quyền!', flags: MessageFlags.Ephemeral });
         
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+        
         const role = interaction.options.getRole('role');
         const channel = interaction.options.getChannel('channel');
         updateGuildConfig(interaction.guildId, 'jailRoleId', role.id);
@@ -9716,10 +9794,48 @@ client.on('interactionCreate', async (interaction) => {
         
         const embed = new EmbedBuilder()
             .setTitle('⛓️ ĐÃ CÀI ĐẶT HỆ THỐNG TÙ / CẢI TẠO')
-            .setDescription(`✅ Đã cập nhật thành công!\n\n- **Role Tù nhân:** ${role}\n- **Kênh Cải tạo:** ${channel}`)
+            .setDescription(`✅ Đã cập nhật cấu hình!\n\n- **Role Tù nhân:** ${role}\n- **Kênh Cải tạo:** ${channel}\n\n⏳ Đang tự động khoá toàn bộ kênh khác trong Server để giam giữ tù nhân...`)
             .setColor('#E74C3C');
             
-        return interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
+        await interaction.editReply({ embeds: [embed] });
+        
+        let successCount = 0;
+        let failCount = 0;
+        
+        try {
+            const channels = await interaction.guild.channels.fetch();
+            for (const [id, ch] of channels) {
+                if (!ch) continue;
+                try {
+                    if (id === channel.id) {
+                        await ch.permissionOverwrites.edit(role.id, {
+                            ViewChannel: true,
+                            SendMessages: true,
+                            ReadMessageHistory: true,
+                            Connect: false
+                        });
+                    } else {
+                        await ch.permissionOverwrites.edit(role.id, {
+                            ViewChannel: false,
+                            Connect: false,
+                            SendMessages: false
+                        });
+                    }
+                    successCount++;
+                } catch (err) {
+                    failCount++;
+                }
+            }
+        } catch (e) {
+            console.error('Lỗi khi set quyền jail:', e);
+        }
+        
+        const doneEmbed = new EmbedBuilder()
+            .setTitle('⛓️ HOÀN TẤT SETUP NHÀ TÙ')
+            .setDescription(`✅ Đã thiết lập xong quyền hạn cho Role ${role}!\n\n- **Đã khóa thành công:** ${successCount} kênh.\n- **Lỗi bỏ qua:** ${failCount} kênh.\n\n🔒 Tù nhân bây giờ sẽ **chỉ nhìn thấy duy nhất** kênh ${channel} và bị cấm tuyệt đối khỏi Voice Chat!`)
+            .setColor('#2ECC71');
+            
+        return interaction.editReply({ embeds: [doneEmbed] });
     }
 
     if (commandName === 'set1ar') {
