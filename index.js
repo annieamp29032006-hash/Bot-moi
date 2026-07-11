@@ -191,6 +191,7 @@ function buildHelpPages(prefix) {
             .setDescription('Dành riêng cho Admin và Developer để vận hành server hiệu quả.')
             .addFields(
                 { name: '⛓️ Tù Đày', value: `> \`${prefix}jail [@user] [số]\` - Giam giữ người vi phạm\n> \`${prefix}unjail [@user]\` - Ân xá, thả tự do\n> \`${prefix}nopphat\` - Tự chuộc thân (100,000 🪙)`, inline: false },
+                { name: '🛡️ Bảo Mật', value: `> \`/antinuke / antiraid\` - Tắt/Mở Anti-Nuke, Anti-Raid\n> \`${prefix}setupjail\` - Setup Nhà tù tự động (Khóa Server)`, inline: false },
                 { name: '💰 Quản Lý Kinh Tế', value: `> \`${prefix}addcoin / removecoin / setcoin\` - Điều chỉnh tiền\n> \`${prefix}resetcoin / resetallcoin\` - Làm mới tiền\n> \`${prefix}giveall\` - Phát tiền cho cả server (Dev)`, inline: false },
                 { name: '⚙️ Cài Đặt Server', value: `> \`${prefix}setprefix\` - Đổi Prefix\n> \`/setwelcome / setpinggame / set1ar / setjail\` - Cài đặt tính năng\n> \`/setupadvlogs\` - Tạo hệ thống Log\n> \`${prefix}disable / enable\` - Tắt/Mở bot tại kênh`, inline: false },
                 { name: '🛠️ Tiện Ích Admin', value: `> \`${prefix}clear [số]\` - Xóa tin nhắn\n> \`${prefix}say\` - Nói thay Bot\n> \`${prefix}admincheat\` - Bảng điều khiển tối thượng\n> \`${prefix}gstart / gend / greroll\` - Giveaway\n> \`${prefix}leave sv\` - Rời server (Dev)`, inline: false }
