@@ -200,8 +200,26 @@ class WerewolfGame {
         this.status = 'STARTING';
         if (this.lobbyMsg) await this.lobbyMsg.edit({ components: [] }).catch(()=>{});
 
-        const rolePool = ['WOLF', 'SEER', 'GUARD', 'WITCH'];
-        while(rolePool.length < this.players.size) rolePool.push('VILLAGER');
+        let rolePool = [];
+        const count = this.players.size;
+        
+        // Phân bổ vai trò theo số lượng
+        if (count === 4) rolePool = ['WOLF', 'SEER', 'GUARD', 'VILLAGER'];
+        else if (count === 5) rolePool = ['WOLF', 'SEER', 'GUARD', 'WITCH', 'SERIAL_KILLER'];
+        else if (count === 6) rolePool = ['WOLF', 'WOLF', 'SEER', 'GUARD', 'WITCH', 'SERIAL_KILLER'];
+        else if (count === 7) rolePool = ['WOLF', 'WOLF', 'SEER', 'GUARD', 'WITCH', 'SERIAL_KILLER', 'ROLEBLOCKER'];
+        else if (count === 8) rolePool = ['WOLF', 'WOLF_CUB', 'SEER', 'GUARD', 'WITCH', 'SERIAL_KILLER', 'ROLEBLOCKER', 'VAMPIRE'];
+        else if (count === 9) rolePool = ['WOLF', 'WOLF_CUB', 'SEER', 'GUARD', 'WITCH', 'SERIAL_KILLER', 'ROLEBLOCKER', 'VAMPIRE', 'ARSONIST'];
+        else if (count >= 10) {
+            rolePool = ['WOLF', 'WOLF', 'WOLF_CUB', 'SEER', 'GUARD', 'WITCH', 'SERIAL_KILLER', 'ROLEBLOCKER', 'VAMPIRE', 'ARSONIST'];
+            const extras = ['DETECTIVE', 'BODYGUARD', 'DOCTOR', 'CUPID', 'FOOL', 'IDIOT', 'VILLAGER'];
+            while (rolePool.length < count) {
+                rolePool.push(extras[Math.floor(Math.random() * extras.length)]);
+            }
+        } else {
+            rolePool = ['WOLF', 'SEER', 'GUARD', 'WITCH'];
+            while(rolePool.length < count) rolePool.push('VILLAGER');
+        }
         rolePool.sort(() => Math.random() - 0.5);
 
         let i = 0;
