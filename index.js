@@ -1290,6 +1290,7 @@ function buildProfileEmbed(user) {
     const msgCount = pData.messageCount || 0;
     let vTime = pData.voiceTime || 0;
     
+    const session = typeof voiceJoinTimes !== 'undefined' ? voiceJoinTimes.get(uid) : null;
     if (session) {
         const joinTime = typeof session === 'number' ? session : session.time;
         const diffSecs = (Date.now() - joinTime) / 1000;
@@ -5265,6 +5266,41 @@ client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
     if (BANNED_USERS.includes(message.author.id)) return;
     
+    // --- AUTO REPLY (TYAUTO REP) ---
+    const lowerContent = message.content.toLowerCase();
+    const exactWord = lowerContent.trim();
+    
+    if (exactWord === 'ty' || exactWord === 'tks' || exactWord === 'thank you' || exactWord === 'cảm ơn bot') {
+        const tksReplies = [
+            'Không có gì đâu sếp! ❤️',
+            'Rất hân hạnh được phục vụ! 🫡',
+            'Quá khen, quá khen! Hihi 🤭',
+            'Sếp vui là bot vui rồi! ✨',
+            'Chuyện nhỏ như con thỏ! 🐰'
+        ];
+        message.reply(tksReplies[Math.floor(Math.random() * tksReplies.length)]).catch(() => {});
+    } else if (lowerContent.includes('bot ơi') || lowerContent.includes('bot oi')) {
+        const botReplies = [
+            'Dạ, bot nghe đây! ❤️', 
+            'Bot đây ạ! Có gì không sếp?', 
+            'Gọi bot làm gì đó? 😘', 
+            'Đang bận xíu nha, nạp VIP để ưu tiên! 💎',
+            'Sếp gọi em có việc gì không ạ? 🐶',
+            'Gì thế? Đang nghe nhạc chill rùi 🎵'
+        ];
+        message.reply(botReplies[Math.floor(Math.random() * botReplies.length)]).catch(() => {});
+    } else if (exactWord === 'hi' || exactWord === 'hello' || exactWord === 'chào') {
+        const helloReplies = [
+            `Chào sếp <@${message.author.id}> nha! 👋`,
+            'Hello! Chúc một ngày tốt lành! ✨',
+            'Hi, có cần bot giúp gì không?',
+            'Chào người đẹp! 😎'
+        ];
+        message.reply(helloReplies[Math.floor(Math.random() * helloReplies.length)]).catch(() => {});
+    } else if (lowerContent.includes('yêu bot') || lowerContent.includes('thích bot')) {
+        message.reply('Hihi, bot cũng yêu sếp lắm! 💖').catch(() => {});
+    }
+
     // --- IMAGE RESTRICTION LOGIC ---
     if (imageChannelConfig[message.channelId]) {
         const allowedChannel = imageChannelConfig[message.channelId];
@@ -7380,7 +7416,13 @@ Bao gồm:
     }
 
     // !profile
-    
+    if (content.startsWith(`${prefix}profile`) || content.startsWith(`${prefix}pr`)) {
+        const target = message.mentions.users.first() || message.author;
+        const profileData = buildProfileEmbed(target);
+        const options = { embeds: [profileData.embed] };
+        if (profileData.attachment) options.files = [profileData.attachment];
+        return message.reply(options).catch(() => {});
+    }
 
     // !hunt
     
