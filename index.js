@@ -7131,14 +7131,14 @@ Bao gồm:
         if (!args[1]) return message.reply(`❌ Cú pháp: \`${prefix}withdraw <số tiền|all>\``);
         return handleWithdraw(message.author.id, args[1].toLowerCase(), message);
     }
-    if (content.startsWith(`${prefix}rob`)) {
-        const target = message.mentions.users.first();
-        if (!target) return message.reply(`❌ Cú pháp: \`${prefix}rob @user\``);
-        return handleRob(message.author.id, target.id, message);
-    }
     if (content.startsWith(`${prefix}robbank`) || content.startsWith(`${prefix}heist`)) {
         const robTarget = message.mentions.users.first();
         return handleRobbank(message.author.id, message, robTarget ? robTarget.id : null);
+    }
+    if (content.startsWith(`${prefix}rob `) || content === `${prefix}rob`) {
+        const target = message.mentions.users.first();
+        if (!target) return message.reply(`❌ Cú pháp: \`${prefix}rob @user\``);
+        return handleRob(message.author.id, target.id, message);
     }
     if (content.startsWith(`${prefix}hack`)) {
         const targetId = message.mentions.users.first()?.id;
@@ -9359,6 +9359,12 @@ client.on('interactionCreate', async (interaction) => {
         data[uid].jailEnd = null;
         saveCoins(data);
         return interaction.reply({ content: '🔓 Bạn đã nộp **100,000 🪙** cho công an và được thả tự do!', flags: 0 });
+    }
+
+    if (commandName === 'rob') {
+        const robTarget = interaction.options?.getUser('user');
+        if (!robTarget) return interaction.reply({ content: '❌ Bạn phải chọn người để trộm!', ephemeral: true });
+        return handleRob(uid, robTarget.id, interaction);
     }
 
     if (commandName === 'robbank' || commandName === 'heist') {
