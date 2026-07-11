@@ -1223,71 +1223,26 @@ function formatVoiceTime(seconds) {
     return parts.join(' ');
 }
 
-function buildProfileEmbed(user) {
+async function buildProfileEmbed(user) {
     const uid = user.id;
-    const cData = loadCoins();
     const pData = getPlayer(uid);
-    const stats = getPlayerStats(pData);
-    
-    const c = cData[uid] || { coins: 0, bank: 0, streak: 0 };
-    const coins = c.coins || 0;
-    const bank = c.bank || 0;
-    const streak = c.streak || 0;
     
     let marryText = 'Đang độc thân 💔';
-    if (pData.partner) marryText = `Đã kết hôn với <@${pData.partner}> 💍`;
-
-    let jobText = 'Đang rảnh rỗi';
-    if (c.workEnd && c.workJob) {
-        if (Date.now() < c.workEnd) {
-            const m = Math.floor((c.workEnd - Date.now())/60000);
-            jobText = `Đang làm: **${c.workJob}** (${m}p nữa)`;
-        } else {
-            jobText = `Đã làm xong: **${c.workJob}** (Chờ nhận lương)`;
-        }
-    }
-
-    const wName = pData.weapon ? RPG_ITEMS.weapons[pData.weapon].name : 'Tay không';
-    const aName = pData.armor ? RPG_ITEMS.armors[pData.armor].name : 'Đồ vải';
-    const artName = pData.artifact ? RPG_ITEMS.artifacts[pData.artifact].name : 'Chưa đeo';
-    const smallPot = pData.inventory?.small_potion || 0;
-    const largePot = pData.inventory?.large_potion || 0;
-
-    let petsText = 'Không có thú cưng 😢';
-    if (pData.pets && Object.keys(pData.pets).length > 0) {
-        let totalPets = 0;
-        let bestPet = null;
-        for (const pid of Object.keys(pData.pets)) {
-            const amount = pData.pets[pid] || 0;
-            if (amount > 0) {
-                totalPets += amount;
-                const petInfo = PET_LIST.find(x => x.id === pid);
-                if (petInfo) {
-                    if (!bestPet || petInfo.price > bestPet.price) {
-                        bestPet = petInfo;
-                    }
-                }
+    let partnerAvatar = null;
+    if (pData.partner) {
+        marryText = `Đã kết hôn với <@${pData.partner}> 💍`;
+        try {
+            const partnerUser = await user.client.users.fetch(pData.partner).catch(()=>null);
+            if (partnerUser) {
+                partnerAvatar = partnerUser.displayAvatarURL({ dynamic: true, size: 512 });
             }
-        }
-        if (totalPets > 0 && bestPet) {
-            petsText = `${bestPet.emoji} **${bestPet.name}** (Mạnh nhất)\n*(Sở hữu tổng cộng **${totalPets}** thú cưng)*`;
-        }
-    }
-
-    let profileColor = '#9B59B6';
-    if (pData.rpgClass && RPG_CLASSES[pData.rpgClass]) {
-        if (pData.rpgClass === 'warrior') profileColor = '#E74C3C';
-        else if (pData.rpgClass === 'mage') profileColor = '#3498DB';
-        else if (pData.rpgClass === 'assassin') profileColor = '#2ECC71';
-        else if (pData.rpgClass === 'archer') profileColor = '#F1C40F';
-        else if (pData.rpgClass === 'healer') profileColor = '#FFB6C1';
+        } catch(e){}
     }
 
     let attachment = null;
     let bdayText = 'Chưa cài đặt';
     let isBirthday = false;
 
-    const msgCount = pData.messageCount || 0;
     let vTime = pData.voiceTime || 0;
     
     const session = typeof voiceJoinTimes !== 'undefined' ? voiceJoinTimes.get(uid) : null;
@@ -1305,27 +1260,27 @@ function buildProfileEmbed(user) {
         if (`${d}/${m}` === pData.birthday) {
             isBirthday = true;
             try {
+                const { AttachmentBuilder } = require('discord.js');
                 attachment = new AttachmentBuilder('./birthday.png', { name: 'birthday.png' });
             } catch (e) {}
         }
     }
 
     const embed = new EmbedBuilder()
-        .setTitle(isBirthday ? `🎉 CHÚC MỪNG SINH NHẬT ${user.username.toUpperCase()} 🎉` : `👤 Hồ Sơ Nhập Vai: ${user.username}`)
-        .setColor(isBirthday ? '#FF69B4' : profileColor)
+        .setTitle(isBirthday ? `🎉 CHÚC MỪNG SINH NHẬT ${user.username.toUpperCase()} 🎉` : `👤 Hồ Sơ: ${user.username}`)
+        .setColor(isBirthday ? '#FF69B4' : '#9B59B6')
         .setThumbnail(user.displayAvatarURL({ dynamic: true, size: 512 }))
         .addFields(
-            { name: '🔰 Thông Tin Cơ Bản', value: `Cấp độ: **${pData.level}** (${pData.exp}/${pData.level*100} EXP)\nSinh nhật: ${bdayText}\nHôn nhân: ${marryText}`, inline: false },
-            { name: '💰 Tài Sản & Hoạt Động', value: `Ví: **${coins.toLocaleString()} 🪙**\nNgân hàng: **${bank.toLocaleString()} 🪙**\nCông việc: ${jobText}`, inline: true },
-            { name: '🔥 Tương Tác', value: `💬 Tin nhắn: **${msgCount.toLocaleString()}**\n🎤 Thoại: **${formatVoiceTime(vTime)}**`, inline: true },
-            //{ name: '⚔️ Chỉ Số RPG', value: `Máu: ❤️ **${pData.hp} / ${stats.maxHp || pData.maxHp}**\nSát thương: 🗡️ **${stats.atk}**\nPhòng thủ: 🛡️ **${stats.def}**${pData.rpgClass && RPG_CLASSES[pData.rpgClass] ? `\nClass: ${RPG_CLASSES[pData.rpgClass].emoji} **${RPG_CLASSES[pData.rpgClass].name}**` : ''}`, inline: true },
-            //{ name: '🎒 Trang Bị', value: `Vũ khí: ${wName}\nÁo giáp: ${aName}\nTrang sức: ${artName}\nBình máu: 🧪x${smallPot} | 🧴x${largePot}`, inline: true },
-            { name: '📊 Thành Tích', value: `Điểm danh: **${streak}** ngày\n🏰 Dungeon: **${pData.dungeonClears || 0}** lần\n⚔️ PvP: **${pData.pvpWins || 0}W** - **${pData.pvpLosses || 0}L**`, inline: true },
-            { name: '🐾 Thú Cưng', value: petsText, inline: false }
+            { name: '🎤 Thời gian Voice', value: `**${formatVoiceTime(vTime)}**`, inline: true },
+            { name: '🎂 Ngày sinh nhật', value: bdayText, inline: true },
+            { name: '📅 Ngày tạo tài khoản', value: `<t:${Math.floor(user.createdTimestamp / 1000)}:D>`, inline: true },
+            { name: '💍 Hôn nhân', value: marryText, inline: false }
         )
         .setTimestamp();
         
-    if (isBirthday && attachment) {
+    if (partnerAvatar) {
+        embed.setImage(partnerAvatar);
+    } else if (isBirthday && attachment) {
         embed.setImage('attachment://birthday.png');
     }
 
@@ -7418,7 +7373,7 @@ Bao gồm:
     // !profile
     if (content.startsWith(`${prefix}profile`) || content.startsWith(`${prefix}pr`)) {
         const target = message.mentions.users.first() || message.author;
-        const profileData = buildProfileEmbed(target);
+        const profileData = await buildProfileEmbed(target);
         const options = { embeds: [profileData.embed] };
         if (profileData.attachment) options.files = [profileData.attachment];
         return message.reply(options).catch(() => {});
@@ -10065,7 +10020,7 @@ client.on('interactionCreate', async (interaction) => {
 
     if (commandName === 'profile') {
         const target = interaction.options.getUser('user') || interaction.user;
-        const profileData = buildProfileEmbed(target);
+        const profileData = await buildProfileEmbed(target);
         const options = { embeds: [profileData.embed] };
         if (profileData.attachment) options.files = [profileData.attachment];
         return interaction.reply(options);
