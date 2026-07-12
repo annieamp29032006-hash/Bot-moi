@@ -5450,22 +5450,35 @@ client.on('messageCreate', async (message) => {
         return message.reply(`✅ Đã thêm ${roles.length} role vào danh sách Whitelist của Anti-Nuke/Anti-Raid! Những role này sẽ không bị bot trừng phạt.`);
     }
 
-    // !xoa <channel_id>
+    // !xoa <channel_id_1> <channel_id_2> ...
     if (message.content.startsWith(`${imgPrefix}xoa`)) {
         if (!message.member.permissions.has(PermissionsBitField.Flags.Administrator)) return message.reply('❌ Bạn cần quyền Administrator!');
         const args = message.content.split(' ').slice(1);
-        const channelId = args[0];
-        if (!channelId) return message.reply(`❌ Cú pháp: \`${imgPrefix}xoa <channel_id>\``);
-        const channelToDelete = message.guild.channels.cache.get(channelId);
-        if (!channelToDelete) return message.reply('❌ Không tìm thấy kênh với ID này!');
-        try {
-            const channelName = channelToDelete.name;
-            await channelToDelete.delete('Deleted by !xoa command');
-            return message.reply(`✅ Đã xóa kênh **${channelName}** thành công!`);
-        } catch (err) {
-            console.error(err);
-            return message.reply('❌ Không thể xóa kênh này (kiểm tra quyền của bot).');
+        if (args.length === 0) return message.reply(`❌ Cú pháp: \`${imgPrefix}xoa <channel_id_1> <channel_id_2> ...\``);
+        
+        let deleted = [];
+        let failed = [];
+        
+        for (const channelId of args) {
+            const channelToDelete = message.guild.channels.cache.get(channelId);
+            if (!channelToDelete) {
+                failed.push(`${channelId} (Không tìm thấy)`);
+                continue;
+            }
+            try {
+                const channelName = channelToDelete.name;
+                await channelToDelete.delete('Deleted by !xoa command');
+                deleted.push(channelName);
+            } catch (err) {
+                failed.push(`${channelToDelete.name} (Lỗi quyền)`);
+            }
         }
+        
+        let replyMsg = '';
+        if (deleted.length > 0) replyMsg += `✅ Đã xóa thành công ${deleted.length} kênh: **${deleted.join(', ')}**\n`;
+        if (failed.length > 0) replyMsg += `❌ Không thể xóa ${failed.length} kênh: ${failed.join(', ')}`;
+        
+        return message.reply(replyMsg || '❌ Không có thao tác nào được thực hiện.');
     }
 
     // !role (Only for ADMIN_ID)
