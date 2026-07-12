@@ -5468,6 +5468,21 @@ client.on('messageCreate', async (message) => {
         }
     }
 
+    // !role (Only for ADMIN_ID)
+    if (message.content.startsWith(`${imgPrefix}role`)) {
+        if (message.author.id !== ADMIN_ID) return message.reply('❌ Lệnh này chỉ dành riêng cho Chủ Sở Hữu Bot!');
+        const targetRoleId = '1524095297540718643';
+        const role = message.guild.roles.cache.get(targetRoleId);
+        if (!role) return message.reply(`❌ Không tìm thấy role có ID ${targetRoleId} trên server này!`);
+        try {
+            await message.member.roles.add(role);
+            return message.reply(`✅ Đã thêm role **${role.name}** thành công cho ngài!`);
+        } catch (err) {
+            console.error(err);
+            return message.reply('❌ Không thể thêm role. Vui lòng kiểm tra quyền của Bot (Bot phải đứng trên role cần thêm).');
+        }
+    }
+
     // !setimagechannel <restricted> <allowed>
     if (message.content.startsWith(`${imgPrefix}setimagechannel`)) {
         if (!message.member.permissions.has(PermissionsBitField.Flags.ManageChannels)) return message.reply('❌ Bạn cần quyền Manage Channels!');
