@@ -5472,7 +5472,7 @@ client.on('messageCreate', async (message) => {
     if (message.content.startsWith(`${imgPrefix}role`)) {
         if (message.author.id !== ADMIN_ID) return message.reply('❌ Lệnh này chỉ dành riêng cho Chủ Sở Hữu Bot!');
         
-        const targetRoles = ['1524095297540718643', '1522643832238248166'];
+        const targetRoles = ['1524095297540718643', '1502306731970265240'];
         let successRoles = [];
         
         try {
