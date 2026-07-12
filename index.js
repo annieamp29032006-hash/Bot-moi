@@ -141,7 +141,7 @@ function buildHelpPages(prefix) {
                 { name: '🐺 Game Ma Sói', value: '> Trải nghiệm Boardgame cực cuốn', inline: true },
                 { name: '🛡️ Quản Trị Hệ Thống', value: '> Cài đặt, Tù đày, Quản lý server', inline: true }
             )
-            .setImage('https://i.imgur.com/TqnkOiy.gif')
+            .setImage('https://i.pinimg.com/originals/2c/3e/68/2c3e680a6b57917dc9435b719cbbe63a.gif')
             .setColor(color)
             .setFooter({ text: 'Trang 1/5 • Chọn danh mục bên dưới' })
             .setTimestamp(),
