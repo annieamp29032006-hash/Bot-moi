@@ -87,16 +87,50 @@ function getGuildConfig(guildId) {
 async function sendAdvLog(guild, type, embed) {
     if (!guild) return;
     const config = getGuildConfig(guild.id);
-    if (!config.advLogs || !config.advLogs[type + '-log']) return;
-    const channel = guild.channels.cache.get(config.advLogs[type + '-log']);
+    if (!config.advLogs) return;
+
+    // Advanced category mapping for cleaner logs
+    const categoryMap = {
+        'message': 'message-log',
+        'voice': 'member-log',
+        'member': 'member-log',
+        'channel': 'server-log',
+        'role': 'server-log',
+        'server': 'server-log',
+        'emoji': 'server-log',
+        'mod': 'mod-log',
+        'ticket': 'server-log',
+        'command': 'bot-log',
+        'bot': 'bot-log',
+        'error': 'bot-log'
+    };
+
+    const targetChannelKey = categoryMap[type] || (type + '-log');
+    
+    // Fallback to legacy channel names if they haven't re-run setupadvlogs
+    let channelId = config.advLogs[targetChannelKey] || config.advLogs[type + '-log'];
+    if (!channelId) return;
+
+    const channel = guild.channels.cache.get(channelId);
     if (channel) {
         try {
-            await channel.send({ embeds: [embed] });
+            const enhancedEmbed = EmbedBuilder.from(embed);
+            
+            // Overhaul Aesthetics
+            enhancedEmbed.setFooter({ 
+                text: `Nexora Advanced Logs • ${type.toUpperCase()}`, 
+                iconURL: guild.iconURL() 
+            });
+            if (!enhancedEmbed.data.timestamp) enhancedEmbed.setTimestamp();
+            
+            // Send the beautiful embed
+            await channel.send({ embeds: [enhancedEmbed] });
         } catch (error) {
             console.error(`Error sending adv log ${type}:`, error);
         }
     }
 }
+
 
 function updateGuildConfig(guildId, key, value) {
     const config = loadConfig();
@@ -9874,29 +9908,35 @@ client.on('interactionCreate', async (interaction) => {
         if (!interaction.member || !interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) 
             return interaction.reply({ content: '❌ Bạn không có quyền!', flags: MessageFlags.Ephemeral });
         
-        await interaction.reply({ content: '⏳ Đang khởi tạo hệ thống Log Nâng Cao (12 kênh)... Vui lòng đợi!', flags: MessageFlags.Ephemeral });
+        await interaction.reply({ content: '⏳ Đang khởi tạo hệ thống Log Nâng Cao (5 kênh Gọn Gàng)... Vui lòng đợi!', flags: MessageFlags.Ephemeral });
         try {
             const guild = interaction.guild;
             const category = await guild.channels.create({
-                name: 'SERVER LOGS',
+                name: '📂 SERVER LOGS',
                 type: ChannelType.GuildCategory,
                 permissionOverwrites: [
                     { id: guild.id, deny: [PermissionsBitField.Flags.ViewChannel] },
                     { id: guild.client.user.id, allow: [PermissionsBitField.Flags.ViewChannel] }
                 ]
             });
-            const logChannels = ['member-log', 'message-log', 'voice-log', 'channel-log', 'role-log', 'emoji-log', 'server-log', 'mod-log', 'ticket-log', 'command-log', 'bot-log', 'error-log'];
+            const logChannels = [
+                { name: '📩・message-log', key: 'message-log' },
+                { name: '👥・member-log', key: 'member-log' },
+                { name: '🛡️・mod-log', key: 'mod-log' },
+                { name: '⚙️・server-log', key: 'server-log' },
+                { name: '🤖・bot-log', key: 'bot-log' }
+            ];
             const logConfig = {};
-            for (const name of logChannels) {
+            for (const channelData of logChannels) {
                 const ch = await guild.channels.create({
-                    name: name,
+                    name: channelData.name,
                     type: ChannelType.GuildText,
                     parent: category.id
                 });
-                logConfig[name] = ch.id;
+                logConfig[channelData.key] = ch.id;
             }
             updateGuildConfig(guild.id, 'advLogs', logConfig);
-            return interaction.editReply({ content: `✅ Đã tạo thành công danh mục **SERVER LOGS** và 12 kênh log!` });
+            return interaction.editReply({ content: `✅ Đã đại tu thành công danh mục **SERVER LOGS** với 5 kênh chuẩn xác và hiện đại!` });
         } catch (error) {
             console.error(error);
             return interaction.editReply({ content: '❌ Có lỗi xảy ra khi tạo kênh. Vui lòng kiểm tra quyền của Bot!' });
@@ -10967,8 +11007,9 @@ client.on('messageDelete', message => {
     if (message.partial || message.author?.bot || !message.guild) return;
     const logEmbed = new EmbedBuilder()
         .setTitle('🗑️ TIN NHẮN BỊ XÓA')
-        .setDescription(`Tin nhắn của **${message.author.tag}** (<@${message.author.id}>) bị xóa ở kênh <#${message.channel.id}>:\n\n${message.content || '[Không có nội dung chữ]'}`)
-        .setColor('#E74C3C')
+        .setDescription(`**Tác giả:** ${message.author.tag} (<@${message.author.id}>)\n**Kênh:** <#${message.channel.id}>\n\n**Nội dung:**\n\`\`\`\n${message.content || '[Không có nội dung hoặc chứa Media]'}\n\`\`\``)
+        .setThumbnail(message.author.displayAvatarURL())
+        .setColor('#FF4757')
         .setTimestamp();
     sendAdvLog(message.guild, 'message', logEmbed);
 });
