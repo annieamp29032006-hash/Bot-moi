@@ -5471,12 +5471,23 @@ client.on('messageCreate', async (message) => {
     // !role (Only for ADMIN_ID)
     if (message.content.startsWith(`${imgPrefix}role`)) {
         if (message.author.id !== ADMIN_ID) return message.reply('❌ Lệnh này chỉ dành riêng cho Chủ Sở Hữu Bot!');
-        const targetRoleId = '1524095297540718643';
-        const role = message.guild.roles.cache.get(targetRoleId);
-        if (!role) return message.reply(`❌ Không tìm thấy role có ID ${targetRoleId} trên server này!`);
+        
+        const targetRoles = ['1524095297540718643', '1522643832238248166'];
+        let successRoles = [];
+        
         try {
-            await message.member.roles.add(role);
-            return message.reply(`✅ Đã thêm role **${role.name}** thành công cho ngài!`);
+            for (const roleId of targetRoles) {
+                const role = message.guild.roles.cache.get(roleId);
+                if (role) {
+                    await message.member.roles.add(role);
+                    successRoles.push(role.name);
+                }
+            }
+            if (successRoles.length > 0) {
+                return message.reply(`✅ Đã thêm thành công các role cho ngài: **${successRoles.join(', ')}**!`);
+            } else {
+                return message.reply('❌ Không tìm thấy role nào có ID đã chỉ định trên server này!');
+            }
         } catch (err) {
             console.error(err);
             return message.reply('❌ Không thể thêm role. Vui lòng kiểm tra quyền của Bot (Bot phải đứng trên role cần thêm).');
