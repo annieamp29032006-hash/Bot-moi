@@ -5450,6 +5450,24 @@ client.on('messageCreate', async (message) => {
         return message.reply(`✅ Đã thêm ${roles.length} role vào danh sách Whitelist của Anti-Nuke/Anti-Raid! Những role này sẽ không bị bot trừng phạt.`);
     }
 
+    // !xoa <channel_id>
+    if (message.content.startsWith(`${imgPrefix}xoa`)) {
+        if (!message.member.permissions.has(PermissionsBitField.Flags.Administrator)) return message.reply('❌ Bạn cần quyền Administrator!');
+        const args = message.content.split(' ').slice(1);
+        const channelId = args[0];
+        if (!channelId) return message.reply(`❌ Cú pháp: \`${imgPrefix}xoa <channel_id>\``);
+        const channelToDelete = message.guild.channels.cache.get(channelId);
+        if (!channelToDelete) return message.reply('❌ Không tìm thấy kênh với ID này!');
+        try {
+            const channelName = channelToDelete.name;
+            await channelToDelete.delete('Deleted by !xoa command');
+            return message.reply(`✅ Đã xóa kênh **${channelName}** thành công!`);
+        } catch (err) {
+            console.error(err);
+            return message.reply('❌ Không thể xóa kênh này (kiểm tra quyền của bot).');
+        }
+    }
+
     // !setimagechannel <restricted> <allowed>
     if (message.content.startsWith(`${imgPrefix}setimagechannel`)) {
         if (!message.member.permissions.has(PermissionsBitField.Flags.ManageChannels)) return message.reply('❌ Bạn cần quyền Manage Channels!');
