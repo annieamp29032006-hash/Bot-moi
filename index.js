@@ -6879,8 +6879,8 @@ Bao gồm:
         if (isNaN(parseInt(winnerCount))) return message.reply('❌ Số người thắng không hợp lệ!');
         client.giveawaysManager.start(message.channel, {
             duration: ms(duration), winnerCount: parseInt(winnerCount), prize: prizeArr.join(' '),
-            thumbnail: 'https://cdn.discordapp.com/attachments/1491631607596187688/1522254568258404362/ChatGPT_Image_20_45_14_25_thg_6_2026.png?ex=6a47cd8b&is=6a467c0b&hm=630c45b74df73c29dadfe2d3395b1aaf11b6227ab1ba82f640414315adf80aaf&',
-            image: 'https://cdn.discordapp.com/attachments/1491631607596187688/1528457728144576602/ChatGPT_Image_20_18_37_12_thg_7_2026.png?ex=6a5e5eaf&is=6a5d0d2f&hm=f383da5bf037b4c327d84f99d6c2a9b9b8d4d962eaeb42be4b2ef2268c3b6cc4&',
+            thumbnail: 'https://cdn.discordapp.com/attachments/1491631607596187688/1528457728144576602/ChatGPT_Image_20_18_37_12_thg_7_2026.png?ex=6a5e5eaf&is=6a5d0d2f&hm=f383da5bf037b4c327d84f99d6c2a9b9b8d4d962eaeb42be4b2ef2268c3b6cc4&',
+            image: 'https://cdn.discordapp.com/attachments/1491631607596187688/1528456772174483566/00_34_53_20_thg_7_2026.png?ex=6a5e5dcb&is=6a5d0c4b&hm=9417936767e35ff7ffaa4b9669536f455eb9b15f30407840f383eac061a7b760&',
             hostedBy: message.author,
             messages: giveawayMessages()
         });
@@ -10213,8 +10213,8 @@ client.on('interactionCreate', async (interaction) => {
         await interaction.reply({ content: '🎉 Đang tạo giveaway...', flags: MessageFlags.Ephemeral });
         client.giveawaysManager.start(interaction.channel, {
             duration: ms(duration), winnerCount, prize,
-            thumbnail: 'https://cdn.discordapp.com/attachments/1491631607596187688/1522254568258404362/ChatGPT_Image_20_45_14_25_thg_6_2026.png?ex=6a47cd8b&is=6a467c0b&hm=630c45b74df73c29dadfe2d3395b1aaf11b6227ab1ba82f640414315adf80aaf&',
-            image: 'https://cdn.discordapp.com/attachments/1491631607596187688/1522254567591645375/ChatGPT_Image_14_24_23_30_thg_6_2026.png?ex=6a47cd8b&is=6a467c0b&hm=8cb375c20d9328631636edad4a6084d392c058deb55ba98749b370d81435cedf&',
+            thumbnail: 'https://cdn.discordapp.com/attachments/1491631607596187688/1528457728144576602/ChatGPT_Image_20_18_37_12_thg_7_2026.png?ex=6a5e5eaf&is=6a5d0d2f&hm=f383da5bf037b4c327d84f99d6c2a9b9b8d4d962eaeb42be4b2ef2268c3b6cc4&',
+            image: 'https://cdn.discordapp.com/attachments/1491631607596187688/1528456772174483566/00_34_53_20_thg_7_2026.png?ex=6a5e5dcb&is=6a5d0c4b&hm=9417936767e35ff7ffaa4b9669536f455eb9b15f30407840f383eac061a7b760&',
             hostedBy: interaction.user,
             messages: giveawayMessages()
         });
