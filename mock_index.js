@@ -6536,7 +6536,7 @@ Bao gồm:
         client.giveawaysManager.start(message.channel, {
             duration: ms(duration), winnerCount: parseInt(winnerCount), prize: prizeArr.join(' '),
             thumbnail: 'https://cdn.discordapp.com/attachments/1491631607596187688/1522254568258404362/ChatGPT_Image_20_45_14_25_thg_6_2026.png?ex=6a47cd8b&is=6a467c0b&hm=630c45b74df73c29dadfe2d3395b1aaf11b6227ab1ba82f640414315adf80aaf&',
-            image: 'https://h.uguu.se/yFsUwgxj.png',
+            image: 'https://cdn.discordapp.com/attachments/1491631607596187688/1528456772174483566/00_34_53_20_thg_7_2026.png?ex=6a5e5dcb&is=6a5d0c4b&hm=9417936767e35ff7ffaa4b9669536f455eb9b15f30407840f383eac061a7b760&',
             hostedBy: message.author,
             messages: {
                 giveaway: '🎉🎉 **SỰ KIỆN GIVEAWAY ĐẶC BIỆT** 🎉🎉',
