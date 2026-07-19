@@ -9348,5 +9348,555 @@
     ],
     "correctIndex": 1,
     "reward": 907
+  },
+  {
+    "question": "Giải tích Đại Học: Tính đạo hàm riêng theo x (∂f/∂x) của hàm số f(x,y) = 2x^4y^3?",
+    "answers": [
+      "24x^3y^2",
+      "8x^4y^3",
+      "6x^4y^2",
+      "8x^3y^3"
+    ],
+    "correctIndex": 3,
+    "reward": 889
+  },
+  {
+    "question": "Giải tích Đại Học: Tính đạo hàm riêng theo x (∂f/∂x) của hàm số f(x,y) = 6x^4y^3?",
+    "answers": [
+      "72x^3y^2",
+      "24x^3y^3",
+      "18x^4y^2",
+      "24x^4y^3"
+    ],
+    "correctIndex": 1,
+    "reward": 970
+  },
+  {
+    "question": "Giải tích Đại Học: Tính đạo hàm riêng theo x (∂f/∂x) của hàm số f(x,y) = 4x^3y^4?",
+    "answers": [
+      "12x^3y^4",
+      "48x^2y^3",
+      "16x^3y^3",
+      "12x^2y^4"
+    ],
+    "correctIndex": 3,
+    "reward": 890
+  },
+  {
+    "question": "Giải tích Đại Học: Tính đạo hàm riêng theo x (∂f/∂x) của hàm số f(x,y) = 2x^3y^4?",
+    "answers": [
+      "6x^2y^4",
+      "8x^3y^3",
+      "6x^3y^4",
+      "24x^2y^3"
+    ],
+    "correctIndex": 0,
+    "reward": 870
+  },
+  {
+    "question": "Giải tích Đại Học: Tính đạo hàm riêng theo x (∂f/∂x) của hàm số f(x,y) = 4x^2y^4?",
+    "answers": [
+      "8xy^4",
+      "16x^2y^3",
+      "32x^1y^3",
+      "8x^2y^4"
+    ],
+    "correctIndex": 0,
+    "reward": 944
+  },
+  {
+    "question": "Giải tích Đại Học: Tính đạo hàm riêng theo x (∂f/∂x) của hàm số f(x,y) = 2x^5y^2?",
+    "answers": [
+      "20x^4y^1",
+      "10x^5y^2",
+      "4x^5y",
+      "10x^4y^2"
+    ],
+    "correctIndex": 3,
+    "reward": 919
+  },
+  {
+    "question": "Giải tích Đại Học: Tính đạo hàm riêng theo x (∂f/∂x) của hàm số f(x,y) = 5x^3y^3?",
+    "answers": [
+      "15x^3y^3",
+      "45x^2y^2",
+      "15x^3y^2",
+      "15x^2y^3"
+    ],
+    "correctIndex": 3,
+    "reward": 850
+  },
+  {
+    "question": "Giải tích Đại Học: Tính đạo hàm riêng theo x (∂f/∂x) của hàm số f(x,y) = 3x^4y^5?",
+    "answers": [
+      "12x^3y^5",
+      "15x^4y^4",
+      "60x^3y^4",
+      "12x^4y^5"
+    ],
+    "correctIndex": 0,
+    "reward": 882
+  },
+  {
+    "question": "Giải tích Đại Học: Tính đạo hàm riêng theo x (∂f/∂x) của hàm số f(x,y) = 2x^5y^3?",
+    "answers": [
+      "10x^4y^3",
+      "30x^4y^2",
+      "6x^5y^2",
+      "10x^5y^3"
+    ],
+    "correctIndex": 0,
+    "reward": 845
+  },
+  {
+    "question": "Giải tích Đại Học: Tính đạo hàm riêng theo x (∂f/∂x) của hàm số f(x,y) = 5x^2y^2?",
+    "answers": [
+      "10x^2y^2",
+      "10x^2y",
+      "10xy^2",
+      "20x^1y^1"
+    ],
+    "correctIndex": 2,
+    "reward": 952
+  },
+  {
+    "question": "Giải tích Đại Học: Tính đạo hàm riêng theo x (∂f/∂x) của hàm số f(x,y) = 4x^3y^3?",
+    "answers": [
+      "12x^2y^3",
+      "12x^3y^2",
+      "12x^3y^3",
+      "36x^2y^2"
+    ],
+    "correctIndex": 0,
+    "reward": 828
+  },
+  {
+    "question": "Giải tích Đại Học: Tính đạo hàm riêng theo x (∂f/∂x) của hàm số f(x,y) = 4x^5y^5?",
+    "answers": [
+      "20x^5y^5",
+      "100x^4y^4",
+      "20x^4y^5",
+      "20x^5y^4"
+    ],
+    "correctIndex": 2,
+    "reward": 916
+  },
+  {
+    "question": "Giải tích Đại Học: Tính đạo hàm riêng theo x (∂f/∂x) của hàm số f(x,y) = 4x^3y^4?",
+    "answers": [
+      "12x^3y^4",
+      "16x^3y^3",
+      "12x^2y^4",
+      "48x^2y^3"
+    ],
+    "correctIndex": 2,
+    "reward": 990
+  },
+  {
+    "question": "Giải tích Đại Học: Tính đạo hàm riêng theo x (∂f/∂x) của hàm số f(x,y) = 5x^3y^2?",
+    "answers": [
+      "15x^2y^2",
+      "10x^3y",
+      "15x^3y^2",
+      "30x^2y^1"
+    ],
+    "correctIndex": 0,
+    "reward": 929
+  },
+  {
+    "question": "Giải tích Đại Học: Tính đạo hàm riêng theo x (∂f/∂x) của hàm số f(x,y) = 5x^2y^5?",
+    "answers": [
+      "50x^1y^4",
+      "10xy^5",
+      "25x^2y^4",
+      "10x^2y^5"
+    ],
+    "correctIndex": 1,
+    "reward": 815
+  },
+  {
+    "question": "Giải tích Đại Học: Tính đạo hàm riêng theo x (∂f/∂x) của hàm số f(x,y) = 3x^2y^3?",
+    "answers": [
+      "6xy^3",
+      "6x^2y^3",
+      "18x^1y^2",
+      "9x^2y^2"
+    ],
+    "correctIndex": 0,
+    "reward": 807
+  },
+  {
+    "question": "Giải tích Đại Học: Tính đạo hàm riêng theo x (∂f/∂x) của hàm số f(x,y) = 3x^5y^3?",
+    "answers": [
+      "15x^4y^3",
+      "15x^5y^3",
+      "9x^5y^2",
+      "45x^4y^2"
+    ],
+    "correctIndex": 0,
+    "reward": 990
+  },
+  {
+    "question": "Giải tích Đại Học: Tính đạo hàm riêng theo x (∂f/∂x) của hàm số f(x,y) = 2x^5y^2?",
+    "answers": [
+      "10x^4y^2",
+      "4x^5y",
+      "20x^4y^1",
+      "10x^5y^2"
+    ],
+    "correctIndex": 0,
+    "reward": 946
+  },
+  {
+    "question": "Giải tích Đại Học: Tính đạo hàm riêng theo x (∂f/∂x) của hàm số f(x,y) = 3x^2y^5?",
+    "answers": [
+      "30x^1y^4",
+      "6x^2y^5",
+      "15x^2y^4",
+      "6xy^5"
+    ],
+    "correctIndex": 3,
+    "reward": 890
+  },
+  {
+    "question": "Giải tích Đại Học: Tính đạo hàm riêng theo x (∂f/∂x) của hàm số f(x,y) = 6x^5y^5?",
+    "answers": [
+      "30x^5y^4",
+      "30x^4y^5",
+      "150x^4y^4",
+      "30x^5y^5"
+    ],
+    "correctIndex": 1,
+    "reward": 894
+  },
+  {
+    "question": "Giải tích Đại Học: Tính nguyên hàm ∫(14x^6)dx ?",
+    "answers": [
+      "2x^6 + C",
+      "14x^7 + C",
+      "84x^5 + C",
+      "2x^7 + C"
+    ],
+    "correctIndex": 3,
+    "reward": 946
+  },
+  {
+    "question": "Giải tích Đại Học: Tính nguyên hàm ∫(10x^4)dx ?",
+    "answers": [
+      "2x^5 + C",
+      "40x^3 + C",
+      "10x^5 + C",
+      "2x^4 + C"
+    ],
+    "correctIndex": 0,
+    "reward": 984
+  },
+  {
+    "question": "Giải tích Đại Học: Tính nguyên hàm ∫(10x^4)dx ?",
+    "answers": [
+      "10x^5 + C",
+      "40x^3 + C",
+      "2x^5 + C",
+      "2x^4 + C"
+    ],
+    "correctIndex": 2,
+    "reward": 843
+  },
+  {
+    "question": "Giải tích Đại Học: Tính nguyên hàm ∫(6x^5)dx ?",
+    "answers": [
+      "30x^4 + C",
+      "x^6 + C",
+      "x^5 + C",
+      "6x^6 + C"
+    ],
+    "correctIndex": 1,
+    "reward": 852
+  },
+  {
+    "question": "Giải tích Đại Học: Tính nguyên hàm ∫(5x^4)dx ?",
+    "answers": [
+      "20x^3 + C",
+      "x^5 + C",
+      "5x^5 + C",
+      "x^4 + C"
+    ],
+    "correctIndex": 1,
+    "reward": 979
+  },
+  {
+    "question": "Giải tích Đại Học: Tính nguyên hàm ∫(18x^5)dx ?",
+    "answers": [
+      "3x^6 + C",
+      "3x^5 + C",
+      "90x^4 + C",
+      "18x^6 + C"
+    ],
+    "correctIndex": 0,
+    "reward": 979
+  },
+  {
+    "question": "Giải tích Đại Học: Tính nguyên hàm ∫(12x^5)dx ?",
+    "answers": [
+      "2x^6 + C",
+      "2x^5 + C",
+      "60x^4 + C",
+      "12x^6 + C"
+    ],
+    "correctIndex": 0,
+    "reward": 860
+  },
+  {
+    "question": "Giải tích Đại Học: Tính nguyên hàm ∫(5x^4)dx ?",
+    "answers": [
+      "x^5 + C",
+      "x^4 + C",
+      "20x^3 + C",
+      "5x^5 + C"
+    ],
+    "correctIndex": 0,
+    "reward": 835
+  },
+  {
+    "question": "Giải tích Đại Học: Tính nguyên hàm ∫(10x^4)dx ?",
+    "answers": [
+      "2x^4 + C",
+      "10x^5 + C",
+      "40x^3 + C",
+      "2x^5 + C"
+    ],
+    "correctIndex": 3,
+    "reward": 901
+  },
+  {
+    "question": "Giải tích Đại Học: Tính nguyên hàm ∫(14x^6)dx ?",
+    "answers": [
+      "14x^7 + C",
+      "84x^5 + C",
+      "2x^7 + C",
+      "2x^6 + C"
+    ],
+    "correctIndex": 2,
+    "reward": 829
+  },
+  {
+    "question": "Giải tích Đại Học: Tính nguyên hàm ∫(12x^5)dx ?",
+    "answers": [
+      "2x^6 + C",
+      "12x^6 + C",
+      "2x^5 + C",
+      "60x^4 + C"
+    ],
+    "correctIndex": 0,
+    "reward": 844
+  },
+  {
+    "question": "Giải tích Đại Học: Tính nguyên hàm ∫(4x^3)dx ?",
+    "answers": [
+      "4x^4 + C",
+      "12x^2 + C",
+      "x^4 + C",
+      "x^3 + C"
+    ],
+    "correctIndex": 2,
+    "reward": 807
+  },
+  {
+    "question": "Giải tích Đại Học: Tính nguyên hàm ∫(12x^3)dx ?",
+    "answers": [
+      "3x^3 + C",
+      "3x^4 + C",
+      "36x^2 + C",
+      "12x^4 + C"
+    ],
+    "correctIndex": 1,
+    "reward": 820
+  },
+  {
+    "question": "Giải tích Đại Học: Tính nguyên hàm ∫(3x^2)dx ?",
+    "answers": [
+      "3x^3 + C",
+      "x^3 + C",
+      "x^2 + C",
+      "6x^1 + C"
+    ],
+    "correctIndex": 1,
+    "reward": 820
+  },
+  {
+    "question": "Giải tích Đại Học: Tính nguyên hàm ∫(4x^3)dx ?",
+    "answers": [
+      "x^3 + C",
+      "4x^4 + C",
+      "12x^2 + C",
+      "x^4 + C"
+    ],
+    "correctIndex": 3,
+    "reward": 901
+  },
+  {
+    "question": "Giải tích Đại Học: Giới hạn lim(x->0) của (sin x) / x là bao nhiêu?",
+    "answers": [
+      "1",
+      "0",
+      "+∞",
+      "Không tồn tại"
+    ],
+    "correctIndex": 0,
+    "reward": 947
+  },
+  {
+    "question": "Giải tích Đại Học: Công thức khai triển Maclaurin của hàm e^x là gì?",
+    "answers": [
+      "∑(x^n)",
+      "∑(x^n / n!)",
+      "∑((-1)^n * x^n / n!)",
+      "∑(x^(2n) / (2n)!)"
+    ],
+    "correctIndex": 1,
+    "reward": 910
+  },
+  {
+    "question": "Giải tích Đại Học: Nghiệm tổng quát của phương trình vi phân y' = k.y là gì?",
+    "answers": [
+      "y = C.x^k",
+      "y = C.sin(kx)",
+      "y = C.e^(kx)",
+      "y = C + kx"
+    ],
+    "correctIndex": 2,
+    "reward": 933
+  },
+  {
+    "question": "Giải tích Đại Học: Tích phân ∫(1/x)dx bằng gì?",
+    "answers": [
+      "ln|x| + C",
+      "-1/x² + C",
+      "e^x + C",
+      "x² / 2 + C"
+    ],
+    "correctIndex": 0,
+    "reward": 916
+  },
+  {
+    "question": "Giải tích Đại Học: Giới hạn lim(x->+∞) của (1 + 1/x)^x là bao nhiêu?",
+    "answers": [
+      "0",
+      "e",
+      "1",
+      "+∞"
+    ],
+    "correctIndex": 1,
+    "reward": 962
+  },
+  {
+    "question": "Giải tích Đại Học: Tích phân ∫(e^x)dx bằng gì?",
+    "answers": [
+      "e^x + C",
+      "x.e^(x-1) + C",
+      "e^x / x + C",
+      "ln|x| + C"
+    ],
+    "correctIndex": 0,
+    "reward": 978
+  },
+  {
+    "question": "Giải tích Đại Học: Chuỗi điều hòa ∑(1/n) (với n từ 1 đến vô cùng) có tính chất gì?",
+    "answers": [
+      "Phân kỳ",
+      "Hội tụ về e",
+      "Hội tụ tuyệt đối",
+      "Hội tụ về 1"
+    ],
+    "correctIndex": 0,
+    "reward": 947
+  },
+  {
+    "question": "Giải tích Đại Học: Đạo hàm của arctan(x) là gì?",
+    "answers": [
+      "1 / |x|√(x² - 1)",
+      "-1 / (1 + x²)",
+      "1 / √(1 - x²)",
+      "1 / (1 + x²)"
+    ],
+    "correctIndex": 3,
+    "reward": 943
+  },
+  {
+    "question": "Giải tích Đại Học: Tích phân kép ∬dxdy trên miền D biểu diễn đại lượng nào của hình phẳng D?",
+    "answers": [
+      "Diện tích",
+      "Thể tích",
+      "Chu vi",
+      "Khối lượng"
+    ],
+    "correctIndex": 0,
+    "reward": 912
+  },
+  {
+    "question": "Giải tích Đại Học: Gradient của hàm vô hướng f(x,y,z) là một đại lượng có tính chất gì?",
+    "answers": [
+      "Là một vector",
+      "Là một số vô hướng",
+      "Là một ma trận",
+      "Là một hằng số"
+    ],
+    "correctIndex": 0,
+    "reward": 929
+  },
+  {
+    "question": "Giải tích Đại Học: Định lý Gauss-Ostrogradsky dùng để biến đổi giữa các loại tích phân nào?",
+    "answers": [
+      "Tích phân mặt loại 2 và Tích phân bội 3",
+      "Tích phân đường loại 2 và Tích phân kép",
+      "Tích phân đường và Tích phân mặt",
+      "Tích phân đường loại 1 và Tích phân đường loại 2"
+    ],
+    "correctIndex": 0,
+    "reward": 930
+  },
+  {
+    "question": "Giải tích Đại Học: Định lý Green liên hệ giữa Tích phân kép và loại Tích phân nào?",
+    "answers": [
+      "Tích phân đường loại 2",
+      "Tích phân đường loại 1",
+      "Tích phân mặt loại 1",
+      "Tích phân bội 3"
+    ],
+    "correctIndex": 0,
+    "reward": 953
+  },
+  {
+    "question": "Giải tích Đại Học: Nếu div(F) = 0 thì trường vector F được gọi là gì?",
+    "answers": [
+      "Trường không nguồn (ống)",
+      "Trường thế",
+      "Trường xoáy",
+      "Trường điều hòa"
+    ],
+    "correctIndex": 0,
+    "reward": 935
+  },
+  {
+    "question": "Giải tích Đại Học: Nếu rot(F) = 0 thì trường vector F được gọi là gì?",
+    "answers": [
+      "Trường thế (không xoáy)",
+      "Trường Solenoid",
+      "Trường không nguồn",
+      "Trường ống"
+    ],
+    "correctIndex": 0,
+    "reward": 944
+  },
+  {
+    "question": "Giải tích Đại Học: Bán kính hội tụ R của chuỗi lũy thừa ∑(x^n / n) là bao nhiêu?",
+    "answers": [
+      "R = +∞",
+      "R = 1",
+      "R = e",
+      "R = 0"
+    ],
+    "correctIndex": 1,
+    "reward": 913
   }
 ]
