@@ -2007,7 +2007,7 @@ async function handlePetBattle(userId, targetId, bet, msgOrInteraction) {
 }
 
 
-async function handleTrivia(userId, msgOrInteraction) {
+async function handleTrivia(userId, msgOrInteraction, isNextRound = false) {
     const questionData = TRIVIA_LIST[Math.floor(Math.random() * TRIVIA_LIST.length)];
     const gameId = Date.now().toString();
     
@@ -2027,7 +2027,7 @@ async function handleTrivia(userId, msgOrInteraction) {
     const row = new ActionRowBuilder().addComponents(buttons);
     
     let msg;
-    if (msgOrInteraction.reply && typeof msgOrInteraction.reply === 'function') {
+    if (!isNextRound && msgOrInteraction.reply && typeof msgOrInteraction.reply === 'function') {
         if (msgOrInteraction.isCommand && msgOrInteraction.isCommand()) {
             await msgOrInteraction.reply({ embeds: [embed], components: [row] });
             msg = await msgOrInteraction.fetchReply();
@@ -2035,7 +2035,8 @@ async function handleTrivia(userId, msgOrInteraction) {
             msg = await msgOrInteraction.reply({ embeds: [embed], components: [row] });
         }
     } else {
-        msg = await msgOrInteraction.channel.send({ embeds: [embed], components: [row] });
+        const channel = msgOrInteraction.channel || msgOrInteraction;
+        msg = await channel.send({ embeds: [embed], components: [row] });
     }
     
     const filter = i => i.customId.startsWith('trivia_') && i.customId.includes(gameId);
@@ -2091,8 +2092,18 @@ async function handleTrivia(userId, msgOrInteraction) {
         
         embed.setDescription(resultMsg);
         
-        if (msgOrInteraction.editReply) msgOrInteraction.editReply({ embeds: [embed], components: [disabledRow] }).catch(()=>{});
+        if (msgOrInteraction.editReply && !isNextRound) msgOrInteraction.editReply({ embeds: [embed], components: [disabledRow] }).catch(()=>{});
         else if (msg.edit) msg.edit({ embeds: [embed], components: [disabledRow] }).catch(()=>{});
+
+        // Tự động ra câu tiếp theo nếu có người chơi
+        if (answeredUsers.size > 0) {
+            setTimeout(() => {
+                handleTrivia(userId, msgOrInteraction, true);
+            }, 3000);
+        } else {
+            const channel = msgOrInteraction.channel || msgOrInteraction;
+            channel.send('🛑 Đố vui đã dừng lại vì không có ai tham gia trả lời. Dùng lệnh đố vui để chơi tiếp nhé!');
+        }
     });
 }
 
