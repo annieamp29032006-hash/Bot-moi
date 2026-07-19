@@ -7698,5 +7698,1655 @@
     ],
     "correctIndex": 1,
     "reward": 443
+  },
+  {
+    "question": "Toán Vận Dụng: Tính giá trị đạo hàm của hàm số y = 1x² + 7x tại x = 1?",
+    "answers": [
+      "26",
+      "6",
+      "-6",
+      "9"
+    ],
+    "correctIndex": 3,
+    "reward": 640
+  },
+  {
+    "question": "Toán Vận Dụng: Tính giá trị đạo hàm của hàm số y = 1x² + 7x tại x = 4?",
+    "answers": [
+      "3",
+      "35",
+      "11",
+      "15"
+    ],
+    "correctIndex": 3,
+    "reward": 660
+  },
+  {
+    "question": "Toán Vận Dụng: Tính giá trị đạo hàm của hàm số y = 3x² + 6x tại x = 4?",
+    "answers": [
+      "20",
+      "30",
+      "21",
+      "36"
+    ],
+    "correctIndex": 1,
+    "reward": 718
+  },
+  {
+    "question": "Toán Vận Dụng: Tính giá trị đạo hàm của hàm số y = 3x² + 6x tại x = 5?",
+    "answers": [
+      "53",
+      "43",
+      "42",
+      "36"
+    ],
+    "correctIndex": 3,
+    "reward": 657
+  },
+  {
+    "question": "Toán Vận Dụng: Tính giá trị đạo hàm của hàm số y = 2x² + 5x tại x = 3?",
+    "answers": [
+      "-2",
+      "6",
+      "17",
+      "19"
+    ],
+    "correctIndex": 2,
+    "reward": 613
+  },
+  {
+    "question": "Toán Vận Dụng: Tính giá trị đạo hàm của hàm số y = 2x² + 8x tại x = 4?",
+    "answers": [
+      "24",
+      "10",
+      "28",
+      "7"
+    ],
+    "correctIndex": 0,
+    "reward": 681
+  },
+  {
+    "question": "Toán Vận Dụng: Tính giá trị đạo hàm của hàm số y = 5x² + 4x tại x = 5?",
+    "answers": [
+      "54",
+      "39",
+      "55",
+      "61"
+    ],
+    "correctIndex": 0,
+    "reward": 703
+  },
+  {
+    "question": "Toán Vận Dụng: Tính giá trị đạo hàm của hàm số y = 2x² + 10x tại x = 2?",
+    "answers": [
+      "12",
+      "17",
+      "38",
+      "18"
+    ],
+    "correctIndex": 3,
+    "reward": 650
+  },
+  {
+    "question": "Toán Vận Dụng: Tính giá trị đạo hàm của hàm số y = 5x² + 7x tại x = 4?",
+    "answers": [
+      "55",
+      "47",
+      "43",
+      "34"
+    ],
+    "correctIndex": 1,
+    "reward": 773
+  },
+  {
+    "question": "Toán Vận Dụng: Tính giá trị đạo hàm của hàm số y = 4x² + 7x tại x = 2?",
+    "answers": [
+      "26",
+      "3",
+      "28",
+      "23"
+    ],
+    "correctIndex": 3,
+    "reward": 630
+  },
+  {
+    "question": "Toán Vận Dụng: Tính giá trị đạo hàm của hàm số y = 1x² + 1x tại x = 3?",
+    "answers": [
+      "7",
+      "-4",
+      "5",
+      "23"
+    ],
+    "correctIndex": 0,
+    "reward": 686
+  },
+  {
+    "question": "Toán Vận Dụng: Tính giá trị đạo hàm của hàm số y = 4x² + 3x tại x = 1?",
+    "answers": [
+      "20",
+      "18",
+      "11",
+      "30"
+    ],
+    "correctIndex": 2,
+    "reward": 681
+  },
+  {
+    "question": "Toán Vận Dụng: Tính giá trị đạo hàm của hàm số y = 1x² + 6x tại x = 4?",
+    "answers": [
+      "21",
+      "16",
+      "14",
+      "25"
+    ],
+    "correctIndex": 2,
+    "reward": 779
+  },
+  {
+    "question": "Toán Vận Dụng: Tính giá trị đạo hàm của hàm số y = 4x² + 5x tại x = 1?",
+    "answers": [
+      "12",
+      "13",
+      "15",
+      "24"
+    ],
+    "correctIndex": 1,
+    "reward": 734
+  },
+  {
+    "question": "Toán Vận Dụng: Tính giá trị đạo hàm của hàm số y = 3x² + 4x tại x = 4?",
+    "answers": [
+      "36",
+      "28",
+      "33",
+      "37"
+    ],
+    "correctIndex": 1,
+    "reward": 637
+  },
+  {
+    "question": "Toán Vận Dụng: Tính giá trị đạo hàm của hàm số y = 5x² + 1x tại x = 5?",
+    "answers": [
+      "58",
+      "51",
+      "53",
+      "70"
+    ],
+    "correctIndex": 1,
+    "reward": 661
+  },
+  {
+    "question": "Toán Vận Dụng: Tính giá trị đạo hàm của hàm số y = 5x² + 6x tại x = 3?",
+    "answers": [
+      "36",
+      "27",
+      "56",
+      "20"
+    ],
+    "correctIndex": 0,
+    "reward": 738
+  },
+  {
+    "question": "Toán Vận Dụng: Tính giá trị đạo hàm của hàm số y = 5x² + 6x tại x = 3?",
+    "answers": [
+      "56",
+      "51",
+      "18",
+      "36"
+    ],
+    "correctIndex": 3,
+    "reward": 647
+  },
+  {
+    "question": "Toán Vận Dụng: Tính giá trị đạo hàm của hàm số y = 2x² + 4x tại x = 4?",
+    "answers": [
+      "34",
+      "39",
+      "23",
+      "20"
+    ],
+    "correctIndex": 3,
+    "reward": 696
+  },
+  {
+    "question": "Toán Vận Dụng: Tính giá trị đạo hàm của hàm số y = 4x² + 10x tại x = 5?",
+    "answers": [
+      "50",
+      "31",
+      "68",
+      "39"
+    ],
+    "correctIndex": 0,
+    "reward": 627
+  },
+  {
+    "question": "Toán Vận Dụng: Tính giá trị đạo hàm của hàm số y = 1x² + 7x tại x = 5?",
+    "answers": [
+      "19",
+      "12",
+      "17",
+      "22"
+    ],
+    "correctIndex": 2,
+    "reward": 641
+  },
+  {
+    "question": "Toán Vận Dụng: Tính giá trị đạo hàm của hàm số y = 5x² + 8x tại x = 1?",
+    "answers": [
+      "18",
+      "30",
+      "33",
+      "12"
+    ],
+    "correctIndex": 0,
+    "reward": 753
+  },
+  {
+    "question": "Toán Vận Dụng: Tính giá trị đạo hàm của hàm số y = 4x² + 5x tại x = 3?",
+    "answers": [
+      "29",
+      "46",
+      "41",
+      "30"
+    ],
+    "correctIndex": 0,
+    "reward": 735
+  },
+  {
+    "question": "Toán Vận Dụng: Tính giá trị đạo hàm của hàm số y = 1x² + 1x tại x = 4?",
+    "answers": [
+      "9",
+      "-2",
+      "29",
+      "10"
+    ],
+    "correctIndex": 0,
+    "reward": 671
+  },
+  {
+    "question": "Toán Vận Dụng: Tính giá trị đạo hàm của hàm số y = 1x² + 1x tại x = 2?",
+    "answers": [
+      "5",
+      "7",
+      "16",
+      "-13"
+    ],
+    "correctIndex": 0,
+    "reward": 603
+  },
+  {
+    "question": "Toán Vận Dụng: Có bao nhiêu cách chọn ra 2 học sinh từ một nhóm gồm 9 học sinh?",
+    "answers": [
+      "31",
+      "36",
+      "41",
+      "72"
+    ],
+    "correctIndex": 1,
+    "reward": 788
+  },
+  {
+    "question": "Toán Vận Dụng: Có bao nhiêu cách chọn ra 2 học sinh từ một nhóm gồm 9 học sinh?",
+    "answers": [
+      "41",
+      "36",
+      "72",
+      "31"
+    ],
+    "correctIndex": 1,
+    "reward": 708
+  },
+  {
+    "question": "Toán Vận Dụng: Có bao nhiêu cách chọn ra 2 học sinh từ một nhóm gồm 6 học sinh?",
+    "answers": [
+      "30",
+      "10",
+      "20",
+      "15"
+    ],
+    "correctIndex": 3,
+    "reward": 768
+  },
+  {
+    "question": "Toán Vận Dụng: Có bao nhiêu cách chọn ra 2 học sinh từ một nhóm gồm 10 học sinh?",
+    "answers": [
+      "40",
+      "45",
+      "50",
+      "90"
+    ],
+    "correctIndex": 1,
+    "reward": 693
+  },
+  {
+    "question": "Toán Vận Dụng: Có bao nhiêu cách chọn ra 2 học sinh từ một nhóm gồm 10 học sinh?",
+    "answers": [
+      "40",
+      "90",
+      "50",
+      "45"
+    ],
+    "correctIndex": 3,
+    "reward": 647
+  },
+  {
+    "question": "Toán Vận Dụng: Có bao nhiêu cách chọn ra 2 học sinh từ một nhóm gồm 9 học sinh?",
+    "answers": [
+      "36",
+      "41",
+      "31",
+      "72"
+    ],
+    "correctIndex": 0,
+    "reward": 711
+  },
+  {
+    "question": "Toán Vận Dụng: Có bao nhiêu cách chọn ra 2 học sinh từ một nhóm gồm 6 học sinh?",
+    "answers": [
+      "30",
+      "15",
+      "20",
+      "10"
+    ],
+    "correctIndex": 1,
+    "reward": 620
+  },
+  {
+    "question": "Toán Vận Dụng: Có bao nhiêu cách chọn ra 2 học sinh từ một nhóm gồm 6 học sinh?",
+    "answers": [
+      "10",
+      "30",
+      "15",
+      "20"
+    ],
+    "correctIndex": 2,
+    "reward": 666
+  },
+  {
+    "question": "Toán Vận Dụng: Có bao nhiêu cách chọn ra 2 học sinh từ một nhóm gồm 10 học sinh?",
+    "answers": [
+      "90",
+      "45",
+      "50",
+      "40"
+    ],
+    "correctIndex": 1,
+    "reward": 715
+  },
+  {
+    "question": "Toán Vận Dụng: Có bao nhiêu cách chọn ra 2 học sinh từ một nhóm gồm 7 học sinh?",
+    "answers": [
+      "26",
+      "42",
+      "21",
+      "16"
+    ],
+    "correctIndex": 2,
+    "reward": 780
+  },
+  {
+    "question": "Toán Vận Dụng: Có bao nhiêu cách chọn ra 2 học sinh từ một nhóm gồm 6 học sinh?",
+    "answers": [
+      "15",
+      "20",
+      "10",
+      "30"
+    ],
+    "correctIndex": 0,
+    "reward": 616
+  },
+  {
+    "question": "Toán Vận Dụng: Có bao nhiêu cách chọn ra 2 học sinh từ một nhóm gồm 10 học sinh?",
+    "answers": [
+      "45",
+      "50",
+      "90",
+      "40"
+    ],
+    "correctIndex": 0,
+    "reward": 675
+  },
+  {
+    "question": "Toán Vận Dụng: Có bao nhiêu cách chọn ra 2 học sinh từ một nhóm gồm 7 học sinh?",
+    "answers": [
+      "26",
+      "21",
+      "42",
+      "16"
+    ],
+    "correctIndex": 1,
+    "reward": 709
+  },
+  {
+    "question": "Toán Vận Dụng: Có bao nhiêu cách chọn ra 2 học sinh từ một nhóm gồm 6 học sinh?",
+    "answers": [
+      "15",
+      "20",
+      "10",
+      "30"
+    ],
+    "correctIndex": 0,
+    "reward": 634
+  },
+  {
+    "question": "Toán Vận Dụng: Có bao nhiêu cách chọn ra 2 học sinh từ một nhóm gồm 8 học sinh?",
+    "answers": [
+      "23",
+      "28",
+      "33",
+      "56"
+    ],
+    "correctIndex": 1,
+    "reward": 630
+  },
+  {
+    "question": "Toán Vận Dụng: Có bao nhiêu cách chọn ra 2 học sinh từ một nhóm gồm 7 học sinh?",
+    "answers": [
+      "21",
+      "26",
+      "16",
+      "42"
+    ],
+    "correctIndex": 0,
+    "reward": 636
+  },
+  {
+    "question": "Toán Vận Dụng: Có bao nhiêu cách chọn ra 2 học sinh từ một nhóm gồm 7 học sinh?",
+    "answers": [
+      "42",
+      "21",
+      "16",
+      "26"
+    ],
+    "correctIndex": 1,
+    "reward": 733
+  },
+  {
+    "question": "Toán Vận Dụng: Có bao nhiêu cách chọn ra 2 học sinh từ một nhóm gồm 6 học sinh?",
+    "answers": [
+      "20",
+      "30",
+      "15",
+      "10"
+    ],
+    "correctIndex": 2,
+    "reward": 643
+  },
+  {
+    "question": "Toán Vận Dụng: Có bao nhiêu cách chọn ra 2 học sinh từ một nhóm gồm 9 học sinh?",
+    "answers": [
+      "36",
+      "41",
+      "31",
+      "72"
+    ],
+    "correctIndex": 0,
+    "reward": 647
+  },
+  {
+    "question": "Toán Vận Dụng: Có bao nhiêu cách chọn ra 2 học sinh từ một nhóm gồm 6 học sinh?",
+    "answers": [
+      "10",
+      "30",
+      "20",
+      "15"
+    ],
+    "correctIndex": 3,
+    "reward": 659
+  },
+  {
+    "question": "Toán Vận Dụng: Có bao nhiêu cách chọn ra 2 học sinh từ một nhóm gồm 6 học sinh?",
+    "answers": [
+      "10",
+      "20",
+      "30",
+      "15"
+    ],
+    "correctIndex": 3,
+    "reward": 765
+  },
+  {
+    "question": "Toán Vận Dụng: Có bao nhiêu cách chọn ra 2 học sinh từ một nhóm gồm 10 học sinh?",
+    "answers": [
+      "40",
+      "50",
+      "90",
+      "45"
+    ],
+    "correctIndex": 3,
+    "reward": 705
+  },
+  {
+    "question": "Toán Vận Dụng: Có bao nhiêu cách chọn ra 2 học sinh từ một nhóm gồm 9 học sinh?",
+    "answers": [
+      "72",
+      "41",
+      "36",
+      "31"
+    ],
+    "correctIndex": 2,
+    "reward": 645
+  },
+  {
+    "question": "Toán Vận Dụng: Có bao nhiêu cách chọn ra 2 học sinh từ một nhóm gồm 7 học sinh?",
+    "answers": [
+      "21",
+      "42",
+      "26",
+      "16"
+    ],
+    "correctIndex": 0,
+    "reward": 729
+  },
+  {
+    "question": "Toán Vận Dụng: Có bao nhiêu cách chọn ra 2 học sinh từ một nhóm gồm 8 học sinh?",
+    "answers": [
+      "28",
+      "33",
+      "56",
+      "23"
+    ],
+    "correctIndex": 0,
+    "reward": 630
+  },
+  {
+    "question": "Vật Lý Vận Dụng: Một vật rơi tự do từ độ cao 80m. Lấy g = 10 m/s². Vận tốc của vật ngay trước khi chạm đất là bao nhiêu?",
+    "answers": [
+      "30 m/s",
+      "20 m/s",
+      "50 m/s",
+      "40 m/s"
+    ],
+    "correctIndex": 3,
+    "reward": 775
+  },
+  {
+    "question": "Vật Lý Vận Dụng: Một vật rơi tự do từ độ cao 5m. Lấy g = 10 m/s². Vận tốc của vật ngay trước khi chạm đất là bao nhiêu?",
+    "answers": [
+      "0 m/s",
+      "5 m/s",
+      "20 m/s",
+      "10 m/s"
+    ],
+    "correctIndex": 3,
+    "reward": 810
+  },
+  {
+    "question": "Vật Lý Vận Dụng: Một vật rơi tự do từ độ cao 5m. Lấy g = 10 m/s². Vận tốc của vật ngay trước khi chạm đất là bao nhiêu?",
+    "answers": [
+      "5 m/s",
+      "20 m/s",
+      "10 m/s",
+      "0 m/s"
+    ],
+    "correctIndex": 2,
+    "reward": 866
+  },
+  {
+    "question": "Vật Lý Vận Dụng: Một vật rơi tự do từ độ cao 45m. Lấy g = 10 m/s². Vận tốc của vật ngay trước khi chạm đất là bao nhiêu?",
+    "answers": [
+      "15 m/s",
+      "20 m/s",
+      "40 m/s",
+      "30 m/s"
+    ],
+    "correctIndex": 3,
+    "reward": 862
+  },
+  {
+    "question": "Vật Lý Vận Dụng: Một vật rơi tự do từ độ cao 180m. Lấy g = 10 m/s². Vận tốc của vật ngay trước khi chạm đất là bao nhiêu?",
+    "answers": [
+      "30 m/s",
+      "50 m/s",
+      "70 m/s",
+      "60 m/s"
+    ],
+    "correctIndex": 3,
+    "reward": 718
+  },
+  {
+    "question": "Vật Lý Vận Dụng: Một vật rơi tự do từ độ cao 80m. Lấy g = 10 m/s². Vận tốc của vật ngay trước khi chạm đất là bao nhiêu?",
+    "answers": [
+      "40 m/s",
+      "50 m/s",
+      "30 m/s",
+      "20 m/s"
+    ],
+    "correctIndex": 0,
+    "reward": 722
+  },
+  {
+    "question": "Vật Lý Vận Dụng: Một vật rơi tự do từ độ cao 45m. Lấy g = 10 m/s². Vận tốc của vật ngay trước khi chạm đất là bao nhiêu?",
+    "answers": [
+      "15 m/s",
+      "30 m/s",
+      "20 m/s",
+      "40 m/s"
+    ],
+    "correctIndex": 1,
+    "reward": 823
+  },
+  {
+    "question": "Vật Lý Vận Dụng: Một vật rơi tự do từ độ cao 180m. Lấy g = 10 m/s². Vận tốc của vật ngay trước khi chạm đất là bao nhiêu?",
+    "answers": [
+      "60 m/s",
+      "70 m/s",
+      "30 m/s",
+      "50 m/s"
+    ],
+    "correctIndex": 0,
+    "reward": 770
+  },
+  {
+    "question": "Vật Lý Vận Dụng: Một vật rơi tự do từ độ cao 80m. Lấy g = 10 m/s². Vận tốc của vật ngay trước khi chạm đất là bao nhiêu?",
+    "answers": [
+      "50 m/s",
+      "40 m/s",
+      "30 m/s",
+      "20 m/s"
+    ],
+    "correctIndex": 1,
+    "reward": 870
+  },
+  {
+    "question": "Vật Lý Vận Dụng: Một vật rơi tự do từ độ cao 125m. Lấy g = 10 m/s². Vận tốc của vật ngay trước khi chạm đất là bao nhiêu?",
+    "answers": [
+      "40 m/s",
+      "60 m/s",
+      "50 m/s",
+      "25 m/s"
+    ],
+    "correctIndex": 2,
+    "reward": 727
+  },
+  {
+    "question": "Vật Lý Vận Dụng: Một vật rơi tự do từ độ cao 20m. Lấy g = 10 m/s². Vận tốc của vật ngay trước khi chạm đất là bao nhiêu?",
+    "answers": [
+      "30 m/s",
+      "20 m/s",
+      "10 m/s",
+      "10 m/s"
+    ],
+    "correctIndex": 1,
+    "reward": 780
+  },
+  {
+    "question": "Vật Lý Vận Dụng: Một vật rơi tự do từ độ cao 245m. Lấy g = 10 m/s². Vận tốc của vật ngay trước khi chạm đất là bao nhiêu?",
+    "answers": [
+      "60 m/s",
+      "35 m/s",
+      "80 m/s",
+      "70 m/s"
+    ],
+    "correctIndex": 3,
+    "reward": 811
+  },
+  {
+    "question": "Vật Lý Vận Dụng: Một vật rơi tự do từ độ cao 180m. Lấy g = 10 m/s². Vận tốc của vật ngay trước khi chạm đất là bao nhiêu?",
+    "answers": [
+      "50 m/s",
+      "30 m/s",
+      "60 m/s",
+      "70 m/s"
+    ],
+    "correctIndex": 2,
+    "reward": 749
+  },
+  {
+    "question": "Vật Lý Vận Dụng: Một vật rơi tự do từ độ cao 80m. Lấy g = 10 m/s². Vận tốc của vật ngay trước khi chạm đất là bao nhiêu?",
+    "answers": [
+      "40 m/s",
+      "50 m/s",
+      "20 m/s",
+      "30 m/s"
+    ],
+    "correctIndex": 0,
+    "reward": 721
+  },
+  {
+    "question": "Vật Lý Vận Dụng: Một vật rơi tự do từ độ cao 245m. Lấy g = 10 m/s². Vận tốc của vật ngay trước khi chạm đất là bao nhiêu?",
+    "answers": [
+      "35 m/s",
+      "60 m/s",
+      "80 m/s",
+      "70 m/s"
+    ],
+    "correctIndex": 3,
+    "reward": 820
+  },
+  {
+    "question": "Vật Lý Vận Dụng: Một vật rơi tự do từ độ cao 180m. Lấy g = 10 m/s². Vận tốc của vật ngay trước khi chạm đất là bao nhiêu?",
+    "answers": [
+      "70 m/s",
+      "60 m/s",
+      "50 m/s",
+      "30 m/s"
+    ],
+    "correctIndex": 1,
+    "reward": 893
+  },
+  {
+    "question": "Vật Lý Vận Dụng: Một vật rơi tự do từ độ cao 180m. Lấy g = 10 m/s². Vận tốc của vật ngay trước khi chạm đất là bao nhiêu?",
+    "answers": [
+      "30 m/s",
+      "60 m/s",
+      "70 m/s",
+      "50 m/s"
+    ],
+    "correctIndex": 1,
+    "reward": 870
+  },
+  {
+    "question": "Vật Lý Vận Dụng: Một vật rơi tự do từ độ cao 20m. Lấy g = 10 m/s². Vận tốc của vật ngay trước khi chạm đất là bao nhiêu?",
+    "answers": [
+      "10 m/s",
+      "10 m/s",
+      "30 m/s",
+      "20 m/s"
+    ],
+    "correctIndex": 3,
+    "reward": 810
+  },
+  {
+    "question": "Vật Lý Vận Dụng: Một vật rơi tự do từ độ cao 80m. Lấy g = 10 m/s². Vận tốc của vật ngay trước khi chạm đất là bao nhiêu?",
+    "answers": [
+      "20 m/s",
+      "30 m/s",
+      "50 m/s",
+      "40 m/s"
+    ],
+    "correctIndex": 3,
+    "reward": 806
+  },
+  {
+    "question": "Vật Lý Vận Dụng: Một vật rơi tự do từ độ cao 180m. Lấy g = 10 m/s². Vận tốc của vật ngay trước khi chạm đất là bao nhiêu?",
+    "answers": [
+      "60 m/s",
+      "70 m/s",
+      "50 m/s",
+      "30 m/s"
+    ],
+    "correctIndex": 0,
+    "reward": 885
+  },
+  {
+    "question": "Vật Lý Vận Dụng: Một vật rơi tự do từ độ cao 245m. Lấy g = 10 m/s². Vận tốc của vật ngay trước khi chạm đất là bao nhiêu?",
+    "answers": [
+      "70 m/s",
+      "60 m/s",
+      "35 m/s",
+      "80 m/s"
+    ],
+    "correctIndex": 0,
+    "reward": 758
+  },
+  {
+    "question": "Vật Lý Vận Dụng: Một vật rơi tự do từ độ cao 80m. Lấy g = 10 m/s². Vận tốc của vật ngay trước khi chạm đất là bao nhiêu?",
+    "answers": [
+      "40 m/s",
+      "50 m/s",
+      "20 m/s",
+      "30 m/s"
+    ],
+    "correctIndex": 0,
+    "reward": 811
+  },
+  {
+    "question": "Vật Lý Vận Dụng: Một vật rơi tự do từ độ cao 20m. Lấy g = 10 m/s². Vận tốc của vật ngay trước khi chạm đất là bao nhiêu?",
+    "answers": [
+      "10 m/s",
+      "10 m/s",
+      "30 m/s",
+      "20 m/s"
+    ],
+    "correctIndex": 3,
+    "reward": 787
+  },
+  {
+    "question": "Vật Lý Vận Dụng: Một vật rơi tự do từ độ cao 5m. Lấy g = 10 m/s². Vận tốc của vật ngay trước khi chạm đất là bao nhiêu?",
+    "answers": [
+      "10 m/s",
+      "20 m/s",
+      "0 m/s",
+      "5 m/s"
+    ],
+    "correctIndex": 0,
+    "reward": 857
+  },
+  {
+    "question": "Vật Lý Vận Dụng: Một vật rơi tự do từ độ cao 80m. Lấy g = 10 m/s². Vận tốc của vật ngay trước khi chạm đất là bao nhiêu?",
+    "answers": [
+      "50 m/s",
+      "40 m/s",
+      "20 m/s",
+      "30 m/s"
+    ],
+    "correctIndex": 1,
+    "reward": 809
+  },
+  {
+    "question": "Vật Lý Vận Dụng: Đặt hiệu điện thế 50V vào hai đầu đoạn mạch gồm 2 điện trở R1=2Ω và R2=4Ω mắc nối tiếp. Cường độ dòng điện qua mạch chính là?",
+    "answers": [
+      "16.66 A",
+      "8.83 A",
+      "9.33 A",
+      "8.33 A"
+    ],
+    "correctIndex": 3,
+    "reward": 757
+  },
+  {
+    "question": "Vật Lý Vận Dụng: Đặt hiệu điện thế 100V vào hai đầu đoạn mạch gồm 2 điện trở R1=8Ω và R2=10Ω mắc nối tiếp. Cường độ dòng điện qua mạch chính là?",
+    "answers": [
+      "6.56 A",
+      "11.12 A",
+      "5.56 A",
+      "6.06 A"
+    ],
+    "correctIndex": 2,
+    "reward": 785
+  },
+  {
+    "question": "Vật Lý Vận Dụng: Đặt hiệu điện thế 80V vào hai đầu đoạn mạch gồm 2 điện trở R1=5Ω và R2=8Ω mắc nối tiếp. Cường độ dòng điện qua mạch chính là?",
+    "answers": [
+      "12.30 A",
+      "6.15 A",
+      "6.65 A",
+      "7.15 A"
+    ],
+    "correctIndex": 1,
+    "reward": 756
+  },
+  {
+    "question": "Vật Lý Vận Dụng: Đặt hiệu điện thế 70V vào hai đầu đoạn mạch gồm 2 điện trở R1=9Ω và R2=9Ω mắc nối tiếp. Cường độ dòng điện qua mạch chính là?",
+    "answers": [
+      "7.78 A",
+      "4.89 A",
+      "4.39 A",
+      "3.89 A"
+    ],
+    "correctIndex": 3,
+    "reward": 784
+  },
+  {
+    "question": "Vật Lý Vận Dụng: Đặt hiệu điện thế 20V vào hai đầu đoạn mạch gồm 2 điện trở R1=7Ω và R2=11Ω mắc nối tiếp. Cường độ dòng điện qua mạch chính là?",
+    "answers": [
+      "2.22 A",
+      "2.11 A",
+      "1.11 A",
+      "1.61 A"
+    ],
+    "correctIndex": 2,
+    "reward": 863
+  },
+  {
+    "question": "Vật Lý Vận Dụng: Đặt hiệu điện thế 40V vào hai đầu đoạn mạch gồm 2 điện trở R1=3Ω và R2=3Ω mắc nối tiếp. Cường độ dòng điện qua mạch chính là?",
+    "answers": [
+      "13.34 A",
+      "7.17 A",
+      "6.67 A",
+      "7.67 A"
+    ],
+    "correctIndex": 2,
+    "reward": 789
+  },
+  {
+    "question": "Vật Lý Vận Dụng: Đặt hiệu điện thế 80V vào hai đầu đoạn mạch gồm 2 điện trở R1=9Ω và R2=4Ω mắc nối tiếp. Cường độ dòng điện qua mạch chính là?",
+    "answers": [
+      "6.15 A",
+      "12.30 A",
+      "7.15 A",
+      "6.65 A"
+    ],
+    "correctIndex": 0,
+    "reward": 902
+  },
+  {
+    "question": "Vật Lý Vận Dụng: Đặt hiệu điện thế 90V vào hai đầu đoạn mạch gồm 2 điện trở R1=9Ω và R2=6Ω mắc nối tiếp. Cường độ dòng điện qua mạch chính là?",
+    "answers": [
+      "6 A",
+      "12.00 A",
+      "7.00 A",
+      "6.50 A"
+    ],
+    "correctIndex": 0,
+    "reward": 817
+  },
+  {
+    "question": "Vật Lý Vận Dụng: Đặt hiệu điện thế 90V vào hai đầu đoạn mạch gồm 2 điện trở R1=5Ω và R2=7Ω mắc nối tiếp. Cường độ dòng điện qua mạch chính là?",
+    "answers": [
+      "8.00 A",
+      "7.5 A",
+      "8.50 A",
+      "15.00 A"
+    ],
+    "correctIndex": 1,
+    "reward": 794
+  },
+  {
+    "question": "Vật Lý Vận Dụng: Đặt hiệu điện thế 110V vào hai đầu đoạn mạch gồm 2 điện trở R1=11Ω và R2=3Ω mắc nối tiếp. Cường độ dòng điện qua mạch chính là?",
+    "answers": [
+      "7.86 A",
+      "8.86 A",
+      "15.72 A",
+      "8.36 A"
+    ],
+    "correctIndex": 0,
+    "reward": 756
+  },
+  {
+    "question": "Vật Lý Vận Dụng: Đặt hiệu điện thế 110V vào hai đầu đoạn mạch gồm 2 điện trở R1=10Ω và R2=10Ω mắc nối tiếp. Cường độ dòng điện qua mạch chính là?",
+    "answers": [
+      "6.50 A",
+      "5.5 A",
+      "11.00 A",
+      "6.00 A"
+    ],
+    "correctIndex": 1,
+    "reward": 761
+  },
+  {
+    "question": "Vật Lý Vận Dụng: Đặt hiệu điện thế 20V vào hai đầu đoạn mạch gồm 2 điện trở R1=10Ω và R2=3Ω mắc nối tiếp. Cường độ dòng điện qua mạch chính là?",
+    "answers": [
+      "1.54 A",
+      "2.54 A",
+      "2.04 A",
+      "3.08 A"
+    ],
+    "correctIndex": 0,
+    "reward": 875
+  },
+  {
+    "question": "Vật Lý Vận Dụng: Đặt hiệu điện thế 40V vào hai đầu đoạn mạch gồm 2 điện trở R1=7Ω và R2=9Ω mắc nối tiếp. Cường độ dòng điện qua mạch chính là?",
+    "answers": [
+      "5.00 A",
+      "3.00 A",
+      "3.50 A",
+      "2.5 A"
+    ],
+    "correctIndex": 3,
+    "reward": 906
+  },
+  {
+    "question": "Vật Lý Vận Dụng: Đặt hiệu điện thế 40V vào hai đầu đoạn mạch gồm 2 điện trở R1=7Ω và R2=3Ω mắc nối tiếp. Cường độ dòng điện qua mạch chính là?",
+    "answers": [
+      "4 A",
+      "4.50 A",
+      "8.00 A",
+      "5.00 A"
+    ],
+    "correctIndex": 0,
+    "reward": 771
+  },
+  {
+    "question": "Vật Lý Vận Dụng: Đặt hiệu điện thế 90V vào hai đầu đoạn mạch gồm 2 điện trở R1=11Ω và R2=6Ω mắc nối tiếp. Cường độ dòng điện qua mạch chính là?",
+    "answers": [
+      "5.29 A",
+      "10.58 A",
+      "5.79 A",
+      "6.29 A"
+    ],
+    "correctIndex": 0,
+    "reward": 892
+  },
+  {
+    "question": "Vật Lý Vận Dụng: Đặt hiệu điện thế 100V vào hai đầu đoạn mạch gồm 2 điện trở R1=10Ω và R2=4Ω mắc nối tiếp. Cường độ dòng điện qua mạch chính là?",
+    "answers": [
+      "7.64 A",
+      "7.14 A",
+      "8.14 A",
+      "14.28 A"
+    ],
+    "correctIndex": 1,
+    "reward": 920
+  },
+  {
+    "question": "Vật Lý Vận Dụng: Đặt hiệu điện thế 90V vào hai đầu đoạn mạch gồm 2 điện trở R1=11Ω và R2=3Ω mắc nối tiếp. Cường độ dòng điện qua mạch chính là?",
+    "answers": [
+      "7.43 A",
+      "6.43 A",
+      "6.93 A",
+      "12.86 A"
+    ],
+    "correctIndex": 1,
+    "reward": 786
+  },
+  {
+    "question": "Vật Lý Vận Dụng: Đặt hiệu điện thế 80V vào hai đầu đoạn mạch gồm 2 điện trở R1=7Ω và R2=9Ω mắc nối tiếp. Cường độ dòng điện qua mạch chính là?",
+    "answers": [
+      "5 A",
+      "6.00 A",
+      "10.00 A",
+      "5.50 A"
+    ],
+    "correctIndex": 0,
+    "reward": 943
+  },
+  {
+    "question": "Vật Lý Vận Dụng: Đặt hiệu điện thế 50V vào hai đầu đoạn mạch gồm 2 điện trở R1=9Ω và R2=6Ω mắc nối tiếp. Cường độ dòng điện qua mạch chính là?",
+    "answers": [
+      "4.33 A",
+      "3.83 A",
+      "3.33 A",
+      "6.66 A"
+    ],
+    "correctIndex": 2,
+    "reward": 878
+  },
+  {
+    "question": "Vật Lý Vận Dụng: Đặt hiệu điện thế 90V vào hai đầu đoạn mạch gồm 2 điện trở R1=7Ω và R2=7Ω mắc nối tiếp. Cường độ dòng điện qua mạch chính là?",
+    "answers": [
+      "6.43 A",
+      "7.43 A",
+      "6.93 A",
+      "12.86 A"
+    ],
+    "correctIndex": 0,
+    "reward": 802
+  },
+  {
+    "question": "Vật Lý Vận Dụng: Đặt hiệu điện thế 90V vào hai đầu đoạn mạch gồm 2 điện trở R1=4Ω và R2=11Ω mắc nối tiếp. Cường độ dòng điện qua mạch chính là?",
+    "answers": [
+      "7.00 A",
+      "6 A",
+      "12.00 A",
+      "6.50 A"
+    ],
+    "correctIndex": 1,
+    "reward": 889
+  },
+  {
+    "question": "Vật Lý Vận Dụng: Đặt hiệu điện thế 90V vào hai đầu đoạn mạch gồm 2 điện trở R1=6Ω và R2=3Ω mắc nối tiếp. Cường độ dòng điện qua mạch chính là?",
+    "answers": [
+      "10.50 A",
+      "10 A",
+      "20.00 A",
+      "11.00 A"
+    ],
+    "correctIndex": 1,
+    "reward": 884
+  },
+  {
+    "question": "Vật Lý Vận Dụng: Đặt hiệu điện thế 60V vào hai đầu đoạn mạch gồm 2 điện trở R1=8Ω và R2=6Ω mắc nối tiếp. Cường độ dòng điện qua mạch chính là?",
+    "answers": [
+      "8.58 A",
+      "4.79 A",
+      "5.29 A",
+      "4.29 A"
+    ],
+    "correctIndex": 3,
+    "reward": 853
+  },
+  {
+    "question": "Vật Lý Vận Dụng: Đặt hiệu điện thế 20V vào hai đầu đoạn mạch gồm 2 điện trở R1=8Ω và R2=3Ω mắc nối tiếp. Cường độ dòng điện qua mạch chính là?",
+    "answers": [
+      "3.64 A",
+      "2.32 A",
+      "2.82 A",
+      "1.82 A"
+    ],
+    "correctIndex": 3,
+    "reward": 872
+  },
+  {
+    "question": "Vật Lý Vận Dụng: Đặt hiệu điện thế 60V vào hai đầu đoạn mạch gồm 2 điện trở R1=10Ω và R2=9Ω mắc nối tiếp. Cường độ dòng điện qua mạch chính là?",
+    "answers": [
+      "3.66 A",
+      "4.16 A",
+      "6.32 A",
+      "3.16 A"
+    ],
+    "correctIndex": 3,
+    "reward": 896
+  },
+  {
+    "question": "Sinh Học Vận Dụng: Một phân tử ADN (gen) có tổng số 1700 nucleotit, trong đó số nucleotit loại A là 296. Số liên kết hydro của gen này là bao nhiêu?",
+    "answers": [
+      "2154",
+      "2454",
+      "2354",
+      "2254"
+    ],
+    "correctIndex": 3,
+    "reward": 853
+  },
+  {
+    "question": "Sinh Học Vận Dụng: Một phân tử ADN (gen) có tổng số 1900 nucleotit, trong đó số nucleotit loại A là 227. Số liên kết hydro của gen này là bao nhiêu?",
+    "answers": [
+      "2623",
+      "2823",
+      "2523",
+      "2723"
+    ],
+    "correctIndex": 0,
+    "reward": 876
+  },
+  {
+    "question": "Sinh Học Vận Dụng: Một phân tử ADN (gen) có tổng số 1700 nucleotit, trong đó số nucleotit loại A là 252. Số liên kết hydro của gen này là bao nhiêu?",
+    "answers": [
+      "2498",
+      "2198",
+      "2398",
+      "2298"
+    ],
+    "correctIndex": 3,
+    "reward": 884
+  },
+  {
+    "question": "Sinh Học Vận Dụng: Một phân tử ADN (gen) có tổng số 1800 nucleotit, trong đó số nucleotit loại A là 442. Số liên kết hydro của gen này là bao nhiêu?",
+    "answers": [
+      "2458",
+      "2158",
+      "2358",
+      "2258"
+    ],
+    "correctIndex": 3,
+    "reward": 833
+  },
+  {
+    "question": "Sinh Học Vận Dụng: Một phân tử ADN (gen) có tổng số 1900 nucleotit, trong đó số nucleotit loại A là 368. Số liên kết hydro của gen này là bao nhiêu?",
+    "answers": [
+      "2382",
+      "2482",
+      "2682",
+      "2582"
+    ],
+    "correctIndex": 1,
+    "reward": 914
+  },
+  {
+    "question": "Sinh Học Vận Dụng: Một phân tử ADN (gen) có tổng số 1400 nucleotit, trong đó số nucleotit loại A là 214. Số liên kết hydro của gen này là bao nhiêu?",
+    "answers": [
+      "1786",
+      "1986",
+      "1886",
+      "2086"
+    ],
+    "correctIndex": 2,
+    "reward": 815
+  },
+  {
+    "question": "Sinh Học Vận Dụng: Một phân tử ADN (gen) có tổng số 1500 nucleotit, trong đó số nucleotit loại A là 377. Số liên kết hydro của gen này là bao nhiêu?",
+    "answers": [
+      "1873",
+      "1973",
+      "1773",
+      "2073"
+    ],
+    "correctIndex": 0,
+    "reward": 813
+  },
+  {
+    "question": "Sinh Học Vận Dụng: Một phân tử ADN (gen) có tổng số 1600 nucleotit, trong đó số nucleotit loại A là 310. Số liên kết hydro của gen này là bao nhiêu?",
+    "answers": [
+      "2090",
+      "2190",
+      "2290",
+      "1990"
+    ],
+    "correctIndex": 0,
+    "reward": 920
+  },
+  {
+    "question": "Sinh Học Vận Dụng: Một phân tử ADN (gen) có tổng số 1000 nucleotit, trong đó số nucleotit loại A là 148. Số liên kết hydro của gen này là bao nhiêu?",
+    "answers": [
+      "1352",
+      "1452",
+      "1552",
+      "1252"
+    ],
+    "correctIndex": 0,
+    "reward": 974
+  },
+  {
+    "question": "Sinh Học Vận Dụng: Một phân tử ADN (gen) có tổng số 1200 nucleotit, trong đó số nucleotit loại A là 133. Số liên kết hydro của gen này là bao nhiêu?",
+    "answers": [
+      "1667",
+      "1767",
+      "1567",
+      "1867"
+    ],
+    "correctIndex": 0,
+    "reward": 961
+  },
+  {
+    "question": "Sinh Học Vận Dụng: Một phân tử ADN (gen) có tổng số 1700 nucleotit, trong đó số nucleotit loại A là 433. Số liên kết hydro của gen này là bao nhiêu?",
+    "answers": [
+      "2317",
+      "2017",
+      "2217",
+      "2117"
+    ],
+    "correctIndex": 3,
+    "reward": 899
+  },
+  {
+    "question": "Sinh Học Vận Dụng: Một phân tử ADN (gen) có tổng số 1900 nucleotit, trong đó số nucleotit loại A là 335. Số liên kết hydro của gen này là bao nhiêu?",
+    "answers": [
+      "2515",
+      "2615",
+      "2415",
+      "2715"
+    ],
+    "correctIndex": 0,
+    "reward": 958
+  },
+  {
+    "question": "Sinh Học Vận Dụng: Một phân tử ADN (gen) có tổng số 1000 nucleotit, trong đó số nucleotit loại A là 116. Số liên kết hydro của gen này là bao nhiêu?",
+    "answers": [
+      "1584",
+      "1284",
+      "1484",
+      "1384"
+    ],
+    "correctIndex": 3,
+    "reward": 834
+  },
+  {
+    "question": "Sinh Học Vận Dụng: Một phân tử ADN (gen) có tổng số 1500 nucleotit, trong đó số nucleotit loại A là 370. Số liên kết hydro của gen này là bao nhiêu?",
+    "answers": [
+      "1880",
+      "1980",
+      "1780",
+      "2080"
+    ],
+    "correctIndex": 0,
+    "reward": 853
+  },
+  {
+    "question": "Sinh Học Vận Dụng: Một phân tử ADN (gen) có tổng số 1200 nucleotit, trong đó số nucleotit loại A là 137. Số liên kết hydro của gen này là bao nhiêu?",
+    "answers": [
+      "1763",
+      "1863",
+      "1663",
+      "1563"
+    ],
+    "correctIndex": 2,
+    "reward": 872
+  },
+  {
+    "question": "Sinh Học Vận Dụng: Một phân tử ADN (gen) có tổng số 1600 nucleotit, trong đó số nucleotit loại A là 374. Số liên kết hydro của gen này là bao nhiêu?",
+    "answers": [
+      "2026",
+      "2126",
+      "1926",
+      "2226"
+    ],
+    "correctIndex": 0,
+    "reward": 877
+  },
+  {
+    "question": "Sinh Học Vận Dụng: Một phân tử ADN (gen) có tổng số 1500 nucleotit, trong đó số nucleotit loại A là 139. Số liên kết hydro của gen này là bao nhiêu?",
+    "answers": [
+      "2111",
+      "2211",
+      "2011",
+      "2311"
+    ],
+    "correctIndex": 0,
+    "reward": 961
+  },
+  {
+    "question": "Sinh Học Vận Dụng: Một phân tử ADN (gen) có tổng số 1200 nucleotit, trong đó số nucleotit loại A là 341. Số liên kết hydro của gen này là bao nhiêu?",
+    "answers": [
+      "1359",
+      "1659",
+      "1559",
+      "1459"
+    ],
+    "correctIndex": 3,
+    "reward": 931
+  },
+  {
+    "question": "Sinh Học Vận Dụng: Một phân tử ADN (gen) có tổng số 1000 nucleotit, trong đó số nucleotit loại A là 248. Số liên kết hydro của gen này là bao nhiêu?",
+    "answers": [
+      "1252",
+      "1452",
+      "1352",
+      "1152"
+    ],
+    "correctIndex": 0,
+    "reward": 849
+  },
+  {
+    "question": "Sinh Học Vận Dụng: Một phân tử ADN (gen) có tổng số 1600 nucleotit, trong đó số nucleotit loại A là 242. Số liên kết hydro của gen này là bao nhiêu?",
+    "answers": [
+      "2358",
+      "2058",
+      "2258",
+      "2158"
+    ],
+    "correctIndex": 3,
+    "reward": 941
+  },
+  {
+    "question": "Sinh Học Vận Dụng: Một phân tử ADN (gen) có tổng số 1600 nucleotit, trong đó số nucleotit loại A là 199. Số liên kết hydro của gen này là bao nhiêu?",
+    "answers": [
+      "2201",
+      "2301",
+      "2101",
+      "2401"
+    ],
+    "correctIndex": 0,
+    "reward": 993
+  },
+  {
+    "question": "Sinh Học Vận Dụng: Một phân tử ADN (gen) có tổng số 1400 nucleotit, trong đó số nucleotit loại A là 320. Số liên kết hydro của gen này là bao nhiêu?",
+    "answers": [
+      "1780",
+      "1880",
+      "1680",
+      "1980"
+    ],
+    "correctIndex": 0,
+    "reward": 876
+  },
+  {
+    "question": "Sinh Học Vận Dụng: Một phân tử ADN (gen) có tổng số 1500 nucleotit, trong đó số nucleotit loại A là 187. Số liên kết hydro của gen này là bao nhiêu?",
+    "answers": [
+      "2063",
+      "2163",
+      "1963",
+      "2263"
+    ],
+    "correctIndex": 0,
+    "reward": 995
+  },
+  {
+    "question": "Sinh Học Vận Dụng: Một phân tử ADN (gen) có tổng số 1100 nucleotit, trong đó số nucleotit loại A là 147. Số liên kết hydro của gen này là bao nhiêu?",
+    "answers": [
+      "1403",
+      "1603",
+      "1503",
+      "1703"
+    ],
+    "correctIndex": 2,
+    "reward": 860
+  },
+  {
+    "question": "Sinh Học Vận Dụng: Một phân tử ADN (gen) có tổng số 1000 nucleotit, trong đó số nucleotit loại A là 241. Số liên kết hydro của gen này là bao nhiêu?",
+    "answers": [
+      "1159",
+      "1459",
+      "1359",
+      "1259"
+    ],
+    "correctIndex": 3,
+    "reward": 899
+  },
+  {
+    "question": "Sinh Học Vận Dụng: Một phân tử ADN (gen) có tổng số 1600 nucleotit, trong đó số nucleotit loại A là 120. Số liên kết hydro của gen này là bao nhiêu?",
+    "answers": [
+      "2280",
+      "2480",
+      "2380",
+      "2180"
+    ],
+    "correctIndex": 0,
+    "reward": 967
+  },
+  {
+    "question": "Sinh Học Vận Dụng: Một phân tử ADN (gen) có tổng số 1600 nucleotit, trong đó số nucleotit loại A là 492. Số liên kết hydro của gen này là bao nhiêu?",
+    "answers": [
+      "1808",
+      "2008",
+      "2108",
+      "1908"
+    ],
+    "correctIndex": 3,
+    "reward": 959
+  },
+  {
+    "question": "Sinh Học Vận Dụng: Một phân tử ADN (gen) có tổng số 1600 nucleotit, trong đó số nucleotit loại A là 238. Số liên kết hydro của gen này là bao nhiêu?",
+    "answers": [
+      "2362",
+      "2062",
+      "2262",
+      "2162"
+    ],
+    "correctIndex": 3,
+    "reward": 989
+  },
+  {
+    "question": "Sinh Học Vận Dụng: Một phân tử ADN (gen) có tổng số 1600 nucleotit, trong đó số nucleotit loại A là 334. Số liên kết hydro của gen này là bao nhiêu?",
+    "answers": [
+      "2266",
+      "2166",
+      "1966",
+      "2066"
+    ],
+    "correctIndex": 3,
+    "reward": 969
+  },
+  {
+    "question": "Sinh Học Vận Dụng: Một phân tử ADN (gen) có tổng số 1000 nucleotit, trong đó số nucleotit loại A là 168. Số liên kết hydro của gen này là bao nhiêu?",
+    "answers": [
+      "1232",
+      "1432",
+      "1332",
+      "1532"
+    ],
+    "correctIndex": 2,
+    "reward": 876
+  },
+  {
+    "question": "Sinh Học Vận Dụng: Một phân tử ADN (gen) có tổng số 1500 nucleotit, trong đó số nucleotit loại A là 464. Số liên kết hydro của gen này là bao nhiêu?",
+    "answers": [
+      "1786",
+      "1886",
+      "1986",
+      "1686"
+    ],
+    "correctIndex": 0,
+    "reward": 860
+  },
+  {
+    "question": "Sinh Học Vận Dụng: Một phân tử ADN (gen) có tổng số 1000 nucleotit, trong đó số nucleotit loại A là 310. Số liên kết hydro của gen này là bao nhiêu?",
+    "answers": [
+      "1390",
+      "1090",
+      "1290",
+      "1190"
+    ],
+    "correctIndex": 3,
+    "reward": 859
+  },
+  {
+    "question": "Sinh Học Vận Dụng: Một phân tử ADN (gen) có tổng số 1700 nucleotit, trong đó số nucleotit loại A là 126. Số liên kết hydro của gen này là bao nhiêu?",
+    "answers": [
+      "2324",
+      "2524",
+      "2424",
+      "2624"
+    ],
+    "correctIndex": 2,
+    "reward": 958
+  },
+  {
+    "question": "Sinh Học Vận Dụng: Một phân tử ADN (gen) có tổng số 1400 nucleotit, trong đó số nucleotit loại A là 280. Số liên kết hydro của gen này là bao nhiêu?",
+    "answers": [
+      "1720",
+      "1820",
+      "2020",
+      "1920"
+    ],
+    "correctIndex": 1,
+    "reward": 911
+  },
+  {
+    "question": "Sinh Học Vận Dụng: Một phân tử ADN (gen) có tổng số 1900 nucleotit, trong đó số nucleotit loại A là 223. Số liên kết hydro của gen này là bao nhiêu?",
+    "answers": [
+      "2527",
+      "2827",
+      "2727",
+      "2627"
+    ],
+    "correctIndex": 3,
+    "reward": 944
+  },
+  {
+    "question": "Sinh Học Vận Dụng: Một phân tử ADN (gen) có tổng số 1000 nucleotit, trong đó số nucleotit loại A là 328. Số liên kết hydro của gen này là bao nhiêu?",
+    "answers": [
+      "1072",
+      "1272",
+      "1372",
+      "1172"
+    ],
+    "correctIndex": 3,
+    "reward": 824
+  },
+  {
+    "question": "Sinh Học Vận Dụng: Một phân tử ADN (gen) có tổng số 1700 nucleotit, trong đó số nucleotit loại A là 407. Số liên kết hydro của gen này là bao nhiêu?",
+    "answers": [
+      "2043",
+      "2243",
+      "2343",
+      "2143"
+    ],
+    "correctIndex": 3,
+    "reward": 930
+  },
+  {
+    "question": "Sinh Học Vận Dụng: Một phân tử ADN (gen) có tổng số 1800 nucleotit, trong đó số nucleotit loại A là 321. Số liên kết hydro của gen này là bao nhiêu?",
+    "answers": [
+      "2279",
+      "2479",
+      "2579",
+      "2379"
+    ],
+    "correctIndex": 3,
+    "reward": 934
+  },
+  {
+    "question": "Sinh Học Vận Dụng: Một phân tử ADN (gen) có tổng số 1000 nucleotit, trong đó số nucleotit loại A là 313. Số liên kết hydro của gen này là bao nhiêu?",
+    "answers": [
+      "1187",
+      "1387",
+      "1287",
+      "1087"
+    ],
+    "correctIndex": 0,
+    "reward": 886
+  },
+  {
+    "question": "Sinh Học Vận Dụng: Một phân tử ADN (gen) có tổng số 1200 nucleotit, trong đó số nucleotit loại A là 128. Số liên kết hydro của gen này là bao nhiêu?",
+    "answers": [
+      "1572",
+      "1672",
+      "1872",
+      "1772"
+    ],
+    "correctIndex": 1,
+    "reward": 826
+  },
+  {
+    "question": "Sinh Học Vận Dụng: Một phân tử ADN (gen) có tổng số 1300 nucleotit, trong đó số nucleotit loại A là 384. Số liên kết hydro của gen này là bao nhiêu?",
+    "answers": [
+      "1766",
+      "1566",
+      "1666",
+      "1466"
+    ],
+    "correctIndex": 1,
+    "reward": 976
+  },
+  {
+    "question": "Sinh Học Vận Dụng: Một phân tử ADN (gen) có tổng số 1500 nucleotit, trong đó số nucleotit loại A là 405. Số liên kết hydro của gen này là bao nhiêu?",
+    "answers": [
+      "1845",
+      "1945",
+      "1745",
+      "2045"
+    ],
+    "correctIndex": 0,
+    "reward": 836
+  },
+  {
+    "question": "Sinh Học Vận Dụng: Một phân tử ADN (gen) có tổng số 1300 nucleotit, trong đó số nucleotit loại A là 245. Số liên kết hydro của gen này là bao nhiêu?",
+    "answers": [
+      "1605",
+      "1905",
+      "1805",
+      "1705"
+    ],
+    "correctIndex": 3,
+    "reward": 842
+  },
+  {
+    "question": "Sinh Học Vận Dụng: Một phân tử ADN (gen) có tổng số 1700 nucleotit, trong đó số nucleotit loại A là 354. Số liên kết hydro của gen này là bao nhiêu?",
+    "answers": [
+      "2096",
+      "2296",
+      "2396",
+      "2196"
+    ],
+    "correctIndex": 3,
+    "reward": 849
+  },
+  {
+    "question": "Sinh Học Vận Dụng: Một phân tử ADN (gen) có tổng số 1600 nucleotit, trong đó số nucleotit loại A là 127. Số liên kết hydro của gen này là bao nhiêu?",
+    "answers": [
+      "2473",
+      "2373",
+      "2273",
+      "2173"
+    ],
+    "correctIndex": 2,
+    "reward": 971
+  },
+  {
+    "question": "Sinh Học Vận Dụng: Một phân tử ADN (gen) có tổng số 1600 nucleotit, trong đó số nucleotit loại A là 105. Số liên kết hydro của gen này là bao nhiêu?",
+    "answers": [
+      "2495",
+      "2295",
+      "2395",
+      "2195"
+    ],
+    "correctIndex": 1,
+    "reward": 894
+  },
+  {
+    "question": "Sinh Học Vận Dụng: Một phân tử ADN (gen) có tổng số 1800 nucleotit, trong đó số nucleotit loại A là 339. Số liên kết hydro của gen này là bao nhiêu?",
+    "answers": [
+      "2561",
+      "2461",
+      "2361",
+      "2261"
+    ],
+    "correctIndex": 2,
+    "reward": 975
+  },
+  {
+    "question": "Sinh Học Vận Dụng: Một phân tử ADN (gen) có tổng số 1300 nucleotit, trong đó số nucleotit loại A là 420. Số liên kết hydro của gen này là bao nhiêu?",
+    "answers": [
+      "1530",
+      "1630",
+      "1430",
+      "1730"
+    ],
+    "correctIndex": 0,
+    "reward": 918
+  },
+  {
+    "question": "Sinh Học Vận Dụng: Một phân tử ADN (gen) có tổng số 1000 nucleotit, trong đó số nucleotit loại A là 136. Số liên kết hydro của gen này là bao nhiêu?",
+    "answers": [
+      "1464",
+      "1364",
+      "1564",
+      "1264"
+    ],
+    "correctIndex": 1,
+    "reward": 854
+  },
+  {
+    "question": "Sinh Học Vận Dụng: Một phân tử ADN (gen) có tổng số 1800 nucleotit, trong đó số nucleotit loại A là 451. Số liên kết hydro của gen này là bao nhiêu?",
+    "answers": [
+      "2449",
+      "2249",
+      "2349",
+      "2149"
+    ],
+    "correctIndex": 1,
+    "reward": 907
   }
 ]
