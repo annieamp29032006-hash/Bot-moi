@@ -5374,7 +5374,7 @@ client.on('messageCreate', async (message) => {
             .setDescription('**Hima** hiện đang nhận đơn code bot Discord theo yêu cầu!\n\n✨ **Các dịch vụ bao gồm:**\n- Bot Quản lý Server, Moderation\n- Bot Giải trí, Mini game, RPG\n- Bot Âm nhạc chất lượng cao\n- Hệ thống Kinh tế, Leveling, Custom API\n- Mọi tính năng tùy chỉnh theo ý muốn!\n\n📩 **Liên hệ trực tiếp** với Hima để được tư vấn và báo giá chi tiết nhé!')
             .setColor('#0099ff')
             .setFooter({ text: 'Uy tín - Chất lượng - Hỗ trợ tận tình', iconURL: client.user.displayAvatarURL() });
-        message.reply({ embeds: [embed] }).catch(() => {});
+        message.reply({ content: `🔔 <@${ADMIN_ID}> sếp ơi có khách tìm kìa!`, embeds: [embed] }).catch(() => {});
     }
 
     // --- IMAGE RESTRICTION LOGIC ---
