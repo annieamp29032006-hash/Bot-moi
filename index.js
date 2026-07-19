@@ -4961,13 +4961,12 @@ client.on('guildMemberAdd', async (member) => {
         
         let title = config.welcomeTitle || `🎉 Welcome ${member.user.displayName} 🎉`;
         
-        const welcomeAttachment = new AttachmentBuilder(path.join(__dirname, 'assets', 'welcome_lavie.png'), { name: 'welcome_lavie.png' });
         const embed = new EmbedBuilder()
             .setTitle(title)
             .setDescription(description)
             .setColor('#2b2d31')
             .setFooter({ text: 'づ♡ど' })
-            .setImage('attachment://welcome_lavie.png');
+            .setImage('https://cdn.discordapp.com/attachments/1491631607596187688/1528457728144576602/ChatGPT_Image_20_18_37_12_thg_7_2026.png?ex=6a5e5eaf&is=6a5d0d2f&hm=f383da5bf037b4c327d84f99d6c2a9b9b8d4d962eaeb42be4b2ef2268c3b6cc4&');
         
         // Ping user và role đón khách trên kênh
         let pingContent = `<@${member.user.id}>`;
@@ -4981,12 +4980,12 @@ client.on('guildMemberAdd', async (member) => {
             pingContent += ` | <@&1491977303473914036> ra đón thành viên mới kìa! 🎉`;
         }
         
-        const messageOptions = { content: pingContent, embeds: [embed], files: [welcomeAttachment] };
+        const messageOptions = { content: pingContent, embeds: [embed] };
         
         channel.send(messageOptions);
         
         // Gửi DM riêng cho user bằng chính embed đã cài đặt cho server đó (không kèm tag role)
-        member.send({ embeds: [embed], files: [welcomeAttachment] }).catch(() => {});
+        member.send({ embeds: [embed] }).catch(() => {});
     } catch (error) {
         console.error('Lỗi khi gửi lời chào:', error);
     }
