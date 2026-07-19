@@ -1,0 +1,144 @@
+{
+  "123": {
+    "xp": 18,
+    "level": 1,
+    "messages": 1,
+    "voiceTime": 0,
+    "textChannels": {
+      "undefined": 1
+    },
+    "voiceChannels": {}
+  },
+  "1077900567269093478": {
+    "xp": 57,
+    "level": 3,
+    "messages": 18,
+    "voiceTime": 0,
+    "textChannels": {
+      "1525173970964316282": 2,
+      "1525181687435104336": 16
+    },
+    "voiceChannels": {}
+  },
+  "1089810537929519224": {
+    "xp": 62,
+    "level": 2,
+    "messages": 9,
+    "voiceTime": 0,
+    "textChannels": {
+      "1501566557287878786": 9
+    },
+    "voiceChannels": {}
+  },
+  "925762035659202651": {
+    "xp": 61,
+    "level": 1,
+    "messages": 3,
+    "voiceTime": 0,
+    "textChannels": {
+      "1501566557287878786": 3
+    },
+    "voiceChannels": {}
+  },
+  "1162410902121889935": {
+    "xp": 40,
+    "level": 2,
+    "messages": 7,
+    "voiceTime": 0,
+    "textChannels": {
+      "1525177305364828295": 7
+    },
+    "voiceChannels": {}
+  },
+  "894929267794788402": {
+    "xp": 85,
+    "level": 1,
+    "messages": 4,
+    "voiceTime": 0,
+    "textChannels": {
+      "1501566557287878786": 4
+    },
+    "voiceChannels": {}
+  },
+  "1204627726254997546": {
+    "xp": 11,
+    "level": 2,
+    "messages": 6,
+    "voiceTime": 0,
+    "textChannels": {
+      "1525177305364828295": 6
+    },
+    "voiceChannels": {}
+  },
+  "1504133885393502350": {
+    "xp": 62,
+    "level": 1,
+    "messages": 3,
+    "voiceTime": 0,
+    "textChannels": {
+      "1501566557287878786": 3
+    },
+    "voiceChannels": {}
+  },
+  "941310218548162651": {
+    "xp": 17,
+    "level": 1,
+    "messages": 1,
+    "voiceTime": 0,
+    "textChannels": {
+      "1502997765771493487": 1
+    },
+    "voiceChannels": {}
+  },
+  "1200864585067024434": {
+    "xp": 41,
+    "level": 1,
+    "messages": 2,
+    "voiceTime": 0,
+    "textChannels": {
+      "1525181687435104336": 2
+    },
+    "voiceChannels": {}
+  },
+  "1195545342654042198": {
+    "xp": 38,
+    "level": 2,
+    "messages": 7,
+    "voiceTime": 0,
+    "textChannels": {
+      "1502997765771493487": 2,
+      "1501566557287878786": 5
+    },
+    "voiceChannels": {}
+  },
+  "1393971963709620256": {
+    "xp": 44,
+    "level": 1,
+    "messages": 2,
+    "voiceTime": 0,
+    "textChannels": {
+      "1501566557287878786": 2
+    },
+    "voiceChannels": {}
+  },
+  "1359017522426282085": {
+    "xp": 24,
+    "level": 1,
+    "messages": 1,
+    "voiceTime": 0,
+    "textChannels": {
+      "1501566557287878786": 1
+    },
+    "voiceChannels": {}
+  },
+  "1264982812268691578": {
+    "xp": 25,
+    "level": 1,
+    "messages": 1,
+    "voiceTime": 0,
+    "textChannels": {
+      "1525177305364828295": 1
+    },
+    "voiceChannels": {}
+  }
+}
