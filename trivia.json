@@ -1098,5 +1098,2205 @@
     ],
     "correctIndex": 2,
     "reward": 200
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 32 * 56 là bao nhiêu?",
+    "answers": [
+      "1792",
+      "1806",
+      "1788",
+      "1799"
+    ],
+    "correctIndex": 0,
+    "reward": 399
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 36 * 14 là bao nhiêu?",
+    "answers": [
+      "516",
+      "500",
+      "504",
+      "505"
+    ],
+    "correctIndex": 2,
+    "reward": 224
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 24 - 21 là bao nhiêu?",
+    "answers": [
+      "3",
+      "19",
+      "5",
+      "1"
+    ],
+    "correctIndex": 0,
+    "reward": 398
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 10 + 23 là bao nhiêu?",
+    "answers": [
+      "28",
+      "39",
+      "33",
+      "50"
+    ],
+    "correctIndex": 2,
+    "reward": 215
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 55 * 22 là bao nhiêu?",
+    "answers": [
+      "1219",
+      "1210",
+      "1201",
+      "1216"
+    ],
+    "correctIndex": 1,
+    "reward": 257
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 13 * 29 là bao nhiêu?",
+    "answers": [
+      "377",
+      "379",
+      "373",
+      "390"
+    ],
+    "correctIndex": 0,
+    "reward": 238
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 52 - 35 là bao nhiêu?",
+    "answers": [
+      "30",
+      "10",
+      "25",
+      "17"
+    ],
+    "correctIndex": 3,
+    "reward": 262
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 38 - 11 là bao nhiêu?",
+    "answers": [
+      "42",
+      "22",
+      "32",
+      "27"
+    ],
+    "correctIndex": 3,
+    "reward": 342
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 27 * 45 là bao nhiêu?",
+    "answers": [
+      "1223",
+      "1213",
+      "1228",
+      "1215"
+    ],
+    "correctIndex": 3,
+    "reward": 299
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 24 - 12 là bao nhiêu?",
+    "answers": [
+      "20",
+      "23",
+      "12",
+      "11"
+    ],
+    "correctIndex": 2,
+    "reward": 283
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 14 + 41 là bao nhiêu?",
+    "answers": [
+      "77",
+      "49",
+      "58",
+      "55"
+    ],
+    "correctIndex": 3,
+    "reward": 215
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 33 + 35 là bao nhiêu?",
+    "answers": [
+      "78",
+      "64",
+      "72",
+      "68"
+    ],
+    "correctIndex": 3,
+    "reward": 210
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 49 - 50 là bao nhiêu?",
+    "answers": [
+      "8",
+      "-11",
+      "20",
+      "-1"
+    ],
+    "correctIndex": 3,
+    "reward": 356
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 47 - 22 là bao nhiêu?",
+    "answers": [
+      "25",
+      "26",
+      "15",
+      "34"
+    ],
+    "correctIndex": 0,
+    "reward": 298
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 44 + 19 là bao nhiêu?",
+    "answers": [
+      "63",
+      "76",
+      "68",
+      "59"
+    ],
+    "correctIndex": 0,
+    "reward": 229
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 37 * 49 là bao nhiêu?",
+    "answers": [
+      "1830",
+      "1813",
+      "1814",
+      "1810"
+    ],
+    "correctIndex": 1,
+    "reward": 398
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 43 * 44 là bao nhiêu?",
+    "answers": [
+      "1899",
+      "1885",
+      "1898",
+      "1892"
+    ],
+    "correctIndex": 3,
+    "reward": 287
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 20 + 38 là bao nhiêu?",
+    "answers": [
+      "58",
+      "67",
+      "81",
+      "49"
+    ],
+    "correctIndex": 0,
+    "reward": 300
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 31 + 15 là bao nhiêu?",
+    "answers": [
+      "55",
+      "41",
+      "55",
+      "46"
+    ],
+    "correctIndex": 3,
+    "reward": 210
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 17 + 49 là bao nhiêu?",
+    "answers": [
+      "59",
+      "69",
+      "82",
+      "66"
+    ],
+    "correctIndex": 3,
+    "reward": 237
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 58 - 18 là bao nhiêu?",
+    "answers": [
+      "38",
+      "47",
+      "40",
+      "48"
+    ],
+    "correctIndex": 2,
+    "reward": 250
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 35 * 12 là bao nhiêu?",
+    "answers": [
+      "440",
+      "412",
+      "428",
+      "420"
+    ],
+    "correctIndex": 3,
+    "reward": 221
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 16 + 14 là bao nhiêu?",
+    "answers": [
+      "37",
+      "24",
+      "33",
+      "30"
+    ],
+    "correctIndex": 3,
+    "reward": 300
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 18 + 11 là bao nhiêu?",
+    "answers": [
+      "43",
+      "27",
+      "36",
+      "29"
+    ],
+    "correctIndex": 3,
+    "reward": 341
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 37 * 30 là bao nhiêu?",
+    "answers": [
+      "1102",
+      "1110",
+      "1125",
+      "1119"
+    ],
+    "correctIndex": 1,
+    "reward": 346
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 57 + 26 là bao nhiêu?",
+    "answers": [
+      "102",
+      "91",
+      "83",
+      "80"
+    ],
+    "correctIndex": 2,
+    "reward": 231
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 56 * 59 là bao nhiêu?",
+    "answers": [
+      "3326",
+      "3305",
+      "3304",
+      "3303"
+    ],
+    "correctIndex": 2,
+    "reward": 398
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 42 * 26 là bao nhiêu?",
+    "answers": [
+      "1106",
+      "1083",
+      "1100",
+      "1092"
+    ],
+    "correctIndex": 3,
+    "reward": 304
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 58 - 46 là bao nhiêu?",
+    "answers": [
+      "12",
+      "19",
+      "25",
+      "2"
+    ],
+    "correctIndex": 0,
+    "reward": 334
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 31 - 36 là bao nhiêu?",
+    "answers": [
+      "-5",
+      "2",
+      "15",
+      "-11"
+    ],
+    "correctIndex": 0,
+    "reward": 313
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 29 * 45 là bao nhiêu?",
+    "answers": [
+      "1310",
+      "1299",
+      "1313",
+      "1305"
+    ],
+    "correctIndex": 3,
+    "reward": 394
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 10 - 34 là bao nhiêu?",
+    "answers": [
+      "-24",
+      "-20",
+      "-34",
+      "-4"
+    ],
+    "correctIndex": 0,
+    "reward": 348
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 16 * 23 là bao nhiêu?",
+    "answers": [
+      "385",
+      "358",
+      "377",
+      "368"
+    ],
+    "correctIndex": 3,
+    "reward": 337
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 26 * 17 là bao nhiêu?",
+    "answers": [
+      "437",
+      "460",
+      "452",
+      "442"
+    ],
+    "correctIndex": 3,
+    "reward": 263
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 16 + 34 là bao nhiêu?",
+    "answers": [
+      "50",
+      "54",
+      "41",
+      "57"
+    ],
+    "correctIndex": 0,
+    "reward": 349
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 29 + 24 là bao nhiêu?",
+    "answers": [
+      "53",
+      "49",
+      "61",
+      "68"
+    ],
+    "correctIndex": 0,
+    "reward": 285
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 42 * 55 là bao nhiêu?",
+    "answers": [
+      "2301",
+      "2321",
+      "2313",
+      "2310"
+    ],
+    "correctIndex": 3,
+    "reward": 264
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 24 - 29 là bao nhiêu?",
+    "answers": [
+      "-4",
+      "-11",
+      "-5",
+      "6"
+    ],
+    "correctIndex": 2,
+    "reward": 296
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 19 - 41 là bao nhiêu?",
+    "answers": [
+      "-22",
+      "-30",
+      "-13",
+      "-3"
+    ],
+    "correctIndex": 0,
+    "reward": 340
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 38 + 35 là bao nhiêu?",
+    "answers": [
+      "95",
+      "75",
+      "73",
+      "72"
+    ],
+    "correctIndex": 2,
+    "reward": 235
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 21 + 37 là bao nhiêu?",
+    "answers": [
+      "71",
+      "56",
+      "66",
+      "58"
+    ],
+    "correctIndex": 3,
+    "reward": 236
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 20 - 30 là bao nhiêu?",
+    "answers": [
+      "-7",
+      "-10",
+      "-3",
+      "-15"
+    ],
+    "correctIndex": 1,
+    "reward": 311
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 23 * 51 là bao nhiêu?",
+    "answers": [
+      "1164",
+      "1187",
+      "1179",
+      "1173"
+    ],
+    "correctIndex": 3,
+    "reward": 273
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 44 - 29 là bao nhiêu?",
+    "answers": [
+      "33",
+      "11",
+      "23",
+      "15"
+    ],
+    "correctIndex": 3,
+    "reward": 329
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 30 + 59 là bao nhiêu?",
+    "answers": [
+      "89",
+      "113",
+      "96",
+      "87"
+    ],
+    "correctIndex": 0,
+    "reward": 263
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 32 + 55 là bao nhiêu?",
+    "answers": [
+      "87",
+      "107",
+      "97",
+      "79"
+    ],
+    "correctIndex": 0,
+    "reward": 298
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 39 + 34 là bao nhiêu?",
+    "answers": [
+      "83",
+      "76",
+      "73",
+      "65"
+    ],
+    "correctIndex": 2,
+    "reward": 356
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 53 - 35 là bao nhiêu?",
+    "answers": [
+      "18",
+      "40",
+      "16",
+      "27"
+    ],
+    "correctIndex": 0,
+    "reward": 372
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 46 + 31 là bao nhiêu?",
+    "answers": [
+      "80",
+      "85",
+      "77",
+      "72"
+    ],
+    "correctIndex": 2,
+    "reward": 246
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 25 - 30 là bao nhiêu?",
+    "answers": [
+      "-7",
+      "-3",
+      "12",
+      "-5"
+    ],
+    "correctIndex": 3,
+    "reward": 359
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 23 * 57 là bao nhiêu?",
+    "answers": [
+      "1311",
+      "1315",
+      "1302",
+      "1321"
+    ],
+    "correctIndex": 0,
+    "reward": 346
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 13 - 59 là bao nhiêu?",
+    "answers": [
+      "-45",
+      "-46",
+      "-32",
+      "-47"
+    ],
+    "correctIndex": 1,
+    "reward": 233
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 36 + 45 là bao nhiêu?",
+    "answers": [
+      "85",
+      "97",
+      "81",
+      "80"
+    ],
+    "correctIndex": 2,
+    "reward": 220
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 47 + 45 là bao nhiêu?",
+    "answers": [
+      "92",
+      "95",
+      "85",
+      "110"
+    ],
+    "correctIndex": 0,
+    "reward": 324
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 47 + 51 là bao nhiêu?",
+    "answers": [
+      "93",
+      "105",
+      "98",
+      "112"
+    ],
+    "correctIndex": 2,
+    "reward": 212
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 22 + 33 là bao nhiêu?",
+    "answers": [
+      "68",
+      "56",
+      "53",
+      "55"
+    ],
+    "correctIndex": 3,
+    "reward": 258
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 34 + 25 là bao nhiêu?",
+    "answers": [
+      "59",
+      "65",
+      "50",
+      "73"
+    ],
+    "correctIndex": 0,
+    "reward": 335
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 51 + 39 là bao nhiêu?",
+    "answers": [
+      "90",
+      "96",
+      "105",
+      "85"
+    ],
+    "correctIndex": 0,
+    "reward": 363
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 53 * 18 là bao nhiêu?",
+    "answers": [
+      "973",
+      "948",
+      "958",
+      "954"
+    ],
+    "correctIndex": 3,
+    "reward": 297
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 57 * 52 là bao nhiêu?",
+    "answers": [
+      "2964",
+      "2969",
+      "2955",
+      "2971"
+    ],
+    "correctIndex": 0,
+    "reward": 294
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 40 * 50 là bao nhiêu?",
+    "answers": [
+      "1999",
+      "2011",
+      "2004",
+      "2000"
+    ],
+    "correctIndex": 3,
+    "reward": 259
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 19 - 53 là bao nhiêu?",
+    "answers": [
+      "-34",
+      "-25",
+      "-35",
+      "-23"
+    ],
+    "correctIndex": 0,
+    "reward": 252
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 31 + 40 là bao nhiêu?",
+    "answers": [
+      "77",
+      "62",
+      "79",
+      "71"
+    ],
+    "correctIndex": 3,
+    "reward": 381
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 57 * 27 là bao nhiêu?",
+    "answers": [
+      "1542",
+      "1546",
+      "1539",
+      "1530"
+    ],
+    "correctIndex": 2,
+    "reward": 273
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 30 + 17 là bao nhiêu?",
+    "answers": [
+      "41",
+      "54",
+      "55",
+      "47"
+    ],
+    "correctIndex": 3,
+    "reward": 352
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 50 * 58 là bao nhiêu?",
+    "answers": [
+      "2905",
+      "2900",
+      "2913",
+      "2894"
+    ],
+    "correctIndex": 1,
+    "reward": 308
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 56 * 51 là bao nhiêu?",
+    "answers": [
+      "2874",
+      "2846",
+      "2860",
+      "2856"
+    ],
+    "correctIndex": 3,
+    "reward": 253
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 35 - 18 là bao nhiêu?",
+    "answers": [
+      "18",
+      "17",
+      "9",
+      "39"
+    ],
+    "correctIndex": 1,
+    "reward": 333
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 12 + 20 là bao nhiêu?",
+    "answers": [
+      "32",
+      "42",
+      "26",
+      "43"
+    ],
+    "correctIndex": 0,
+    "reward": 358
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 37 + 42 là bao nhiêu?",
+    "answers": [
+      "79",
+      "86",
+      "97",
+      "75"
+    ],
+    "correctIndex": 0,
+    "reward": 359
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 7, 12, 17, 22, ... là số nào?",
+    "answers": [
+      "27",
+      "28",
+      "32",
+      "26"
+    ],
+    "correctIndex": 0,
+    "reward": 400
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 5, 7, 9, 11, ... là số nào?",
+    "answers": [
+      "13",
+      "14",
+      "12",
+      "15"
+    ],
+    "correctIndex": 0,
+    "reward": 415
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 1, 6, 11, 16, ... là số nào?",
+    "answers": [
+      "21",
+      "22",
+      "20",
+      "26"
+    ],
+    "correctIndex": 0,
+    "reward": 455
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 2, 5, 8, 11, ... là số nào?",
+    "answers": [
+      "17",
+      "13",
+      "15",
+      "14"
+    ],
+    "correctIndex": 3,
+    "reward": 496
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 6, 11, 16, 21, ... là số nào?",
+    "answers": [
+      "27",
+      "25",
+      "31",
+      "26"
+    ],
+    "correctIndex": 3,
+    "reward": 301
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 4, 10, 16, 22, ... là số nào?",
+    "answers": [
+      "28",
+      "29",
+      "34",
+      "27"
+    ],
+    "correctIndex": 0,
+    "reward": 426
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 1, 6, 11, 16, ... là số nào?",
+    "answers": [
+      "21",
+      "22",
+      "26",
+      "20"
+    ],
+    "correctIndex": 0,
+    "reward": 466
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 5, 7, 9, 11, ... là số nào?",
+    "answers": [
+      "15",
+      "12",
+      "14",
+      "13"
+    ],
+    "correctIndex": 3,
+    "reward": 461
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 2, 5, 8, 11, ... là số nào?",
+    "answers": [
+      "14",
+      "15",
+      "13",
+      "17"
+    ],
+    "correctIndex": 0,
+    "reward": 408
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 8, 10, 12, 14, ... là số nào?",
+    "answers": [
+      "17",
+      "16",
+      "18",
+      "15"
+    ],
+    "correctIndex": 1,
+    "reward": 336
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 9, 15, 21, 27, ... là số nào?",
+    "answers": [
+      "39",
+      "34",
+      "33",
+      "32"
+    ],
+    "correctIndex": 2,
+    "reward": 387
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 4, 7, 10, 13, ... là số nào?",
+    "answers": [
+      "15",
+      "19",
+      "17",
+      "16"
+    ],
+    "correctIndex": 3,
+    "reward": 418
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 3, 9, 15, 21, ... là số nào?",
+    "answers": [
+      "27",
+      "28",
+      "33",
+      "26"
+    ],
+    "correctIndex": 0,
+    "reward": 358
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 6, 10, 14, 18, ... là số nào?",
+    "answers": [
+      "22",
+      "26",
+      "23",
+      "21"
+    ],
+    "correctIndex": 0,
+    "reward": 419
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 6, 8, 10, 12, ... là số nào?",
+    "answers": [
+      "15",
+      "14",
+      "13",
+      "16"
+    ],
+    "correctIndex": 1,
+    "reward": 333
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 5, 10, 15, 20, ... là số nào?",
+    "answers": [
+      "30",
+      "24",
+      "26",
+      "25"
+    ],
+    "correctIndex": 3,
+    "reward": 494
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 1, 4, 7, 10, ... là số nào?",
+    "answers": [
+      "12",
+      "14",
+      "16",
+      "13"
+    ],
+    "correctIndex": 3,
+    "reward": 333
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 5, 7, 9, 11, ... là số nào?",
+    "answers": [
+      "13",
+      "14",
+      "12",
+      "15"
+    ],
+    "correctIndex": 0,
+    "reward": 360
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 9, 11, 13, 15, ... là số nào?",
+    "answers": [
+      "19",
+      "16",
+      "18",
+      "17"
+    ],
+    "correctIndex": 3,
+    "reward": 364
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 2, 7, 12, 17, ... là số nào?",
+    "answers": [
+      "21",
+      "23",
+      "27",
+      "22"
+    ],
+    "correctIndex": 3,
+    "reward": 392
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 6, 8, 10, 12, ... là số nào?",
+    "answers": [
+      "15",
+      "16",
+      "14",
+      "13"
+    ],
+    "correctIndex": 2,
+    "reward": 346
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 3, 9, 15, 21, ... là số nào?",
+    "answers": [
+      "27",
+      "28",
+      "26",
+      "33"
+    ],
+    "correctIndex": 0,
+    "reward": 347
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 9, 14, 19, 24, ... là số nào?",
+    "answers": [
+      "29",
+      "30",
+      "34",
+      "28"
+    ],
+    "correctIndex": 0,
+    "reward": 348
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 7, 13, 19, 25, ... là số nào?",
+    "answers": [
+      "30",
+      "31",
+      "37",
+      "32"
+    ],
+    "correctIndex": 1,
+    "reward": 430
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 6, 12, 18, 24, ... là số nào?",
+    "answers": [
+      "30",
+      "31",
+      "29",
+      "36"
+    ],
+    "correctIndex": 0,
+    "reward": 362
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 1, 3, 5, 7, ... là số nào?",
+    "answers": [
+      "8",
+      "10",
+      "9",
+      "11"
+    ],
+    "correctIndex": 2,
+    "reward": 368
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 7, 13, 19, 25, ... là số nào?",
+    "answers": [
+      "30",
+      "32",
+      "37",
+      "31"
+    ],
+    "correctIndex": 3,
+    "reward": 359
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 3, 9, 15, 21, ... là số nào?",
+    "answers": [
+      "27",
+      "26",
+      "28",
+      "33"
+    ],
+    "correctIndex": 0,
+    "reward": 307
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 2, 7, 12, 17, ... là số nào?",
+    "answers": [
+      "22",
+      "23",
+      "21",
+      "27"
+    ],
+    "correctIndex": 0,
+    "reward": 438
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 5, 11, 17, 23, ... là số nào?",
+    "answers": [
+      "28",
+      "35",
+      "30",
+      "29"
+    ],
+    "correctIndex": 3,
+    "reward": 330
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 5, 9, 13, 17, ... là số nào?",
+    "answers": [
+      "25",
+      "20",
+      "22",
+      "21"
+    ],
+    "correctIndex": 3,
+    "reward": 481
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 6, 11, 16, 21, ... là số nào?",
+    "answers": [
+      "31",
+      "26",
+      "25",
+      "27"
+    ],
+    "correctIndex": 1,
+    "reward": 495
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 4, 7, 10, 13, ... là số nào?",
+    "answers": [
+      "15",
+      "19",
+      "16",
+      "17"
+    ],
+    "correctIndex": 2,
+    "reward": 450
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 8, 10, 12, 14, ... là số nào?",
+    "answers": [
+      "18",
+      "15",
+      "17",
+      "16"
+    ],
+    "correctIndex": 3,
+    "reward": 458
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 1, 6, 11, 16, ... là số nào?",
+    "answers": [
+      "21",
+      "22",
+      "26",
+      "20"
+    ],
+    "correctIndex": 0,
+    "reward": 403
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 5, 9, 13, 17, ... là số nào?",
+    "answers": [
+      "22",
+      "21",
+      "20",
+      "25"
+    ],
+    "correctIndex": 1,
+    "reward": 466
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 6, 11, 16, 21, ... là số nào?",
+    "answers": [
+      "31",
+      "25",
+      "26",
+      "27"
+    ],
+    "correctIndex": 2,
+    "reward": 483
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 3, 6, 9, 12, ... là số nào?",
+    "answers": [
+      "14",
+      "18",
+      "15",
+      "16"
+    ],
+    "correctIndex": 2,
+    "reward": 343
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 9, 14, 19, 24, ... là số nào?",
+    "answers": [
+      "34",
+      "28",
+      "30",
+      "29"
+    ],
+    "correctIndex": 3,
+    "reward": 369
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 6, 9, 12, 15, ... là số nào?",
+    "answers": [
+      "18",
+      "19",
+      "21",
+      "17"
+    ],
+    "correctIndex": 0,
+    "reward": 374
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 6, 8, 10, 12, ... là số nào?",
+    "answers": [
+      "13",
+      "15",
+      "14",
+      "16"
+    ],
+    "correctIndex": 2,
+    "reward": 413
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 4, 6, 8, 10, ... là số nào?",
+    "answers": [
+      "12",
+      "13",
+      "11",
+      "14"
+    ],
+    "correctIndex": 0,
+    "reward": 310
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 7, 12, 17, 22, ... là số nào?",
+    "answers": [
+      "27",
+      "28",
+      "32",
+      "26"
+    ],
+    "correctIndex": 0,
+    "reward": 462
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 4, 8, 12, 16, ... là số nào?",
+    "answers": [
+      "20",
+      "21",
+      "19",
+      "24"
+    ],
+    "correctIndex": 0,
+    "reward": 405
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 5, 10, 15, 20, ... là số nào?",
+    "answers": [
+      "25",
+      "26",
+      "24",
+      "30"
+    ],
+    "correctIndex": 0,
+    "reward": 329
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 3, 6, 9, 12, ... là số nào?",
+    "answers": [
+      "15",
+      "16",
+      "14",
+      "18"
+    ],
+    "correctIndex": 0,
+    "reward": 423
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 3, 8, 13, 18, ... là số nào?",
+    "answers": [
+      "22",
+      "23",
+      "24",
+      "28"
+    ],
+    "correctIndex": 1,
+    "reward": 417
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 10, 15, 20, 25, ... là số nào?",
+    "answers": [
+      "31",
+      "30",
+      "35",
+      "29"
+    ],
+    "correctIndex": 1,
+    "reward": 388
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 1, 4, 7, 10, ... là số nào?",
+    "answers": [
+      "13",
+      "14",
+      "12",
+      "16"
+    ],
+    "correctIndex": 0,
+    "reward": 401
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 4, 8, 12, 16, ... là số nào?",
+    "answers": [
+      "20",
+      "24",
+      "21",
+      "19"
+    ],
+    "correctIndex": 0,
+    "reward": 439
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 2, 7, 12, 17, ... là số nào?",
+    "answers": [
+      "27",
+      "23",
+      "21",
+      "22"
+    ],
+    "correctIndex": 3,
+    "reward": 367
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 7, 11, 15, 19, ... là số nào?",
+    "answers": [
+      "27",
+      "22",
+      "24",
+      "23"
+    ],
+    "correctIndex": 3,
+    "reward": 382
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 9, 13, 17, 21, ... là số nào?",
+    "answers": [
+      "29",
+      "25",
+      "24",
+      "26"
+    ],
+    "correctIndex": 1,
+    "reward": 461
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 3, 8, 13, 18, ... là số nào?",
+    "answers": [
+      "23",
+      "24",
+      "28",
+      "22"
+    ],
+    "correctIndex": 0,
+    "reward": 307
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 2, 5, 8, 11, ... là số nào?",
+    "answers": [
+      "13",
+      "14",
+      "17",
+      "15"
+    ],
+    "correctIndex": 1,
+    "reward": 361
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 2, 4, 6, 8, ... là số nào?",
+    "answers": [
+      "11",
+      "10",
+      "12",
+      "9"
+    ],
+    "correctIndex": 1,
+    "reward": 452
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 10, 16, 22, 28, ... là số nào?",
+    "answers": [
+      "34",
+      "35",
+      "33",
+      "40"
+    ],
+    "correctIndex": 0,
+    "reward": 327
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 8, 10, 12, 14, ... là số nào?",
+    "answers": [
+      "15",
+      "16",
+      "17",
+      "18"
+    ],
+    "correctIndex": 1,
+    "reward": 373
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 7, 9, 11, 13, ... là số nào?",
+    "answers": [
+      "15",
+      "16",
+      "14",
+      "17"
+    ],
+    "correctIndex": 0,
+    "reward": 424
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 4, 6, 8, 10, ... là số nào?",
+    "answers": [
+      "11",
+      "14",
+      "13",
+      "12"
+    ],
+    "correctIndex": 3,
+    "reward": 300
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 4, 6, 8, 10, ... là số nào?",
+    "answers": [
+      "14",
+      "12",
+      "13",
+      "11"
+    ],
+    "correctIndex": 1,
+    "reward": 468
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 2, 8, 14, 20, ... là số nào?",
+    "answers": [
+      "32",
+      "25",
+      "27",
+      "26"
+    ],
+    "correctIndex": 3,
+    "reward": 347
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 6, 12, 18, 24, ... là số nào?",
+    "answers": [
+      "36",
+      "30",
+      "31",
+      "29"
+    ],
+    "correctIndex": 1,
+    "reward": 371
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 2, 7, 12, 17, ... là số nào?",
+    "answers": [
+      "22",
+      "23",
+      "21",
+      "27"
+    ],
+    "correctIndex": 0,
+    "reward": 326
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 5, 9, 13, 17, ... là số nào?",
+    "answers": [
+      "21",
+      "22",
+      "20",
+      "25"
+    ],
+    "correctIndex": 0,
+    "reward": 492
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 2, 4, 6, 8, ... là số nào?",
+    "answers": [
+      "12",
+      "9",
+      "11",
+      "10"
+    ],
+    "correctIndex": 3,
+    "reward": 354
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 10, 12, 14, 16, ... là số nào?",
+    "answers": [
+      "20",
+      "17",
+      "19",
+      "18"
+    ],
+    "correctIndex": 3,
+    "reward": 395
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 5, 10, 15, 20, ... là số nào?",
+    "answers": [
+      "25",
+      "26",
+      "24",
+      "30"
+    ],
+    "correctIndex": 0,
+    "reward": 411
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 5, 9, 13, 17, ... là số nào?",
+    "answers": [
+      "21",
+      "20",
+      "22",
+      "25"
+    ],
+    "correctIndex": 0,
+    "reward": 324
+  },
+  {
+    "question": "Logic: Số tiếp theo trong dãy 3, 8, 13, 18, ... là số nào?",
+    "answers": [
+      "28",
+      "22",
+      "24",
+      "23"
+    ],
+    "correctIndex": 3,
+    "reward": 464
+  },
+  {
+    "question": "Kiến thức chung: Quốc gia nào đông dân nhất thế giới (năm 2023)?",
+    "answers": [
+      "Ấn Độ",
+      "Nga",
+      "Trung Quốc",
+      "Mỹ"
+    ],
+    "correctIndex": 0,
+    "reward": 352
+  },
+  {
+    "question": "Kiến thức chung: Đỉnh núi nào cao nhất Hệ Mặt Trời?",
+    "answers": [
+      "Everest",
+      "Mauna Kea",
+      "Olympus Mons",
+      "K2"
+    ],
+    "correctIndex": 2,
+    "reward": 291
+  },
+  {
+    "question": "Kiến thức chung: Đại dương nào sâu nhất thế giới?",
+    "answers": [
+      "Ấn Độ Dương",
+      "Bắc Băng Dương",
+      "Đại Tây Dương",
+      "Thái Bình Dương"
+    ],
+    "correctIndex": 3,
+    "reward": 420
+  },
+  {
+    "question": "Kiến thức chung: Loài chim nào bay nhanh nhất?",
+    "answers": [
+      "Đà điểu",
+      "Chim ruồi",
+      "Cắt lớn",
+      "Đại bàng"
+    ],
+    "correctIndex": 2,
+    "reward": 315
+  },
+  {
+    "question": "Kiến thức chung: Ai là người phát minh ra điện thoại?",
+    "answers": [
+      "Alexander Graham Bell",
+      "Thomas Edison",
+      "Nikola Tesla",
+      "Albert Einstein"
+    ],
+    "correctIndex": 0,
+    "reward": 390
+  },
+  {
+    "question": "Kiến thức chung: Hành tinh nào lớn nhất hệ mặt trời?",
+    "answers": [
+      "Sao Mộc",
+      "Sao Kim",
+      "Sao Thổ",
+      "Sao Thiên Vương"
+    ],
+    "correctIndex": 0,
+    "reward": 487
+  },
+  {
+    "question": "Kiến thức chung: Động vật nào lớn nhất Trái Đất?",
+    "answers": [
+      "Khủng long bạo chúa",
+      "Hươu cao cổ",
+      "Voi châu Phi",
+      "Cá voi xanh"
+    ],
+    "correctIndex": 3,
+    "reward": 455
+  },
+  {
+    "question": "Kiến thức chung: Lục địa nào nhỏ nhất thế giới?",
+    "answers": [
+      "Châu Úc",
+      "Châu Âu",
+      "Châu Phi",
+      "Châu Nam Cực"
+    ],
+    "correctIndex": 0,
+    "reward": 440
+  },
+  {
+    "question": "Kiến thức chung: Sông nào dài nhất Việt Nam?",
+    "answers": [
+      "Sông Cửu Long",
+      "Sông Hương",
+      "Sông Hồng",
+      "Sông Đồng Nai"
+    ],
+    "correctIndex": 3,
+    "reward": 283
+  },
+  {
+    "question": "Kiến thức chung: Bức họa 'Đêm đầy sao' là của ai?",
+    "answers": [
+      "Pablo Picasso",
+      "Claude Monet",
+      "Vincent van Gogh",
+      "Leonardo da Vinci"
+    ],
+    "correctIndex": 2,
+    "reward": 242
+  },
+  {
+    "question": "Kiến thức chung: Quốc gia nào đông dân nhất thế giới (năm 2023)?",
+    "answers": [
+      "Trung Quốc",
+      "Nga",
+      "Ấn Độ",
+      "Mỹ"
+    ],
+    "correctIndex": 2,
+    "reward": 401
+  },
+  {
+    "question": "Kiến thức chung: Đỉnh núi nào cao nhất Hệ Mặt Trời?",
+    "answers": [
+      "Olympus Mons",
+      "Everest",
+      "Mauna Kea",
+      "K2"
+    ],
+    "correctIndex": 0,
+    "reward": 304
+  },
+  {
+    "question": "Kiến thức chung: Đại dương nào sâu nhất thế giới?",
+    "answers": [
+      "Ấn Độ Dương",
+      "Bắc Băng Dương",
+      "Đại Tây Dương",
+      "Thái Bình Dương"
+    ],
+    "correctIndex": 3,
+    "reward": 491
+  },
+  {
+    "question": "Kiến thức chung: Loài chim nào bay nhanh nhất?",
+    "answers": [
+      "Chim ruồi",
+      "Đà điểu",
+      "Đại bàng",
+      "Cắt lớn"
+    ],
+    "correctIndex": 3,
+    "reward": 249
+  },
+  {
+    "question": "Kiến thức chung: Ai là người phát minh ra điện thoại?",
+    "answers": [
+      "Albert Einstein",
+      "Thomas Edison",
+      "Nikola Tesla",
+      "Alexander Graham Bell"
+    ],
+    "correctIndex": 3,
+    "reward": 209
+  },
+  {
+    "question": "Kiến thức chung: Hành tinh nào lớn nhất hệ mặt trời?",
+    "answers": [
+      "Sao Mộc",
+      "Sao Thổ",
+      "Sao Kim",
+      "Sao Thiên Vương"
+    ],
+    "correctIndex": 0,
+    "reward": 364
+  },
+  {
+    "question": "Kiến thức chung: Động vật nào lớn nhất Trái Đất?",
+    "answers": [
+      "Hươu cao cổ",
+      "Voi châu Phi",
+      "Khủng long bạo chúa",
+      "Cá voi xanh"
+    ],
+    "correctIndex": 3,
+    "reward": 353
+  },
+  {
+    "question": "Kiến thức chung: Lục địa nào nhỏ nhất thế giới?",
+    "answers": [
+      "Châu Phi",
+      "Châu Nam Cực",
+      "Châu Úc",
+      "Châu Âu"
+    ],
+    "correctIndex": 2,
+    "reward": 226
+  },
+  {
+    "question": "Kiến thức chung: Sông nào dài nhất Việt Nam?",
+    "answers": [
+      "Sông Đồng Nai",
+      "Sông Hồng",
+      "Sông Cửu Long",
+      "Sông Hương"
+    ],
+    "correctIndex": 0,
+    "reward": 435
+  },
+  {
+    "question": "Kiến thức chung: Bức họa 'Đêm đầy sao' là của ai?",
+    "answers": [
+      "Vincent van Gogh",
+      "Pablo Picasso",
+      "Leonardo da Vinci",
+      "Claude Monet"
+    ],
+    "correctIndex": 0,
+    "reward": 431
+  },
+  {
+    "question": "Kiến thức chung: Quốc gia nào đông dân nhất thế giới (năm 2023)?",
+    "answers": [
+      "Mỹ",
+      "Nga",
+      "Trung Quốc",
+      "Ấn Độ"
+    ],
+    "correctIndex": 3,
+    "reward": 462
+  },
+  {
+    "question": "Kiến thức chung: Đỉnh núi nào cao nhất Hệ Mặt Trời?",
+    "answers": [
+      "Mauna Kea",
+      "K2",
+      "Everest",
+      "Olympus Mons"
+    ],
+    "correctIndex": 3,
+    "reward": 330
+  },
+  {
+    "question": "Kiến thức chung: Đại dương nào sâu nhất thế giới?",
+    "answers": [
+      "Ấn Độ Dương",
+      "Bắc Băng Dương",
+      "Đại Tây Dương",
+      "Thái Bình Dương"
+    ],
+    "correctIndex": 3,
+    "reward": 252
+  },
+  {
+    "question": "Kiến thức chung: Loài chim nào bay nhanh nhất?",
+    "answers": [
+      "Đà điểu",
+      "Đại bàng",
+      "Cắt lớn",
+      "Chim ruồi"
+    ],
+    "correctIndex": 2,
+    "reward": 365
+  },
+  {
+    "question": "Kiến thức chung: Ai là người phát minh ra điện thoại?",
+    "answers": [
+      "Alexander Graham Bell",
+      "Thomas Edison",
+      "Nikola Tesla",
+      "Albert Einstein"
+    ],
+    "correctIndex": 0,
+    "reward": 290
+  },
+  {
+    "question": "Kiến thức chung: Hành tinh nào lớn nhất hệ mặt trời?",
+    "answers": [
+      "Sao Thiên Vương",
+      "Sao Thổ",
+      "Sao Kim",
+      "Sao Mộc"
+    ],
+    "correctIndex": 3,
+    "reward": 317
+  },
+  {
+    "question": "Kiến thức chung: Động vật nào lớn nhất Trái Đất?",
+    "answers": [
+      "Cá voi xanh",
+      "Voi châu Phi",
+      "Hươu cao cổ",
+      "Khủng long bạo chúa"
+    ],
+    "correctIndex": 0,
+    "reward": 467
+  },
+  {
+    "question": "Kiến thức chung: Lục địa nào nhỏ nhất thế giới?",
+    "answers": [
+      "Châu Phi",
+      "Châu Nam Cực",
+      "Châu Âu",
+      "Châu Úc"
+    ],
+    "correctIndex": 3,
+    "reward": 461
+  },
+  {
+    "question": "Kiến thức chung: Sông nào dài nhất Việt Nam?",
+    "answers": [
+      "Sông Hương",
+      "Sông Hồng",
+      "Sông Đồng Nai",
+      "Sông Cửu Long"
+    ],
+    "correctIndex": 2,
+    "reward": 494
+  },
+  {
+    "question": "Kiến thức chung: Bức họa 'Đêm đầy sao' là của ai?",
+    "answers": [
+      "Pablo Picasso",
+      "Leonardo da Vinci",
+      "Vincent van Gogh",
+      "Claude Monet"
+    ],
+    "correctIndex": 2,
+    "reward": 266
+  },
+  {
+    "question": "Kiến thức chung: Quốc gia nào đông dân nhất thế giới (năm 2023)?",
+    "answers": [
+      "Ấn Độ",
+      "Trung Quốc",
+      "Nga",
+      "Mỹ"
+    ],
+    "correctIndex": 0,
+    "reward": 493
+  },
+  {
+    "question": "Kiến thức chung: Đỉnh núi nào cao nhất Hệ Mặt Trời?",
+    "answers": [
+      "K2",
+      "Everest",
+      "Mauna Kea",
+      "Olympus Mons"
+    ],
+    "correctIndex": 3,
+    "reward": 397
+  },
+  {
+    "question": "Kiến thức chung: Đại dương nào sâu nhất thế giới?",
+    "answers": [
+      "Ấn Độ Dương",
+      "Thái Bình Dương",
+      "Bắc Băng Dương",
+      "Đại Tây Dương"
+    ],
+    "correctIndex": 1,
+    "reward": 287
+  },
+  {
+    "question": "Kiến thức chung: Loài chim nào bay nhanh nhất?",
+    "answers": [
+      "Đà điểu",
+      "Cắt lớn",
+      "Chim ruồi",
+      "Đại bàng"
+    ],
+    "correctIndex": 1,
+    "reward": 498
+  },
+  {
+    "question": "Kiến thức chung: Ai là người phát minh ra điện thoại?",
+    "answers": [
+      "Albert Einstein",
+      "Nikola Tesla",
+      "Thomas Edison",
+      "Alexander Graham Bell"
+    ],
+    "correctIndex": 3,
+    "reward": 322
+  },
+  {
+    "question": "Kiến thức chung: Hành tinh nào lớn nhất hệ mặt trời?",
+    "answers": [
+      "Sao Mộc",
+      "Sao Kim",
+      "Sao Thổ",
+      "Sao Thiên Vương"
+    ],
+    "correctIndex": 0,
+    "reward": 221
+  },
+  {
+    "question": "Kiến thức chung: Động vật nào lớn nhất Trái Đất?",
+    "answers": [
+      "Cá voi xanh",
+      "Hươu cao cổ",
+      "Voi châu Phi",
+      "Khủng long bạo chúa"
+    ],
+    "correctIndex": 0,
+    "reward": 392
+  },
+  {
+    "question": "Kiến thức chung: Lục địa nào nhỏ nhất thế giới?",
+    "answers": [
+      "Châu Úc",
+      "Châu Âu",
+      "Châu Nam Cực",
+      "Châu Phi"
+    ],
+    "correctIndex": 0,
+    "reward": 210
+  },
+  {
+    "question": "Kiến thức chung: Sông nào dài nhất Việt Nam?",
+    "answers": [
+      "Sông Hương",
+      "Sông Cửu Long",
+      "Sông Hồng",
+      "Sông Đồng Nai"
+    ],
+    "correctIndex": 3,
+    "reward": 448
+  },
+  {
+    "question": "Kiến thức chung: Bức họa 'Đêm đầy sao' là của ai?",
+    "answers": [
+      "Claude Monet",
+      "Leonardo da Vinci",
+      "Pablo Picasso",
+      "Vincent van Gogh"
+    ],
+    "correctIndex": 3,
+    "reward": 379
+  },
+  {
+    "question": "Kiến thức chung: Quốc gia nào đông dân nhất thế giới (năm 2023)?",
+    "answers": [
+      "Nga",
+      "Mỹ",
+      "Trung Quốc",
+      "Ấn Độ"
+    ],
+    "correctIndex": 3,
+    "reward": 473
+  },
+  {
+    "question": "Kiến thức chung: Đỉnh núi nào cao nhất Hệ Mặt Trời?",
+    "answers": [
+      "K2",
+      "Mauna Kea",
+      "Everest",
+      "Olympus Mons"
+    ],
+    "correctIndex": 3,
+    "reward": 260
+  },
+  {
+    "question": "Kiến thức chung: Đại dương nào sâu nhất thế giới?",
+    "answers": [
+      "Ấn Độ Dương",
+      "Bắc Băng Dương",
+      "Đại Tây Dương",
+      "Thái Bình Dương"
+    ],
+    "correctIndex": 3,
+    "reward": 222
+  },
+  {
+    "question": "Kiến thức chung: Loài chim nào bay nhanh nhất?",
+    "answers": [
+      "Đà điểu",
+      "Chim ruồi",
+      "Đại bàng",
+      "Cắt lớn"
+    ],
+    "correctIndex": 3,
+    "reward": 454
+  },
+  {
+    "question": "Kiến thức chung: Ai là người phát minh ra điện thoại?",
+    "answers": [
+      "Alexander Graham Bell",
+      "Albert Einstein",
+      "Thomas Edison",
+      "Nikola Tesla"
+    ],
+    "correctIndex": 0,
+    "reward": 340
+  },
+  {
+    "question": "Kiến thức chung: Hành tinh nào lớn nhất hệ mặt trời?",
+    "answers": [
+      "Sao Kim",
+      "Sao Thổ",
+      "Sao Mộc",
+      "Sao Thiên Vương"
+    ],
+    "correctIndex": 2,
+    "reward": 261
+  },
+  {
+    "question": "Kiến thức chung: Động vật nào lớn nhất Trái Đất?",
+    "answers": [
+      "Voi châu Phi",
+      "Cá voi xanh",
+      "Khủng long bạo chúa",
+      "Hươu cao cổ"
+    ],
+    "correctIndex": 1,
+    "reward": 290
+  },
+  {
+    "question": "Kiến thức chung: Lục địa nào nhỏ nhất thế giới?",
+    "answers": [
+      "Châu Úc",
+      "Châu Âu",
+      "Châu Nam Cực",
+      "Châu Phi"
+    ],
+    "correctIndex": 0,
+    "reward": 315
+  },
+  {
+    "question": "Kiến thức chung: Sông nào dài nhất Việt Nam?",
+    "answers": [
+      "Sông Hương",
+      "Sông Hồng",
+      "Sông Cửu Long",
+      "Sông Đồng Nai"
+    ],
+    "correctIndex": 3,
+    "reward": 304
+  },
+  {
+    "question": "Kiến thức chung: Bức họa 'Đêm đầy sao' là của ai?",
+    "answers": [
+      "Claude Monet",
+      "Vincent van Gogh",
+      "Pablo Picasso",
+      "Leonardo da Vinci"
+    ],
+    "correctIndex": 1,
+    "reward": 204
+  },
+  {
+    "question": "Kiến thức chung: Quốc gia nào đông dân nhất thế giới (năm 2023)?",
+    "answers": [
+      "Ấn Độ",
+      "Trung Quốc",
+      "Mỹ",
+      "Nga"
+    ],
+    "correctIndex": 0,
+    "reward": 384
+  },
+  {
+    "question": "Kiến thức chung: Đỉnh núi nào cao nhất Hệ Mặt Trời?",
+    "answers": [
+      "Olympus Mons",
+      "Everest",
+      "K2",
+      "Mauna Kea"
+    ],
+    "correctIndex": 0,
+    "reward": 420
+  },
+  {
+    "question": "Kiến thức chung: Đại dương nào sâu nhất thế giới?",
+    "answers": [
+      "Ấn Độ Dương",
+      "Đại Tây Dương",
+      "Thái Bình Dương",
+      "Bắc Băng Dương"
+    ],
+    "correctIndex": 2,
+    "reward": 454
+  },
+  {
+    "question": "Kiến thức chung: Loài chim nào bay nhanh nhất?",
+    "answers": [
+      "Cắt lớn",
+      "Đại bàng",
+      "Chim ruồi",
+      "Đà điểu"
+    ],
+    "correctIndex": 0,
+    "reward": 282
+  },
+  {
+    "question": "Kiến thức chung: Ai là người phát minh ra điện thoại?",
+    "answers": [
+      "Albert Einstein",
+      "Alexander Graham Bell",
+      "Thomas Edison",
+      "Nikola Tesla"
+    ],
+    "correctIndex": 1,
+    "reward": 232
+  },
+  {
+    "question": "Kiến thức chung: Hành tinh nào lớn nhất hệ mặt trời?",
+    "answers": [
+      "Sao Kim",
+      "Sao Thiên Vương",
+      "Sao Thổ",
+      "Sao Mộc"
+    ],
+    "correctIndex": 3,
+    "reward": 299
+  },
+  {
+    "question": "Kiến thức chung: Động vật nào lớn nhất Trái Đất?",
+    "answers": [
+      "Cá voi xanh",
+      "Voi châu Phi",
+      "Khủng long bạo chúa",
+      "Hươu cao cổ"
+    ],
+    "correctIndex": 0,
+    "reward": 331
+  },
+  {
+    "question": "Kiến thức chung: Lục địa nào nhỏ nhất thế giới?",
+    "answers": [
+      "Châu Âu",
+      "Châu Phi",
+      "Châu Úc",
+      "Châu Nam Cực"
+    ],
+    "correctIndex": 2,
+    "reward": 200
+  },
+  {
+    "question": "Kiến thức chung: Sông nào dài nhất Việt Nam?",
+    "answers": [
+      "Sông Hương",
+      "Sông Cửu Long",
+      "Sông Hồng",
+      "Sông Đồng Nai"
+    ],
+    "correctIndex": 3,
+    "reward": 330
+  },
+  {
+    "question": "Kiến thức chung: Bức họa 'Đêm đầy sao' là của ai?",
+    "answers": [
+      "Claude Monet",
+      "Leonardo da Vinci",
+      "Pablo Picasso",
+      "Vincent van Gogh"
+    ],
+    "correctIndex": 3,
+    "reward": 335
   }
 ]
