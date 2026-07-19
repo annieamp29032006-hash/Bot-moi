@@ -3298,5 +3298,4405 @@
     ],
     "correctIndex": 1,
     "reward": 423
+  },
+  {
+    "question": "Toán học: Tìm x biết 16x + 19 = 259",
+    "answers": [
+      "15",
+      "16",
+      "-3",
+      "30"
+    ],
+    "correctIndex": 0,
+    "reward": 411
+  },
+  {
+    "question": "Toán học: Tìm x biết 10x + 45 = 135",
+    "answers": [
+      "9",
+      "-2",
+      "-8",
+      "28"
+    ],
+    "correctIndex": 0,
+    "reward": 375
+  },
+  {
+    "question": "Toán học: Tìm x biết 9x + 37 = 217",
+    "answers": [
+      "4",
+      "20",
+      "14",
+      "31"
+    ],
+    "correctIndex": 1,
+    "reward": 421
+  },
+  {
+    "question": "Toán học: Tìm x biết 3x + 48 = 87",
+    "answers": [
+      "31",
+      "13",
+      "11",
+      "6"
+    ],
+    "correctIndex": 1,
+    "reward": 361
+  },
+  {
+    "question": "Toán học: Tìm x biết 17x + 45 = 130",
+    "answers": [
+      "-3",
+      "24",
+      "5",
+      "7"
+    ],
+    "correctIndex": 2,
+    "reward": 441
+  },
+  {
+    "question": "Toán học: Tìm x biết 10x + 17 = 77",
+    "answers": [
+      "6",
+      "-8",
+      "-3",
+      "22"
+    ],
+    "correctIndex": 0,
+    "reward": 401
+  },
+  {
+    "question": "Toán học: Tìm x biết 5x + 39 = 79",
+    "answers": [
+      "26",
+      "5",
+      "-9",
+      "8"
+    ],
+    "correctIndex": 3,
+    "reward": 422
+  },
+  {
+    "question": "Toán học: Tìm x biết 19x + 22 = 41",
+    "answers": [
+      "-9",
+      "1",
+      "7",
+      "20"
+    ],
+    "correctIndex": 1,
+    "reward": 403
+  },
+  {
+    "question": "Toán học: Tìm x biết 12x + 33 = 93",
+    "answers": [
+      "5",
+      "-14",
+      "-5",
+      "22"
+    ],
+    "correctIndex": 0,
+    "reward": 412
+  },
+  {
+    "question": "Toán học: Tìm x biết 17x + 36 = 257",
+    "answers": [
+      "-4",
+      "19",
+      "13",
+      "0"
+    ],
+    "correctIndex": 2,
+    "reward": 433
+  },
+  {
+    "question": "Toán học: Tìm x biết 20x + 27 = 87",
+    "answers": [
+      "4",
+      "-10",
+      "0",
+      "3"
+    ],
+    "correctIndex": 3,
+    "reward": 444
+  },
+  {
+    "question": "Toán học: Tìm x biết 19x + 17 = 112",
+    "answers": [
+      "7",
+      "8",
+      "5",
+      "-8"
+    ],
+    "correctIndex": 2,
+    "reward": 408
+  },
+  {
+    "question": "Toán học: Tìm x biết 3x + 19 = 37",
+    "answers": [
+      "2",
+      "6",
+      "-1",
+      "9"
+    ],
+    "correctIndex": 1,
+    "reward": 423
+  },
+  {
+    "question": "Toán học: Tìm x biết 3x + 57 = 81",
+    "answers": [
+      "8",
+      "0",
+      "13",
+      "-7"
+    ],
+    "correctIndex": 0,
+    "reward": 385
+  },
+  {
+    "question": "Toán học: Tìm x biết 8x + 22 = 126",
+    "answers": [
+      "2",
+      "33",
+      "13",
+      "10"
+    ],
+    "correctIndex": 2,
+    "reward": 410
+  },
+  {
+    "question": "Toán học: Tìm x biết 17x + 52 = 103",
+    "answers": [
+      "-4",
+      "-8",
+      "19",
+      "3"
+    ],
+    "correctIndex": 3,
+    "reward": 421
+  },
+  {
+    "question": "Toán học: Tìm x biết 2x + 27 = 57",
+    "answers": [
+      "-2",
+      "34",
+      "30",
+      "15"
+    ],
+    "correctIndex": 3,
+    "reward": 363
+  },
+  {
+    "question": "Toán học: Tìm x biết 3x + 59 = 98",
+    "answers": [
+      "3",
+      "13",
+      "19",
+      "8"
+    ],
+    "correctIndex": 1,
+    "reward": 383
+  },
+  {
+    "question": "Toán học: Tìm x biết 15x + 10 = 265",
+    "answers": [
+      "17",
+      "0",
+      "7",
+      "19"
+    ],
+    "correctIndex": 0,
+    "reward": 393
+  },
+  {
+    "question": "Toán học: Tìm x biết 17x + 57 = 397",
+    "answers": [
+      "9",
+      "20",
+      "12",
+      "11"
+    ],
+    "correctIndex": 1,
+    "reward": 432
+  },
+  {
+    "question": "Toán học: Tìm x biết 13x + 23 = 36",
+    "answers": [
+      "4",
+      "1",
+      "-19",
+      "0"
+    ],
+    "correctIndex": 1,
+    "reward": 351
+  },
+  {
+    "question": "Toán học: Tìm x biết 15x + 36 = 291",
+    "answers": [
+      "-2",
+      "3",
+      "-3",
+      "17"
+    ],
+    "correctIndex": 3,
+    "reward": 436
+  },
+  {
+    "question": "Toán học: Tìm x biết 9x + 51 = 222",
+    "answers": [
+      "19",
+      "17",
+      "0",
+      "12"
+    ],
+    "correctIndex": 0,
+    "reward": 435
+  },
+  {
+    "question": "Toán học: Tìm x biết 6x + 17 = 29",
+    "answers": [
+      "21",
+      "13",
+      "-3",
+      "2"
+    ],
+    "correctIndex": 3,
+    "reward": 379
+  },
+  {
+    "question": "Toán học: Tìm x biết 7x + 33 = 124",
+    "answers": [
+      "15",
+      "-6",
+      "5",
+      "13"
+    ],
+    "correctIndex": 3,
+    "reward": 361
+  },
+  {
+    "question": "Toán học: Tìm x biết 13x + 45 = 201",
+    "answers": [
+      "12",
+      "11",
+      "29",
+      "10"
+    ],
+    "correctIndex": 0,
+    "reward": 363
+  },
+  {
+    "question": "Toán học: Tìm x biết 3x + 51 = 60",
+    "answers": [
+      "20",
+      "-6",
+      "14",
+      "3"
+    ],
+    "correctIndex": 3,
+    "reward": 432
+  },
+  {
+    "question": "Toán học: Tìm x biết 19x + 47 = 275",
+    "answers": [
+      "32",
+      "29",
+      "31",
+      "12"
+    ],
+    "correctIndex": 3,
+    "reward": 449
+  },
+  {
+    "question": "Toán học: Tìm x biết 11x + 33 = 209",
+    "answers": [
+      "29",
+      "24",
+      "0",
+      "16"
+    ],
+    "correctIndex": 3,
+    "reward": 427
+  },
+  {
+    "question": "Toán học: Tìm x biết 13x + 31 = 44",
+    "answers": [
+      "-5",
+      "10",
+      "5",
+      "1"
+    ],
+    "correctIndex": 3,
+    "reward": 412
+  },
+  {
+    "question": "Toán học: Tìm x biết 21x + 59 = 248",
+    "answers": [
+      "28",
+      "-5",
+      "4",
+      "9"
+    ],
+    "correctIndex": 3,
+    "reward": 434
+  },
+  {
+    "question": "Toán học: Tìm x biết 6x + 48 = 72",
+    "answers": [
+      "4",
+      "22",
+      "0",
+      "18"
+    ],
+    "correctIndex": 0,
+    "reward": 359
+  },
+  {
+    "question": "Toán học: Tìm x biết 5x + 52 = 57",
+    "answers": [
+      "15",
+      "-3",
+      "-17",
+      "1"
+    ],
+    "correctIndex": 3,
+    "reward": 353
+  },
+  {
+    "question": "Toán học: Tìm x biết 10x + 55 = 135",
+    "answers": [
+      "23",
+      "8",
+      "4",
+      "21"
+    ],
+    "correctIndex": 1,
+    "reward": 429
+  },
+  {
+    "question": "Toán học: Tìm x biết 9x + 58 = 67",
+    "answers": [
+      "18",
+      "1",
+      "-17",
+      "-2"
+    ],
+    "correctIndex": 1,
+    "reward": 389
+  },
+  {
+    "question": "Toán học: Tìm x biết 4x + 47 = 111",
+    "answers": [
+      "-4",
+      "30",
+      "0",
+      "16"
+    ],
+    "correctIndex": 3,
+    "reward": 351
+  },
+  {
+    "question": "Toán học: Tìm x biết 21x + 50 = 302",
+    "answers": [
+      "-3",
+      "14",
+      "12",
+      "1"
+    ],
+    "correctIndex": 2,
+    "reward": 377
+  },
+  {
+    "question": "Toán học: Tìm x biết 18x + 57 = 399",
+    "answers": [
+      "21",
+      "19",
+      "39",
+      "25"
+    ],
+    "correctIndex": 1,
+    "reward": 447
+  },
+  {
+    "question": "Toán học: Tìm x biết 2x + 48 = 62",
+    "answers": [
+      "7",
+      "-12",
+      "24",
+      "16"
+    ],
+    "correctIndex": 0,
+    "reward": 437
+  },
+  {
+    "question": "Toán học: Tìm x biết 4x + 27 = 83",
+    "answers": [
+      "14",
+      "9",
+      "25",
+      "24"
+    ],
+    "correctIndex": 0,
+    "reward": 422
+  },
+  {
+    "question": "Toán học: Tìm x biết 10x + 30 = 110",
+    "answers": [
+      "11",
+      "2",
+      "8",
+      "-11"
+    ],
+    "correctIndex": 2,
+    "reward": 391
+  },
+  {
+    "question": "Toán học: Tìm x biết 4x + 33 = 61",
+    "answers": [
+      "13",
+      "17",
+      "0",
+      "7"
+    ],
+    "correctIndex": 3,
+    "reward": 405
+  },
+  {
+    "question": "Toán học: Tìm x biết 15x + 58 = 328",
+    "answers": [
+      "18",
+      "1",
+      "16",
+      "23"
+    ],
+    "correctIndex": 0,
+    "reward": 367
+  },
+  {
+    "question": "Toán học: Tìm x biết 17x + 51 = 85",
+    "answers": [
+      "2",
+      "20",
+      "9",
+      "-17"
+    ],
+    "correctIndex": 0,
+    "reward": 422
+  },
+  {
+    "question": "Toán học: Tìm x biết 17x + 51 = 391",
+    "answers": [
+      "37",
+      "21",
+      "22",
+      "20"
+    ],
+    "correctIndex": 3,
+    "reward": 409
+  },
+  {
+    "question": "Toán học: Tìm x biết 16x + 43 = 315",
+    "answers": [
+      "11",
+      "17",
+      "23",
+      "14"
+    ],
+    "correctIndex": 1,
+    "reward": 444
+  },
+  {
+    "question": "Toán học: Tìm x biết 7x + 27 = 125",
+    "answers": [
+      "3",
+      "6",
+      "29",
+      "14"
+    ],
+    "correctIndex": 3,
+    "reward": 415
+  },
+  {
+    "question": "Toán học: Tìm x biết 7x + 43 = 85",
+    "answers": [
+      "25",
+      "19",
+      "-10",
+      "6"
+    ],
+    "correctIndex": 3,
+    "reward": 383
+  },
+  {
+    "question": "Toán học: Tìm x biết 11x + 31 = 108",
+    "answers": [
+      "7",
+      "2",
+      "19",
+      "17"
+    ],
+    "correctIndex": 0,
+    "reward": 393
+  },
+  {
+    "question": "Toán học: Tìm x biết 14x + 55 = 237",
+    "answers": [
+      "13",
+      "27",
+      "22",
+      "-3"
+    ],
+    "correctIndex": 0,
+    "reward": 377
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 30 × 18 là bao nhiêu?",
+    "answers": [
+      "530",
+      "550",
+      "540",
+      "560"
+    ],
+    "correctIndex": 2,
+    "reward": 341
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 53 × 45 là bao nhiêu?",
+    "answers": [
+      "2395",
+      "2405",
+      "2385",
+      "2375"
+    ],
+    "correctIndex": 2,
+    "reward": 377
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 57 × 52 là bao nhiêu?",
+    "answers": [
+      "2984",
+      "2954",
+      "2974",
+      "2964"
+    ],
+    "correctIndex": 3,
+    "reward": 327
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 36 × 20 là bao nhiêu?",
+    "answers": [
+      "720",
+      "730",
+      "710",
+      "740"
+    ],
+    "correctIndex": 0,
+    "reward": 372
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 57 × 51 là bao nhiêu?",
+    "answers": [
+      "2897",
+      "2907",
+      "2917",
+      "2927"
+    ],
+    "correctIndex": 1,
+    "reward": 377
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 56 × 46 là bao nhiêu?",
+    "answers": [
+      "2576",
+      "2586",
+      "2566",
+      "2596"
+    ],
+    "correctIndex": 0,
+    "reward": 336
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 18 × 38 là bao nhiêu?",
+    "answers": [
+      "704",
+      "674",
+      "694",
+      "684"
+    ],
+    "correctIndex": 3,
+    "reward": 381
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 43 × 12 là bao nhiêu?",
+    "answers": [
+      "536",
+      "506",
+      "526",
+      "516"
+    ],
+    "correctIndex": 3,
+    "reward": 356
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 55 × 30 là bao nhiêu?",
+    "answers": [
+      "1650",
+      "1660",
+      "1640",
+      "1670"
+    ],
+    "correctIndex": 0,
+    "reward": 387
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 26 × 38 là bao nhiêu?",
+    "answers": [
+      "988",
+      "1008",
+      "998",
+      "978"
+    ],
+    "correctIndex": 0,
+    "reward": 322
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 27 × 22 là bao nhiêu?",
+    "answers": [
+      "594",
+      "604",
+      "584",
+      "614"
+    ],
+    "correctIndex": 0,
+    "reward": 328
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 36 × 23 là bao nhiêu?",
+    "answers": [
+      "838",
+      "818",
+      "848",
+      "828"
+    ],
+    "correctIndex": 3,
+    "reward": 345
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 55 × 29 là bao nhiêu?",
+    "answers": [
+      "1615",
+      "1585",
+      "1605",
+      "1595"
+    ],
+    "correctIndex": 3,
+    "reward": 399
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 25 × 21 là bao nhiêu?",
+    "answers": [
+      "525",
+      "535",
+      "545",
+      "515"
+    ],
+    "correctIndex": 0,
+    "reward": 360
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 56 × 30 là bao nhiêu?",
+    "answers": [
+      "1690",
+      "1700",
+      "1680",
+      "1670"
+    ],
+    "correctIndex": 2,
+    "reward": 346
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 43 × 48 là bao nhiêu?",
+    "answers": [
+      "2054",
+      "2084",
+      "2074",
+      "2064"
+    ],
+    "correctIndex": 3,
+    "reward": 352
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 29 × 41 là bao nhiêu?",
+    "answers": [
+      "1179",
+      "1209",
+      "1189",
+      "1199"
+    ],
+    "correctIndex": 2,
+    "reward": 330
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 52 × 18 là bao nhiêu?",
+    "answers": [
+      "926",
+      "956",
+      "946",
+      "936"
+    ],
+    "correctIndex": 3,
+    "reward": 341
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 42 × 33 là bao nhiêu?",
+    "answers": [
+      "1396",
+      "1386",
+      "1376",
+      "1406"
+    ],
+    "correctIndex": 1,
+    "reward": 368
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 48 × 36 là bao nhiêu?",
+    "answers": [
+      "1728",
+      "1738",
+      "1718",
+      "1748"
+    ],
+    "correctIndex": 0,
+    "reward": 389
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 18 × 31 là bao nhiêu?",
+    "answers": [
+      "548",
+      "568",
+      "578",
+      "558"
+    ],
+    "correctIndex": 3,
+    "reward": 384
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 12 × 13 là bao nhiêu?",
+    "answers": [
+      "176",
+      "146",
+      "166",
+      "156"
+    ],
+    "correctIndex": 3,
+    "reward": 381
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 15 × 55 là bao nhiêu?",
+    "answers": [
+      "815",
+      "835",
+      "845",
+      "825"
+    ],
+    "correctIndex": 3,
+    "reward": 399
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 40 × 22 là bao nhiêu?",
+    "answers": [
+      "900",
+      "880",
+      "890",
+      "870"
+    ],
+    "correctIndex": 1,
+    "reward": 396
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 14 × 48 là bao nhiêu?",
+    "answers": [
+      "672",
+      "682",
+      "662",
+      "692"
+    ],
+    "correctIndex": 0,
+    "reward": 317
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 58 × 14 là bao nhiêu?",
+    "answers": [
+      "832",
+      "802",
+      "822",
+      "812"
+    ],
+    "correctIndex": 3,
+    "reward": 370
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 39 × 14 là bao nhiêu?",
+    "answers": [
+      "556",
+      "546",
+      "536",
+      "566"
+    ],
+    "correctIndex": 1,
+    "reward": 310
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 39 × 21 là bao nhiêu?",
+    "answers": [
+      "829",
+      "819",
+      "809",
+      "839"
+    ],
+    "correctIndex": 1,
+    "reward": 311
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 49 × 48 là bao nhiêu?",
+    "answers": [
+      "2372",
+      "2342",
+      "2362",
+      "2352"
+    ],
+    "correctIndex": 3,
+    "reward": 372
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 27 × 34 là bao nhiêu?",
+    "answers": [
+      "938",
+      "918",
+      "928",
+      "908"
+    ],
+    "correctIndex": 1,
+    "reward": 378
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 52 × 13 là bao nhiêu?",
+    "answers": [
+      "676",
+      "686",
+      "666",
+      "696"
+    ],
+    "correctIndex": 0,
+    "reward": 346
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 30 × 10 là bao nhiêu?",
+    "answers": [
+      "300",
+      "310",
+      "290",
+      "320"
+    ],
+    "correctIndex": 0,
+    "reward": 325
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 26 × 23 là bao nhiêu?",
+    "answers": [
+      "618",
+      "588",
+      "598",
+      "608"
+    ],
+    "correctIndex": 2,
+    "reward": 316
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 48 × 41 là bao nhiêu?",
+    "answers": [
+      "1958",
+      "1988",
+      "1978",
+      "1968"
+    ],
+    "correctIndex": 3,
+    "reward": 334
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 32 × 48 là bao nhiêu?",
+    "answers": [
+      "1546",
+      "1556",
+      "1536",
+      "1526"
+    ],
+    "correctIndex": 2,
+    "reward": 389
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 34 × 24 là bao nhiêu?",
+    "answers": [
+      "826",
+      "816",
+      "836",
+      "806"
+    ],
+    "correctIndex": 1,
+    "reward": 366
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 49 × 58 là bao nhiêu?",
+    "answers": [
+      "2832",
+      "2862",
+      "2852",
+      "2842"
+    ],
+    "correctIndex": 3,
+    "reward": 326
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 51 × 32 là bao nhiêu?",
+    "answers": [
+      "1632",
+      "1642",
+      "1622",
+      "1652"
+    ],
+    "correctIndex": 0,
+    "reward": 362
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 18 × 24 là bao nhiêu?",
+    "answers": [
+      "442",
+      "452",
+      "432",
+      "422"
+    ],
+    "correctIndex": 2,
+    "reward": 332
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 12 × 28 là bao nhiêu?",
+    "answers": [
+      "356",
+      "326",
+      "346",
+      "336"
+    ],
+    "correctIndex": 3,
+    "reward": 326
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 34 × 45 là bao nhiêu?",
+    "answers": [
+      "1520",
+      "1540",
+      "1530",
+      "1550"
+    ],
+    "correctIndex": 2,
+    "reward": 343
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 15 × 45 là bao nhiêu?",
+    "answers": [
+      "675",
+      "685",
+      "695",
+      "665"
+    ],
+    "correctIndex": 0,
+    "reward": 323
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 49 × 44 là bao nhiêu?",
+    "answers": [
+      "2146",
+      "2166",
+      "2156",
+      "2176"
+    ],
+    "correctIndex": 2,
+    "reward": 373
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 12 × 14 là bao nhiêu?",
+    "answers": [
+      "158",
+      "168",
+      "188",
+      "178"
+    ],
+    "correctIndex": 1,
+    "reward": 331
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 31 × 29 là bao nhiêu?",
+    "answers": [
+      "899",
+      "919",
+      "889",
+      "909"
+    ],
+    "correctIndex": 0,
+    "reward": 324
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 24 × 49 là bao nhiêu?",
+    "answers": [
+      "1196",
+      "1176",
+      "1186",
+      "1166"
+    ],
+    "correctIndex": 1,
+    "reward": 369
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 30 × 45 là bao nhiêu?",
+    "answers": [
+      "1350",
+      "1340",
+      "1370",
+      "1360"
+    ],
+    "correctIndex": 0,
+    "reward": 312
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 20 × 55 là bao nhiêu?",
+    "answers": [
+      "1100",
+      "1110",
+      "1090",
+      "1120"
+    ],
+    "correctIndex": 0,
+    "reward": 342
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 58 × 50 là bao nhiêu?",
+    "answers": [
+      "2900",
+      "2910",
+      "2920",
+      "2890"
+    ],
+    "correctIndex": 0,
+    "reward": 307
+  },
+  {
+    "question": "Toán học: Kết quả của phép tính 37 × 17 là bao nhiêu?",
+    "answers": [
+      "639",
+      "619",
+      "649",
+      "629"
+    ],
+    "correctIndex": 3,
+    "reward": 357
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Joule (J)",
+      "Pascal (Pa)",
+      "Newton (N)",
+      "Watt (W)"
+    ],
+    "correctIndex": 2,
+    "reward": 343
+  },
+  {
+    "question": "Vật lý: Đơn vị của công suất là gì?",
+    "answers": [
+      "Ampe (A)",
+      "Newton (N)",
+      "Joule (J)",
+      "Watt (W)"
+    ],
+    "correctIndex": 3,
+    "reward": 420
+  },
+  {
+    "question": "Vật lý: Đơn vị của năng lượng là gì?",
+    "answers": [
+      "Newton (N)",
+      "Volt (V)",
+      "Joule (J)",
+      "Watt (W)"
+    ],
+    "correctIndex": 2,
+    "reward": 421
+  },
+  {
+    "question": "Vật lý: Công thức định luật 2 Newton là gì?",
+    "answers": [
+      "F = P/v",
+      "F = k.x",
+      "F = m.g",
+      "F = m.a"
+    ],
+    "correctIndex": 3,
+    "reward": 437
+  },
+  {
+    "question": "Vật lý: Vận tốc ánh sáng trong chân không xấp xỉ bao nhiêu?",
+    "answers": [
+      "300.000 km/s",
+      "3.000.000 km/s",
+      "30.000 km/s",
+      "300 km/s"
+    ],
+    "correctIndex": 0,
+    "reward": 418
+  },
+  {
+    "question": "Vật lý: Đơn vị đo hiệu điện thế là gì?",
+    "answers": [
+      "Watt (W)",
+      "Volt (V)",
+      "Ampe (A)",
+      "Ohm (Ω)"
+    ],
+    "correctIndex": 1,
+    "reward": 329
+  },
+  {
+    "question": "Vật lý: Đơn vị đo điện trở là gì?",
+    "answers": [
+      "Volt (V)",
+      "Ampe (A)",
+      "Joule (J)",
+      "Ohm (Ω)"
+    ],
+    "correctIndex": 3,
+    "reward": 317
+  },
+  {
+    "question": "Vật lý: Ai là người tìm ra Định luật vạn vật hấp dẫn?",
+    "answers": [
+      "Albert Einstein",
+      "Isaac Newton",
+      "Galileo Galilei",
+      "Nikola Tesla"
+    ],
+    "correctIndex": 1,
+    "reward": 390
+  },
+  {
+    "question": "Vật lý: Gia tốc trọng trường (g) trên Trái Đất thường lấy xấp xỉ bao nhiêu?",
+    "answers": [
+      "9.8 m/s²",
+      "10.5 m/s²",
+      "8.9 m/s²",
+      "12.0 m/s²"
+    ],
+    "correctIndex": 0,
+    "reward": 363
+  },
+  {
+    "question": "Vật lý: Công thức tính động năng là gì?",
+    "answers": [
+      "F = m.a",
+      "Wt = m.g.h",
+      "Wd = 1/2.m.v²",
+      "W = P.t"
+    ],
+    "correctIndex": 2,
+    "reward": 445
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Joule (J)",
+      "Newton (N)",
+      "Pascal (Pa)",
+      "Watt (W)"
+    ],
+    "correctIndex": 1,
+    "reward": 317
+  },
+  {
+    "question": "Vật lý: Đơn vị của công suất là gì?",
+    "answers": [
+      "Watt (W)",
+      "Newton (N)",
+      "Joule (J)",
+      "Ampe (A)"
+    ],
+    "correctIndex": 0,
+    "reward": 455
+  },
+  {
+    "question": "Vật lý: Đơn vị của năng lượng là gì?",
+    "answers": [
+      "Watt (W)",
+      "Newton (N)",
+      "Joule (J)",
+      "Volt (V)"
+    ],
+    "correctIndex": 2,
+    "reward": 496
+  },
+  {
+    "question": "Vật lý: Công thức định luật 2 Newton là gì?",
+    "answers": [
+      "F = m.a",
+      "F = m.g",
+      "F = P/v",
+      "F = k.x"
+    ],
+    "correctIndex": 0,
+    "reward": 390
+  },
+  {
+    "question": "Vật lý: Vận tốc ánh sáng trong chân không xấp xỉ bao nhiêu?",
+    "answers": [
+      "300.000 km/s",
+      "30.000 km/s",
+      "3.000.000 km/s",
+      "300 km/s"
+    ],
+    "correctIndex": 0,
+    "reward": 449
+  },
+  {
+    "question": "Vật lý: Đơn vị đo hiệu điện thế là gì?",
+    "answers": [
+      "Volt (V)",
+      "Watt (W)",
+      "Ampe (A)",
+      "Ohm (Ω)"
+    ],
+    "correctIndex": 0,
+    "reward": 383
+  },
+  {
+    "question": "Vật lý: Đơn vị đo điện trở là gì?",
+    "answers": [
+      "Ohm (Ω)",
+      "Volt (V)",
+      "Ampe (A)",
+      "Joule (J)"
+    ],
+    "correctIndex": 0,
+    "reward": 391
+  },
+  {
+    "question": "Vật lý: Ai là người tìm ra Định luật vạn vật hấp dẫn?",
+    "answers": [
+      "Albert Einstein",
+      "Nikola Tesla",
+      "Isaac Newton",
+      "Galileo Galilei"
+    ],
+    "correctIndex": 2,
+    "reward": 426
+  },
+  {
+    "question": "Vật lý: Gia tốc trọng trường (g) trên Trái Đất thường lấy xấp xỉ bao nhiêu?",
+    "answers": [
+      "12.0 m/s²",
+      "8.9 m/s²",
+      "9.8 m/s²",
+      "10.5 m/s²"
+    ],
+    "correctIndex": 2,
+    "reward": 476
+  },
+  {
+    "question": "Vật lý: Công thức tính động năng là gì?",
+    "answers": [
+      "W = P.t",
+      "Wd = 1/2.m.v²",
+      "Wt = m.g.h",
+      "F = m.a"
+    ],
+    "correctIndex": 1,
+    "reward": 345
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Pascal (Pa)",
+      "Watt (W)",
+      "Joule (J)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 385
+  },
+  {
+    "question": "Vật lý: Đơn vị của công suất là gì?",
+    "answers": [
+      "Watt (W)",
+      "Joule (J)",
+      "Ampe (A)",
+      "Newton (N)"
+    ],
+    "correctIndex": 0,
+    "reward": 455
+  },
+  {
+    "question": "Vật lý: Đơn vị của năng lượng là gì?",
+    "answers": [
+      "Newton (N)",
+      "Volt (V)",
+      "Watt (W)",
+      "Joule (J)"
+    ],
+    "correctIndex": 3,
+    "reward": 341
+  },
+  {
+    "question": "Vật lý: Công thức định luật 2 Newton là gì?",
+    "answers": [
+      "F = m.a",
+      "F = m.g",
+      "F = k.x",
+      "F = P/v"
+    ],
+    "correctIndex": 0,
+    "reward": 301
+  },
+  {
+    "question": "Vật lý: Vận tốc ánh sáng trong chân không xấp xỉ bao nhiêu?",
+    "answers": [
+      "300 km/s",
+      "300.000 km/s",
+      "30.000 km/s",
+      "3.000.000 km/s"
+    ],
+    "correctIndex": 1,
+    "reward": 365
+  },
+  {
+    "question": "Vật lý: Đơn vị đo hiệu điện thế là gì?",
+    "answers": [
+      "Volt (V)",
+      "Ampe (A)",
+      "Watt (W)",
+      "Ohm (Ω)"
+    ],
+    "correctIndex": 0,
+    "reward": 410
+  },
+  {
+    "question": "Vật lý: Đơn vị đo điện trở là gì?",
+    "answers": [
+      "Ampe (A)",
+      "Joule (J)",
+      "Ohm (Ω)",
+      "Volt (V)"
+    ],
+    "correctIndex": 2,
+    "reward": 446
+  },
+  {
+    "question": "Vật lý: Ai là người tìm ra Định luật vạn vật hấp dẫn?",
+    "answers": [
+      "Isaac Newton",
+      "Albert Einstein",
+      "Galileo Galilei",
+      "Nikola Tesla"
+    ],
+    "correctIndex": 0,
+    "reward": 407
+  },
+  {
+    "question": "Vật lý: Gia tốc trọng trường (g) trên Trái Đất thường lấy xấp xỉ bao nhiêu?",
+    "answers": [
+      "9.8 m/s²",
+      "10.5 m/s²",
+      "8.9 m/s²",
+      "12.0 m/s²"
+    ],
+    "correctIndex": 0,
+    "reward": 419
+  },
+  {
+    "question": "Vật lý: Công thức tính động năng là gì?",
+    "answers": [
+      "Wt = m.g.h",
+      "Wd = 1/2.m.v²",
+      "F = m.a",
+      "W = P.t"
+    ],
+    "correctIndex": 1,
+    "reward": 393
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Joule (J)",
+      "Watt (W)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 0,
+    "reward": 340
+  },
+  {
+    "question": "Vật lý: Đơn vị của công suất là gì?",
+    "answers": [
+      "Watt (W)",
+      "Joule (J)",
+      "Newton (N)",
+      "Ampe (A)"
+    ],
+    "correctIndex": 0,
+    "reward": 465
+  },
+  {
+    "question": "Vật lý: Đơn vị của năng lượng là gì?",
+    "answers": [
+      "Newton (N)",
+      "Watt (W)",
+      "Joule (J)",
+      "Volt (V)"
+    ],
+    "correctIndex": 2,
+    "reward": 460
+  },
+  {
+    "question": "Vật lý: Công thức định luật 2 Newton là gì?",
+    "answers": [
+      "F = m.a",
+      "F = m.g",
+      "F = k.x",
+      "F = P/v"
+    ],
+    "correctIndex": 0,
+    "reward": 467
+  },
+  {
+    "question": "Vật lý: Vận tốc ánh sáng trong chân không xấp xỉ bao nhiêu?",
+    "answers": [
+      "300.000 km/s",
+      "30.000 km/s",
+      "3.000.000 km/s",
+      "300 km/s"
+    ],
+    "correctIndex": 0,
+    "reward": 426
+  },
+  {
+    "question": "Vật lý: Đơn vị đo hiệu điện thế là gì?",
+    "answers": [
+      "Watt (W)",
+      "Ohm (Ω)",
+      "Ampe (A)",
+      "Volt (V)"
+    ],
+    "correctIndex": 3,
+    "reward": 358
+  },
+  {
+    "question": "Vật lý: Đơn vị đo điện trở là gì?",
+    "answers": [
+      "Joule (J)",
+      "Ampe (A)",
+      "Volt (V)",
+      "Ohm (Ω)"
+    ],
+    "correctIndex": 3,
+    "reward": 352
+  },
+  {
+    "question": "Vật lý: Ai là người tìm ra Định luật vạn vật hấp dẫn?",
+    "answers": [
+      "Isaac Newton",
+      "Albert Einstein",
+      "Galileo Galilei",
+      "Nikola Tesla"
+    ],
+    "correctIndex": 0,
+    "reward": 399
+  },
+  {
+    "question": "Vật lý: Gia tốc trọng trường (g) trên Trái Đất thường lấy xấp xỉ bao nhiêu?",
+    "answers": [
+      "10.5 m/s²",
+      "12.0 m/s²",
+      "9.8 m/s²",
+      "8.9 m/s²"
+    ],
+    "correctIndex": 2,
+    "reward": 481
+  },
+  {
+    "question": "Vật lý: Công thức tính động năng là gì?",
+    "answers": [
+      "F = m.a",
+      "Wd = 1/2.m.v²",
+      "Wt = m.g.h",
+      "W = P.t"
+    ],
+    "correctIndex": 1,
+    "reward": 411
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Pascal (Pa)",
+      "Joule (J)",
+      "Watt (W)"
+    ],
+    "correctIndex": 0,
+    "reward": 390
+  },
+  {
+    "question": "Vật lý: Đơn vị của công suất là gì?",
+    "answers": [
+      "Ampe (A)",
+      "Newton (N)",
+      "Joule (J)",
+      "Watt (W)"
+    ],
+    "correctIndex": 3,
+    "reward": 322
+  },
+  {
+    "question": "Vật lý: Đơn vị của năng lượng là gì?",
+    "answers": [
+      "Joule (J)",
+      "Watt (W)",
+      "Volt (V)",
+      "Newton (N)"
+    ],
+    "correctIndex": 0,
+    "reward": 340
+  },
+  {
+    "question": "Vật lý: Công thức định luật 2 Newton là gì?",
+    "answers": [
+      "F = m.g",
+      "F = k.x",
+      "F = m.a",
+      "F = P/v"
+    ],
+    "correctIndex": 2,
+    "reward": 311
+  },
+  {
+    "question": "Vật lý: Vận tốc ánh sáng trong chân không xấp xỉ bao nhiêu?",
+    "answers": [
+      "3.000.000 km/s",
+      "30.000 km/s",
+      "300.000 km/s",
+      "300 km/s"
+    ],
+    "correctIndex": 2,
+    "reward": 395
+  },
+  {
+    "question": "Vật lý: Đơn vị đo hiệu điện thế là gì?",
+    "answers": [
+      "Volt (V)",
+      "Ohm (Ω)",
+      "Watt (W)",
+      "Ampe (A)"
+    ],
+    "correctIndex": 0,
+    "reward": 332
+  },
+  {
+    "question": "Vật lý: Đơn vị đo điện trở là gì?",
+    "answers": [
+      "Joule (J)",
+      "Ampe (A)",
+      "Volt (V)",
+      "Ohm (Ω)"
+    ],
+    "correctIndex": 3,
+    "reward": 363
+  },
+  {
+    "question": "Vật lý: Ai là người tìm ra Định luật vạn vật hấp dẫn?",
+    "answers": [
+      "Nikola Tesla",
+      "Albert Einstein",
+      "Isaac Newton",
+      "Galileo Galilei"
+    ],
+    "correctIndex": 2,
+    "reward": 473
+  },
+  {
+    "question": "Vật lý: Gia tốc trọng trường (g) trên Trái Đất thường lấy xấp xỉ bao nhiêu?",
+    "answers": [
+      "12.0 m/s²",
+      "10.5 m/s²",
+      "8.9 m/s²",
+      "9.8 m/s²"
+    ],
+    "correctIndex": 3,
+    "reward": 478
+  },
+  {
+    "question": "Vật lý: Công thức tính động năng là gì?",
+    "answers": [
+      "W = P.t",
+      "Wd = 1/2.m.v²",
+      "Wt = m.g.h",
+      "F = m.a"
+    ],
+    "correctIndex": 1,
+    "reward": 354
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Pascal (Pa)",
+      "Watt (W)",
+      "Joule (J)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 471
+  },
+  {
+    "question": "Vật lý: Đơn vị của công suất là gì?",
+    "answers": [
+      "Joule (J)",
+      "Watt (W)",
+      "Newton (N)",
+      "Ampe (A)"
+    ],
+    "correctIndex": 1,
+    "reward": 443
+  },
+  {
+    "question": "Vật lý: Đơn vị của năng lượng là gì?",
+    "answers": [
+      "Joule (J)",
+      "Watt (W)",
+      "Volt (V)",
+      "Newton (N)"
+    ],
+    "correctIndex": 0,
+    "reward": 429
+  },
+  {
+    "question": "Vật lý: Công thức định luật 2 Newton là gì?",
+    "answers": [
+      "F = m.g",
+      "F = P/v",
+      "F = m.a",
+      "F = k.x"
+    ],
+    "correctIndex": 2,
+    "reward": 350
+  },
+  {
+    "question": "Vật lý: Vận tốc ánh sáng trong chân không xấp xỉ bao nhiêu?",
+    "answers": [
+      "300.000 km/s",
+      "30.000 km/s",
+      "3.000.000 km/s",
+      "300 km/s"
+    ],
+    "correctIndex": 0,
+    "reward": 469
+  },
+  {
+    "question": "Vật lý: Đơn vị đo hiệu điện thế là gì?",
+    "answers": [
+      "Watt (W)",
+      "Ohm (Ω)",
+      "Ampe (A)",
+      "Volt (V)"
+    ],
+    "correctIndex": 3,
+    "reward": 348
+  },
+  {
+    "question": "Vật lý: Đơn vị đo điện trở là gì?",
+    "answers": [
+      "Joule (J)",
+      "Ampe (A)",
+      "Volt (V)",
+      "Ohm (Ω)"
+    ],
+    "correctIndex": 3,
+    "reward": 394
+  },
+  {
+    "question": "Vật lý: Ai là người tìm ra Định luật vạn vật hấp dẫn?",
+    "answers": [
+      "Isaac Newton",
+      "Nikola Tesla",
+      "Albert Einstein",
+      "Galileo Galilei"
+    ],
+    "correctIndex": 0,
+    "reward": 425
+  },
+  {
+    "question": "Vật lý: Gia tốc trọng trường (g) trên Trái Đất thường lấy xấp xỉ bao nhiêu?",
+    "answers": [
+      "9.8 m/s²",
+      "10.5 m/s²",
+      "12.0 m/s²",
+      "8.9 m/s²"
+    ],
+    "correctIndex": 0,
+    "reward": 422
+  },
+  {
+    "question": "Vật lý: Công thức tính động năng là gì?",
+    "answers": [
+      "Wt = m.g.h",
+      "Wd = 1/2.m.v²",
+      "W = P.t",
+      "F = m.a"
+    ],
+    "correctIndex": 1,
+    "reward": 451
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Joule (J)",
+      "Pascal (Pa)",
+      "Watt (W)"
+    ],
+    "correctIndex": 0,
+    "reward": 427
+  },
+  {
+    "question": "Vật lý: Đơn vị của công suất là gì?",
+    "answers": [
+      "Ampe (A)",
+      "Newton (N)",
+      "Joule (J)",
+      "Watt (W)"
+    ],
+    "correctIndex": 3,
+    "reward": 461
+  },
+  {
+    "question": "Vật lý: Đơn vị của năng lượng là gì?",
+    "answers": [
+      "Joule (J)",
+      "Watt (W)",
+      "Volt (V)",
+      "Newton (N)"
+    ],
+    "correctIndex": 0,
+    "reward": 347
+  },
+  {
+    "question": "Vật lý: Công thức định luật 2 Newton là gì?",
+    "answers": [
+      "F = k.x",
+      "F = m.g",
+      "F = P/v",
+      "F = m.a"
+    ],
+    "correctIndex": 3,
+    "reward": 359
+  },
+  {
+    "question": "Vật lý: Vận tốc ánh sáng trong chân không xấp xỉ bao nhiêu?",
+    "answers": [
+      "300.000 km/s",
+      "3.000.000 km/s",
+      "30.000 km/s",
+      "300 km/s"
+    ],
+    "correctIndex": 0,
+    "reward": 338
+  },
+  {
+    "question": "Vật lý: Đơn vị đo hiệu điện thế là gì?",
+    "answers": [
+      "Ohm (Ω)",
+      "Volt (V)",
+      "Ampe (A)",
+      "Watt (W)"
+    ],
+    "correctIndex": 1,
+    "reward": 451
+  },
+  {
+    "question": "Vật lý: Đơn vị đo điện trở là gì?",
+    "answers": [
+      "Joule (J)",
+      "Ampe (A)",
+      "Ohm (Ω)",
+      "Volt (V)"
+    ],
+    "correctIndex": 2,
+    "reward": 395
+  },
+  {
+    "question": "Vật lý: Ai là người tìm ra Định luật vạn vật hấp dẫn?",
+    "answers": [
+      "Isaac Newton",
+      "Albert Einstein",
+      "Galileo Galilei",
+      "Nikola Tesla"
+    ],
+    "correctIndex": 0,
+    "reward": 409
+  },
+  {
+    "question": "Vật lý: Gia tốc trọng trường (g) trên Trái Đất thường lấy xấp xỉ bao nhiêu?",
+    "answers": [
+      "9.8 m/s²",
+      "12.0 m/s²",
+      "10.5 m/s²",
+      "8.9 m/s²"
+    ],
+    "correctIndex": 0,
+    "reward": 302
+  },
+  {
+    "question": "Vật lý: Công thức tính động năng là gì?",
+    "answers": [
+      "F = m.a",
+      "W = P.t",
+      "Wt = m.g.h",
+      "Wd = 1/2.m.v²"
+    ],
+    "correctIndex": 3,
+    "reward": 323
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Joule (J)",
+      "Watt (W)",
+      "Pascal (Pa)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 434
+  },
+  {
+    "question": "Vật lý: Đơn vị của công suất là gì?",
+    "answers": [
+      "Ampe (A)",
+      "Newton (N)",
+      "Joule (J)",
+      "Watt (W)"
+    ],
+    "correctIndex": 3,
+    "reward": 460
+  },
+  {
+    "question": "Vật lý: Đơn vị của năng lượng là gì?",
+    "answers": [
+      "Newton (N)",
+      "Joule (J)",
+      "Watt (W)",
+      "Volt (V)"
+    ],
+    "correctIndex": 1,
+    "reward": 413
+  },
+  {
+    "question": "Vật lý: Công thức định luật 2 Newton là gì?",
+    "answers": [
+      "F = k.x",
+      "F = m.g",
+      "F = P/v",
+      "F = m.a"
+    ],
+    "correctIndex": 3,
+    "reward": 392
+  },
+  {
+    "question": "Vật lý: Vận tốc ánh sáng trong chân không xấp xỉ bao nhiêu?",
+    "answers": [
+      "300.000 km/s",
+      "300 km/s",
+      "30.000 km/s",
+      "3.000.000 km/s"
+    ],
+    "correctIndex": 0,
+    "reward": 449
+  },
+  {
+    "question": "Vật lý: Đơn vị đo hiệu điện thế là gì?",
+    "answers": [
+      "Ohm (Ω)",
+      "Watt (W)",
+      "Volt (V)",
+      "Ampe (A)"
+    ],
+    "correctIndex": 2,
+    "reward": 442
+  },
+  {
+    "question": "Vật lý: Đơn vị đo điện trở là gì?",
+    "answers": [
+      "Joule (J)",
+      "Ampe (A)",
+      "Ohm (Ω)",
+      "Volt (V)"
+    ],
+    "correctIndex": 2,
+    "reward": 316
+  },
+  {
+    "question": "Vật lý: Ai là người tìm ra Định luật vạn vật hấp dẫn?",
+    "answers": [
+      "Isaac Newton",
+      "Albert Einstein",
+      "Galileo Galilei",
+      "Nikola Tesla"
+    ],
+    "correctIndex": 0,
+    "reward": 386
+  },
+  {
+    "question": "Vật lý: Gia tốc trọng trường (g) trên Trái Đất thường lấy xấp xỉ bao nhiêu?",
+    "answers": [
+      "12.0 m/s²",
+      "8.9 m/s²",
+      "10.5 m/s²",
+      "9.8 m/s²"
+    ],
+    "correctIndex": 3,
+    "reward": 325
+  },
+  {
+    "question": "Vật lý: Công thức tính động năng là gì?",
+    "answers": [
+      "W = P.t",
+      "Wd = 1/2.m.v²",
+      "Wt = m.g.h",
+      "F = m.a"
+    ],
+    "correctIndex": 1,
+    "reward": 445
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Pascal (Pa)",
+      "Joule (J)",
+      "Watt (W)"
+    ],
+    "correctIndex": 0,
+    "reward": 345
+  },
+  {
+    "question": "Vật lý: Đơn vị của công suất là gì?",
+    "answers": [
+      "Joule (J)",
+      "Watt (W)",
+      "Ampe (A)",
+      "Newton (N)"
+    ],
+    "correctIndex": 1,
+    "reward": 403
+  },
+  {
+    "question": "Vật lý: Đơn vị của năng lượng là gì?",
+    "answers": [
+      "Joule (J)",
+      "Watt (W)",
+      "Newton (N)",
+      "Volt (V)"
+    ],
+    "correctIndex": 0,
+    "reward": 357
+  },
+  {
+    "question": "Vật lý: Công thức định luật 2 Newton là gì?",
+    "answers": [
+      "F = k.x",
+      "F = P/v",
+      "F = m.a",
+      "F = m.g"
+    ],
+    "correctIndex": 2,
+    "reward": 404
+  },
+  {
+    "question": "Vật lý: Vận tốc ánh sáng trong chân không xấp xỉ bao nhiêu?",
+    "answers": [
+      "3.000.000 km/s",
+      "30.000 km/s",
+      "300.000 km/s",
+      "300 km/s"
+    ],
+    "correctIndex": 2,
+    "reward": 320
+  },
+  {
+    "question": "Vật lý: Đơn vị đo hiệu điện thế là gì?",
+    "answers": [
+      "Watt (W)",
+      "Ohm (Ω)",
+      "Ampe (A)",
+      "Volt (V)"
+    ],
+    "correctIndex": 3,
+    "reward": 484
+  },
+  {
+    "question": "Vật lý: Đơn vị đo điện trở là gì?",
+    "answers": [
+      "Ohm (Ω)",
+      "Volt (V)",
+      "Ampe (A)",
+      "Joule (J)"
+    ],
+    "correctIndex": 0,
+    "reward": 420
+  },
+  {
+    "question": "Vật lý: Ai là người tìm ra Định luật vạn vật hấp dẫn?",
+    "answers": [
+      "Albert Einstein",
+      "Isaac Newton",
+      "Galileo Galilei",
+      "Nikola Tesla"
+    ],
+    "correctIndex": 1,
+    "reward": 494
+  },
+  {
+    "question": "Vật lý: Gia tốc trọng trường (g) trên Trái Đất thường lấy xấp xỉ bao nhiêu?",
+    "answers": [
+      "12.0 m/s²",
+      "10.5 m/s²",
+      "9.8 m/s²",
+      "8.9 m/s²"
+    ],
+    "correctIndex": 2,
+    "reward": 305
+  },
+  {
+    "question": "Vật lý: Công thức tính động năng là gì?",
+    "answers": [
+      "F = m.a",
+      "W = P.t",
+      "Wt = m.g.h",
+      "Wd = 1/2.m.v²"
+    ],
+    "correctIndex": 3,
+    "reward": 300
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Joule (J)",
+      "Pascal (Pa)",
+      "Watt (W)"
+    ],
+    "correctIndex": 0,
+    "reward": 452
+  },
+  {
+    "question": "Vật lý: Đơn vị của công suất là gì?",
+    "answers": [
+      "Ampe (A)",
+      "Newton (N)",
+      "Joule (J)",
+      "Watt (W)"
+    ],
+    "correctIndex": 3,
+    "reward": 338
+  },
+  {
+    "question": "Vật lý: Đơn vị của năng lượng là gì?",
+    "answers": [
+      "Newton (N)",
+      "Volt (V)",
+      "Watt (W)",
+      "Joule (J)"
+    ],
+    "correctIndex": 3,
+    "reward": 455
+  },
+  {
+    "question": "Vật lý: Công thức định luật 2 Newton là gì?",
+    "answers": [
+      "F = k.x",
+      "F = m.g",
+      "F = P/v",
+      "F = m.a"
+    ],
+    "correctIndex": 3,
+    "reward": 348
+  },
+  {
+    "question": "Vật lý: Vận tốc ánh sáng trong chân không xấp xỉ bao nhiêu?",
+    "answers": [
+      "300 km/s",
+      "3.000.000 km/s",
+      "30.000 km/s",
+      "300.000 km/s"
+    ],
+    "correctIndex": 3,
+    "reward": 450
+  },
+  {
+    "question": "Vật lý: Đơn vị đo hiệu điện thế là gì?",
+    "answers": [
+      "Ampe (A)",
+      "Ohm (Ω)",
+      "Watt (W)",
+      "Volt (V)"
+    ],
+    "correctIndex": 3,
+    "reward": 462
+  },
+  {
+    "question": "Vật lý: Đơn vị đo điện trở là gì?",
+    "answers": [
+      "Ohm (Ω)",
+      "Volt (V)",
+      "Ampe (A)",
+      "Joule (J)"
+    ],
+    "correctIndex": 0,
+    "reward": 436
+  },
+  {
+    "question": "Vật lý: Ai là người tìm ra Định luật vạn vật hấp dẫn?",
+    "answers": [
+      "Nikola Tesla",
+      "Isaac Newton",
+      "Albert Einstein",
+      "Galileo Galilei"
+    ],
+    "correctIndex": 1,
+    "reward": 400
+  },
+  {
+    "question": "Vật lý: Gia tốc trọng trường (g) trên Trái Đất thường lấy xấp xỉ bao nhiêu?",
+    "answers": [
+      "9.8 m/s²",
+      "10.5 m/s²",
+      "8.9 m/s²",
+      "12.0 m/s²"
+    ],
+    "correctIndex": 0,
+    "reward": 322
+  },
+  {
+    "question": "Vật lý: Công thức tính động năng là gì?",
+    "answers": [
+      "F = m.a",
+      "W = P.t",
+      "Wt = m.g.h",
+      "Wd = 1/2.m.v²"
+    ],
+    "correctIndex": 3,
+    "reward": 499
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Joule (J)",
+      "Watt (W)",
+      "Pascal (Pa)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 498
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Pascal (Pa)",
+      "Newton (N)",
+      "Joule (J)",
+      "Watt (W)"
+    ],
+    "correctIndex": 1,
+    "reward": 478
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Joule (J)",
+      "Watt (W)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 0,
+    "reward": 379
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Watt (W)",
+      "Joule (J)",
+      "Newton (N)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 2,
+    "reward": 457
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Pascal (Pa)",
+      "Watt (W)",
+      "Joule (J)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 427
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Pascal (Pa)",
+      "Watt (W)",
+      "Newton (N)",
+      "Joule (J)"
+    ],
+    "correctIndex": 2,
+    "reward": 421
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Pascal (Pa)",
+      "Newton (N)",
+      "Watt (W)",
+      "Joule (J)"
+    ],
+    "correctIndex": 1,
+    "reward": 440
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Joule (J)",
+      "Watt (W)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 0,
+    "reward": 384
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Watt (W)",
+      "Pascal (Pa)",
+      "Newton (N)",
+      "Joule (J)"
+    ],
+    "correctIndex": 2,
+    "reward": 333
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Pascal (Pa)",
+      "Watt (W)",
+      "Joule (J)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 463
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Joule (J)",
+      "Watt (W)",
+      "Pascal (Pa)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 356
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Joule (J)",
+      "Watt (W)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 0,
+    "reward": 411
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Joule (J)",
+      "Watt (W)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 0,
+    "reward": 363
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Pascal (Pa)",
+      "Watt (W)",
+      "Joule (J)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 484
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Pascal (Pa)",
+      "Joule (J)",
+      "Watt (W)"
+    ],
+    "correctIndex": 0,
+    "reward": 333
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Joule (J)",
+      "Watt (W)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 0,
+    "reward": 472
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Joule (J)",
+      "Pascal (Pa)",
+      "Watt (W)"
+    ],
+    "correctIndex": 0,
+    "reward": 403
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Joule (J)",
+      "Watt (W)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 0,
+    "reward": 396
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Watt (W)",
+      "Joule (J)",
+      "Newton (N)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 2,
+    "reward": 310
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Pascal (Pa)",
+      "Watt (W)",
+      "Joule (J)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 404
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Pascal (Pa)",
+      "Watt (W)",
+      "Joule (J)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 354
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Watt (W)",
+      "Pascal (Pa)",
+      "Joule (J)"
+    ],
+    "correctIndex": 0,
+    "reward": 308
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Joule (J)",
+      "Watt (W)",
+      "Pascal (Pa)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 300
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Watt (W)",
+      "Newton (N)",
+      "Joule (J)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 1,
+    "reward": 420
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Joule (J)",
+      "Newton (N)",
+      "Watt (W)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 1,
+    "reward": 418
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Watt (W)",
+      "Joule (J)",
+      "Newton (N)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 2,
+    "reward": 460
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Watt (W)",
+      "Joule (J)",
+      "Pascal (Pa)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 357
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Pascal (Pa)",
+      "Joule (J)",
+      "Watt (W)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 459
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Joule (J)",
+      "Watt (W)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 0,
+    "reward": 314
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Pascal (Pa)",
+      "Joule (J)",
+      "Newton (N)",
+      "Watt (W)"
+    ],
+    "correctIndex": 2,
+    "reward": 419
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Joule (J)",
+      "Newton (N)",
+      "Watt (W)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 1,
+    "reward": 376
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Watt (W)",
+      "Newton (N)",
+      "Pascal (Pa)",
+      "Joule (J)"
+    ],
+    "correctIndex": 1,
+    "reward": 449
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Pascal (Pa)",
+      "Newton (N)",
+      "Watt (W)",
+      "Joule (J)"
+    ],
+    "correctIndex": 1,
+    "reward": 351
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Pascal (Pa)",
+      "Watt (W)",
+      "Joule (J)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 301
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Joule (J)",
+      "Watt (W)",
+      "Pascal (Pa)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 370
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Joule (J)",
+      "Watt (W)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 0,
+    "reward": 326
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Pascal (Pa)",
+      "Watt (W)",
+      "Joule (J)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 450
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Joule (J)",
+      "Watt (W)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 0,
+    "reward": 400
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Watt (W)",
+      "Newton (N)",
+      "Joule (J)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 1,
+    "reward": 346
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Joule (J)",
+      "Pascal (Pa)",
+      "Watt (W)"
+    ],
+    "correctIndex": 0,
+    "reward": 387
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Joule (J)",
+      "Pascal (Pa)",
+      "Newton (N)",
+      "Watt (W)"
+    ],
+    "correctIndex": 2,
+    "reward": 331
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Watt (W)",
+      "Pascal (Pa)",
+      "Joule (J)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 449
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Pascal (Pa)",
+      "Watt (W)",
+      "Joule (J)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 429
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Pascal (Pa)",
+      "Joule (J)",
+      "Watt (W)"
+    ],
+    "correctIndex": 0,
+    "reward": 342
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Joule (J)",
+      "Watt (W)",
+      "Pascal (Pa)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 301
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Pascal (Pa)",
+      "Joule (J)",
+      "Watt (W)"
+    ],
+    "correctIndex": 0,
+    "reward": 351
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Joule (J)",
+      "Watt (W)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 0,
+    "reward": 377
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Joule (J)",
+      "Pascal (Pa)",
+      "Watt (W)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 469
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Joule (J)",
+      "Pascal (Pa)",
+      "Watt (W)"
+    ],
+    "correctIndex": 0,
+    "reward": 300
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Pascal (Pa)",
+      "Joule (J)",
+      "Watt (W)"
+    ],
+    "correctIndex": 0,
+    "reward": 434
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Pascal (Pa)",
+      "Watt (W)",
+      "Joule (J)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 457
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Watt (W)",
+      "Pascal (Pa)",
+      "Joule (J)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 411
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Watt (W)",
+      "Joule (J)",
+      "Newton (N)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 2,
+    "reward": 473
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Pascal (Pa)",
+      "Newton (N)",
+      "Joule (J)",
+      "Watt (W)"
+    ],
+    "correctIndex": 1,
+    "reward": 357
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Joule (J)",
+      "Watt (W)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 0,
+    "reward": 337
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Joule (J)",
+      "Watt (W)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 0,
+    "reward": 396
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Pascal (Pa)",
+      "Watt (W)",
+      "Joule (J)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 353
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Pascal (Pa)",
+      "Joule (J)",
+      "Watt (W)"
+    ],
+    "correctIndex": 0,
+    "reward": 440
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Joule (J)",
+      "Pascal (Pa)",
+      "Newton (N)",
+      "Watt (W)"
+    ],
+    "correctIndex": 2,
+    "reward": 496
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Joule (J)",
+      "Pascal (Pa)",
+      "Watt (W)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 407
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Watt (W)",
+      "Pascal (Pa)",
+      "Newton (N)",
+      "Joule (J)"
+    ],
+    "correctIndex": 2,
+    "reward": 400
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Joule (J)",
+      "Watt (W)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 0,
+    "reward": 343
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Watt (W)",
+      "Pascal (Pa)",
+      "Joule (J)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 454
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Pascal (Pa)",
+      "Watt (W)",
+      "Joule (J)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 458
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Watt (W)",
+      "Joule (J)",
+      "Newton (N)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 2,
+    "reward": 441
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Joule (J)",
+      "Watt (W)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 0,
+    "reward": 416
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Watt (W)",
+      "Joule (J)",
+      "Pascal (Pa)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 411
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Joule (J)",
+      "Pascal (Pa)",
+      "Watt (W)"
+    ],
+    "correctIndex": 0,
+    "reward": 429
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Pascal (Pa)",
+      "Watt (W)",
+      "Joule (J)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 394
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Pascal (Pa)",
+      "Watt (W)",
+      "Joule (J)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 330
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Joule (J)",
+      "Watt (W)",
+      "Newton (N)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 2,
+    "reward": 308
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Pascal (Pa)",
+      "Watt (W)",
+      "Joule (J)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 487
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Joule (J)",
+      "Newton (N)",
+      "Pascal (Pa)",
+      "Watt (W)"
+    ],
+    "correctIndex": 1,
+    "reward": 495
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Watt (W)",
+      "Joule (J)",
+      "Pascal (Pa)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 347
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Pascal (Pa)",
+      "Watt (W)",
+      "Newton (N)",
+      "Joule (J)"
+    ],
+    "correctIndex": 2,
+    "reward": 401
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Pascal (Pa)",
+      "Watt (W)",
+      "Joule (J)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 379
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Pascal (Pa)",
+      "Joule (J)",
+      "Watt (W)"
+    ],
+    "correctIndex": 0,
+    "reward": 413
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Pascal (Pa)",
+      "Newton (N)",
+      "Watt (W)",
+      "Joule (J)"
+    ],
+    "correctIndex": 1,
+    "reward": 475
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Pascal (Pa)",
+      "Watt (W)",
+      "Joule (J)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 328
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Joule (J)",
+      "Watt (W)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 0,
+    "reward": 342
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Watt (W)",
+      "Joule (J)",
+      "Newton (N)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 2,
+    "reward": 375
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Joule (J)",
+      "Pascal (Pa)",
+      "Watt (W)"
+    ],
+    "correctIndex": 0,
+    "reward": 458
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Joule (J)",
+      "Watt (W)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 0,
+    "reward": 378
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Pascal (Pa)",
+      "Joule (J)",
+      "Newton (N)",
+      "Watt (W)"
+    ],
+    "correctIndex": 2,
+    "reward": 349
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Watt (W)",
+      "Pascal (Pa)",
+      "Newton (N)",
+      "Joule (J)"
+    ],
+    "correctIndex": 2,
+    "reward": 461
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Joule (J)",
+      "Watt (W)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 0,
+    "reward": 303
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Pascal (Pa)",
+      "Watt (W)",
+      "Joule (J)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 438
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Joule (J)",
+      "Watt (W)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 0,
+    "reward": 309
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Joule (J)",
+      "Pascal (Pa)",
+      "Watt (W)"
+    ],
+    "correctIndex": 0,
+    "reward": 344
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Pascal (Pa)",
+      "Watt (W)",
+      "Joule (J)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 451
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Watt (W)",
+      "Joule (J)",
+      "Newton (N)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 2,
+    "reward": 431
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Joule (J)",
+      "Watt (W)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 0,
+    "reward": 429
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Joule (J)",
+      "Newton (N)",
+      "Pascal (Pa)",
+      "Watt (W)"
+    ],
+    "correctIndex": 1,
+    "reward": 441
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Joule (J)",
+      "Pascal (Pa)",
+      "Watt (W)"
+    ],
+    "correctIndex": 0,
+    "reward": 424
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Watt (W)",
+      "Newton (N)",
+      "Joule (J)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 1,
+    "reward": 355
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Joule (J)",
+      "Newton (N)",
+      "Watt (W)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 1,
+    "reward": 354
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Watt (W)",
+      "Pascal (Pa)",
+      "Joule (J)"
+    ],
+    "correctIndex": 0,
+    "reward": 339
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Pascal (Pa)",
+      "Joule (J)",
+      "Watt (W)"
+    ],
+    "correctIndex": 0,
+    "reward": 423
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Pascal (Pa)",
+      "Joule (J)",
+      "Newton (N)",
+      "Watt (W)"
+    ],
+    "correctIndex": 2,
+    "reward": 485
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Joule (J)",
+      "Watt (W)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 0,
+    "reward": 443
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Joule (J)",
+      "Watt (W)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 0,
+    "reward": 486
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Joule (J)",
+      "Pascal (Pa)",
+      "Newton (N)",
+      "Watt (W)"
+    ],
+    "correctIndex": 2,
+    "reward": 335
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Joule (J)",
+      "Pascal (Pa)",
+      "Watt (W)"
+    ],
+    "correctIndex": 0,
+    "reward": 459
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Joule (J)",
+      "Watt (W)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 0,
+    "reward": 371
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Joule (J)",
+      "Newton (N)",
+      "Pascal (Pa)",
+      "Watt (W)"
+    ],
+    "correctIndex": 1,
+    "reward": 353
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Pascal (Pa)",
+      "Watt (W)",
+      "Joule (J)"
+    ],
+    "correctIndex": 0,
+    "reward": 431
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Watt (W)",
+      "Pascal (Pa)",
+      "Joule (J)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 348
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Pascal (Pa)",
+      "Watt (W)",
+      "Joule (J)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 443
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Joule (J)",
+      "Watt (W)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 0,
+    "reward": 494
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Joule (J)",
+      "Pascal (Pa)",
+      "Newton (N)",
+      "Watt (W)"
+    ],
+    "correctIndex": 2,
+    "reward": 366
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Joule (J)",
+      "Watt (W)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 0,
+    "reward": 334
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Joule (J)",
+      "Watt (W)",
+      "Newton (N)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 2,
+    "reward": 402
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Watt (W)",
+      "Joule (J)",
+      "Pascal (Pa)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 486
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Joule (J)",
+      "Newton (N)",
+      "Watt (W)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 1,
+    "reward": 364
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Pascal (Pa)",
+      "Joule (J)",
+      "Newton (N)",
+      "Watt (W)"
+    ],
+    "correctIndex": 2,
+    "reward": 378
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Watt (W)",
+      "Joule (J)",
+      "Newton (N)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 2,
+    "reward": 303
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Pascal (Pa)",
+      "Joule (J)",
+      "Newton (N)",
+      "Watt (W)"
+    ],
+    "correctIndex": 2,
+    "reward": 398
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Joule (J)",
+      "Watt (W)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 0,
+    "reward": 325
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Joule (J)",
+      "Watt (W)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 0,
+    "reward": 484
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Pascal (Pa)",
+      "Joule (J)",
+      "Watt (W)"
+    ],
+    "correctIndex": 0,
+    "reward": 360
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Pascal (Pa)",
+      "Newton (N)",
+      "Joule (J)",
+      "Watt (W)"
+    ],
+    "correctIndex": 1,
+    "reward": 465
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Pascal (Pa)",
+      "Watt (W)",
+      "Joule (J)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 325
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Watt (W)",
+      "Joule (J)",
+      "Pascal (Pa)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 447
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Watt (W)",
+      "Joule (J)",
+      "Newton (N)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 2,
+    "reward": 343
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Joule (J)",
+      "Watt (W)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 0,
+    "reward": 348
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Joule (J)",
+      "Watt (W)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 0,
+    "reward": 444
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Pascal (Pa)",
+      "Joule (J)",
+      "Newton (N)",
+      "Watt (W)"
+    ],
+    "correctIndex": 2,
+    "reward": 316
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Joule (J)",
+      "Pascal (Pa)",
+      "Newton (N)",
+      "Watt (W)"
+    ],
+    "correctIndex": 2,
+    "reward": 384
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Joule (J)",
+      "Watt (W)",
+      "Newton (N)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 2,
+    "reward": 340
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Pascal (Pa)",
+      "Watt (W)",
+      "Joule (J)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 441
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Joule (J)",
+      "Pascal (Pa)",
+      "Watt (W)"
+    ],
+    "correctIndex": 0,
+    "reward": 458
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Watt (W)",
+      "Pascal (Pa)",
+      "Joule (J)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 485
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Joule (J)",
+      "Newton (N)",
+      "Pascal (Pa)",
+      "Watt (W)"
+    ],
+    "correctIndex": 1,
+    "reward": 404
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Joule (J)",
+      "Watt (W)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 0,
+    "reward": 356
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Pascal (Pa)",
+      "Watt (W)",
+      "Joule (J)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 431
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Joule (J)",
+      "Watt (W)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 0,
+    "reward": 398
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Watt (W)",
+      "Joule (J)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 0,
+    "reward": 362
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Pascal (Pa)",
+      "Joule (J)",
+      "Watt (W)"
+    ],
+    "correctIndex": 0,
+    "reward": 431
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Pascal (Pa)",
+      "Watt (W)",
+      "Joule (J)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 404
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Pascal (Pa)",
+      "Watt (W)",
+      "Newton (N)",
+      "Joule (J)"
+    ],
+    "correctIndex": 2,
+    "reward": 434
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Joule (J)",
+      "Pascal (Pa)",
+      "Newton (N)",
+      "Watt (W)"
+    ],
+    "correctIndex": 2,
+    "reward": 390
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Pascal (Pa)",
+      "Joule (J)",
+      "Watt (W)"
+    ],
+    "correctIndex": 0,
+    "reward": 360
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Joule (J)",
+      "Newton (N)",
+      "Watt (W)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 1,
+    "reward": 441
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Joule (J)",
+      "Pascal (Pa)",
+      "Newton (N)",
+      "Watt (W)"
+    ],
+    "correctIndex": 2,
+    "reward": 313
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Watt (W)",
+      "Pascal (Pa)",
+      "Newton (N)",
+      "Joule (J)"
+    ],
+    "correctIndex": 2,
+    "reward": 302
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Pascal (Pa)",
+      "Watt (W)",
+      "Joule (J)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 454
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Pascal (Pa)",
+      "Watt (W)",
+      "Joule (J)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 344
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Joule (J)",
+      "Watt (W)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 0,
+    "reward": 443
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Joule (J)",
+      "Newton (N)",
+      "Pascal (Pa)",
+      "Watt (W)"
+    ],
+    "correctIndex": 1,
+    "reward": 406
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Watt (W)",
+      "Joule (J)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 0,
+    "reward": 463
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Pascal (Pa)",
+      "Newton (N)",
+      "Joule (J)",
+      "Watt (W)"
+    ],
+    "correctIndex": 1,
+    "reward": 383
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Joule (J)",
+      "Watt (W)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 0,
+    "reward": 357
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Watt (W)",
+      "Pascal (Pa)",
+      "Joule (J)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 384
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Joule (J)",
+      "Newton (N)",
+      "Watt (W)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 1,
+    "reward": 384
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Pascal (Pa)",
+      "Newton (N)",
+      "Joule (J)",
+      "Watt (W)"
+    ],
+    "correctIndex": 1,
+    "reward": 425
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Pascal (Pa)",
+      "Joule (J)",
+      "Watt (W)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 377
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Watt (W)",
+      "Pascal (Pa)",
+      "Joule (J)"
+    ],
+    "correctIndex": 0,
+    "reward": 352
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Joule (J)",
+      "Pascal (Pa)",
+      "Watt (W)"
+    ],
+    "correctIndex": 0,
+    "reward": 398
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Joule (J)",
+      "Pascal (Pa)",
+      "Watt (W)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 396
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Pascal (Pa)",
+      "Watt (W)",
+      "Joule (J)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 314
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Watt (W)",
+      "Newton (N)",
+      "Joule (J)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 1,
+    "reward": 489
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Watt (W)",
+      "Joule (J)",
+      "Newton (N)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 2,
+    "reward": 314
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Watt (W)",
+      "Pascal (Pa)",
+      "Joule (J)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 330
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Joule (J)",
+      "Watt (W)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 0,
+    "reward": 363
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Pascal (Pa)",
+      "Watt (W)",
+      "Joule (J)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 334
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Pascal (Pa)",
+      "Joule (J)",
+      "Watt (W)"
+    ],
+    "correctIndex": 0,
+    "reward": 342
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Pascal (Pa)",
+      "Watt (W)",
+      "Joule (J)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 308
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Pascal (Pa)",
+      "Joule (J)",
+      "Watt (W)"
+    ],
+    "correctIndex": 0,
+    "reward": 488
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Pascal (Pa)",
+      "Joule (J)",
+      "Watt (W)"
+    ],
+    "correctIndex": 0,
+    "reward": 433
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Joule (J)",
+      "Watt (W)",
+      "Newton (N)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 2,
+    "reward": 418
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Pascal (Pa)",
+      "Newton (N)",
+      "Joule (J)",
+      "Watt (W)"
+    ],
+    "correctIndex": 1,
+    "reward": 400
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Pascal (Pa)",
+      "Watt (W)",
+      "Joule (J)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 375
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Pascal (Pa)",
+      "Joule (J)",
+      "Watt (W)"
+    ],
+    "correctIndex": 0,
+    "reward": 358
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Pascal (Pa)",
+      "Watt (W)",
+      "Joule (J)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 437
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Pascal (Pa)",
+      "Newton (N)",
+      "Watt (W)",
+      "Joule (J)"
+    ],
+    "correctIndex": 1,
+    "reward": 361
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Joule (J)",
+      "Newton (N)",
+      "Pascal (Pa)",
+      "Watt (W)"
+    ],
+    "correctIndex": 1,
+    "reward": 344
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Pascal (Pa)",
+      "Watt (W)",
+      "Joule (J)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 418
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Pascal (Pa)",
+      "Newton (N)",
+      "Joule (J)",
+      "Watt (W)"
+    ],
+    "correctIndex": 1,
+    "reward": 376
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Joule (J)",
+      "Watt (W)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 0,
+    "reward": 495
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Joule (J)",
+      "Watt (W)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 0,
+    "reward": 386
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Joule (J)",
+      "Watt (W)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 0,
+    "reward": 444
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Watt (W)",
+      "Joule (J)",
+      "Pascal (Pa)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 477
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Pascal (Pa)",
+      "Watt (W)",
+      "Newton (N)",
+      "Joule (J)"
+    ],
+    "correctIndex": 2,
+    "reward": 408
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Pascal (Pa)",
+      "Newton (N)",
+      "Joule (J)",
+      "Watt (W)"
+    ],
+    "correctIndex": 1,
+    "reward": 348
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Watt (W)",
+      "Pascal (Pa)",
+      "Joule (J)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 442
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Pascal (Pa)",
+      "Watt (W)",
+      "Joule (J)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 390
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Joule (J)",
+      "Watt (W)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 0,
+    "reward": 427
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Pascal (Pa)",
+      "Joule (J)",
+      "Watt (W)"
+    ],
+    "correctIndex": 0,
+    "reward": 412
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Watt (W)",
+      "Pascal (Pa)",
+      "Joule (J)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 445
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Watt (W)",
+      "Joule (J)",
+      "Pascal (Pa)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 440
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Joule (J)",
+      "Newton (N)",
+      "Watt (W)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 1,
+    "reward": 445
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Joule (J)",
+      "Pascal (Pa)",
+      "Newton (N)",
+      "Watt (W)"
+    ],
+    "correctIndex": 2,
+    "reward": 428
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Joule (J)",
+      "Watt (W)",
+      "Pascal (Pa)"
+    ],
+    "correctIndex": 0,
+    "reward": 491
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Pascal (Pa)",
+      "Newton (N)",
+      "Joule (J)",
+      "Watt (W)"
+    ],
+    "correctIndex": 1,
+    "reward": 304
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Pascal (Pa)",
+      "Watt (W)",
+      "Joule (J)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 393
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Joule (J)",
+      "Pascal (Pa)",
+      "Watt (W)"
+    ],
+    "correctIndex": 0,
+    "reward": 441
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Newton (N)",
+      "Pascal (Pa)",
+      "Joule (J)",
+      "Watt (W)"
+    ],
+    "correctIndex": 0,
+    "reward": 450
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Watt (W)",
+      "Pascal (Pa)",
+      "Joule (J)",
+      "Newton (N)"
+    ],
+    "correctIndex": 3,
+    "reward": 487
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Joule (J)",
+      "Newton (N)",
+      "Pascal (Pa)",
+      "Watt (W)"
+    ],
+    "correctIndex": 1,
+    "reward": 439
+  },
+  {
+    "question": "Vật lý: Đơn vị của lực trong hệ SI là gì?",
+    "answers": [
+      "Pascal (Pa)",
+      "Newton (N)",
+      "Joule (J)",
+      "Watt (W)"
+    ],
+    "correctIndex": 1,
+    "reward": 443
   }
 ]
