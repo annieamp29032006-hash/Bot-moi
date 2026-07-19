@@ -6536,9 +6536,16 @@ Bao gồm:
         client.giveawaysManager.start(message.channel, {
             duration: ms(duration), winnerCount: parseInt(winnerCount), prize: prizeArr.join(' '),
             thumbnail: 'https://cdn.discordapp.com/attachments/1491631607596187688/1522254568258404362/ChatGPT_Image_20_45_14_25_thg_6_2026.png?ex=6a47cd8b&is=6a467c0b&hm=630c45b74df73c29dadfe2d3395b1aaf11b6227ab1ba82f640414315adf80aaf&',
-            image: 'https://cdn.discordapp.com/attachments/1491631607596187688/1522254567591645375/ChatGPT_Image_14_24_23_30_thg_6_2026.png?ex=6a47cd8b&is=6a467c0b&hm=8cb375c20d9328631636edad4a6084d392c058deb55ba98749b370d81435cedf&',
+            image: 'https://h.uguu.se/yFsUwgxj.png',
             hostedBy: message.author,
-            messages: giveawayMessages()
+            messages: {
+                giveaway: '🎉🎉 **SỰ KIỆN GIVEAWAY ĐẶC BIỆT** 🎉🎉',
+                giveawayEnded: '🛑 **SỰ KIỆN ĐÃ KẾT THÚC** 🛑',
+                title: '🎁 Phần thưởng: **{this.prize}**',
+                drawing: '⏳ **Thời gian kết thúc:** {timestamp}',
+                dropMessage: 'Hãy là người đầu tiên phản hồi bằng <a:1000063764:1492460870054182994> để nhận giải!',
+                inviteToParticipate: '✨ **CÁCH THỨC THAM GIA:**\n> 👇 Nhấn vào biểu tượng <a:1000063764:1492460870054182994> ở dưới để ghi danh!\n> 🍀 Chúc bạn may mắn nhé!\n\n👥 **Người tham gia hiện tại:** {this.messageReaction ? this.messageReaction.count - 1 : 0}'
+            }
         });
     }
 
