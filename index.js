@@ -2013,7 +2013,7 @@ async function handleTrivia(userId, msgOrInteraction, isNextRound = false) {
     
     const embed = new EmbedBuilder()
         .setTitle('🧠 Đố Vui Tập Thể!')
-        .setDescription(`**Câu hỏi:** ${questionData.question}\n\nMọi người có **30 giây** để chọn đáp án đúng! Phần thưởng: **${questionData.reward} ĐT**`)
+        .setDescription(`**Câu hỏi:** ${questionData.question}\n\nMọi người có **45 giây** để chọn đáp án đúng! Phần thưởng: **${questionData.reward} ĐT**`)
         .setColor('#9B59B6');
         
     const labels = ['A', 'B', 'C', 'D'];
@@ -2040,7 +2040,7 @@ async function handleTrivia(userId, msgOrInteraction, isNextRound = false) {
     }
     
     const filter = i => i.customId.startsWith('trivia_') && i.customId.includes(gameId);
-    const collector = msg.createMessageComponentCollector({ filter, time: 30000 });
+    const collector = msg.createMessageComponentCollector({ filter, time: 45000 });
     
     const answeredUsers = new Map();
     
