@@ -255,6 +255,18 @@ function buildHelpMenu() {
 // Map<guildId, { queue: [], player, connection, playing }>
 const musicQueues = new Map();
 
+function getQueue(guildId) {
+    if (!musicQueues.has(guildId)) {
+        musicQueues.set(guildId, {
+            queue: [],
+            player: null,
+            connection: null,
+            playing: false
+        });
+    }
+    return musicQueues.get(guildId);
+}
+
 
 
 // Tạo panel nút điều khiển nhạc (2 hàng)
