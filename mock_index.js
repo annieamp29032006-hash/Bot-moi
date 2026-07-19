@@ -8,7 +8,6 @@ const { MessageFlags, ChannelType,
 const { GiveawaysManager } = require('discord-giveaways');
 const ms = require('ms');
 const fs = require('fs');
-const TRIVIA_LIST = JSON.parse(fs.readFileSync('./trivia.json', 'utf8'));
 const axios = require('axios');
 
 const { execFile, spawn } = require('child_process');
@@ -16,7 +15,7 @@ const path = require('path');
 
 
 const cron = require('node-cron');
-const WW = require('./werewolf_engine.js');
+const WW = require('./werewolf.js');
 
 const voiceJoinTimes = new Map();
 
@@ -87,50 +86,16 @@ function getGuildConfig(guildId) {
 async function sendAdvLog(guild, type, embed) {
     if (!guild) return;
     const config = getGuildConfig(guild.id);
-    if (!config.advLogs) return;
-
-    // Advanced category mapping for cleaner logs
-    const categoryMap = {
-        'message': 'message-log',
-        'voice': 'member-log',
-        'member': 'member-log',
-        'channel': 'server-log',
-        'role': 'server-log',
-        'server': 'server-log',
-        'emoji': 'server-log',
-        'mod': 'mod-log',
-        'ticket': 'server-log',
-        'command': 'bot-log',
-        'bot': 'bot-log',
-        'error': 'bot-log'
-    };
-
-    const targetChannelKey = categoryMap[type] || (type + '-log');
-    
-    // Fallback to legacy channel names if they haven't re-run setupadvlogs
-    let channelId = config.advLogs[targetChannelKey] || config.advLogs[type + '-log'];
-    if (!channelId) return;
-
-    const channel = guild.channels.cache.get(channelId);
+    if (!config.advLogs || !config.advLogs[type + '-log']) return;
+    const channel = guild.channels.cache.get(config.advLogs[type + '-log']);
     if (channel) {
         try {
-            const enhancedEmbed = EmbedBuilder.from(embed);
-            
-            // Overhaul Aesthetics
-            enhancedEmbed.setFooter({ 
-                text: `Nexora Advanced Logs • ${type.toUpperCase()}`, 
-                iconURL: guild.iconURL() 
-            });
-            if (!enhancedEmbed.data.timestamp) enhancedEmbed.setTimestamp();
-            
-            // Send the beautiful embed
-            await channel.send({ embeds: [enhancedEmbed] });
+            await channel.send({ embeds: [embed] });
         } catch (error) {
             console.error(`Error sending adv log ${type}:`, error);
         }
     }
 }
-
 
 function updateGuildConfig(guildId, key, value) {
     const config = loadConfig();
@@ -162,89 +127,187 @@ function savePrefix(guildId, newPrefix) {
 // HELP PAGES SYSTEM
 // ========================
 function buildHelpPages(prefix) {
-    const color = '#2b2d31'; // Modern dark theme color for embeds
-    
     return [
         // Page 0 - Tổng quan
         new EmbedBuilder()
-            .setTitle('🌟 TỔNG QUAN HỆ THỐNG NEXORA')
-            .setDescription(`Chào mừng bạn đến với **Lavie Bot** ✨\nMột trợ lý đa năng, hiện đại và tối ưu hóa cho cộng đồng của bạn.\n\n\`\`\`🚀 Prefix hiện tại: ${prefix} (Hoặc dùng lệnh Slash /)\`\`\`\n\n📌 **Hướng dẫn:** Vui lòng chọn các danh mục bên dưới qua menu thả xuống để khám phá các tính năng của bot.`)
+            .setTitle('📖 Trợ Lý Bot — Tổng Quan')
+            .setDescription(`Xin chào! Tôi là **Hima Bot** ❄️\nBot đa năng: minigame, kinh tế, kết hôn, game Ma Sói và nhiều tiện ích khác!\n\n> Prefix hiện tại: **\`${prefix}\`**\n> Bạn có thể dùng **lệnh prefix** (ví dụ \`${prefix}daily\`) hoặc **slash command**\n\n📌 **Cách dùng menu:** Chọn danh mục bên dưới để xem hướng dẫn chi tiết từng nhóm lệnh.`)
             .addFields(
-                { name: '🎮 Giải Trí & Kinh Tế', value: '> Cày coin, Ngân hàng, Minigame', inline: true },
-                { name: '💕 Xã Hội & Tương Tác', value: '> Kết hôn, Lễ đường, Voice J2C', inline: true },
-                { name: '🐺 Game Ma Sói', value: '> Trải nghiệm Boardgame cực cuốn', inline: true },
-                { name: '🛡️ Quản Trị Hệ Thống', value: '> Cài đặt, Tù đày, Quản lý server', inline: true }
+                { name: '💰 Coin & Game', value: 'Daily, Work, Cờ bạc', inline: true },
+                { name: '🏦 Ngân Hàng', value: 'Gửi/Rút, Đầu tư, Cướp', inline: true },
+                { name: '💍 Kết Hôn', value: 'Mua nhẫn, Cầu hôn', inline: true },
+                { name: '💘 Lễ Đường', value: 'Thính, Bói, Cầu duyên', inline: true },
+                { name: '🐺 Ma Sói', value: 'Game đối kháng nhóm', inline: true },
+                { name: '📱 Tiện Ích', value: 'Avatar, TikTok, J2C', inline: true },
+                { name: '⛓️ Tù & LĐXH', value: 'Jail, Unjail, Spam cải tạo', inline: true },
+                { name: '🔧 Admin', value: 'Coin, Server, Emoji', inline: true },
+                { name: '⚙️ Hệ Thống', value: 'Giveaway, Cheat, Cài đặt', inline: true },
+                { name: '\u200b', value: '\u200b', inline: true }
             )
-            .setImage('https://media.tenor.com/t7rftXtbZxEAAAAd/discord-anime.gif')
-            .setColor(color)
-            .setFooter({ text: 'Trang 1/5 • Chọn danh mục bên dưới' })
+            .setColor('#5865F2')
+            .setFooter({ text: `Trang 1/11 • Chọn danh mục bên dưới` })
             .setTimestamp(),
 
-        // Page 1 - Giải Trí & Kinh Tế
+        // Page 1 - Coin & Minigame
         new EmbedBuilder()
-            .setTitle('🎮 GIẢI TRÍ & KINH TẾ')
-            .setDescription('Hệ thống tiền tệ (🪙) phong phú cùng các trò chơi giải trí, đầu tư và ngân hàng.')
+            .setTitle('💰 Tiền tệ & Minigame')
+            .setDescription(`Hệ thống tiền ảo (🪙) và các trò chơi giải trí để kiếm coin.\nMọi thành viên mới bắt đầu với **500,000 🪙**.`)
             .addFields(
-                { name: '💰 Kiếm Tiền', value: `> \`${prefix}daily\` - Nhận thưởng hằng ngày\n> \`${prefix}work\` - Làm việc kiếm coin\n\n> \`${prefix}dovui\` - Đố vui có thưởng> \`${prefix}noitu\` - Chơi nối từ nhận xu`, inline: true },
-                { name: '🏦 Ngân Hàng', value: `> \`${prefix}bank\` - Quản lý tài khoản (Gửi/Rút)\n> \`${prefix}robbank\` - Cướp ngân hàng\n> \`${prefix}dautu\` - Đầu tư sinh lời`, inline: true },
-                { name: '🎲 Cờ Bạc & Trò Chơi', value: `\`\`\`\n${prefix}tx    - Tài xỉu\n${prefix}bc    - Bầu cua\n${prefix}bj    - Blackjack\n${prefix}lode  - Lô đề\n${prefix}hack  - Hack tiền người khác\n\`\`\``, inline: false },
-                { name: '🐾 Pokemon & Cửa Hàng', value: `> \`/shop\` - Mua sắm (Pokeball, Hạt giống...)\n> \`${prefix}cp\` (Bắt) | \`${prefix}pets\` (Xem túi) | \`${prefix}pb\` (Đấu)\n> \`${prefix}farm\` - Trồng trọt, thu hoạch`, inline: false },
-                { name: '💳 Giao Dịch', value: `> \`${prefix}bal\` (Số dư) | \`${prefix}give\` (Chuyển tiền) | \`${prefix}top\` (BXH Giàu)`, inline: false }
+                { name: `\`${prefix}daily\` hoặc \`/daily\``, value: '📅 Nhận coin hằng ngày (10,000–50,000 🪙).\n• Chơi liên tiếp nhiều ngày sẽ được **thưởng chuỗi** (+5,000/ngày, tối đa +50,000).\n• Nghỉ quá 48h → chuỗi bị reset về 0.', inline: false },
+                { name: `\`${prefix}work\` hoặc \`/work\``, value: '💼 Chọn 1 trong 10 công việc để kiếm coin.\n• Từ **Nhặt ve chai** (1,000–5,000 🪙, 1 phút) đến **Giám đốc** (500,000–1,200,000 🪙, 60 phút).\n• Công việc lương cao hơn → thời gian chờ lâu hơn.', inline: false },
+                { name: `\`${prefix}bal [@user]\` hoặc \`/balance\``, value: '💵 Xem số dư coin (ví + bank) của bạn hoặc người khác.', inline: true },
+                { name: `\`${prefix}give @user <số>\` hoặc \`/give\``, value: '🎁 Tặng coin từ ví của bạn cho người khác.', inline: true },
+                { name: `\`${prefix}top\` hoặc \`/top\``, value: '🏆 Bảng xếp hạng Top 10 người giàu nhất server.', inline: true },
+                { name: '🎲 CÁC TRÒ CHƠI CỜ BẠC', value: `\`${prefix}tx <cược>\` — **Tài Xỉu**: Đoán tài/xỉu, thắng x2 tiền cược.\n\`${prefix}bc <cược>\` — **Bầu Cua**: Chọn con vật, trúng nhận x2.\n\`${prefix}bj <cược>\` — **Blackjack**: Xì Dách, thắng x2 (Blackjack x2.5).\n\`${prefix}lode <số 00-99> <cược>\` — **Lô đề**: Xổ số 18h30 hằng ngày, trúng **x5**.`, inline: false },
+                { name: `\`${prefix}noitu\` hoặc \`/noitu\``, value: '🧠 Nối Từ Tiếng Việt: Chơi nối từ ghép 2 tiếng với nhau.\n• Thưởng **1,000 🪙** cho mỗi từ đúng hợp lệ.\n• Không được nối 2 lần liên tiếp. Hết 60 giây kết thúc game.\n\`' + prefix + 'stopnoitu\` — Dừng game sớm.', inline: false },
+                { name: `\`${prefix}noituen\` hoặc \`/noituen\``, value: '🔤 Nối Từ Tiếng Anh: Ký tự cuối của từ = ký tự đầu từ tiếp theo.\n• VD: **apple** → **elephant** → **tiger** → ...\n• Thưởng **1,000 🪙** mỗi từ đúng. Hết 60 giây kết thúc.\n\`' + prefix + 'stopnoituen\` — Dừng game sớm.', inline: false }
             )
-            .setColor(color)
-            .setFooter({ text: 'Trang 2/5 • Giải Trí & Kinh Tế' }),
+            .setColor('#FFD700')
+            .setFooter({ text: 'Trang 2/11 • Coin & Minigame' })
+            .setTimestamp(),
 
-        // Page 2 - Xã Hội & Tương Tác
+        // Page 2 - Ngân hàng & Đầu tư
         new EmbedBuilder()
-            .setTitle('💕 XÃ HỘI & TƯƠNG TÁC')
-            .setDescription('Kết nối mọi người, tạo phòng Voice cá nhân và thăng cấp tương tác.')
+            .setTitle('🏦 Ngân Hàng & Đầu Tư')
+            .setDescription('Gửi tiền vào bank để bảo toàn tài sản (tránh mất khi thua cờ bạc), đầu tư sinh lời hoặc liều mình cướp bank!')
             .addFields(
-                { name: '💍 Kết Hôn', value: `> \`${prefix}marry [@user]\` - Cầu hôn\n> \`${prefix}divorce\` - Ly hôn`, inline: true },
-                { name: '💘 Lễ Đường', value: `> \`${prefix}thinh\` - Xin câu thả thính\n> \`${prefix}boitinhyeu\` - Bói tình duyên\n> \`${prefix}cauduyen\` - Rút quẻ`, inline: true },
-                { name: '🎧 Join To Create (J2C)', value: `> Tự động tạo phòng Voice khi tham gia kênh **"Tạo Phòng"**.\n\`\`\`\n/doiten  - Đổi tên phòng\n/gioihan - Giới hạn người\n/khoaan  - Ẩn phòng\n/khoavc  - Khóa phòng\n/kickvc  - Đuổi người\n\`\`\``, inline: false },
-                { name: '📱 Tiện Ích Khác', value: `> \`${prefix}av\` - Xem Avatar nét căng\n> \`${prefix}rank / toprank\` - Xem cấp độ tương tác\n> **Tải TikTok tự động** - Chỉ cần dán link vào chat!`, inline: false }
+                { name: `\`${prefix}bank\` hoặc \`/bank\``, value: '🏦 Mở bảng ngân hàng cá nhân với 4 nút bấm:\n• 📥 **Gửi Tiền** — Nhập số tiền muốn chuyển từ ví → bank\n• 📤 **Rút Tiền** — Nhập số tiền muốn rút từ bank → ví\n• 🏆 **Top Bank** — Xem bảng xếp hạng người giàu nhất bank\n• 🔄 **Làm mới** — Cập nhật lại số dư hiện tại', inline: false },
+                { name: `\`${prefix}dautu <số tiền>\` hoặc \`/dautu\``, value: '📈 Đầu tư cổ phiếu ngẫu nhiên:\n• Có thể **lãi tối đa +80%** số tiền đầu tư\n• Có thể **lỗ tối đa -50%** số tiền đầu tư\n• Kết quả hiện ngay sau khi bấm xác nhận\n• Ví dụ: Đầu tư 1,000,000 → lãi +800,000 hoặc lỗ -500,000', inline: false },
+                { name: `\`${prefix}robbank\` hoặc \`/robbank\``, value: '🏦 **Cướp ngân hàng hệ thống:**\n• 15% thành công → nhận thưởng lớn\n• Thất bại → mất 50% tiền mặt + bị tù 5 phút', inline: false },
+                { name: `\`${prefix}robbank @user\` hoặc \`/robbank @user\``, value: '🥷 **Cướp ngân hàng người khác:**\n• 40% thành công → lấy 10–30% tiền bank của họ\n• Thất bại → mất 30% tiền mặt + bị tù 3 phút', inline: false },
+                { name: `\`${prefix}nopphat\` hoặc \`/nopphat\``, value: '🚓 Đang bị tù? Nộp **100,000 🪙** để hối lộ và được thả tự do ngay lập tức!', inline: false },
+                { name: `\`${prefix}hack @user\` hoặc \`/hack\``, value: '💻 **Mạng Ngầm Dark Web:**\n• Hack người khác để trộm **5-15%** tiền của họ!\n• Yêu cầu: Cần mua **Laptop** và **Virus** trong Shop.\n• Minigame: Nhập 3 số không trùng nhau trong 4 lần thử.\n• Cảnh báo: Thất bại sẽ bị **mất Laptop và đi Tù 10 phút**.\n• Phòng thủ: Mua **Tường Lửa** trong Shop để chặn hack tự động.', inline: false },
+                { name: '💡 Mẹo quan trọng', value: '• Tiền trong **bank** an toàn, không bị mất khi thua cờ bạc!\n• Nhưng tiền bank **có thể bị cướp** bởi người khác qua lệnh \`robbank\`.\n• Bị tù → không dùng được bất kỳ lệnh nào ngoài \`nopphat\`.', inline: false }
             )
-            .setColor(color)
-            .setFooter({ text: 'Trang 3/5 • Xã Hội & Tương Tác' }),
+            .setColor('#2ECC71')
+            .setFooter({ text: 'Trang 3/11 • Ngân Hàng & Đầu Tư' })
+            .setTimestamp(),
 
-        // Page 3 - Ma Sói
+        // Page 3 - Kết hôn
         new EmbedBuilder()
-            .setTitle('🐺 GAME MA SÓI (WEREWOLF)')
-            .setDescription('Trải nghiệm Boardgame suy luận đỉnh cao ngay trong Discord!')
+            .setTitle('💍 Hệ Thống Kết Hôn')
+            .setDescription('Mua nhẫn, cầu hôn người ấy, xem bạn đời và ly hôn khi cần!')
             .addFields(
-                { name: '🎮 Cách Chơi', value: `> \`${prefix}masoi\` - Mở phòng chờ (Cần tối thiểu 4 người)\n> \`${prefix}wwstop\` - Hủy game (Dành cho Host/Admin)`, inline: false },
-                { name: '🎭 Các Vai Trò', value: `\`\`\`\n🐺 Ma Sói  - Giết 1 người mỗi đêm\n👨‍⚕️ Bác Sĩ  - Cứu 1 người mỗi đêm\n🔮 Tiên Tri - Soi vai trò 1 người\n🏹 Thợ Săn - Kéo theo 1 người khi chết\n👤 Dân Làng - Suy luận và vote treo cổ\n\`\`\``, inline: false },
-                { name: '🏆 Phần Thưởng', value: `> 🏅 Tham gia: **+10,000 🪙**\n> 🎉 Dân thắng: **+100,000 🪙**\n> 🐺 Sói thắng: **+300,000 🪙**`, inline: false }
+                { name: '💍 Bảng giá nhẫn', value: '🌿 Cỏ — 10M 🪙 │ 🥈 Bạc — 50M │ 🥇 Vàng — 200M\n💎 Kim Cương — 500M │ 👑 Vô Cực — 1B', inline: false },
+                { name: '📜 Lệnh kết hôn', value: `\`${prefix}marry @user\` — Cầu hôn (chọn nhẫn)\n\`${prefix}marry\` — Cầu hôn ngẫu nhiên\n\`${prefix}divorce\` — Ly hôn (phí 1M 🪙)`, inline: false }
             )
-            .setColor(color)
-            .setFooter({ text: 'Trang 4/5 • Ma Sói' }),
+            .setColor('#FF69B4')
+            .setFooter({ text: 'Trang 4/11 • Kết Hôn' })
+            .setTimestamp(),
 
-        // Page 4 - Quản Trị
+        // Page 4 - Lễ Đường
         new EmbedBuilder()
-            .setTitle('🛡️ QUẢN TRỊ & HỆ THỐNG')
-            .setDescription('Dành riêng cho Admin và Developer để vận hành server hiệu quả.')
+            .setTitle('💘 Lễ Đường — Thính & Cầu Duyên')
+            .setDescription('Khu vực linh thiêng dành cho chuyện tình cảm! Bot sẽ tự động thả react tim ở kênh **#thính**.')
             .addFields(
-                { name: '⛓️ Tù Đày', value: `> \`${prefix}jail [@user] [số]\` - Giam giữ người vi phạm\n> \`${prefix}unjail [@user]\` - Ân xá, thả tự do\n> \`${prefix}nopphat\` - Tự chuộc thân (100,000 🪙)`, inline: false },
-                { name: '🛡️ Bảo Mật', value: `> \`/antinuke / antiraid\` - Tắt/Mở Anti-Nuke, Anti-Raid\n> \`${prefix}setupjail\` - Setup Nhà tù tự động (Khóa Server)`, inline: false },
-                { name: '💰 Quản Lý Kinh Tế', value: `> \`${prefix}addcoin / removecoin / setcoin\` - Điều chỉnh tiền\n> \`${prefix}resetcoin / resetallcoin\` - Làm mới tiền\n> \`${prefix}giveall\` - Phát tiền cho cả server (Dev)`, inline: false },
-                { name: '⚙️ Cài Đặt Server', value: `> \`${prefix}setprefix\` - Đổi Prefix\n> \`/setwelcome / setpinggame / set1ar / setjail\` - Cài đặt tính năng\n> \`/setupadvlogs\` - Tạo hệ thống Log\n> \`${prefix}disable / enable\` - Tắt/Mở bot tại kênh`, inline: false },
-                { name: '🛠️ Tiện Ích Admin', value: `> \`${prefix}clear [số]\` - Xóa tin nhắn\n> \`${prefix}say\` - Nói thay Bot\n> \`${prefix}admincheat\` - Bảng điều khiển tối thượng\n> \`${prefix}gstart / gend / greroll\` - Giveaway\n> \`${prefix}leave sv\` - Rời server (Dev)`, inline: false }
+                { name: `\`${prefix}thinh\``, value: '💕 Xin Thần Cupid 1 câu thả thính ngẫu nhiên.', inline: true },
+                { name: `\`${prefix}boitinhyeu @user\``, value: '💘 Xem % hợp nhau giữa bạn và người được tag.', inline: true },
+                { name: `\`${prefix}cauduyen\``, value: '🙏 Rút quẻ tình duyên hôm nay.', inline: true },
+                { name: '🏹 Auto-React kênh #thính', value: 'Bot có 20% tỷ lệ tự thả emoji tim ❤️😍💘 vào mỗi tin nhắn trong kênh thính.', inline: false }
             )
-            .setColor(color)
-            .setFooter({ text: 'Trang 5/5 • Quản Trị & Hệ Thống' })
+            .setColor('#FF1493')
+            .setFooter({ text: 'Trang 5/11 • Lễ Đường' })
+            .setTimestamp(),
+
+        // Page 5 - Game Ma Sói
+        new EmbedBuilder()
+            .setTitle('🐺 Game Ma Sói (Werewolf)')
+            .setDescription('Tổ chức game Ma Sói ngay trong Discord! Trò chơi suy luận và đối kháng nhiều người.')
+            .addFields(
+                { name: `\`${prefix}masoi\` hoặc \`/masoi\``, value: '🎮 **Mở phòng chờ** game Ma Sói:\n• Cần tối thiểu **4 người chơi** để bắt đầu.\n• Host (người tạo) nhấn nút **Bắt đầu** khi đủ người.\n• Các vai được **chia ngẫu nhiên qua tin nhắn riêng (DM)**.\n• Trò chơi diễn ra theo chu kỳ **Đêm → Ngày**:\n  🌙 Đêm: Ma Sói chọn nạn nhân, các vai đặc biệt hành động.\n  ☀️ Ngày: Thảo luận 60 giây → Vote treo cổ kẻ tình nghi.', inline: false },
+                { name: `\`${prefix}wwstop\` hoặc \`/wwstop\``, value: '🛑 Hủy game Ma Sói đang diễn ra.\n• Chỉ **Host** (người tạo phòng) hoặc **Admin** mới được hủy.', inline: false },
+                { name: '🎭 Các vai trò trong game', value: '🐺 **Ma Sói** — Mỗi đêm chọn 1 người để giết.\n👨‍⚕️ **Bác Sĩ** — Mỗi đêm chọn 1 người để bảo vệ (cứu khỏi bị giết).\n🔮 **Tiên Tri** — Mỗi đêm soi 1 người để biết vai trò thật.\n🏹 **Thợ Săn** — Khi chết, được kéo theo 1 người cùng chết.\n👤 **Dân Làng** — Không có kỹ năng, nhưng phải suy luận để vote đúng.', inline: false },
+                { name: '🏆 Phần thưởng', value: '• 🏅 Tham gia: **+10,000 🪙** (cho tất cả)\n• 🎉 Thắng phe Dân: **+100,000 🪙**\n• 🐺 Thắng phe Sói: **+300,000 🪙**', inline: false }
+            )
+            .setColor('#34495E')
+            .setFooter({ text: 'Trang 6/11 • Game Ma Sói' })
+            .setTimestamp(),
+
+        // Page 6 - Tiện ích User
+        new EmbedBuilder()
+            .setTitle('📱 Tiện Ích & Voice (J2C)')
+            .setDescription('Các tính năng tự động, công cụ tiện lợi và hệ thống tự tạo phòng Voice.')
+            .addFields(
+                { name: `\`${prefix}av [@user]\` hoặc \`/av\``, value: '🖼️ Hiển thị **Avatar** (ảnh đại diện) ở kích thước lớn nhất.\nKèm thông tin: ngày tạo tài khoản Discord, ngày tham gia server.\nKhông tag ai → xem avatar của chính bạn.', inline: false },
+                { name: '📱 Tải Video TikTok (Tự động)', value: 'Chỉ cần **dán link TikTok** vào bất kỳ kênh chat nào, bot sẽ tự động:\n1. Phát hiện link TikTok\n2. Tải video **không watermark**\n3. Gửi video + thông tin (tên tác giả, lượt thích, lượt xem)\n\n✅ Không cần gõ lệnh gì cả!', inline: false },
+                { name: '🎧 Join To Create (J2C) — Tự tạo phòng Voice', value: `Vào kênh voice **"Tạo Phòng"** → Bot tự tạo phòng riêng cho bạn.\n\n**Slash Commands quản lý phòng:**\n📝 \`/doiten\` — Đổi tên phòng theo ý muốn\n👥 \`/gioihan\` — Giới hạn số người (0 = không giới hạn)\n👻 \`/khoaan\` — Bật/tắt ẩn phòng khỏi danh sách\n🔒 \`/khoavc\` — Bật/tắt khóa kết nối phòng\n👢 \`/kickvc @user\` — Kích 1 người ra khỏi phòng\n🚫 \`/1an @user\` — Ẩn phòng với 1 người cụ thể\n👑 **Nhận quyền Chủ phòng** — Nút bấm trên panel\n\n💡 **MẸO:** Phòng đang khóa nhưng muốn cho bạn bè vào? **@mention** tên họ vào kênh chat của phòng Voice!`, inline: false },
+                { name: '🔔 Tính năng tự động', value: '• 🎙️ **Thông báo Voice** — Bot báo khi có người vào/rời kênh thoại.\n• 👋 **Chào mừng** — Bot chào mừng thành viên mới tham gia server.\n• 🤖 **Auto-reply** — Bot tự trả lời khi ai gõ: \`ping\`, \`hello\`, \`hima\`.', inline: false },
+                { name: '📈 Cày Cấp Tương Tác', value: `\`${prefix}rank\` — Xem Cấp độ, XP, Tổng số tin nhắn và giờ Voice của bạn, kèm Kênh Yêu Thích.\n\`${prefix}toprank\` — Xem Bảng xếp hạng những người tương tác nhiều nhất server.`, inline: false }
+            )
+            .setColor('#00FF88')
+            .setFooter({ text: 'Trang 7/11 • Tiện ích & Voice' })
+            .setTimestamp(),
+
+        // Page 7 - Tù & Lao Động Xã Hội
+        new EmbedBuilder()
+            .setTitle('⛓️ Tù & Lao Động Xã Hội')
+            .setDescription('Hệ thống phạt cải tạo dành cho những thành viên vi phạm nội quy.')
+            .addFields(
+                { name: `\`${prefix}jail @user [số]\` *(Admin)*`, value: '⛓️ Tống user vào khu cải tạo, gắn role Tù.\nMặc định phải spam **500** tin nhắn. Có thể tuỳ chỉnh số lượng.', inline: false },
+                { name: `\`${prefix}unjail @user\` *(Admin)*`, value: '🕊️ Ân xá, thả user khỏi khu cải tạo, gỡ role Tù.', inline: false },
+                { name: '📋 Cơ chế hoạt động', value: '• User bị giam sẽ bị **gắn role Tù** và **không dùng được lệnh bot**.\n• Phải vào kênh cải tạo chỉ định và **spam tin nhắn** cho đủ số lượng.\n• Cứ mỗi **50 tin** sẽ có thông báo tiến độ.\n• Khi đủ → tự động gỡ role và trả tự do.\n• Tin nhắn chứa \`@everyone\`/\`@here\` bị **xóa ngay** và không tính.', inline: false }
+            )
+            .setColor('#E74C3C')
+            .setFooter({ text: 'Trang 8/11 • Tù & LĐXH' })
+            .setTimestamp(),
+
+        // Page 8 - Admin Quản lý
+        new EmbedBuilder()
+            .setTitle('🔧 Quản Lý (Admin)')
+            .setDescription('⚠️ Các lệnh bên dưới yêu cầu quyền **Administrator** hoặc là **Admin Chính** của bot.')
+            .addFields(
+                { name: '💰 Quản lý Coin của thành viên', value: `\`${prefix}addcoin @user <số>\` hoặc \`/addcoin\` — Cộng thêm coin cho 1 người\n\`${prefix}removecoin @user <số>\` hoặc \`/removecoin\` — Trừ bớt coin của 1 người\n\`${prefix}setcoin @user <số>\` hoặc \`/setcoin\` — Đặt chính xác số coin cho 1 người\n\`${prefix}resetcoin @user\` hoặc \`/resetcoin\` — Reset coin 1 người về 500,000\n\`${prefix}resetallcoin\` hoặc \`/resetallcoin\` — ⚠️ Reset coin **toàn bộ server** về 500,000\n\`${prefix}giveall <số>\` — Phát <số> coin cho **tất cả** thành viên (Chỉ Admin Chính)`, inline: false },
+                { name: '🛠️ Quản lý Server', value: `\`${prefix}clear <1-100>\` hoặc \`/clear\` — Xóa hàng loạt tin nhắn (từ 1 đến 100 tin)\n\`${prefix}say #kênh <nội dung>\` hoặc \`/say\` — Bot gửi tin nhắn vào kênh bạn chọn, thay mặt bot\n\`${prefix}resetwork @user\` hoặc \`/resetwork\` — Xóa cooldown làm việc cho 1 người (để họ work lại ngay)\n\`1ar @user\` — Cấp nhanh role đặc biệt (cài bằng \`/set1ar\`, có thể cấp quyền cho role khác)`, inline: false },
+                { name: '💳 QR Ngân Hàng', value: `\`${prefix}qr <số tiền>\` — Tạo mã QR chuyển khoản ngân hàng thật *(Admin Chính)*`, inline: false }
+            )
+            .setColor('#FF4444')
+            .setFooter({ text: 'Trang 9/11 • Admin Quản Lý' })
+            .setTimestamp(),
+
+        // Page 9 - Admin Hệ thống
+        new EmbedBuilder()
+            .setTitle('⚙️ Hệ Thống & Cài Đặt (Admin)')
+            .setDescription('Quản lý sự kiện, cài đặt tính năng bot và đặc quyền Admin Chính.')
+            .addFields(
+                { name: '🎁 Sự kiện Giveaway', value: `\`${prefix}gstart <thời gian> <số người thắng> <tên giải>\`\n→ Bắt đầu Giveaway. Ví dụ: \`${prefix}gstart 1h 1 Nitro Classic\`\n• Thời gian hỗ trợ: \`30s\`, \`5m\`, \`1h\`, \`1d\`...\n\n\`/gend <message_id>\` — Kết thúc Giveaway sớm\n\`/greroll <message_id>\` — Chọn lại người thắng`, inline: false },
+                { name: '⚙️ Cài đặt Bot', value: `\`${prefix}setprefix <dấu mới>\` — Đổi prefix bot\n\`/setwelcome\` — Cài đặt chào mừng\n\`/setupadvlogs\` — Khởi tạo 12 kênh Log Nâng Cao\n\`/setpinggame\` — Cài đặt hướng dẫn ping game\n\`/set1ar\` — Cài đặt lệnh & quyền cấp role nhanh\n\`/setjail\` — Cài đặt Khu cải tạo & Role Tù\n\`/togglevoice\` — Bật/Tắt thông báo thoại\n\`${prefix}disable\` / \`${prefix}enable\` — Tắt/Bật bot ở kênh hiện tại`, inline: false },
+                { name: '👑 Admin Cheat Panel (Chỉ Admin Chính)', value: `\`${prefix}admincheat\` hoặc \`/admincheat\`\nMở bảng điều khiển đặc biệt:\n• 🎰 Bật/Tắt chế độ **luôn thắng** tất cả trò cờ bạc\n• ⏱️ Bỏ qua mọi cooldown (daily, work...)\n• Các quyền năng đặc biệt khác`, inline: false },
+                { name: '🤖 Tính năng tự động', value: '• Chào mừng thành viên mới (cài \`/setwelcome\`)\n• Tự động hướng dẫn ping game (cài \`/setpinggame\`)\n• Ghi log voice (ai vào/rời)\n• Auto-reply: \`ping\` → pong!, \`hello\` → Xin chào!\n• Xóa phòng J2C trống, Xổ số lô đề 18h30', inline: false },
+                { name: '😀 Quản lý Emoji Bot', value: `\`${prefix}botemojis\` — Xem danh sách emoji đã upload cho bot\n\`${prefix}clonebotemojis\` — Copy toàn bộ emoji bot vào server *(Admin)*`, inline: false }
+            )
+            .setColor('#9B59B6')
+            .setFooter({ text: 'Trang 10/11 • Admin Hệ thống' })
+            .setTimestamp(),
+
+        // Page 10 - Chủ Bot
+        new EmbedBuilder()
+            .setTitle('👑 Hệ Thống (Developer) (Chủ Bot)')
+            .setDescription('Danh mục lệnh đặc biệt chỉ dành riêng cho Chủ Bot.')
+            .addFields(
+                { name: `\`${prefix}leave sv\` hoặc \`${prefix}leaveserver\``, value: '👋 Lệnh ép bot rời khỏi server hiện tại. (Người khác sẽ không dùng được)', inline: false }
+            )
+            .setColor('#000000')
+            .setFooter({ text: 'Trang 11/11 • Hệ Thống (Developer)' })
+            .setTimestamp()
     ];
 }
 
 function buildHelpMenu() {
     return new StringSelectMenuBuilder()
         .setCustomId('help_menu')
-        .setPlaceholder('📂 Khám phá tính năng...')
+        .setPlaceholder('📂 Chọn danh mục muốn xem...')
         .addOptions(
-            new StringSelectMenuOptionBuilder().setLabel('Tổng Quan').setValue('0').setDescription('Trang chính').setEmoji('🌟'),
-            new StringSelectMenuOptionBuilder().setLabel('Giải Trí & Kinh Tế').setValue('1').setDescription('Tiền tệ, Bank, Minigame').setEmoji('🎮'),
-            new StringSelectMenuOptionBuilder().setLabel('Xã Hội & Tương Tác').setValue('2').setDescription('Kết hôn, Lễ đường, Voice J2C').setEmoji('💕'),
-            new StringSelectMenuOptionBuilder().setLabel('Game Ma Sói').setValue('3').setDescription('Boardgame suy luận').setEmoji('🐺'),
-            new StringSelectMenuOptionBuilder().setLabel('Quản Trị & Hệ Thống').setValue('4').setDescription('Admin, Cài đặt, Developer').setEmoji('🛡️')
+            new StringSelectMenuOptionBuilder().setLabel('📖 Tổng quan').setValue('0').setDescription('Tất cả tính năng một cái nhìn').setEmoji('📖'),
+            new StringSelectMenuOptionBuilder().setLabel('💰 Coin & Game').setValue('1').setDescription('Daily, Work, Cờ bạc, Nối từ VN & EN').setEmoji('💰'),
+            new StringSelectMenuOptionBuilder().setLabel('🏦 Ngân Hàng').setValue('2').setDescription('Bank, Đầu tư, Cướp bank').setEmoji('🏦'),
+            new StringSelectMenuOptionBuilder().setLabel('💍 Kết Hôn').setValue('3').setDescription('Nhẫn, Cầu hôn, Ly hôn').setEmoji('💍'),
+            new StringSelectMenuOptionBuilder().setLabel('💘 Lễ Đường').setValue('4').setDescription('Thính, Bói tình yêu, Cầu duyên').setEmoji('💘'),
+            new StringSelectMenuOptionBuilder().setLabel('🐺 Ma Sói').setValue('5').setDescription('Game đối kháng nhóm').setEmoji('🐺'),
+            new StringSelectMenuOptionBuilder().setLabel('📱 Tiện Ích').setValue('6').setDescription('Avatar, TikTok, J2C, Voice').setEmoji('📱'),
+            new StringSelectMenuOptionBuilder().setLabel('⛓️ Tù & LĐXH').setValue('7').setDescription('Jail, Unjail, Cải tạo').setEmoji('⛓️'),
+            new StringSelectMenuOptionBuilder().setLabel('🔧 Admin: Quản lý').setValue('8').setDescription('Coin, Server, QR').setEmoji('🔧'),
+            new StringSelectMenuOptionBuilder().setLabel('⚙️ Admin: Hệ thống').setValue('9').setDescription('Giveaway, Cheat, Emoji').setEmoji('⚙️'),
+            new StringSelectMenuOptionBuilder().setLabel('👑 Hệ Thống (Developer)').setValue('10').setDescription('Lệnh riêng biệt của Chủ Bot').setEmoji('👑')
         );
 }
 
@@ -546,7 +609,7 @@ function buildBankEmbed(user) {
         .setColor('#00ffcc')
         .setThumbnail(user.displayAvatarURL())
         .setTimestamp()
-        .setFooter({ text: 'Hệ thống Ngân hàng Lavie ❄️' });
+        .setFooter({ text: 'Hệ thống Ngân hàng Hima ❄️' });
 }
 
 function buildBankButtons(ownerId) {
@@ -1039,13 +1102,6 @@ function loadRaid() {
     try { return JSON.parse(fs.readFileSync(raidPath, 'utf8')); } catch { return {}; }
 }
 function saveRaid(data) { fs.writeFileSync(raidPath, JSON.stringify(data, null, 2)); }
-
-
-function loadRPG() {
-    if (!fs.existsSync(rpgPath)) return {};
-    try { return JSON.parse(fs.readFileSync(rpgPath, 'utf8')); } catch { return {}; }
-}
-function saveRPG(data) { fs.writeFileSync(rpgPath, JSON.stringify(data, null, 2)); }
 function getRaidBoss() {
     const data = loadRaid();
     const now = Date.now();
@@ -1258,29 +1314,73 @@ function formatVoiceTime(seconds) {
     return parts.join(' ');
 }
 
-async function buildProfileEmbed(user) {
+function buildProfileEmbed(user) {
     const uid = user.id;
+    const cData = loadCoins();
     const pData = getPlayer(uid);
+    const stats = getPlayerStats(pData);
+    
+    const c = cData[uid] || { coins: 0, bank: 0, streak: 0 };
+    const coins = c.coins || 0;
+    const bank = c.bank || 0;
+    const streak = c.streak || 0;
     
     let marryText = 'Đang độc thân 💔';
-    let partnerAvatar = null;
-    if (pData.partner) {
-        marryText = `Đã kết hôn với <@${pData.partner}> 💍`;
-        try {
-            const partnerUser = await user.client.users.fetch(pData.partner).catch(()=>null);
-            if (partnerUser) {
-                partnerAvatar = partnerUser.displayAvatarURL({ dynamic: true, size: 512 });
+    if (pData.partner) marryText = `Đã kết hôn với <@${pData.partner}> 💍`;
+
+    let jobText = 'Đang rảnh rỗi';
+    if (c.workEnd && c.workJob) {
+        if (Date.now() < c.workEnd) {
+            const m = Math.floor((c.workEnd - Date.now())/60000);
+            jobText = `Đang làm: **${c.workJob}** (${m}p nữa)`;
+        } else {
+            jobText = `Đã làm xong: **${c.workJob}** (Chờ nhận lương)`;
+        }
+    }
+
+    const wName = pData.weapon ? RPG_ITEMS.weapons[pData.weapon].name : 'Tay không';
+    const aName = pData.armor ? RPG_ITEMS.armors[pData.armor].name : 'Đồ vải';
+    const artName = pData.artifact ? RPG_ITEMS.artifacts[pData.artifact].name : 'Chưa đeo';
+    const smallPot = pData.inventory?.small_potion || 0;
+    const largePot = pData.inventory?.large_potion || 0;
+
+    let petsText = 'Không có thú cưng 😢';
+    if (pData.pets && Object.keys(pData.pets).length > 0) {
+        let totalPets = 0;
+        let bestPet = null;
+        for (const pid of Object.keys(pData.pets)) {
+            const amount = pData.pets[pid] || 0;
+            if (amount > 0) {
+                totalPets += amount;
+                const petInfo = PET_LIST.find(x => x.id === pid);
+                if (petInfo) {
+                    if (!bestPet || petInfo.price > bestPet.price) {
+                        bestPet = petInfo;
+                    }
+                }
             }
-        } catch(e){}
+        }
+        if (totalPets > 0 && bestPet) {
+            petsText = `${bestPet.emoji} **${bestPet.name}** (Mạnh nhất)\n*(Sở hữu tổng cộng **${totalPets}** thú cưng)*`;
+        }
+    }
+
+    let profileColor = '#9B59B6';
+    if (pData.rpgClass && RPG_CLASSES[pData.rpgClass]) {
+        if (pData.rpgClass === 'warrior') profileColor = '#E74C3C';
+        else if (pData.rpgClass === 'mage') profileColor = '#3498DB';
+        else if (pData.rpgClass === 'assassin') profileColor = '#2ECC71';
+        else if (pData.rpgClass === 'archer') profileColor = '#F1C40F';
+        else if (pData.rpgClass === 'healer') profileColor = '#FFB6C1';
     }
 
     let attachment = null;
     let bdayText = 'Chưa cài đặt';
     let isBirthday = false;
 
+    const msgCount = pData.messageCount || 0;
     let vTime = pData.voiceTime || 0;
     
-    const session = typeof voiceJoinTimes !== 'undefined' ? voiceJoinTimes.get(uid) : null;
     if (session) {
         const joinTime = typeof session === 'number' ? session : session.time;
         const diffSecs = (Date.now() - joinTime) / 1000;
@@ -1295,27 +1395,27 @@ async function buildProfileEmbed(user) {
         if (`${d}/${m}` === pData.birthday) {
             isBirthday = true;
             try {
-                const { AttachmentBuilder } = require('discord.js');
                 attachment = new AttachmentBuilder('./birthday.png', { name: 'birthday.png' });
             } catch (e) {}
         }
     }
 
     const embed = new EmbedBuilder()
-        .setTitle(isBirthday ? `🎉 CHÚC MỪNG SINH NHẬT ${user.username.toUpperCase()} 🎉` : `👤 Hồ Sơ: ${user.username}`)
-        .setColor(isBirthday ? '#FF69B4' : '#9B59B6')
+        .setTitle(isBirthday ? `🎉 CHÚC MỪNG SINH NHẬT ${user.username.toUpperCase()} 🎉` : `👤 Hồ Sơ Nhập Vai: ${user.username}`)
+        .setColor(isBirthday ? '#FF69B4' : profileColor)
         .setThumbnail(user.displayAvatarURL({ dynamic: true, size: 512 }))
         .addFields(
-            { name: '🎤 Thời gian Voice', value: `**${formatVoiceTime(vTime)}**`, inline: true },
-            { name: '🎂 Ngày sinh nhật', value: bdayText, inline: true },
-            { name: '📅 Ngày tạo tài khoản', value: `<t:${Math.floor(user.createdTimestamp / 1000)}:D>`, inline: true },
-            { name: '💍 Hôn nhân', value: marryText, inline: false }
+            { name: '🔰 Thông Tin Cơ Bản', value: `Cấp độ: **${pData.level}** (${pData.exp}/${pData.level*100} EXP)\nSinh nhật: ${bdayText}\nHôn nhân: ${marryText}`, inline: false },
+            { name: '💰 Tài Sản & Hoạt Động', value: `Ví: **${coins.toLocaleString()} 🪙**\nNgân hàng: **${bank.toLocaleString()} 🪙**\nCông việc: ${jobText}`, inline: true },
+            { name: '🔥 Tương Tác', value: `💬 Tin nhắn: **${msgCount.toLocaleString()}**\n🎤 Thoại: **${formatVoiceTime(vTime)}**`, inline: true },
+            { name: '⚔️ Chỉ Số RPG', value: `Máu: ❤️ **${pData.hp} / ${stats.maxHp || pData.maxHp}**\nSát thương: 🗡️ **${stats.atk}**\nPhòng thủ: 🛡️ **${stats.def}**${pData.rpgClass && RPG_CLASSES[pData.rpgClass] ? `\nClass: ${RPG_CLASSES[pData.rpgClass].emoji} **${RPG_CLASSES[pData.rpgClass].name}**` : ''}`, inline: true },
+            { name: '🎒 Trang Bị', value: `Vũ khí: ${wName}\nÁo giáp: ${aName}\nTrang sức: ${artName}\nBình máu: 🧪x${smallPot} | 🧴x${largePot}`, inline: true },
+            { name: '📊 Thành Tích', value: `Điểm danh: **${streak}** ngày\n🏰 Dungeon: **${pData.dungeonClears || 0}** lần\n⚔️ PvP: **${pData.pvpWins || 0}W** - **${pData.pvpLosses || 0}L**`, inline: true },
+            { name: '🐾 Thú Cưng', value: petsText, inline: false }
         )
         .setTimestamp();
         
-    if (partnerAvatar) {
-        embed.setImage(partnerAvatar);
-    } else if (isBirthday && attachment) {
+    if (isBirthday && attachment) {
         embed.setImage('attachment://birthday.png');
     }
 
@@ -1388,6 +1488,7 @@ function buildShopEmbed(tab) {
 
 function buildShopCategoryRow() {
     return new ActionRowBuilder().addComponents(
+        new ButtonBuilder().setCustomId('shop_tab_rpg').setLabel('⚔️ Trang Bị RPG').setStyle(ButtonStyle.Primary),
         new ButtonBuilder().setCustomId('shop_tab_pet').setLabel('🐾 Bắt Pet').setStyle(ButtonStyle.Success),
         new ButtonBuilder().setCustomId('shop_tab_ring').setLabel('💍 Nhẫn Kết Hôn').setStyle(ButtonStyle.Secondary),
         new ButtonBuilder().setCustomId('shop_tab_farm').setLabel('🏡 Nông Trại').setStyle(ButtonStyle.Danger),
@@ -1466,7 +1567,7 @@ function buildShopSelectRow(tab) {
 }
 
 async function handleShop(userId, msgOrInteraction) {
-    let currentTab = 'pet';
+    let currentTab = 'rpg';
 
     const embed = buildShopEmbed(currentTab);
     const catRow = buildShopCategoryRow();
@@ -1485,12 +1586,12 @@ async function handleShop(userId, msgOrInteraction) {
         if (i.user.id !== userId) return i.reply({ content: '❌ Cửa hàng này không phải của bạn!', flags: MessageFlags.Ephemeral });
 
         // Tab buttons
-        if (i.customId === 'shop_tab_ring' || i.customId === 'shop_tab_pet' || i.customId === 'shop_tab_farm' || i.customId === 'shop_tab_tools') {
+        if (i.customId === 'shop_tab_rpg' || i.customId === 'shop_tab_ring' || i.customId === 'shop_tab_pet' || i.customId === 'shop_tab_farm' || i.customId === 'shop_tab_tools') {
             if (i.customId === 'shop_tab_ring') currentTab = 'ring';
             else if (i.customId === 'shop_tab_pet') currentTab = 'pet';
             else if (i.customId === 'shop_tab_farm') currentTab = 'farm';
             else if (i.customId === 'shop_tab_tools') currentTab = 'tools';
-            else currentTab = 'pet';
+            else currentTab = 'rpg';
             const newEmbed = buildShopEmbed(currentTab);
             const newCatRow = buildShopCategoryRow();
             const newSelectRow = buildShopSelectRow(currentTab);
@@ -1683,7 +1784,13 @@ async function handleCatchPet(userId, msgOrInteraction) {
     const cData = loadCoins();
     const isCheatOn = cData[userId]?.alwaysWin === true;
 
-    // cooldown removed
+    if (now - p.lastCatch < CATCH_COOLDOWN && !isCheatOn) {
+        const remaining = CATCH_COOLDOWN - (now - p.lastCatch);
+        const m = Math.floor(remaining / 60000);
+        const s = Math.floor((remaining % 60000) / 1000);
+        const msg = `⏳ Các Pokemon khu vực này đã hoảng sợ bỏ chạy. Hãy đợi **${m} phút ${s} giây** nữa để săn tiếp!`;
+        return msgOrInteraction.reply ? msgOrInteraction.reply({ content: msg, flags: MessageFlags.Ephemeral }) : msgOrInteraction.channel.send(msg);
+    }
     
     const ballTypes = ['basic_ball', 'great_ball', 'ultra_ball', 'master_ball'];
     let usedBall = null;
@@ -1795,11 +1902,71 @@ async function handlePets(userId, msgOrInteraction) {
         totalPetsCount += op.amount;
     }
     
-    embed.addFields({ name: '📊 Tổng Quan Thú Cưng', value: `Bạn đang sở hữu **${totalPetsCount}** thú cưng thuộc **${ownedPets.length}** loài khác nhau.`, inline: false });
+    embed.addFields({ name: '📊 Tổng Quan Thú Cưng', value: `Bạn đang sở hữu **${totalPetsCount}** thú cưng thuộc **${ownedPets.length}** loài khác nhau.\n*(Sử dụng menu bên dưới để xem chi tiết từng con)*`, inline: false });
 
-    return msgOrInteraction.reply ? msgOrInteraction.reply({ embeds: [embed] }) : msgOrInteraction.channel.send({ embeds: [embed] });
+    ownedPets.sort((a, b) => b.pet.price - a.pet.price);
+    const options = ownedPets.slice(0, 25).map(p => 
+        new StringSelectMenuOptionBuilder()
+            .setLabel(`Xem ${p.pet.name} (Có: ${p.amount})`)
+            .setValue(`viewpet_${p.pet.id}`)
+            .setDescription(`Độ hiếm: ${p.pet.rarity}`)
+            .setEmoji(p.pet.emoji)
+    );
+
+    const row = new ActionRowBuilder().addComponents(
+        new StringSelectMenuBuilder().setCustomId(`viewpet_select_${userId}`).setPlaceholder('🔍 Chọn thú cưng để xem hình ảnh...').addOptions(options)
+    );
+
+    let msg;
+    if (msgOrInteraction.reply && typeof msgOrInteraction.reply === 'function') {
+        if (msgOrInteraction.isCommand && msgOrInteraction.isCommand()) {
+            await msgOrInteraction.reply({ embeds: [embed], components: [row] });
+            msg = await msgOrInteraction.fetchReply();
+        } else {
+            msg = await msgOrInteraction.reply({ embeds: [embed], components: [row] });
+        }
+    } else {
+        msg = await msgOrInteraction.channel.send({ embeds: [embed], components: [row] });
+    }
+
+    const collector = msg.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 60000 });
+    collector.on('collect', async i => {
+        if (i.user.id !== userId) return i.reply({ content: '❌ Đây không phải là chuồng thú của bạn!', flags: MessageFlags.Ephemeral });
+        
+        const petId = i.values[0].replace('viewpet_', '');
+        const selectedPet = PET_LIST.find(p => p.id === petId);
+        
+        if (selectedPet) {
+            let color = '#FFFFFF';
+            if (selectedPet.rarity === 'Thường') color = '#AAB7B8';
+            if (selectedPet.rarity === 'Hiếm') color = '#3498DB';
+            if (selectedPet.rarity === 'Cực Hiếm') color = '#9B59B6';
+            if (selectedPet.rarity === 'Thần Thoại') color = '#E74C3C';
+            if (selectedPet.rarity === 'Huyền Thoại') color = '#F1C40F';
+            if (selectedPet.rarity === 'Hệ Thống (Developer)') color = '#00FFFF';
+
+            const petAmount = pets[petId] || 0;
+            const detailEmbed = new EmbedBuilder()
+                .setTitle(`${selectedPet.emoji} ${selectedPet.name}`)
+                .addFields(
+                    { name: '🌟 Độ Hiếm', value: `**${selectedPet.rarity}**`, inline: true },
+                    { name: '💰 Giá Trị', value: `**${selectedPet.price.toLocaleString()} 🪙**`, inline: true },
+                    { name: '📦 Số lượng sở hữu', value: `**${petAmount}** con`, inline: true }
+                )
+                .setColor(color)
+                .setImage(selectedPet.imageUrl);
+            
+            await i.reply({ embeds: [detailEmbed], flags: MessageFlags.Ephemeral });
+        } else {
+            await i.reply({ content: '❌ Lỗi: Không tìm thấy thú cưng này.', flags: MessageFlags.Ephemeral });
+        }
+    });
+    
+    collector.on('end', () => {
+        if (msgOrInteraction.editReply) msgOrInteraction.editReply({ components: [] }).catch(() => {});
+        else if (msg.edit) msg.edit({ components: [] }).catch(() => {});
+    });
 }
-
 
 async function handleSellPet(userId, msgOrInteraction) {
     const p = getPlayer(userId);
@@ -2004,96 +2171,6 @@ async function handlePetBattle(userId, targetId, bet, msgOrInteraction) {
     );
     
     return replyMsg(msgOrInteraction, { content: `<@${targetId}>, bạn có lời thách đấu!`, embeds: [embed], components: [row] });
-}
-
-
-async function handleTrivia(userId, msgOrInteraction) {
-    const questionData = TRIVIA_LIST[Math.floor(Math.random() * TRIVIA_LIST.length)];
-    const gameId = Date.now().toString();
-    
-    const embed = new EmbedBuilder()
-        .setTitle('🧠 Đố Vui Tập Thể!')
-        .setDescription(`**Câu hỏi:** ${questionData.question}\n\nMọi người có **30 giây** để chọn đáp án đúng! Phần thưởng: **${questionData.reward} ĐT**`)
-        .setColor('#9B59B6');
-        
-    const labels = ['A', 'B', 'C', 'D'];
-    const buttons = questionData.answers.map((ans, index) => {
-        return new ButtonBuilder()
-            .setCustomId(`trivia_${index}_${gameId}`)
-            .setLabel(`${labels[index]}. ${ans}`)
-            .setStyle(ButtonStyle.Primary);
-    });
-    
-    const row = new ActionRowBuilder().addComponents(buttons);
-    
-    let msg;
-    if (msgOrInteraction.reply && typeof msgOrInteraction.reply === 'function') {
-        if (msgOrInteraction.isCommand && msgOrInteraction.isCommand()) {
-            await msgOrInteraction.reply({ embeds: [embed], components: [row] });
-            msg = await msgOrInteraction.fetchReply();
-        } else {
-            msg = await msgOrInteraction.reply({ embeds: [embed], components: [row] });
-        }
-    } else {
-        msg = await msgOrInteraction.channel.send({ embeds: [embed], components: [row] });
-    }
-    
-    const filter = i => i.customId.startsWith('trivia_') && i.customId.includes(gameId);
-    const collector = msg.createMessageComponentCollector({ filter, time: 30000 });
-    
-    const answeredUsers = new Map();
-    
-    collector.on('collect', async i => {
-        if (answeredUsers.has(i.user.id)) {
-            return i.reply({ content: '❌ Bạn đã chọn đáp án rồi, không thể đổi lại!', flags: MessageFlags.Ephemeral });
-        }
-        
-        const parts = i.customId.split('_');
-        const selectedIndex = parseInt(parts[1]);
-        
-        answeredUsers.set(i.user.id, selectedIndex);
-        await i.reply({ content: `✅ Bạn đã khóa đáp án **${labels[selectedIndex]}**! Hãy chờ hết giờ để xem kết quả.`, flags: MessageFlags.Ephemeral });
-    });
-    
-    collector.on('end', () => {
-        const disabledRow = new ActionRowBuilder().addComponents(
-            buttons.map((b, idx) => {
-                const btn = ButtonBuilder.from(b).setDisabled(true);
-                if (idx === questionData.correctIndex) btn.setStyle(ButtonStyle.Success);
-                return btn;
-            })
-        );
-        
-        const winners = [];
-        
-        answeredUsers.forEach((selectedIndex, uId) => {
-            if (selectedIndex === questionData.correctIndex) {
-                winners.push(`<@${uId}>`);
-                updatePlayer(uId, p => {
-                    p.coins += questionData.reward;
-                });
-            }
-        });
-        
-        let resultMsg = `**Câu hỏi:** ${questionData.question}\n\n⏰ **HẾT GIỜ!** Đáp án đúng là **${labels[questionData.correctIndex]}**.\n\n`;
-        
-        if (winners.length > 0) {
-            embed.setColor('#2ECC71');
-            resultMsg += `🎉 **Chúc mừng những người trả lời đúng nhận được ${questionData.reward} ĐT:**\n${winners.join(', ')}`;
-        } else {
-            embed.setColor('#E74C3C');
-            if (answeredUsers.size === 0) {
-                resultMsg += `😢 Không có ai tham gia trả lời.`;
-            } else {
-                resultMsg += `😢 Rất tiếc, không có ai trả lời đúng!`;
-            }
-        }
-        
-        embed.setDescription(resultMsg);
-        
-        if (msgOrInteraction.editReply) msgOrInteraction.editReply({ embeds: [embed], components: [disabledRow] }).catch(()=>{});
-        else if (msg.edit) msg.edit({ embeds: [embed], components: [disabledRow] }).catch(()=>{});
-    });
 }
 
 function replyMsg(interaction, options) {
@@ -3288,76 +3365,7 @@ const QUOTES_TYDC = [
     "📱 Có những cuộc trò chuyện dài cả tháng, nhưng chẳng đủ để đổi lấy một lần chân thành.",
     "🫠 Điều buồn nhất không phải bị xóa bạn, mà là nhận ra mình chưa từng là ưu tiên.",
     "🥀 Discord chỉ là ứng dụng, người khiến em thất vọng mới là vấn đề.",
-    "☠️ Tình yêu Discord cũng như Wi-Fi công cộng: lúc đầu kết nối rất nhanh, dùng một thời gian mới biết... ai cũng đang truy cập.",
-    "💀 TYDC à? Yêu nhau chưa đủ một tháng đã gọi nhau là \"chồng - vợ\", chia tay thì quay về \"bro\".",
-    "🤡 TYDC là nơi lời hứa sống ngắn hơn thời hạn Nitro.",
-    "🎭 Bảo \"chỉ yêu mình em\", Discord thì mở 15 tab DM.",
-    "📶 Tình yêu của họ phụ thuộc vào Wi-Fi, không phải lòng chung thủy.",
-    "🎤 Giọng thì 10 điểm, nhân cách chờ bản cập nhật.",
-    "💌 Bio ghi \"Taken ❤️\", nhưng tim thì phát miễn phí cả server.",
-    "👀 Mỗi server một người yêu, vẫn tự nhận mình chung tình.",
-    "🎮 Leo rank không nổi nhưng leo vào tim người khác thì nhanh lắm.",
-    "🚪 Hôm qua còn \"mãi mãi\", hôm nay \"User not found\".",
-    "💔 Yêu nhau bằng avatar AI, chia tay vì bật camera.",
-    "🤣 Discord không thiếu tình yêu, chỉ thiếu người không yêu cả server.",
-    "🌚 Mới quen 3 ngày đã tính đặt tên con.",
-    "🎭 Đổi avatar đôi còn nhanh hơn đổi tính nết.",
-    "📱 Online 24/24 nhưng rep tin nhắn thì \"xin lỗi anh bận\".",
-    "🐍 Miệng nói \"không thích drama\", chân chạy đầu tiên vào drama.",
-    "💀 TYDC giống game thử nghiệm, update người yêu liên tục.",
-    "🎪 Yêu nhau công khai để thiên hạ biết, chia tay âm thầm vì ngại quê.",
-    "😂 Không phải yêu online, mà là sưu tầm người yêu online.",
-    "📢 Ping @everyone còn ít hơn ping người yêu mỗi khi cãi nhau.",
-    "🎨 Avatar đôi chỉ là dấu hiệu cho thấy sắp có avatar mới.",
-    "🍿 TYDC không cần kết thúc đẹp, chỉ cần đủ drama để cả server hóng.",
-    "🫠 Lúc tán thì \"em là duy nhất\", lúc chia tay thì \"coi nhau như bạn nhé\".",
-    "🎯 Hứa cưới nhau sau này, hiện tại còn chưa biết tên thật.",
-    "🎭 Yêu qua Discord nhưng diễn như nhận giải Oscar.",
-    "🪞 Camera là máy phát hiện sự thật nhanh nhất của TYDC.",
-    "💬 Một câu \"ngủ ngon ❤️\" gửi cho nhiều người thì vẫn là ngủ ngon mà.",
-    "😶 Tình yêu online bền nhất là khi chưa ai đòi gặp mặt.",
-    "🧃 Đừng gọi đó là tình yêu, gọi là \"đúng lúc đang cô đơn\".",
-    "📉 Độ chung thủy tỉ lệ nghịch với số server đang tham gia.",
-    "🧠 Điều duy nhất họ nhớ là UID của người yêu cũ.",
-    "🔥 Discord là nơi biến \"em là tất cả\" thành \"ai đây?\".",
-    "🤝 Chia tay xong vẫn chung server, nhưng block để tỏ vẻ trưởng thành.",
-    "🗿 Nói ghét red flag, nhưng toàn yêu cột cờ.",
-    "🎪 Drama TYDC nhiều hơn số tin nhắn yêu thật lòng.",
-    "🥇 Huy chương vàng môn hứa hẹn thuộc về các cặp đôi Discord.",
-    "💸 Nitro hết hạn còn gia hạn được, niềm tin thì không.",
-    "📦 Tình yêu đóng gói bằng sticker, vận chuyển bằng lời hứa, nhận hàng là thất vọng.",
-    "🌧️ TYDC: yêu nhanh, nhớ lâu, quên chậm, quay lại nhiều.",
-    "🎭 Cả server biết hai đứa yêu nhau trước khi hai đứa kịp hiểu nhau.",
-    "💀 Đừng hỏi TYDC có thật không. Hỏi xem nó tồn tại được bao lâu.",
-    "💘 \"Anh chỉ thích mình em.\" — Phần còn lại nằm trong mục **Tin nhắn đang chờ.** 🤡",
-    "🌹 \"Em là người cuối cùng.\" — Cuối cùng... của tuần này.",
-    "💬 \"Anh không biết thả thính đâu.\" — Chỉ biết rải đại trà thôi.",
-    "🥺 \"Anh nhớ em.\" — Gửi nhầm cho cả danh sách bạn bè.",
-    "❤️ \"Em là ngoại lệ.\" — Ngoại lệ số 18.",
-    "✨ \"Anh chưa từng rung động như thế.\" — Kể từ... tối qua.",
-    "🌙 \"Ngủ ngon nha bé.\" — Tin nhắn mẫu, chỉ thay tên người nhận.",
-    "💍 \"Sau này mình cưới nhé.\" — Sau khi cưới vài người trong tưởng tượng đã.",
-    "🎭 \"Anh chỉ mở lòng với em.\" — Còn DM thì mở với cả server.",
-    "📱 \"Anh bận thật mà.\" — Bận call với người khác.",
-    "🎤 \"Giọng em dễ thương quá.\" — Câu này anh thuộc lòng rồi.",
-    "💌 \"Em khác những người còn lại.\" — Vì người còn lại cũng được nghe câu này.",
-    "🤍 \"Anh sẽ không bỏ em đâu.\" — Chỉ bỏ rep thôi.",
-    "🫶 \"Anh yêu tính cách của em.\" — Vì mặt còn chưa thấy.",
-    "🌸 \"Em là định mệnh.\" — Discord ghép chung voice thì thành định mệnh.",
-    "🎮 \"Chơi game với em vui hơn.\" — Vì người kia chưa online.",
-    "💖 \"Anh chỉ để ý mỗi em.\" — Nếu bỏ qua danh sách Following.",
-    "🌹 \"Cho anh cơ hội nhé.\" — Để anh có thêm một người trong bio.",
-    "😂 \"Anh nghiêm túc.\" — Nghiêm túc... mỗi lần tán.",
-    "💀 Thả thính như dân chuyên nghiệp, giữ lời hứa như mạng 3G.",
-    "🤡 Miệng thì rải thính, tim thì phát hành phiên bản dùng thử.",
-    "🎣 Thính không thiếu, chỉ thiếu người chưa dính.",
-    "🪝 Thả thính cả server rồi bảo \"anh hướng nội\".",
-    "🍃 Gió thì không có, mà thính bay khắp nơi.",
-    "🎪 Đừng trách cá cắn câu, trách mồi giống nhau quá.",
-    "📦 Thính sản xuất hàng loạt, cảm xúc gia công.",
-    "🎯 Không sợ hết thính, chỉ sợ hết người để thả.",
-    "🗿 Thả thính như nghệ thuật, yêu thật như truyền thuyết.",
-    "🚩 Red flag đẹp nhất là câu: \"Anh chỉ nói vậy với mình em.\""
+    "☠️ Tình yêu Discord cũng như Wi-Fi công cộng: lúc đầu kết nối rất nhanh, dùng một thời gian mới biết... ai cũng đang truy cập."
 ];
 
 const BIEN_SO_JOKES = {
@@ -3475,18 +3483,11 @@ const QUE_TINH_DUYEN = [
 ];
 
 const MARRY_RINGS = {
-    'grass': { name: 'Nhẫn Cỏ Dại', price: 10000000, emoji: '🌿' },
-    'silver': { name: 'Nhẫn Bạc Thô', price: 20000000, emoji: '🥈' },
-    'gold': { name: 'Nhẫn Vàng Cổ Điển', price: 30000000, emoji: '🥇' },
-    'ruby': { name: 'Nhẫn Hồng Ngọc Đam Mê', price: 45000000, emoji: '💖' },
-    'sapphire': { name: 'Nhẫn Lam Ngọc Thuỷ Chung', price: 60000000, emoji: '💙' },
-    'emerald': { name: 'Nhẫn Ngọc Lục Bảo Hy Vọng', price: 75000000, emoji: '💚' },
-    'diamond': { name: 'Nhẫn Kim Cương Lấp Lánh', price: 90000000, emoji: '💎' },
-    'amethyst': { name: 'Nhẫn Tử Tinh Mộng Mơ', price: 110000000, emoji: '💜' },
-    'obsidian': { name: 'Nhẫn Hắc Diện Thạch Bí Ẩn', price: 130000000, emoji: '🖤' },
-    'infinity': { name: 'Nhẫn Quyền Năng Vô Cực', price: 150000000, emoji: '👑' },
-    'eternal': { name: 'Nhẫn Tình Yêu Vĩnh Cửu', price: 175000000, emoji: '💞' },
-    'celestial': { name: 'Nhẫn Tinh Tú Thiên Hà', price: 200000000, emoji: '🌌' }
+    'grass': { name: 'Nhẫn Cỏ', price: 10000000, emoji: '🌿', atkBonus: 10, defBonus: 10, hpBonus: 50 },
+    'silver': { name: 'Nhẫn Bạc', price: 50000000, emoji: '🥈', atkBonus: 50, defBonus: 50, hpBonus: 200 },
+    'gold': { name: 'Nhẫn Vàng', price: 200000000, emoji: '🥇', atkBonus: 150, defBonus: 150, hpBonus: 500 },
+    'diamond': { name: 'Nhẫn Kim Cương', price: 500000000, emoji: '💎', atkBonus: 300, defBonus: 300, hpBonus: 1000 },
+    'infinity': { name: 'Nhẫn Vô Cực', price: 1000000000, emoji: '👑', atkBonus: 800, defBonus: 800, hpBonus: 3000 }
 };
 
 async function handleMarry(userId, targetId, msgOrInteraction) {
@@ -3517,48 +3518,22 @@ async function handleMarry(userId, targetId, msgOrInteraction) {
     
     const embed = new EmbedBuilder()
         .setTitle('💍 Chọn Nhẫn Cầu Hôn')
-        .setDescription(`Để cầu hôn <@${finalTargetId}>, bạn cần chuẩn bị một chiếc nhẫn thật xứng đáng.\nHãy chọn loại nhẫn bạn muốn trao:`)
+        .setDescription(`Để cầu hôn <@${finalTargetId}>, bạn cần chuẩn bị một chiếc nhẫn thật xứng đáng.\nHãy chọn loại nhẫn bạn muốn mua:`)
         .setColor('#FF69B4');
         
-    const options = [];
-    if (p1.rings) {
-        for (const [id, count] of Object.entries(p1.rings)) {
-            if (count > 0 && MARRY_RINGS[id]) {
-                const r = MARRY_RINGS[id];
-                options.push(
-                    new StringSelectMenuOptionBuilder()
-                        .setLabel(`${r.name}`)
-                        .setValue(id)
-                        .setDescription(`Số lượng đang có: ${count}`)
-                        .setEmoji(r.emoji)
-                );
-            }
-        }
-    }
-
-    if (options.length === 0) {
-        return replyMsg(msgOrInteraction, '❌ Bạn chưa có chiếc nhẫn nào trong túi! Hãy dùng lệnh `/shop` hoặc `!shop` để mua nhẫn trước khi đi cầu hôn nhé!');
-    }
+    const options = Object.entries(MARRY_RINGS).map(([id, r]) => {
+        return new StringSelectMenuOptionBuilder()
+            .setLabel(`${r.name}`)
+            .setValue(id)
+            .setDescription(`Giá: ${r.price.toLocaleString()} 🪙`)
+            .setEmoji(r.emoji);
+    });
 
     const row = new ActionRowBuilder().addComponents(
         new StringSelectMenuBuilder().setCustomId(`marry_ring_${userId}_${finalTargetId}`).setPlaceholder('💍 Chọn nhẫn...').addOptions(options)
     );
         
     return replyMsg(msgOrInteraction, { embeds: [embed], components: [row] });
-}
-
-async function handleSetBday(userId, msgOrInteraction, dateStr) {
-    if (!dateStr || !/^(0[1-9]|[12]\d|3[01])\/(0[1-9]|1[0-2])$/.test(dateStr)) {
-        return replyMsg(msgOrInteraction, '❌ Định dạng ngày tháng không hợp lệ! Vui lòng dùng định dạng **DD/MM** (ví dụ: 29/03).');
-    }
-    const p = getPlayer(userId);
-    if (p.birthday) {
-        return replyMsg(msgOrInteraction, `❌ Bạn đã cài đặt sinh nhật là **${p.birthday}** rồi! Không thể thay đổi được nữa. Nếu cần đổi, hãy nhờ Admin nhé!`);
-    }
-    updatePlayer(userId, dp => {
-        dp.birthday = dateStr;
-    });
-    return replyMsg(msgOrInteraction, `🎉 Cài đặt sinh nhật thành công! Bot đã ghi nhận sinh nhật của bạn là **${dateStr}**.\nĐến ngày đó hãy gõ \`/profile\` để nhận bất ngờ nhé!`);
 }
 
 async function handleDivorce(userId, msgOrInteraction) {
@@ -4147,13 +4122,13 @@ const greetingResponses = [
     "Meow meow, chào đằng ấy nha! 🐾",
     "Xin chào người đẹp! Chúc cậu một ngày đầy nắng và tiếng cười! ✨",
     "Uwaaa, gặp được cậu ở đây thật là dui quá đi! (≧◡≦) ♡",
-    "Bíp bíp! Bot Lavie xin gửi đến bạn một cái ôm ấm áp! 🤗",
+    "Bíp bíp! Bot Hima xin gửi đến bạn một cái ôm ấm áp! 🤗",
     
     // Nghiêm túc / Lịch sự
     "Xin chào bạn. Tôi có thể giúp gì cho bạn hôm nay?",
     "Chào bạn! Chúc bạn một ngày làm việc và học tập hiệu quả.",
     "Kính chào quý khách. Rất hân hạnh được phục vụ.",
-    "Xin chào. Hệ thống Lavie Bot luôn sẵn sàng hỗ trợ bạn.",
+    "Xin chào. Hệ thống Hima Bot luôn sẵn sàng hỗ trợ bạn.",
     
     // Ngầu / Lạnh lùng
     "Chào. Có việc gì không?",
@@ -4168,27 +4143,14 @@ const greetingResponses = [
     "Hello bóng hồng/nam thần! Lâu rồi không gặp!"
 ];
 
-const anmQuotes = [
-    "📖 **Điều 1 - Phạm vi**\nQuy định về bảo vệ an ninh mạng, quyền và nghĩa vụ của tổ chức, cá nhân trên không gian mạng.",
-    "📖 **Điều 2 - An ninh mạng**\nBảo đảm hệ thống thông tin và dữ liệu an toàn, bảo vệ quyền lợi hợp pháp của tổ chức, cá nhân.",
-    "📖 **Điều 5 - Bảo vệ an ninh mạng**\n• Giám sát hệ thống.\n• Phòng, chống tấn công mạng.\n• Ứng phó sự cố.\n• Ngăn chặn thông tin vi phạm.",
-    "🚫 **Hành vi bị nghiêm cấm**\n• Đăng, chia sẻ tin giả.\n• Xúc phạm, vu khống người khác.\n• Mạo danh cá nhân, tổ chức.\n• Hack, phát tán mã độc.\n• Đánh cắp, mua bán dữ liệu cá nhân.\n• Lừa đảo trên không gian mạng.\n• Kích động bạo lực, chống phá Nhà nước.",
-    "👤 **Trách nhiệm người dùng**\n• Tuân thủ pháp luật.\n• Không phát tán nội dung vi phạm.\n• Bảo vệ tài khoản và thông tin cá nhân.\n• Hợp tác với cơ quan chức năng khi có yêu cầu theo quy định.",
-    "🏢 **Trách nhiệm nền tảng**\n• Bảo vệ dữ liệu người dùng.\n• Gỡ bỏ nội dung vi phạm theo quy định.\n• Phối hợp với cơ quan có thẩm quyền."
-];
-
 const autoReplies = {
-    'lavie': `Lavie chào bạn ạ, bạn cần làm code bot custom cho server liên hệ với <@${ADMIN_ID}> . Cảm ơn bạn ạ`,
-    'anm': anmQuotes
+    'hima': `Hima chào bạn ạ, bạn cần làm code bot custom cho server liên hệ với <@${ADMIN_ID}> . Cảm ơn bạn ạ`
 };
 
 // ========================
 // SLASH COMMANDS
 // ========================
 const slashCommands = [
-    new SlashCommandBuilder()
-        .setName('dovui')
-        .setDescription('🧠 Tham gia đố vui để nhận tiền thưởng!'),
     new SlashCommandBuilder()
         .setName('help')
         .setDescription('Xem danh sách các tính năng của bot.'),
@@ -4337,7 +4299,7 @@ const slashCommands = [
         .addStringOption(o => o.setName('amount').setDescription('Số tiền (hoặc "all")').setRequired(true)),
     new SlashCommandBuilder()
         .setName('marry')
-        .setDescription('💍 Cầu hôn người chơi khác bằng những chiếc nhẫn lãng mạn.')
+        .setDescription('💍 Ghép đôi ngẫu nhiên hoặc cầu hôn (Phí nhẫn 50,000 Coin).')
         .addUserOption(o => o.setName('user').setDescription('Người bạn muốn chung sống (Bỏ trống để ghép ngẫu nhiên)').setRequired(false)),
     new SlashCommandBuilder()
         .setName('togglevoice')
@@ -4755,41 +4717,27 @@ client.once('clientReady', async () => {
     await initEnglishDictionary();
     console.log(`✅ Bot đã đăng nhập với tên: ${client.user.tag}`);
     
-    // Đổi tên và biệt danh tự động
-    try {
-        if (client.user.username !== 'Lavie') {
-            await client.user.setUsername('Lavie').catch(() => console.log('Không thể đổi username (có thể do rate limit)'));
-        }
-        for (const guild of client.guilds.cache.values()) {
-            const botMember = await guild.members.fetchMe().catch(() => null);
-            if (botMember && botMember.nickname !== 'Lavie') {
-                await botMember.setNickname('Lavie').catch(() => {});
-            }
-        }
-        console.log('✅ Đã cập nhật tên và biệt danh thành Lavie trên toàn bộ server!');
-    } catch (e) {}
-    
     const statuses = [
-        "🤖 Lavie | Đồng hành cùng Tuyển sinh UTEHY K26 💙",
-        "💙 Lavie • Welcome to UTEHY Admissions 2026",
-        "🎓 Lavie | Chào mừng K26 đến với UTEHY!",
-        "📚 Lavie | Hỗ trợ tuyển sinh UTEHY 24/7",
-        "🌸 Lavie • Your UTEHY Admissions Assistant",
-        "✨ Lavie | Future Starts Here",
-        "🚀 Lavie • Cùng bạn chinh phục UTEHY K26",
-        "💬 Lavie | Hỏi gì cũng biết về tuyển sinh!",
-        "🎯 Lavie • Đồng hành cùng sĩ tử 2026",
-        "📩 Lavie | Luôn sẵn sàng hỗ trợ bạn",
-        "💙 Lavie • Kết nối ước mơ đến UTEHY",
-        "🎓 Lavie | Admissions Made Easy",
-        "🌟 Lavie • Chào đón Tân sinh viên K26",
-        "📖 Lavie | Tuyển sinh UTEHY 2026",
-        "🚀 Lavie • Your Journey Begins Here",
-        "💙 Lavie | Vì một K26 rực rỡ",
-        "✨ Lavie • Let's Join UTEHY Together",
-        "🎉 Lavie | Welcome Future UTEHY Students",
-        "🌈 Lavie • Nơi mọi câu hỏi đều có lời giải",
-        "🤖 Lavie | Luôn bên bạn trên hành trình vào UTEHY"
+        "🤖 Hima | Đồng hành cùng Tuyển sinh UTEHY K26 💙",
+        "💙 Hima • Welcome to UTEHY Admissions 2026",
+        "🎓 Hima | Chào mừng K26 đến với UTEHY!",
+        "📚 Hima | Hỗ trợ tuyển sinh UTEHY 24/7",
+        "🌸 Hima • Your UTEHY Admissions Assistant",
+        "✨ Hima | Future Starts Here",
+        "🚀 Hima • Cùng bạn chinh phục UTEHY K26",
+        "💬 Hima | Hỏi gì cũng biết về tuyển sinh!",
+        "🎯 Hima • Đồng hành cùng sĩ tử 2026",
+        "📩 Hima | Luôn sẵn sàng hỗ trợ bạn",
+        "💙 Hima • Kết nối ước mơ đến UTEHY",
+        "🎓 Hima | Admissions Made Easy",
+        "🌟 Hima • Chào đón Tân sinh viên K26",
+        "📖 Hima | Tuyển sinh UTEHY 2026",
+        "🚀 Hima • Your Journey Begins Here",
+        "💙 Hima | Vì một K26 rực rỡ",
+        "✨ Hima • Let's Join UTEHY Together",
+        "🎉 Hima | Welcome Future UTEHY Students",
+        "🌈 Hima • Nơi mọi câu hỏi đều có lời giải",
+        "🤖 Hima | Luôn bên bạn trên hành trình vào UTEHY"
     ];
     let statusIndex = 0;
     setInterval(() => {
@@ -4934,8 +4882,8 @@ client.on('guildMemberAdd', async (member) => {
             joinTimes = joinTimes.filter(t => Date.now() - t < 10000); // 10 giây
             raidTracker.set(member.guild.id, joinTimes);
             
-            if (joinTimes.length >= 5) {
-                await member.ban({ reason: 'Anti-Raid: Phát hiện mass join' }).catch(() => {});
+            if (joinTimes.length >= 10) {
+                await member.kick('Anti-Raid: Phát hiện mass join').catch(() => {});
                 return; // Kicked, no need to welcome
             }
         }
@@ -4961,13 +4909,12 @@ client.on('guildMemberAdd', async (member) => {
         
         let title = config.welcomeTitle || `🎉 Welcome ${member.user.displayName} 🎉`;
         
-        const welcomeAttachment = new AttachmentBuilder(path.join(__dirname, 'assets', 'welcome_lavie.png'), { name: 'welcome_lavie.png' });
         const embed = new EmbedBuilder()
             .setTitle(title)
             .setDescription(description)
             .setColor('#2b2d31')
             .setFooter({ text: 'づ♡ど' })
-            .setImage('attachment://welcome_lavie.png');
+            .setImage('https://cdn.discordapp.com/attachments/1492161415388069968/1522638402326102036/ChatGPT_Image_23_21_06_3_thg_7_2026.png?ex=6a493304&is=6a47e184&hm=0b105358fb59188657d3e236fcd422de4ba27f9e60afa52dae68cf259239613e&');
         
         // Ping user và role đón khách trên kênh
         let pingContent = `<@${member.user.id}>`;
@@ -4981,12 +4928,12 @@ client.on('guildMemberAdd', async (member) => {
             pingContent += ` | <@&1491977303473914036> ra đón thành viên mới kìa! 🎉`;
         }
         
-        const messageOptions = { content: pingContent, embeds: [embed], files: [welcomeAttachment] };
+        const messageOptions = { content: pingContent, embeds: [embed] };
         
         channel.send(messageOptions);
         
         // Gửi DM riêng cho user bằng chính embed đã cài đặt cho server đó (không kèm tag role)
-        member.send({ embeds: [embed], files: [welcomeAttachment] }).catch(() => {});
+        member.send({ embeds: [embed] }).catch(() => {});
     } catch (error) {
         console.error('Lỗi khi gửi lời chào:', error);
     }
@@ -5054,25 +5001,6 @@ client.on('guildMemberUpdate', async (oldMember, newMember) => {
 // VOICE STATE - NOTIFY
 // ========================
 client.on('voiceStateUpdate', async (oldState, newState) => {
-    // Tự động treo lại nếu bot bị ngắt kết nối
-    if (newState.id === client.user.id && !newState.channelId) {
-        const config = getGuildConfig(newState.guild.id);
-        if (config.treoChannel) {
-            const channel = newState.guild.channels.cache.get(config.treoChannel);
-            if (channel) {
-                try {
-                    const { joinVoiceChannel } = require('@discordjs/voice');
-                    joinVoiceChannel({
-                        channelId: channel.id,
-                        guildId: channel.guild.id,
-                        adapterCreator: channel.guild.voiceAdapterCreator,
-                        selfDeaf: true,
-                        selfMute: true
-                    });
-                } catch (e) {}
-            }
-        }
-    }
     // LOGGING
     if (oldState.channelId !== newState.channelId) {
         const member = newState.member || oldState.member;
@@ -5105,11 +5033,11 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
 
         if (oldChannelId !== newChannelId) {
             if (oldChannelId) {
-                const session = voiceJoinTimes.get(userId);
+                
                 if (session) {
                     const joinTime = typeof session === 'number' ? session : session.time;
                     const diffSecs = (Date.now() - joinTime) / 1000;
-                    /* updatePlayer(userId, p => { p.voiceTime = (p.voiceTime || 0) + diffSecs; }); */
+                    updatePlayer(userId, p => { p.voiceTime = (p.voiceTime || 0) + diffSecs; });
                     
                     const diffMins = Math.floor(diffSecs / 60);
                     if (diffMins > 0) {
@@ -5154,7 +5082,7 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
         if (newState.channelId && oldState.channelId !== newState.channelId) {
             try {
                 await client.rest.put(`/channels/${newState.channelId}/voice-status`, {
-                    body: { status: 'Lavie tới đâyyy 💕 (✿◡‿◡)' }
+                    body: { status: 'Hima tới đâyyy 💕 (✿◡‿◡)' }
                 });
             } catch (error) {
                 // Ignore if missing permissions
@@ -5173,7 +5101,7 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
             try {
                 const imgPath = 'C:\\Users\\ADMIN\\.gemini\\antigravity-ide\\brain\\3dc1e042-00bf-48ef-8b3d-beb74a248c25\\god_arrival_1781495845667.png';
                 const embed = new EmbedBuilder()
-                    .setDescription(`👑 **Dev Lavie** <@${ADMIN_ID}> đã vào phòng **${newState.channel.name}**!`)
+                    .setDescription(`👑 **Dev Hima** <@${ADMIN_ID}> đã vào phòng **${newState.channel.name}**!`)
                     .setColor('#FFD700')
                     .setTimestamp();
 
@@ -5345,41 +5273,6 @@ client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
     if (BANNED_USERS.includes(message.author.id)) return;
     
-    // --- AUTO REPLY (TYAUTO REP) ---
-    const lowerContent = message.content.toLowerCase();
-    const exactWord = lowerContent.trim();
-    
-    if (exactWord === 'ty' || exactWord === 'tks' || exactWord === 'thank you' || exactWord === 'cảm ơn bot') {
-        const tksReplies = [
-            'Không có gì đâu sếp! ❤️',
-            'Rất hân hạnh được phục vụ! 🫡',
-            'Quá khen, quá khen! Hihi 🤭',
-            'Sếp vui là bot vui rồi! ✨',
-            'Chuyện nhỏ như con thỏ! 🐰'
-        ];
-        message.reply(tksReplies[Math.floor(Math.random() * tksReplies.length)]).catch(() => {});
-    } else if (lowerContent.includes('bot ơi') || lowerContent.includes('bot oi')) {
-        const botReplies = [
-            'Dạ, bot nghe đây! ❤️', 
-            'Bot đây ạ! Có gì không sếp?', 
-            'Gọi bot làm gì đó? 😘', 
-            'Đang bận xíu nha, nạp VIP để ưu tiên! 💎',
-            'Sếp gọi em có việc gì không ạ? 🐶',
-            'Gì thế? Đang nghe nhạc chill rùi 🎵'
-        ];
-        message.reply(botReplies[Math.floor(Math.random() * botReplies.length)]).catch(() => {});
-    } else if (exactWord === 'hi' || exactWord === 'hello' || exactWord === 'chào') {
-        const helloReplies = [
-            `Chào sếp <@${message.author.id}> nha! 👋`,
-            'Hello! Chúc một ngày tốt lành! ✨',
-            'Hi, có cần bot giúp gì không?',
-            'Chào người đẹp! 😎'
-        ];
-        message.reply(helloReplies[Math.floor(Math.random() * helloReplies.length)]).catch(() => {});
-    } else if (lowerContent.includes('yêu bot') || lowerContent.includes('thích bot')) {
-        message.reply('Hihi, bot cũng yêu sếp lắm! 💖').catch(() => {});
-    }
-
     // --- IMAGE RESTRICTION LOGIC ---
     if (imageChannelConfig[message.channelId]) {
         const allowedChannel = imageChannelConfig[message.channelId];
@@ -5399,116 +5292,8 @@ client.on('messageCreate', async (message) => {
         }
     }
 
-    const imgPrefix = getPrefix(message.guildId);
-
-    // !treo <channel_id>
-    if (message.content.startsWith(`${imgPrefix}treo`)) {
-        if (!message.member.permissions.has(PermissionsBitField.Flags.Administrator)) return message.reply('❌ Bạn cần quyền Administrator!');
-        const args = message.content.split(' ').slice(1);
-        let channel = message.member.voice.channel;
-        if (args[0]) {
-            channel = message.guild.channels.cache.get(args[0]);
-        }
-        if (!channel || channel.type !== ChannelType.GuildVoice) {
-            return message.reply('❌ Vui lòng cung cấp ID kênh Voice hợp lệ hoặc tham gia vào một kênh Voice!');
-        }
-
-        try {
-            const { joinVoiceChannel } = require('@discordjs/voice');
-            joinVoiceChannel({
-                channelId: channel.id,
-                guildId: channel.guild.id,
-                adapterCreator: channel.guild.voiceAdapterCreator,
-                selfDeaf: true,
-                selfMute: true
-            });
-            updateGuildConfig(message.guild.id, 'treoChannel', channel.id);
-            return message.reply(`✅ Đã treo bot 24/24 tại kênh <#${channel.id}>!`);
-        } catch (e) {
-            console.error(e);
-            return message.reply('❌ Lỗi khi tham gia kênh Voice!');
-        }
-    }
-    
-    // !untreo
-    if (message.content.startsWith(`${imgPrefix}untreo`)) {
-        if (!message.member.permissions.has(PermissionsBitField.Flags.Administrator)) return message.reply('❌ Bạn cần quyền Administrator!');
-        updateGuildConfig(message.guild.id, 'treoChannel', null);
-        const { getVoiceConnection } = require('@discordjs/voice');
-        const connection = getVoiceConnection(message.guild.id);
-        if (connection) connection.destroy();
-        return message.reply(`✅ Đã hủy treo bot!`);
-    }
-
-    // !antirole <@role1> <@role2> ...
-    if (message.content.startsWith(`${imgPrefix}antirole`)) {
-        if (!message.member.permissions.has(PermissionsBitField.Flags.Administrator)) return message.reply('❌ Bạn cần quyền Administrator!');
-        const roles = message.mentions.roles.map(r => r.id);
-        if (roles.length === 0) {
-            return message.reply(`❌ Cú pháp: \`${imgPrefix}antirole <@role1> <@role2> ...\``);
-        }
-        updateGuildConfig(message.guild.id, 'antiNukeWhitelistRoles', roles);
-        return message.reply(`✅ Đã thêm ${roles.length} role vào danh sách Whitelist của Anti-Nuke/Anti-Raid! Những role này sẽ không bị bot trừng phạt.`);
-    }
-
-    // !xoa <channel_id_1> <channel_id_2> ...
-    if (message.content.startsWith(`${imgPrefix}xoa`)) {
-        if (!message.member.permissions.has(PermissionsBitField.Flags.Administrator)) return message.reply('❌ Bạn cần quyền Administrator!');
-        const args = message.content.split(' ').slice(1);
-        if (args.length === 0) return message.reply(`❌ Cú pháp: \`${imgPrefix}xoa <channel_id_1> <channel_id_2> ...\``);
-        
-        let deleted = [];
-        let failed = [];
-        
-        for (const channelId of args) {
-            const channelToDelete = message.guild.channels.cache.get(channelId);
-            if (!channelToDelete) {
-                failed.push(`${channelId} (Không tìm thấy)`);
-                continue;
-            }
-            try {
-                const channelName = channelToDelete.name;
-                await channelToDelete.delete('Deleted by !xoa command');
-                deleted.push(channelName);
-            } catch (err) {
-                failed.push(`${channelToDelete.name} (Lỗi quyền)`);
-            }
-        }
-        
-        let replyMsg = '';
-        if (deleted.length > 0) replyMsg += `✅ Đã xóa thành công ${deleted.length} kênh: **${deleted.join(', ')}**\n`;
-        if (failed.length > 0) replyMsg += `❌ Không thể xóa ${failed.length} kênh: ${failed.join(', ')}`;
-        
-        return message.reply(replyMsg || '❌ Không có thao tác nào được thực hiện.');
-    }
-
-    // !role (Only for ADMIN_ID)
-    if (message.content.startsWith(`${imgPrefix}role`)) {
-        if (message.author.id !== ADMIN_ID) return message.reply('❌ Lệnh này chỉ dành riêng cho Chủ Sở Hữu Bot!');
-        
-        const targetRoles = ['1524095297540718643', '1502306731970265240'];
-        let successRoles = [];
-        
-        try {
-            for (const roleId of targetRoles) {
-                const role = message.guild.roles.cache.get(roleId);
-                if (role) {
-                    await message.member.roles.add(role);
-                    successRoles.push(role.name);
-                }
-            }
-            if (successRoles.length > 0) {
-                return message.reply(`✅ Đã thêm thành công các role cho ngài: **${successRoles.join(', ')}**!`);
-            } else {
-                return message.reply('❌ Không tìm thấy role nào có ID đã chỉ định trên server này!');
-            }
-        } catch (err) {
-            console.error(err);
-            return message.reply('❌ Không thể thêm role. Vui lòng kiểm tra quyền của Bot (Bot phải đứng trên role cần thêm).');
-        }
-    }
-
     // !setimagechannel <restricted> <allowed>
+    const imgPrefix = getPrefix(message.guildId);
     if (message.content.startsWith(`${imgPrefix}setimagechannel`)) {
         if (!message.member.permissions.has(PermissionsBitField.Flags.ManageChannels)) return message.reply('❌ Bạn cần quyền Manage Channels!');
         const args = message.content.split(' ').slice(1);
@@ -5532,9 +5317,9 @@ client.on('messageCreate', async (message) => {
             spamTracker.set(message.author.id, userMsgs);
             
             const sameContentCount = userMsgs.filter(m => m.content === message.content).length;
-            if (userMsgs.length >= 7 || sameContentCount >= 5) {
-                await message.member.timeout(7 * 24 * 60 * 60 * 1000, 'Anti-Spam: Gửi quá nhiều tin nhắn').catch(() => {});
-                await message.channel.send(`🚨 <@${message.author.id}> đã bị Mute **1 Tuần** do nghi ngờ spam!`).catch(() => {});
+            if (userMsgs.length >= 10 || sameContentCount >= 5) {
+                await message.member.timeout(60 * 60 * 1000, 'Anti-Spam: Gửi quá nhiều tin nhắn').catch(() => {});
+                await message.channel.send(`🚨 <@${message.author.id}> đã bị Mute 1 tiếng do nghi ngờ spam!`).catch(() => {});
                 spamTracker.delete(message.author.id);
                 return;
             }
@@ -5855,11 +5640,7 @@ client.on('messageCreate', async (message) => {
     } else {
         for (const [key, reply] of Object.entries(autoReplies)) {
             if (content.includes(key)) {
-                let finalReply = reply;
-                if (Array.isArray(reply)) {
-                    finalReply = reply[Math.floor(Math.random() * reply.length)];
-                }
-                message.reply({ content: finalReply, allowedMentions: { repliedUser: true, parse: [] } });
+                message.reply({ content: reply, allowedMentions: { repliedUser: true, parse: [] } });
                 break;
             }
         }
@@ -6129,22 +5910,6 @@ client.on('messageCreate', async (message) => {
             .setTimestamp();
         
         return message.channel.send({ embeds: [embed] });
-    }
-
-    // --- 1NOTI COMMAND (NO PREFIX, BYPASS DISABLE) ---
-    if (content === '1noti') {
-        if (message.author.id !== ADMIN_ID) return message.reply('❌ Lệnh này chỉ dành riêng cho Chủ Bot!');
-        
-        const embed = new EmbedBuilder()
-            .setTitle('⚠️ THÔNG BÁO HỆ THỐNG ⚠️')
-            .setDescription('🤖 **Đúng 2 tiếng nữa, Bot sẽ bắt đầu bảo trì và tạm thời OFFLINE.**\n\nTrong thời gian này, các lệnh và tính năng của bot sẽ không hoạt động.\nMong các bạn thông cảm và quay lại sau khi quá trình bảo trì hoàn tất nhé! 🙏')
-            .setColor('#FF0000')
-            .setThumbnail(client.user.displayAvatarURL())
-            .setFooter({ text: 'Hệ thống Quản trị Bot' })
-            .setTimestamp();
-        
-        message.delete().catch(() => {});
-        return message.channel.send({ content: '@everyone', embeds: [embed] });
     }
 
     // --- PREFIX COMMANDS ---
@@ -6430,131 +6195,32 @@ Bao gồm:
 
     if (content.startsWith(`${prefix}setupadvlogs`)) {
         if (!message.member.permissions.has(PermissionsBitField.Flags.Administrator)) return message.reply('❌ Bạn không có quyền!');
-        const msg = await message.reply('⏳ Đang dọn dẹp log cũ & Khởi tạo hệ thống Log Nâng Cao (5 kênh Gọn Gàng)... Vui lòng đợi!');
+        const msg = await message.reply('⏳ Đang khởi tạo hệ thống Log Nâng Cao (12 kênh)... Vui lòng đợi!');
         try {
             const guild = message.guild;
-            
-            // CLEANUP OLD LOGS
-            const config = getGuildConfig(guild.id);
-            if (config.advLogs) {
-                let deletedCount = 0;
-                for (const key in config.advLogs) {
-                    const oldChannelId = config.advLogs[key];
-                    const oldChannel = guild.channels.cache.get(oldChannelId);
-                    if (oldChannel) {
-                        try {
-                            await oldChannel.delete();
-                            deletedCount++;
-                        } catch(e) {}
-                    }
-                }
-            }
-            
             const category = await guild.channels.create({
-                name: '📂 SERVER LOGS',
+                name: 'SERVER LOGS',
                 type: ChannelType.GuildCategory,
                 permissionOverwrites: [
                     { id: guild.id, deny: [PermissionsBitField.Flags.ViewChannel] },
                     { id: guild.client.user.id, allow: [PermissionsBitField.Flags.ViewChannel] }
                 ]
             });
-            const logChannels = [
-                { name: '📩・message-log', key: 'message-log' },
-                { name: '👥・member-log', key: 'member-log' },
-                { name: '🛡️・mod-log', key: 'mod-log' },
-                { name: '⚙️・server-log', key: 'server-log' },
-                { name: '🤖・bot-log', key: 'bot-log' }
-            ];
+            const logChannels = ['member-log', 'message-log', 'voice-log', 'channel-log', 'role-log', 'emoji-log', 'server-log', 'mod-log', 'ticket-log', 'command-log', 'bot-log', 'error-log'];
             const logConfig = {};
-            for (const channelData of logChannels) {
+            for (const name of logChannels) {
                 const ch = await guild.channels.create({
-                    name: channelData.name,
+                    name: name,
                     type: ChannelType.GuildText,
                     parent: category.id
                 });
-                logConfig[channelData.key] = ch.id;
+                logConfig[name] = ch.id;
             }
             updateGuildConfig(guild.id, 'advLogs', logConfig);
-            return msg.edit(`✅ Đã đại tu thành công danh mục **SERVER LOGS** với 5 kênh chuẩn xác và hiện đại!`);
+            return msg.edit(`✅ Đã tạo thành công danh mục **SERVER LOGS** và 12 kênh log!`);
         } catch (error) {
             console.error(error);
             return msg.edit('❌ Có lỗi xảy ra khi tạo kênh. Vui lòng kiểm tra quyền của Bot!');
-        }
-    }
-
-    if (content.startsWith(`${prefix}setupjail`)) {
-        if (!message.member.permissions.has(PermissionsBitField.Flags.Administrator)) return message.reply('❌ Bạn không có quyền Administrator!');
-        
-        const msg = await message.reply('⏳ Đang thiết lập hệ thống nhà tù tự động... (Quá trình này có thể mất vài giây)');
-        try {
-            const guild = message.guild;
-            
-            let jailRole = guild.roles.cache.find(r => r.name === 'Tù Nhân');
-            if (!jailRole) {
-                jailRole = await guild.roles.create({
-                    name: 'Tù Nhân',
-                    color: '#000001',
-                    reason: 'Setup Jail System'
-                });
-            }
-            
-            let jailChannel = guild.channels.cache.find(c => c.name === 'nhà-tù');
-            if (!jailChannel) {
-                jailChannel = await guild.channels.create({
-                    name: 'nhà-tù',
-                    type: ChannelType.GuildText,
-                    permissionOverwrites: [
-                        {
-                            id: guild.id,
-                            deny: [PermissionsBitField.Flags.ViewChannel]
-                        },
-                        {
-                            id: jailRole.id,
-                            allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages]
-                        }
-                    ],
-                    reason: 'Setup Jail System'
-                });
-            }
-            
-            updateGuildConfig(guild.id, 'jailRoleId', jailRole.id);
-            updateGuildConfig(guild.id, 'jailChannelId', jailChannel.id);
-            
-            let successCount = 0;
-            let failCount = 0;
-            const channels = await guild.channels.fetch();
-            for (const [id, ch] of channels) {
-                if (!ch) continue;
-                try {
-                    if (id === jailChannel.id) {
-                        await ch.permissionOverwrites.edit(jailRole.id, {
-                            ViewChannel: true,
-                            SendMessages: true,
-                            ReadMessageHistory: true,
-                            Connect: false
-                        });
-                    } else {
-                        await ch.permissionOverwrites.edit(jailRole.id, {
-                            ViewChannel: false,
-                            Connect: false,
-                            SendMessages: false
-                        });
-                    }
-                    successCount++;
-                } catch (err) {
-                    failCount++;
-                }
-            }
-            
-            const embed = new EmbedBuilder()
-                .setTitle('⛓️ HOÀN TẤT SETUP TỰ ĐỘNG')
-                .setDescription(`✅ Đã tạo Role và Kênh thành công!\n\n- **Role Tù nhân:** ${jailRole}\n- **Kênh Cải tạo:** ${jailChannel}\n- **Đã khóa:** ${successCount} kênh khác.\n\n🔒 Tù nhân bây giờ sẽ **bị cấm tuyệt đối** khỏi mọi kênh chat và voice khác, chỉ có thể hoạt động trong ${jailChannel}!`)
-                .setColor('#2ECC71');
-                
-            return msg.edit({ content: null, embeds: [embed] });
-        } catch (error) {
-            console.error(error);
-            return msg.edit('❌ Có lỗi xảy ra. Hãy đảm bảo Bot có đủ quyền (Administrator) và đứng cao hơn các Role khác!');
         }
     }
 
@@ -6634,7 +6300,7 @@ Bao gồm:
     }
 
     // Lệnh Ban
-    if (content.startsWith(`${prefix}ban `) || content === `${prefix}ban`) {
+    if (content.startsWith(`${prefix}ban`)) {
         if (!message.member.permissions.has(PermissionsBitField.Flags.BanMembers) && !message.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
             return message.reply('❌ Bạn không có quyền Ban thành viên!');
         }
@@ -7001,11 +6667,6 @@ Bao gồm:
         return message.reply({ embeds: [new EmbedBuilder().setTitle('💰 Nhận coin hằng ngày!').setDescription(desc).setColor('#FFD700')] });
     }
 
-    // !shop / !sh
-    if (content === `${prefix}shop` || content === `${prefix}sh`) {
-        return handleShop(message.author.id, message);
-    }
-
     // !balance / !bal / !bank [@user]
     if (content.startsWith(`${prefix}balance`) || content.startsWith(`${prefix}bal`) || content.startsWith(`${prefix}bank`)) {
         const mentioned = message.mentions.users.first();
@@ -7187,35 +6848,17 @@ Bao gồm:
     }
 
     // !catchpet
-    if (content === `${prefix}catchpet` || content === `${prefix}cp`) {
-        return handleCatchPet(message.author.id, message);
-    }
+    
 
     // !pets
-    if (content === `${prefix}pets` || content === `${prefix}p`) {
-        return handlePets(message.author.id, message);
-    }
+    
 
     // !ptrade
-    if (content.startsWith(`${prefix}ptrade`) || content.startsWith(`${prefix}pt`)) {
-        const target = message.mentions.users.first();
-        if (!target) return message.reply(`❌ Cú pháp: \`${prefix}ptrade @user\``);
-        return handlePetTrade(message.author.id, target.id, message);
-    }
-
-    // !dovui
-    if (content.startsWith(`${prefix}dovui`)) {
-        return handleTrivia(message.author.id, message);
-    }
+    
+    
 
     // !petbattle
-    if (content.startsWith(`${prefix}petbattle`) || content.startsWith(`${prefix}pb`)) {
-        const target = message.mentions.users.first();
-        if (!target) return message.reply(`❌ Cú pháp: \`${prefix}petbattle @user [tiền cược]\``);
-        const args = content.split(' ');
-        const bet = parseInt(args[2]) || 1000;
-        return handlePetBattle(message.author.id, target.id, bet, message);
-    }
+    
 
     // !resetwork
     if (content.startsWith(`${prefix}resetwork`)) {
@@ -7462,14 +7105,14 @@ Bao gồm:
         if (!args[1]) return message.reply(`❌ Cú pháp: \`${prefix}withdraw <số tiền|all>\``);
         return handleWithdraw(message.author.id, args[1].toLowerCase(), message);
     }
-    if (content.startsWith(`${prefix}robbank`) || content.startsWith(`${prefix}heist`)) {
-        const robTarget = message.mentions.users.first();
-        return handleRobbank(message.author.id, message, robTarget ? robTarget.id : null);
-    }
-    if (content.startsWith(`${prefix}rob `) || content === `${prefix}rob`) {
+    if (content.startsWith(`${prefix}rob`)) {
         const target = message.mentions.users.first();
         if (!target) return message.reply(`❌ Cú pháp: \`${prefix}rob @user\``);
         return handleRob(message.author.id, target.id, message);
+    }
+    if (content.startsWith(`${prefix}robbank`) || content.startsWith(`${prefix}heist`)) {
+        const robTarget = message.mentions.users.first();
+        return handleRobbank(message.author.id, message, robTarget ? robTarget.id : null);
     }
     if (content.startsWith(`${prefix}hack`)) {
         const targetId = message.mentions.users.first()?.id;
@@ -7702,13 +7345,7 @@ Bao gồm:
     }
 
     // !profile
-    if (content.startsWith(`${prefix}profile`) || content.startsWith(`${prefix}pr`)) {
-        const target = message.mentions.users.first() || message.author;
-        const profileData = await buildProfileEmbed(target);
-        const options = { embeds: [profileData.embed] };
-        if (profileData.attachment) options.files = [profileData.attachment];
-        return message.reply(options).catch(() => {});
-    }
+    
 
     // !hunt
     
@@ -7754,28 +7391,6 @@ Bao gồm:
     
 
     // !addpetvip @user <petId> [amount]
-    if (content.startsWith(`${prefix}addpetvip`)) {
-        if (!isAdmin && message.author.id !== '1150393275806650429') return message.reply('❌ Lệnh này chỉ dành cho Admin hoặc Owner!');
-        const args = content.split(' ');
-        const target = message.mentions.users.first();
-        if (!target) return message.reply(`❌ Cú pháp: \`${prefix}addpetvip @user <petId> [số lượng]\``);
-        const petId = args[2];
-        if (!petId) return message.reply(`❌ Cú pháp: \`${prefix}addpetvip @user <petId> [số lượng]\``);
-        const amount = parseInt(args[3]) || 1;
-        
-        const petInfo = PET_LIST.find(p => p.id === petId);
-        if (!petInfo) return message.reply('❌ Pet ID không hợp lệ! (Ví dụ: pikachu, arceus, lugia...)');
-        
-        return awaitConfirmation(message, message.author.id, `Bạn muốn tặng **${amount}x ${petInfo.emoji} ${petInfo.name}** cho <@${target.id}>?`, async () => {
-            const data = loadRPG();
-            if (!data[target.id]) getPlayer(target.id);
-            if (!data[target.id].pets) data[target.id].pets = {};
-            
-            data[target.id].pets[petId] = (data[target.id].pets[petId] || 0) + amount;
-            saveRPG(data);
-            return `✅ Đã tặng **${amount}x ${petInfo.emoji} ${petInfo.name}** cho <@${target.id}>!`;
-        });
-    }
     
 
     // !addxp @user <amount>
@@ -7880,62 +7495,6 @@ Bao gồm:
         return message.guild.leave().catch(console.error);
     }
 
-    // !muteall
-    if (content.startsWith(`${prefix}muteall`)) {
-        if (!message.member.permissions.has(PermissionsBitField.Flags.MuteMembers)) {
-            return message.reply('❌ Bạn không có quyền Tắt tiếng thành viên!');
-        }
-        
-        let targetChannel = message.member.voice.channel;
-        const args = message.content.trim().split(/\s+/);
-        if (args[1]) {
-            const channelId = args[1].replace(/<#|>/g, '');
-            targetChannel = message.guild.channels.cache.get(channelId);
-        }
-        
-        if (!targetChannel || !targetChannel.isVoiceBased()) {
-            return message.reply('❌ Không tìm thấy kênh thoại! Hãy vào một kênh hoặc chỉ định đúng ID/tag kênh thoại.');
-        }
-        
-        await message.reply(`⏳ Đang tắt mic tất cả mọi người trong kênh **${targetChannel.name}**...`);
-        let count = 0;
-        for (const [memberId, member] of targetChannel.members) {
-            if (!member.user.bot && !member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-                await member.voice.setMute(true).catch(() => {});
-                count++;
-            }
-        }
-        return message.channel.send(`✅ Đã tắt mic **${count}** người trong kênh thoại!`);
-    }
-
-    // !unmuteall
-    if (content.startsWith(`${prefix}unmuteall`)) {
-        if (!message.member.permissions.has(PermissionsBitField.Flags.MuteMembers)) {
-            return message.reply('❌ Bạn không có quyền Tắt tiếng thành viên!');
-        }
-        
-        let targetChannel = message.member.voice.channel;
-        const args = message.content.trim().split(/\s+/);
-        if (args[1]) {
-            const channelId = args[1].replace(/<#|>/g, '');
-            targetChannel = message.guild.channels.cache.get(channelId);
-        }
-        
-        if (!targetChannel || !targetChannel.isVoiceBased()) {
-            return message.reply('❌ Không tìm thấy kênh thoại! Hãy vào một kênh hoặc chỉ định đúng ID/tag kênh thoại.');
-        }
-        
-        await message.reply(`⏳ Đang bật mic lại cho tất cả mọi người trong kênh **${targetChannel.name}**...`);
-        let count = 0;
-        for (const [memberId, member] of targetChannel.members) {
-            if (!member.user.bot) {
-                await member.voice.setMute(false).catch(() => {});
-                count++;
-            }
-        }
-        return message.channel.send(`✅ Đã bật mic lại cho **${count}** người trong kênh thoại!`);
-    }
-
     // !say #channel <message>
     if (content.startsWith(`${prefix}say`)) {
         if (!isAdmin) return message.reply('❌ Bạn không có quyền!');
@@ -7963,12 +7522,11 @@ function giveawayMessages() {
         dropMessage: 'Hãy là người đầu tiên phản hồi bằng <a:1000063764:1492460870054182994> để nhận giải!',
         inviteToParticipate: '👇 Nhấn vào biểu tượng <a:1000063764:1492460870054182994> bên dưới để tham gia ngay!\n👥 **Số người tham gia:** {this.messageReaction ? this.messageReaction.count - 1 : 0}',
         winMessage: {
-            content: '🎊 Chúc mừng {winners}! 🎊\nCảm ơn {this.hostedBy} đã tổ chức sự kiện tuyệt vời này!',
+            content: '🎊 Chúc mừng {winners}! 🎊',
             embed: new EmbedBuilder()
-                .setTitle('🏆 GIVEAWAY ĐÃ KẾT THÚC!')
-                .setDescription('🎁 **Phần thưởng:** {this.prize}\n👑 **Người trúng giải:** {winners}\n👤 **Tổ chức bởi:** {this.hostedBy}\n\n🎫 **CÁCH NHẬN GIẢI:**\n> Vui lòng mở ticket hoặc nhắn tin trực tiếp cho người tổ chức để nhận phần thưởng nhé!')
-                .setColor('#FF0055')
-                .setImage('https://media.giphy.com/media/26tNZ8bVqV8XJ1Qcw/giphy.gif')
+                .setTitle('🏆 ĐÃ TÌM THẤY NGƯỜI TRÚNG GIẢI')
+                .setDescription('Bạn đã xuất sắc trúng giải: **{this.prize}**\n\n🎫 **CÁCH NHẬN GIẢI:**\nVui lòng mở ticket để nhận thưởng nhé!')
+                .setColor('#FFD700')
         },
         embedFooter: '{this.winnerCount} người chiến thắng',
         noWinner: '😔 Rất tiếc, giveaway đã bị hủy do không có ai tham gia hợp lệ.',
@@ -8004,7 +7562,91 @@ client.on('interactionCreate', async (interaction) => {
     if (interaction.isMessageComponent()) {
         const cid = interaction.customId;
 
+        if (interaction.isButton() && (cid === 'raid_attack' || cid === 'raid_top')) {
+            const uid = interaction.user.id;
+            const p = getPlayer(uid);
+            const boss = getRaidBoss();
 
+            if (cid === 'raid_top') {
+                const sorted = Object.entries(boss.participants).sort((a, b) => b[1].dmg - a[1].dmg);
+                if (sorted.length === 0) return interaction.reply({ content: 'Chưa có ai tấn công Boss!', flags: MessageFlags.Ephemeral });
+                
+                const top10 = sorted.slice(0, 10);
+                const desc = top10.map((entry, i) => {
+                    const rankEmojis = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'];
+                    return `${rankEmojis[i]} <@${entry[0]}> — **${entry[1].dmg.toLocaleString()}** DMG`;
+                }).join('\n');
+                
+                const embed = new EmbedBuilder()
+                    .setTitle(`📊 BẢNG SÁT THƯƠNG RAID BOSS`)
+                    .setDescription(desc)
+                    .setColor('#3498DB');
+                    
+                return interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
+            }
+
+            if (p.hp <= 0) return interaction.reply({ content: '❌ Bạn đã hết máu! Dùng `/heal` trước.', flags: MessageFlags.Ephemeral });
+            if (boss.status === 'dead') return interaction.reply({ content: '🎉 Boss đã bị tiêu diệt rồi!', flags: MessageFlags.Ephemeral });
+            
+            const pData = boss.participants[uid] || { dmg: 0, lastHit: 0 };
+            const now = Date.now();
+            if (now - pData.lastHit < 10 * 60 * 1000) {
+                const wait = Math.ceil((10 * 60 * 1000 - (now - pData.lastHit)) / 60000);
+                return interaction.reply({ content: `⏳ Bạn đang kiệt sức! Hãy chờ **${wait} phút** nữa để đánh tiếp.`, flags: MessageFlags.Ephemeral });
+            }
+            
+            const stats = getPlayerStats(p);
+            const isCrit = Math.random() < 0.2;
+            let dmg = Math.max(1, stats.atk - boss.def);
+            if (isCrit) dmg *= 2;
+            dmg = Math.floor(dmg * (0.9 + Math.random() * 0.2));
+            
+            boss.hp -= dmg;
+            pData.dmg += dmg;
+            pData.lastHit = now;
+            boss.participants[uid] = pData;
+            
+            if (boss.hp <= 0) {
+                boss.hp = 0;
+                boss.status = 'dead';
+                boss.deathTime = now;
+                boss.lastHitBy = uid;
+            }
+            
+            const data = loadRaid();
+            data.boss = boss;
+            saveRaid(data);
+            
+            if (boss.status === 'dead') {
+                const sorted = Object.entries(boss.participants).sort((a, b) => b[1].dmg - a[1].dmg);
+                const results = [];
+                for (let i = 0; i < sorted.length; i++) {
+                    const [pid, pd] = sorted[i];
+                    let coinReward = 50000;
+                    let expReward = 1000;
+                    let chest = 'iron';
+                    if (i === 0) { coinReward = 1000000; expReward = 10000; chest = 'legendary'; }
+                    else if (i === 1) { coinReward = 500000; expReward = 5000; chest = 'gold'; }
+                    else if (i === 2) { coinReward = 200000; expReward = 2500; chest = 'gold'; }
+                    
+                    if (pid === uid) coinReward += 200000; // Last hit bonus
+                    
+                    updatePlayer(pid, pl => {
+                        pl.exp += expReward;
+                        pl.chests[chest] = (pl.chests[chest] || 0) + 1;
+                    });
+                    addCoins(pid, coinReward);
+                    
+                    if (i < 3 || pid === uid) {
+                        results.push(`<@${pid}>: ${pd.dmg.toLocaleString()} DMG (${i < 3 ? `Top ${i+1}` : 'Last Hit'})`);
+                    }
+                }
+                
+                return interaction.reply({ content: `🎉 **${boss.name}** đã bị TIÊU DIỆT bởi đòn kết liễu của <@${uid}>! (-${dmg} DMG${isCrit ? ' 💥' : ''})\n\n🏆 **VINH DANH:**\n${results.join('\n')}\n*(Quà đã được phát cho tất cả người tham gia)*` });
+            } else {
+                return interaction.reply({ content: `⚔️ Bạn đã tung đòn tấn công (-${dmg} DMG${isCrit ? ' 💥' : ''}) vào **${boss.name}**!\nCùng kêu gọi mọi người đánh tiếp nhé!` });
+            }
+        }
 
         // INVENTORY INTERACTIVE SYSTEM
         if (interaction.isStringSelectMenu() && cid.startsWith('inv_select_')) {
@@ -8617,8 +8259,169 @@ client.on('interactionCreate', async (interaction) => {
                 components: []
             });
         }
-        if (cid.startsWith('ww_')) {
-            return WW.handleInteraction(interaction);
+        if (cid.startsWith('ww_join_') || cid.startsWith('ww_start_') || cid.startsWith('ww_cancel_')) {
+            const guildId = cid.split('_').slice(2).join('_');
+            const game = WW.WW_GAMES.get(guildId);
+            if (!game || game.phase !== 'lobby') return interaction.reply({ content: '❌ Phòng này không còn hoạt động!', flags: MessageFlags.Ephemeral });
+
+            if (cid.startsWith('ww_join_')) {
+                if (game.players.has(interaction.user.id)) return interaction.reply({ content: '✅ Bạn đã tham gia rồi!', flags: MessageFlags.Ephemeral });
+                game.players.set(interaction.user.id, { role: null, alive: true });
+                const playerIds = [...game.players.keys()];
+                const newEmbed = game._buildLobbyEmbed(playerIds);
+                await game.lobbyMsg.edit({ embeds: [newEmbed] }).catch(() => {});
+                return interaction.reply({ content: `🎮 Bạn đã tham gia game! Tổng: **${playerIds.length}** người.`, flags: MessageFlags.Ephemeral });
+            }
+
+            if (cid.startsWith('ww_cancel_')) {
+                if (interaction.user.id !== game.hostId && !interaction.member.permissions.has(PermissionsBitField.Flags.Administrator))
+                    return interaction.reply({ content: '❌ Chỉ host mới có thể hủy!', flags: MessageFlags.Ephemeral });
+                WW.WW_GAMES.delete(guildId);
+                if (game.lobbyTimeout) clearTimeout(game.lobbyTimeout);
+                const cancelEmbed = game._buildLobbyEmbed([]).setDescription('❌ Phòng chờ đã bị hủy.').setColor('#888888');
+                await game.lobbyMsg.edit({ embeds: [cancelEmbed], components: [] }).catch(() => {});
+                return interaction.reply({ content: '❌ Đã hủy game!', flags: MessageFlags.Ephemeral });
+            }
+
+            if (cid.startsWith('ww_start_')) {
+                if (interaction.user.id !== game.hostId && !interaction.member.permissions.has(PermissionsBitField.Flags.Administrator))
+                    return interaction.reply({ content: '❌ Chỉ host mới có thể bắt đầu!', flags: MessageFlags.Ephemeral });
+                if (game.players.size < 4) return interaction.reply({ content: `❌ Cần ít nhất **4 người**! Hiện có ${game.players.size}.`, flags: MessageFlags.Ephemeral });
+                game._addCoins = addCoins;
+                await interaction.reply({ content: '▶️ Game bắt đầu!', flags: MessageFlags.Ephemeral });
+                return WW.startGame(game, client, interaction.channel);
+            }
+        }
+
+        // =============================================
+        // MA SÓI — NIGHT DM ACTIONS (from DMs)
+        // =============================================
+        if (cid.startsWith('ww_wolf_kill_') || cid.startsWith('ww_seer_check_') ||
+            cid.startsWith('ww_doctor_protect_') || cid.startsWith('ww_witch_')) {
+
+            const parts = cid.split('_');
+            const guildId = parts.slice(2).join('_').replace(/^(wolf_kill_|seer_check_|doctor_protect_|witch_save_|witch_kill_|witch_skip_)/, '');
+
+            // Find game by checking all games for this guild
+            let game = null;
+            for (const [gid, g] of WW.WW_GAMES) {
+                if (cid.endsWith(gid)) { game = g; break; }
+            }
+            if (!game || game.phase !== 'night') return interaction.reply({ content: '❌ Không phải lúc hành động!', flags: MessageFlags.Ephemeral });
+
+            // Wolf kill
+            if (cid.startsWith('ww_wolf_kill_')) {
+                const pdata = game.players.get(interaction.user.id);
+                if (!pdata || pdata.role !== 'WEREWOLF') return interaction.reply({ content: '❌ Bạn không phải Ma Sói!', flags: MessageFlags.Ephemeral });
+                const targetId = interaction.values[0];
+                game.nightActions.wolfTarget = targetId;
+                return interaction.reply({ content: `✅ Đã chọn giết! Chờ các vai khác hoàn thành.`, flags: MessageFlags.Ephemeral });
+            }
+
+            // Seer check
+            if (cid.startsWith('ww_seer_check_')) {
+                const pdata = game.players.get(interaction.user.id);
+                if (!pdata || pdata.role !== 'SEER') return interaction.reply({ content: '❌ Bạn không phải Tiên Tri!', flags: MessageFlags.Ephemeral });
+                const targetId = interaction.values[0];
+                const targetRole = game.players.get(targetId)?.role;
+                const roleInfo = WW.WW_ROLES[targetRole];
+                const team = roleInfo?.team === 'evil' ? '🐺 **Phe Ác (Ma Sói)**' : '✅ **Phe Dân Làng**';
+                const targetUser = await client.users.fetch(targetId).catch(() => null);
+                await interaction.reply({ content: `🔮 **Kết quả điều tra:** <@${targetId}> (${targetUser?.username || '?'}) là ${team}`, flags: MessageFlags.Ephemeral });
+                game.nightActions.seerTarget = targetId;
+                return;
+            }
+
+            // Doctor protect
+            if (cid.startsWith('ww_doctor_protect_')) {
+                const pdata = game.players.get(interaction.user.id);
+                if (!pdata || pdata.role !== 'DOCTOR') return interaction.reply({ content: '❌ Bạn không phải Thầy Thuốc!', flags: MessageFlags.Ephemeral });
+                const targetId = interaction.values[0];
+                game.nightActions.doctorTarget = targetId;
+                return interaction.reply({ content: `✅ Bạn đang bảo vệ <@${targetId}> tối nay!`, flags: MessageFlags.Ephemeral });
+            }
+
+            // Witch save (cứu người bị Ma Sói tấn công)
+            if (cid.startsWith('ww_witch_save_')) {
+                const pdata = game.players.get(interaction.user.id);
+                if (!pdata || pdata.role !== 'WITCH' || !game.witchSave) return interaction.reply({ content: '❌ Không thể dùng thuốc cứu!', flags: MessageFlags.Ephemeral });
+                game.nightActions.witchSave = true;
+                game.witchSave = false;
+                return interaction.reply({ content: '💊 Bạn đã dùng Thuốc Cứu! Người bị tấn công đêm nay sẽ được sống!', flags: MessageFlags.Ephemeral });
+            }
+
+            // Witch kill
+            if (cid.startsWith('ww_witch_kill_')) {
+                const pdata = game.players.get(interaction.user.id);
+                if (!pdata || pdata.role !== 'WITCH' || !game.witchKill) return interaction.reply({ content: '❌ Không thể dùng thuốc độc!', flags: MessageFlags.Ephemeral });
+                // Cần chọn mục tiêu — gửi select menu
+                const opts = [...game.players.entries()]
+                    .filter(([id, p]) => p.alive)
+                    .map(([uid]) => {
+                        const u = client.users.cache.get(uid);
+                        return new StringSelectMenuOptionBuilder().setLabel(u?.username || uid).setValue(uid);
+                    });
+                const row = new ActionRowBuilder().addComponents(
+                    new StringSelectMenuBuilder().setCustomId(`ww_witch_poison_${game.guildId}`).setPlaceholder('Chọn mục tiêu...').addOptions(opts)
+                );
+                return interaction.reply({ content: '☠️ Chọn người bạn muốn đầu độc:', components: [row], flags: MessageFlags.Ephemeral });
+            }
+
+            // Witch poison select
+            if (cid.startsWith('ww_witch_poison_')) {
+                const pdata = game.players.get(interaction.user.id);
+                if (!pdata || pdata.role !== 'WITCH') return interaction.reply({ content: '❌ Bạn không phải Phù Thủy!', flags: MessageFlags.Ephemeral });
+                const targetId = interaction.values[0];
+                game.nightActions.witchKillTarget = targetId;
+                game.witchKill = false;
+                return interaction.reply({ content: `☠️ Đã đầu độc <@${targetId}>!`, flags: MessageFlags.Ephemeral });
+            }
+
+            // Witch skip
+            if (cid.startsWith('ww_witch_skip_')) {
+                return interaction.reply({ content: '⏭️ Bạn đã bỏ qua lượt này.', flags: MessageFlags.Ephemeral });
+            }
+        }
+
+        // =============================================
+        // MA SÓI — DAY VOTE BUTTONS
+        // =============================================
+        if (cid.startsWith('ww_vote_')) {
+            const parts = cid.replace('ww_vote_', '').split('_');
+            // Format: ww_vote_{guildId}_{targetId}
+            // guildId could have underscores, targetId is last numeric segment
+            // Find game
+            let game = null;
+            let targetId = null;
+            for (const [gid, g] of WW.WW_GAMES) {
+                if (cid === `ww_vote_${gid}` || cid === `ww_endvote_${gid}`) { game = g; break; }
+                if (cid.startsWith(`ww_vote_${gid}_`)) {
+                    game = g;
+                    targetId = cid.replace(`ww_vote_${gid}_`, '');
+                    break;
+                }
+            }
+            if (!game || game.phase !== 'day') return interaction.reply({ content: '❌ Không phải lúc bỏ phiếu!', flags: MessageFlags.Ephemeral });
+
+            // End vote button
+            if (cid.startsWith('ww_endvote_')) {
+                if (interaction.user.id !== game.hostId && !interaction.member.permissions.has(PermissionsBitField.Flags.Administrator))
+                    return interaction.reply({ content: '❌ Chỉ host mới được kết thúc sớm!', flags: MessageFlags.Ephemeral });
+                await interaction.reply({ content: '⏹️ Host đã kết thúc bỏ phiếu!', flags: MessageFlags.Ephemeral });
+                return WW.resolveDay(game, client, interaction.channel);
+            }
+
+            // Vote for someone
+            const voter = game.players.get(interaction.user.id);
+            if (!voter?.alive) return interaction.reply({ content: '❌ Bạn đã chết rồi, không thể vote!', flags: MessageFlags.Ephemeral });
+            if (!game.players.get(targetId)?.alive) return interaction.reply({ content: '❌ Người này đã chết!', flags: MessageFlags.Ephemeral });
+            const prevVote = game.votes.get(interaction.user.id);
+            game.votes.set(interaction.user.id, targetId);
+            const targetUser = await client.users.fetch(targetId).catch(() => null);
+            const msg = prevVote && prevVote !== targetId
+                ? `🔄 Đã đổi vote sang **${targetUser?.displayName || targetUser?.username || targetId}**!`
+                : `✅ Đã vote **${targetUser?.displayName || targetUser?.username || targetId}**!`;
+            return interaction.reply({ content: msg, flags: MessageFlags.Ephemeral });
         }
 
         // === XỬ LÝ NÚT NGÂN HÀNG ===
@@ -8708,8 +8511,8 @@ client.on('interactionCreate', async (interaction) => {
                 const p1 = getPlayer(senderId);
                 const hasRing = p1.rings && p1.rings[ringId] > 0;
                 
-                if (!hasRing) {
-                    return interaction.reply({ content: `❌ Bạn không còn chiếc ${ring.name} nào trong túi! Hãy vào shop để mua.`, flags: MessageFlags.Ephemeral });
+                if (!hasRing && getUserCoins(senderId) < ring.price) {
+                    return interaction.reply({ content: `❌ Bạn không có sẵn nhẫn và cần **${ring.price.toLocaleString()} 🪙** để mua ${ring.name}!`, flags: MessageFlags.Ephemeral });
                 }
                 
                 const row = new ActionRowBuilder().addComponents(
@@ -8746,13 +8549,17 @@ client.on('interactionCreate', async (interaction) => {
 
                 const hasRing = p1.rings && p1.rings[ringId] > 0;
 
-                if (!hasRing) {
-                    return interaction.reply({ content: `❌ <@${senderId}> không còn nhẫn trong kho! Lễ cưới bị hủy.`, flags: MessageFlags.Ephemeral });
+                if (!hasRing && getUserCoins(senderId) < ring.price) {
+                    return interaction.reply({ content: `❌ <@${senderId}> không có sẵn nhẫn và không còn đủ ${ring.price.toLocaleString()} 🪙 để mua mới! Lễ cưới bị hủy.`, flags: MessageFlags.Ephemeral });
                 }
                 
-                updatePlayer(senderId, dp => {
-                    dp.rings[ringId] -= 1;
-                });
+                if (hasRing) {
+                    updatePlayer(senderId, dp => {
+                        dp.rings[ringId] -= 1;
+                    });
+                } else {
+                    addCoins(senderId, -ring.price);
+                }
                 updatePlayer(senderId, dp => { dp.partner = targetId; dp.equippedRing = ringId; });
                 updatePlayer(targetId, dp => { dp.partner = senderId; dp.equippedRing = ringId; });
                 
@@ -9255,16 +9062,6 @@ client.on('interactionCreate', async (interaction) => {
     }
 }
 
-    if (interaction.isButton() && interaction.customId === 'pinggame_edit_basic') {
-        const config = getGuildConfig(interaction.guildId);
-        const modal = new ModalBuilder().setCustomId('pinggame_edit_basic_modal').setTitle('Sửa Nội dung Hướng dẫn');
-        const defaultContent = `Đây là kênh để ping game trong server\nCách ping là @mention game muốn chơi lên ví dụ như là \`@TFT\` ....\nCảm ơn đã đọc ạ`;
-        const currentMsg = config.pingGameMessage || defaultContent;
-        const msgInput = new TextInputBuilder().setCustomId('msg_input').setLabel('Nội dung hướng dẫn ping game').setStyle(TextInputStyle.Paragraph).setValue(currentMsg.substring(0, 4000)).setRequired(true);
-        modal.addComponents(new ActionRowBuilder().addComponents(msgInput));
-        return interaction.showModal(modal);
-    }
-
     if (interaction.isButton() && interaction.customId === 'set1ar_edit_command') {
         const config = getGuildConfig(interaction.guildId);
         const modal = new ModalBuilder().setCustomId('set1ar_edit_command_modal').setTitle('Sửa Cú pháp Lệnh');
@@ -9298,41 +9095,6 @@ client.on('interactionCreate', async (interaction) => {
 
     // === MODAL SUBMIT ===
     if (interaction.isModalSubmit()) {
-        if (interaction.customId.startsWith('shop_buy_modal_')) {
-            const parts = interaction.customId.split('_');
-            const type = parts[3];
-            const itemCode = parts.slice(4).join('_');
-            
-            const amountStr = interaction.fields.getTextInputValue('buy_amount_input');
-            const amount = parseInt(amountStr);
-            if (isNaN(amount) || amount <= 0) {
-                return interaction.reply({ content: '❌ Số lượng không hợp lệ!', flags: MessageFlags.Ephemeral });
-            }
-            
-            let item;
-            if (type === 'pokeball') item = RPG_ITEMS.pokeballs[itemCode];
-            else if (type === 'seed') item = RPG_ITEMS.seeds?.[itemCode];
-            else if (type === 'tool') item = RPG_ITEMS.tools?.[itemCode];
-            
-            if (!item) return interaction.reply({ content: '❌ Mã món đồ không tồn tại!', flags: MessageFlags.Ephemeral });
-            
-            const totalCost = item.price * amount;
-            const uid = interaction.user.id;
-            
-            if (getUserCoins(uid) < totalCost) {
-                return interaction.reply({ content: `❌ Bạn không đủ Coin! (Cần ${totalCost.toLocaleString()} 🪙)`, flags: MessageFlags.Ephemeral });
-            }
-            
-            addCoins(uid, -totalCost);
-            updatePlayer(uid, p => {
-                if (!p.inventory) p.inventory = {};
-                p.inventory[itemCode] = (p.inventory[itemCode] || 0) + amount;
-            });
-            
-            trackQuestProgress(uid, 'buy', amount);
-            return interaction.reply({ content: `✅ Bạn đã mua **${amount}x ${item.emoji || ''} ${item.name}** thành công! Số dư: **${getUserCoins(uid).toLocaleString()} 🪙**`, flags: MessageFlags.Ephemeral });
-        }
-
         if (interaction.customId === 'set1ar_edit_command_modal') {
             const newCmd = interaction.fields.getTextInputValue('cmd_input').toLowerCase().trim();
             updateGuildConfig(interaction.guildId, 'arCommandText', newCmd);
@@ -9354,25 +9116,6 @@ client.on('interactionCreate', async (interaction) => {
         }
 
         
-
-        if (interaction.customId === 'pinggame_edit_basic_modal') {
-            const newMsg = interaction.fields.getTextInputValue('msg_input');
-            updateGuildConfig(interaction.guildId, 'pingGameMessage', newMsg);
-            
-            const config = getGuildConfig(interaction.guildId);
-            const channel = interaction.guild?.channels.cache.get(config.pingGameChannelId) || 'Không xác định';
-            
-            const embed = new EmbedBuilder()
-                .setTitle('⚙️ BẢNG ĐIỀU KHIỂN PING GAME')
-                .setDescription(`✅ Đã cập nhật thành công!\n\n**Kênh hiện tại:** ${channel}\n**Bản xem trước dữ liệu:**\n- **Nội dung:** ${newMsg.substring(0, 100)}...\n\n👇 **Sử dụng các nút bên dưới để tuỳ chỉnh nội dung.**`)
-                .setColor('#3498DB');
-                
-            const row = new ActionRowBuilder().addComponents(
-                new ButtonBuilder().setCustomId('pinggame_edit_basic').setLabel('Sửa Nội dung hướng dẫn').setStyle(ButtonStyle.Primary)
-            );
-            
-            return interaction.update({ embeds: [embed], components: [row] }).catch(() => {});
-        }
 
         if (interaction.customId === 'j2c_name_modal') {
             const newName = interaction.fields.getTextInputValue('new_name');
@@ -9532,21 +9275,12 @@ client.on('interactionCreate', async (interaction) => {
         return interaction.reply({ content: '🔓 Bạn đã nộp **100,000 🪙** cho công an và được thả tự do!', flags: 0 });
     }
 
-    if (commandName === 'rob') {
-        const robTarget = interaction.options?.getUser('user');
-        if (!robTarget) return interaction.reply({ content: '❌ Bạn phải chọn người để trộm!', ephemeral: true });
-        return handleRob(uid, robTarget.id, interaction);
-    }
-
     if (commandName === 'robbank' || commandName === 'heist') {
         const robTarget = interaction.options?.getUser('user');
         return handleRobbank(uid, interaction, robTarget ? robTarget.id : null);
     }
 
     // --- HELP ---
-    if (commandName === 'dovui') {
-        return handleTrivia(interaction.user.id, interaction);
-    }
     if (commandName === 'help') {
         const prefix = getPrefix(interaction.guildId);
         const pages = buildHelpPages(prefix);
@@ -9880,8 +9614,6 @@ client.on('interactionCreate', async (interaction) => {
     if (commandName === 'setjail') {
         if (!interaction.member || !interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) return interaction.reply({ content: '❌ Bạn không có quyền!', flags: MessageFlags.Ephemeral });
         
-        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
-        
         const role = interaction.options.getRole('role');
         const channel = interaction.options.getChannel('channel');
         updateGuildConfig(interaction.guildId, 'jailRoleId', role.id);
@@ -9889,48 +9621,10 @@ client.on('interactionCreate', async (interaction) => {
         
         const embed = new EmbedBuilder()
             .setTitle('⛓️ ĐÃ CÀI ĐẶT HỆ THỐNG TÙ / CẢI TẠO')
-            .setDescription(`✅ Đã cập nhật cấu hình!\n\n- **Role Tù nhân:** ${role}\n- **Kênh Cải tạo:** ${channel}\n\n⏳ Đang tự động khoá toàn bộ kênh khác trong Server để giam giữ tù nhân...`)
+            .setDescription(`✅ Đã cập nhật thành công!\n\n- **Role Tù nhân:** ${role}\n- **Kênh Cải tạo:** ${channel}`)
             .setColor('#E74C3C');
             
-        await interaction.editReply({ embeds: [embed] });
-        
-        let successCount = 0;
-        let failCount = 0;
-        
-        try {
-            const channels = await interaction.guild.channels.fetch();
-            for (const [id, ch] of channels) {
-                if (!ch) continue;
-                try {
-                    if (id === channel.id) {
-                        await ch.permissionOverwrites.edit(role.id, {
-                            ViewChannel: true,
-                            SendMessages: true,
-                            ReadMessageHistory: true,
-                            Connect: false
-                        });
-                    } else {
-                        await ch.permissionOverwrites.edit(role.id, {
-                            ViewChannel: false,
-                            Connect: false,
-                            SendMessages: false
-                        });
-                    }
-                    successCount++;
-                } catch (err) {
-                    failCount++;
-                }
-            }
-        } catch (e) {
-            console.error('Lỗi khi set quyền jail:', e);
-        }
-        
-        const doneEmbed = new EmbedBuilder()
-            .setTitle('⛓️ HOÀN TẤT SETUP NHÀ TÙ')
-            .setDescription(`✅ Đã thiết lập xong quyền hạn cho Role ${role}!\n\n- **Đã khóa thành công:** ${successCount} kênh.\n- **Lỗi bỏ qua:** ${failCount} kênh.\n\n🔒 Tù nhân bây giờ sẽ **chỉ nhìn thấy duy nhất** kênh ${channel} và bị cấm tuyệt đối khỏi Voice Chat!`)
-            .setColor('#2ECC71');
-            
-        return interaction.editReply({ embeds: [doneEmbed] });
+        return interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
     }
 
     if (commandName === 'set1ar') {
@@ -9990,52 +9684,29 @@ client.on('interactionCreate', async (interaction) => {
         if (!interaction.member || !interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) 
             return interaction.reply({ content: '❌ Bạn không có quyền!', flags: MessageFlags.Ephemeral });
         
-        await interaction.reply({ content: '⏳ Đang dọn dẹp log cũ & Khởi tạo hệ thống Log Nâng Cao (5 kênh Gọn Gàng)... Vui lòng đợi!', flags: MessageFlags.Ephemeral });
+        await interaction.reply({ content: '⏳ Đang khởi tạo hệ thống Log Nâng Cao (12 kênh)... Vui lòng đợi!', flags: MessageFlags.Ephemeral });
         try {
             const guild = interaction.guild;
-            
-            // CLEANUP OLD LOGS
-            const config = getGuildConfig(guild.id);
-            if (config.advLogs) {
-                let deletedCount = 0;
-                for (const key in config.advLogs) {
-                    const oldChannelId = config.advLogs[key];
-                    const oldChannel = guild.channels.cache.get(oldChannelId);
-                    if (oldChannel) {
-                        try {
-                            // If it's in a category, we might also want to delete the category, but it's safer to just delete the channel
-                            await oldChannel.delete();
-                            deletedCount++;
-                        } catch(e) {}
-                    }
-                }
-            }
             const category = await guild.channels.create({
-                name: '📂 SERVER LOGS',
+                name: 'SERVER LOGS',
                 type: ChannelType.GuildCategory,
                 permissionOverwrites: [
                     { id: guild.id, deny: [PermissionsBitField.Flags.ViewChannel] },
                     { id: guild.client.user.id, allow: [PermissionsBitField.Flags.ViewChannel] }
                 ]
             });
-            const logChannels = [
-                { name: '📩・message-log', key: 'message-log' },
-                { name: '👥・member-log', key: 'member-log' },
-                { name: '🛡️・mod-log', key: 'mod-log' },
-                { name: '⚙️・server-log', key: 'server-log' },
-                { name: '🤖・bot-log', key: 'bot-log' }
-            ];
+            const logChannels = ['member-log', 'message-log', 'voice-log', 'channel-log', 'role-log', 'emoji-log', 'server-log', 'mod-log', 'ticket-log', 'command-log', 'bot-log', 'error-log'];
             const logConfig = {};
-            for (const channelData of logChannels) {
+            for (const name of logChannels) {
                 const ch = await guild.channels.create({
-                    name: channelData.name,
+                    name: name,
                     type: ChannelType.GuildText,
                     parent: category.id
                 });
-                logConfig[channelData.key] = ch.id;
+                logConfig[name] = ch.id;
             }
             updateGuildConfig(guild.id, 'advLogs', logConfig);
-            return interaction.editReply({ content: `✅ Đã đại tu thành công danh mục **SERVER LOGS** với 5 kênh chuẩn xác và hiện đại!` });
+            return interaction.editReply({ content: `✅ Đã tạo thành công danh mục **SERVER LOGS** và 12 kênh log!` });
         } catch (error) {
             console.error(error);
             return interaction.editReply({ content: '❌ Có lỗi xảy ra khi tạo kênh. Vui lòng kiểm tra quyền của Bot!' });
@@ -10260,7 +9931,7 @@ client.on('interactionCreate', async (interaction) => {
 
     if (commandName === 'profile') {
         const target = interaction.options.getUser('user') || interaction.user;
-        const profileData = await buildProfileEmbed(target);
+        const profileData = buildProfileEmbed(target);
         const options = { embeds: [profileData.embed] };
         if (profileData.attachment) options.files = [profileData.attachment];
         return interaction.reply(options);
@@ -10507,7 +10178,7 @@ client.on('interactionCreate', async (interaction) => {
         const pots = [];
         for (const [k, v] of Object.entries(p.inventory)) {
             if (v > 0) {
-                let item = RPG_ITEMS.pokeballs?.[k] || RPG_ITEMS.materials?.[k] || RPG_ITEMS.seeds?.[k] || RPG_ITEMS.crops?.[k] || RPG_ITEMS.tools?.[k];
+                let item = RPG_ITEMS.potions?.[k] || RPG_ITEMS.pokeballs?.[k] || RPG_ITEMS.materials?.[k] || RPG_ITEMS.weapons?.[k] || RPG_ITEMS.armors?.[k] || RPG_ITEMS.artifacts?.[k] || RPG_ITEMS.seeds?.[k] || RPG_ITEMS.crops?.[k] || RPG_ITEMS.tools?.[k];
                 if (item) pots.push(`${item.emoji || ''} **${item.name}**: ${v}`);
                 else pots.push(`❓ **${k}**: ${v}`);
             }
@@ -10984,9 +10655,6 @@ async function checkAntiNuke(guild, actionType) {
     else if (actionType === 'ROLE_DELETE') auditType = AuditLogEvent.RoleDelete;
     else if (actionType === 'MEMBER_BAN') auditType = AuditLogEvent.MemberBanAdd;
     else if (actionType === 'MEMBER_KICK') auditType = AuditLogEvent.MemberKick;
-    else if (actionType === 'CHANNEL_CREATE') auditType = AuditLogEvent.ChannelCreate;
-    else if (actionType === 'ROLE_CREATE') auditType = AuditLogEvent.RoleCreate;
-    else if (actionType === 'WEBHOOK_CREATE') auditType = AuditLogEvent.WebhookCreate;
     else return;
 
     try {
@@ -10998,15 +10666,6 @@ async function checkAntiNuke(guild, actionType) {
         
         const executor = log.executor;
         if (!executor || executor.bot) return;
-        if (executor.id === guild.ownerId) return; // Miễn trừ chủ Server (Whitelist)
-        if (config.antiNukeWhitelistRoles && config.antiNukeWhitelistRoles.length > 0) {
-            try {
-                const member = await guild.members.fetch(executor.id);
-                if (member && member.roles.cache.some(r => config.antiNukeWhitelistRoles.includes(r.id))) {
-                    return; // Miễn trừ cho các role được whitelist
-                }
-            } catch (err) {}
-        }
         
         if (!nukeTracker.has(guild.id)) nukeTracker.set(guild.id, new Map());
         const guildTracker = nukeTracker.get(guild.id);
@@ -11018,37 +10677,18 @@ async function checkAntiNuke(guild, actionType) {
         const recentActions = userActions.filter(t => Date.now() - t < 10000);
         guildTracker.set(executor.id, recentActions);
         
-        if (recentActions.length >= 2) {
+        if (recentActions.length >= 3) {
             try {
                 const member = await guild.members.fetch(executor.id);
                 if (member) {
-                    let punished = false;
-                    let pType = 'Tước Role';
-                    
-                    try {
-                        await member.ban({ reason: 'Anti-Nuke: Phát hiện hành vi phá hoại (Nuke/Spam)' });
-                        punished = true;
-                        pType = 'Cấm vĩnh viễn (BAN)';
-                    } catch (e1) {
-                        try {
-                            await member.kick('Anti-Nuke: Phát hiện hành vi phá hoại (Nuke/Spam)');
-                            punished = true;
-                            pType = 'Đuổi khỏi server (KICK)';
-                        } catch (e2) {
-                            try {
-                                await member.roles.set([]);
-                                punished = true;
-                            } catch (e3) {}
-                        }
-                    }
-                    
+                    await member.roles.set([]); 
                     const owner = await guild.fetchOwner();
-                    if (owner && punished) {
-                        await owner.send(`🚨 **CẢNH BÁO ANTI-NUKE MỨC ĐỘ CAO** 🚨\n⚠️ Phát hiện Quản trị viên <@${executor.id}> (${executor.tag}) có hành vi phá hoại nguy hiểm (tạo/xoá kênh/role/ban 3 lần trong 10s).\n🛡️ Bot đã tự động **${pType}** người này để bảo vệ an toàn cho Server!`);
+                    if (owner) {
+                        await owner.send(`🚨 **CẢNH BÁO ANTI-NUKE** 🚨\nPhát hiện Quản trị viên <@${executor.id}> (${executor.tag}) có hành vi phá hoại (xoá kênh/role/ban 3 lần trong 10s).\nBot đã tự động tước toàn bộ Role của người này để bảo vệ server!`);
                     }
                 }
             } catch (err) {
-                console.error('Lỗi khi xử phạt kẻ nuke:', err);
+                console.error('Lỗi khi tước role kẻ nuke:', err);
             }
             guildTracker.delete(executor.id);
         }
@@ -11060,15 +10700,6 @@ client.on('channelDelete', channel => {
 });
 client.on('roleDelete', role => {
     if (role.guild) checkAntiNuke(role.guild, 'ROLE_DELETE');
-});
-client.on('channelCreate', channel => {
-    if (channel.guild) checkAntiNuke(channel.guild, 'CHANNEL_CREATE');
-});
-client.on('roleCreate', role => {
-    if (role.guild) checkAntiNuke(role.guild, 'ROLE_CREATE');
-});
-client.on('webhookUpdate', channel => {
-    if (channel.guild) checkAntiNuke(channel.guild, 'WEBHOOK_CREATE');
 });
 client.on('guildBanAdd', async ban => {
     if (ban.guild) checkAntiNuke(ban.guild, 'MEMBER_BAN');
@@ -11106,9 +10737,8 @@ client.on('messageDelete', message => {
     if (message.partial || message.author?.bot || !message.guild) return;
     const logEmbed = new EmbedBuilder()
         .setTitle('🗑️ TIN NHẮN BỊ XÓA')
-        .setDescription(`**Tác giả:** ${message.author.tag} (<@${message.author.id}>)\n**Kênh:** <#${message.channel.id}>\n\n**Nội dung:**\n\`\`\`\n${message.content || '[Không có nội dung hoặc chứa Media]'}\n\`\`\``)
-        .setThumbnail(message.author.displayAvatarURL())
-        .setColor('#FF4757')
+        .setDescription(`Tin nhắn của **${message.author.tag}** (<@${message.author.id}>) bị xóa ở kênh <#${message.channel.id}>:\n\n${message.content || '[Không có nội dung chữ]'}`)
+        .setColor('#E74C3C')
         .setTimestamp();
     sendAdvLog(message.guild, 'message', logEmbed);
 });
@@ -11307,7 +10937,7 @@ if (!token || token === 'YOUR_DISCORD_BOT_TOKEN_HERE') {
     console.error('❌ LỖI: Bạn chưa cung cấp DISCORD_TOKEN trong file .env');
     process.exit(1);
 } else {
-    client.login(token);
+    console.log("Skipped login for testing"); module.exports = { client };
 }
 
 // Cảnh báo lỗi gửi vào Discord
