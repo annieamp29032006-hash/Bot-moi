@@ -421,6 +421,14 @@ function addTriviaScore(userId, points) {
     saveTriviaStats(data);
 }
 
+const autoKhoahocPath = './auto_khoahoc.json';
+function loadAutoKhoahoc() {
+    if (!fs.existsSync(autoKhoahocPath)) return {};
+    try { return JSON.parse(fs.readFileSync(autoKhoahocPath, 'utf8')); }
+    catch { return {}; }
+}
+function saveAutoKhoahoc(data) { fs.writeFileSync(autoKhoahocPath, JSON.stringify(data, null, 2)); }
+
 function getUserCoins(userId) {
     const data = loadCoins();
     if (!data[userId]) { data[userId] = { coins: 500000, bank: 0, lastDaily: 0 }; saveCoins(data); }
@@ -2132,6 +2140,110 @@ async function handleTrivia(userId, msgOrInteraction, isNextRound = false) {
             const channel = msgOrInteraction.channel || msgOrInteraction;
             channel.send('🛑 Câu hỏi khoa học đã dừng lại vì không có ai tham gia trả lời. Dùng lệnh khoahoc để chơi tiếp nhé!');
         }
+    });
+}
+
+async function handleAutoKhoahoc(channel) {
+    const config = loadAutoKhoahoc();
+    const guildConfig = config[channel.guild.id];
+    if (!guildConfig || !guildConfig.enabled || guildConfig.channelId !== channel.id) return;
+    
+    // Find an unused question
+    let availableIndices = [];
+    for (let i = 0; i < TRIVIA_LIST.length; i++) {
+        if (!guildConfig.usedQuestions.includes(i)) {
+            availableIndices.push(i);
+        }
+    }
+    
+    if (availableIndices.length === 0) {
+        guildConfig.enabled = false;
+        saveAutoKhoahoc(config);
+        channel.send('🛑 Kho câu hỏi khoa học đã hết! Đã tự động tắt tính năng gửi câu hỏi.');
+        return;
+    }
+    
+    const randomIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)];
+    const questionData = TRIVIA_LIST[randomIndex];
+    
+    // Mark as used
+    guildConfig.usedQuestions.push(randomIndex);
+    saveAutoKhoahoc(config);
+    
+    const gameId = 'auto_' + Date.now().toString();
+    
+    const embed = new EmbedBuilder()
+        .setTitle('🧠 Khám Phá Khoa Học (Tự Động)')
+        .setDescription(`**Câu hỏi:** ${questionData.question}\n\nMọi người có **1 phút 15 giây** để chọn đáp án đúng! Phần thưởng: **${questionData.reward} ĐT**`)
+        .setColor('#9B59B6');
+        
+    const labels = ['A', 'B', 'C', 'D'];
+    const buttons = questionData.answers.map((ans, index) => {
+        return new ButtonBuilder()
+            .setCustomId(`trivia_${index}_${gameId}`)
+            .setLabel(`${labels[index]}. ${ans}`)
+            .setStyle(ButtonStyle.Primary);
+    });
+    
+    const row = new ActionRowBuilder().addComponents(buttons);
+    
+    const msg = await channel.send({ embeds: [embed], components: [row] });
+    
+    const filter = i => i.customId.startsWith('trivia_') && i.customId.includes(gameId);
+    const collector = msg.createMessageComponentCollector({ filter, time: 75000 });
+    
+    const answeredUsers = new Map();
+    
+    collector.on('collect', async i => {
+        if (answeredUsers.has(i.user.id)) {
+            return i.reply({ content: '❌ Bạn đã chọn đáp án rồi, không thể đổi lại!', flags: MessageFlags.Ephemeral });
+        }
+        
+        const parts = i.customId.split('_');
+        const selectedIndex = parseInt(parts[1]);
+        
+        answeredUsers.set(i.user.id, selectedIndex);
+        await i.reply({ content: `✅ Bạn đã khóa đáp án **${labels[selectedIndex]}**! Hãy chờ hết giờ để xem kết quả.`, flags: MessageFlags.Ephemeral });
+    });
+    
+    collector.on('end', () => {
+        const disabledRow = new ActionRowBuilder().addComponents(
+            buttons.map((b, idx) => {
+                const btn = ButtonBuilder.from(b).setDisabled(true);
+                if (idx === questionData.correctIndex) btn.setStyle(ButtonStyle.Success);
+                return btn;
+            })
+        );
+        
+        const winners = [];
+        
+        answeredUsers.forEach((selectedIndex, uId) => {
+            if (selectedIndex === questionData.correctIndex) {
+                winners.push(`<@${uId}>`);
+                updatePlayer(uId, p => {
+                    p.coins += questionData.reward;
+                });
+                addTriviaScore(uId, questionData.reward);
+            }
+        });
+        
+        let resultMsg = `**Câu hỏi:** ${questionData.question}\n\n⏰ **HẾT GIỜ!** Đáp án đúng là **${labels[questionData.correctIndex]}**.\n\n`;
+        
+        if (winners.length > 0) {
+            embed.setColor('#2ECC71');
+            resultMsg += `🎉 **Chúc mừng nhận được ${questionData.reward} ĐT:**\n${winners.join(', ')}`;
+        } else {
+            embed.setColor('#E74C3C');
+            if (answeredUsers.size === 0) {
+                resultMsg += `😢 Không có ai tham gia trả lời.`;
+            } else {
+                resultMsg += `😢 Rất tiếc, không có ai trả lời đúng!`;
+            }
+        }
+        
+        embed.setDescription(resultMsg);
+        
+        if (msg.edit) msg.edit({ embeds: [embed], components: [disabledRow] }).catch(()=>{});
     });
 }
 
@@ -4876,6 +4988,50 @@ client.once('clientReady', async () => {
         console.log('✅ Đã đăng ký Slash Commands thành công!');
         startWildPetSpawns(client);
 
+        // --- KHOA HỌC AUTO CRON (mỗi 5 phút) ---
+        cron.schedule('*/5 * * * *', async () => {
+            const config = loadAutoKhoahoc();
+            
+            // Kiểm tra xem đã đến 27/07/2026 chưa
+            const now = new Date();
+            const targetDate = new Date('2026-07-27T00:00:00+07:00'); // Assuming GMT+7
+            
+            if (now >= targetDate) {
+                for (const [guildId, guildConfig] of Object.entries(config)) {
+                    if (guildConfig.enabled && !guildConfig.completed) {
+                        const channel = client.channels.cache.get(guildConfig.channelId);
+                        if (channel) {
+                            const data = loadTriviaStats();
+                            const lb = Object.entries(data).map(([id, stats]) => ({ id, ...stats })).sort((a, b) => b.correct - a.correct).slice(0, 10);
+                            let lbText = '';
+                            lb.forEach((e, i) => {
+                                const rankEmoji = ['🥇', '🥈', '🥉'][i] || `**#${i + 1}**`;
+                                lbText += `${rankEmoji} <@${e.id}> — **${e.correct}** câu đúng (${e.score.toLocaleString()} ĐT)\n`;
+                            });
+                            const embed = new EmbedBuilder()
+                                .setTitle('🎉 TỔNG KẾT BẢNG XẾP HẠNG KHOA HỌC (27/07/2026) 🎉')
+                                .setDescription(`Sự kiện Giải Đáp Khoa Học Tự Động đã chính thức khép lại. Dưới đây là top 10 bộ não xuất sắc nhất!\n\n━━━━━━━━━━━━━━━━━━━━━━\n\n${lbText || 'Chưa có dữ liệu.'}`)
+                                .setColor('#FFD700');
+                            channel.send({ embeds: [embed] }).catch(()=>{});
+                        }
+                        guildConfig.enabled = false;
+                        guildConfig.completed = true;
+                    }
+                }
+                saveAutoKhoahoc(config);
+                return;
+            }
+            
+            for (const [guildId, guildConfig] of Object.entries(config)) {
+                if (guildConfig.enabled && guildConfig.channelId) {
+                    const channel = client.channels.cache.get(guildConfig.channelId);
+                    if (channel) {
+                        handleAutoKhoahoc(channel).catch(console.error);
+                    }
+                }
+            }
+        });
+
         // --- LÔ ĐỀ CRON JOB (18:30 hàng ngày) ---
         cron.schedule('30 18 * * *', async () => {
             console.log('⏰ Bắt đầu xổ số lô đề 18h30...');
@@ -6559,6 +6715,32 @@ Bao gồm:
             console.error(error);
             return msg.edit('❌ Có lỗi xảy ra. Hãy đảm bảo Bot có đủ quyền (Administrator) và đứng cao hơn các Role khác!');
         }
+    }
+
+    // !setautokhoahoc <#channel|off>
+    if (content.startsWith(`${prefix}setautokhoahoc`)) {
+        if (!message.member.permissions.has(PermissionsBitField.Flags.Administrator)) return message.reply('❌ Lệnh này chỉ dành cho Admin!');
+        const args = content.split(' ');
+        const option = args[1];
+        if (!option) return message.reply(`❌ Cú pháp: \`${prefix}setautokhoahoc <#channel>\` hoặc \`${prefix}setautokhoahoc off\``);
+        
+        const config = loadAutoKhoahoc();
+        if (!config[message.guild.id]) config[message.guild.id] = { channelId: null, enabled: false, usedQuestions: [] };
+        
+        if (option.toLowerCase() === 'off') {
+            config[message.guild.id].enabled = false;
+            saveAutoKhoahoc(config);
+            return message.reply('✅ Đã **TẮT** tính năng hỏi đáp khoa học tự động.');
+        }
+        
+        const channelMention = message.mentions.channels.first();
+        if (!channelMention) return message.reply('❌ Vui lòng tag một kênh hợp lệ!');
+        
+        config[message.guild.id].channelId = channelMention.id;
+        config[message.guild.id].enabled = true;
+        saveAutoKhoahoc(config);
+        
+        return message.reply(`✅ Đã thiết lập kênh <#${channelMention.id}> làm kênh nhận câu hỏi khoa học tự động mỗi 5 phút!`);
     }
 
     if (content.startsWith(`${prefix}setwelcome`)) {
