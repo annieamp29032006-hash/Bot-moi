@@ -324,7 +324,7 @@ async function downloadYouTubeVideo(url) {
             url
         ];
 
-        
+        const proc = spawn(YTDLP_PATH, args);
         
         proc.on('close', (code) => {
             if (code === 0 && fs.existsSync(tempFile)) {
@@ -5370,11 +5370,11 @@ client.on('messageCreate', async (message) => {
     // --- HIMA AUTO REPLY ---
     if (message.content.toLowerCase() === 'hima') {
         const embed = new EmbedBuilder()
-            .setTitle('🛠️ Nhận Đơn Code Bot Discord')
-            .setDescription('**Hima** hiện đang nhận đơn code bot Discord theo yêu cầu!\n\n✨ **Các dịch vụ bao gồm:**\n- Bot Quản lý Server, Moderation\n- Bot Giải trí, Mini game, RPG\n- Bot Âm nhạc chất lượng cao\n- Hệ thống Kinh tế, Leveling, Custom API\n- Mọi tính năng tùy chỉnh theo ý muốn!\n\n📩 **Liên hệ trực tiếp** với Hima để được tư vấn và báo giá chi tiết nhé!')
-            .setColor('#0099ff')
-            .setFooter({ text: 'Uy tín - Chất lượng - Hỗ trợ tận tình', iconURL: client.user.displayAvatarURL() });
-        message.reply({ content: `🔔 <@${ADMIN_ID}> sếp ơi có khách tìm kìa!`, embeds: [embed] }).catch(() => {});
+            .setTitle('✧ Hima Studio — Chuyên Thiết Kế Bot Discord ✧')
+            .setDescription('Tự hào mang đến các giải pháp Bot Discord cá nhân hóa, cao cấp và chuyên nghiệp.\n\n**Dịch Vụ Nổi Bật**\n▪ Quản lý & Vận hành cộng đồng\n▪ Hệ thống Giải trí (RPG, Economy, Music)\n▪ Giải pháp tích hợp & API tùy chỉnh\n\n*Hãy liên hệ trực tiếp với Hima để biến ý tưởng của bạn thành hiện thực.*')
+            .setColor('#2b2d31')
+            .setFooter({ text: 'Hima Studio • Tinh tế & Chuyên nghiệp', iconURL: client.user.displayAvatarURL() });
+        message.reply({ content: `🔔 <@${ADMIN_ID}>, có khách hàng đang tìm bạn!`, embeds: [embed] }).catch(() => {});
     }
 
     // --- IMAGE RESTRICTION LOGIC ---
@@ -5841,15 +5841,6 @@ client.on('messageCreate', async (message) => {
         return message.reply({ embeds: [embed] });
     }
 
-    const greetingWords = ['hello', 'hi', 'chào', 'helo', 'chao', 'alo', 'hey', 'chòa', 'hí', 'hiii', 'heloo', 'hii'];
-    // Tách các từ trong tin nhắn để tránh trigger sai (VD: "chào mào")
-    const words = content.split(/[\s,.\!\?]+/);
-    
-    // Nếu tin nhắn có chứa một trong các từ chào
-    if (words.some(w => greetingWords.includes(w))) {
-        const randomGreeting = greetingResponses[Math.floor(Math.random() * greetingResponses.length)];
-        message.reply({ content: randomGreeting, allowedMentions: { repliedUser: true, parse: [] } });
-    } else {
         for (const [key, reply] of Object.entries(autoReplies)) {
             if (content.includes(key)) {
                 let finalReply = reply;
@@ -5860,7 +5851,6 @@ client.on('messageCreate', async (message) => {
                 break;
             }
         }
-    }
 
     // --- TIKTOK AUTO DETECT ---
     const tiktokLinks = message.content.match(TIKTOK_REGEX);
