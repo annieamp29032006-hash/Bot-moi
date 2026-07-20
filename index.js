@@ -7444,6 +7444,15 @@ Bao gồm:
         return message.reply(`✅ Đã reset thời gian làm việc cho <@${target.id}>!`);
     }
 
+    // !resettopkhoahoc
+    if (content === `${prefix}resettopkhoahoc` || content === `${prefix}resettop`) {
+        if (!message.member.permissions.has(PermissionsBitField.Flags.Administrator) && message.author.id !== ADMIN_ID) {
+            return message.reply('❌ Lệnh này chỉ dành cho Admin!');
+        }
+        saveTriviaStats({});
+        return message.reply('✅ Đã làm mới toàn bộ bảng xếp hạng khoa học!');
+    }
+
     // !reset (Admin reset dữ liệu)
     if (content.startsWith(`${prefix}reset`)) {
         if (message.author.id !== ADMIN_ID) return message.reply('❌ Lệnh này chỉ dành cho Admin tối cao (Hệ Thống (Developer))!');
