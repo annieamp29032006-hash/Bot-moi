@@ -185,7 +185,7 @@ function buildHelpPages(prefix) {
             .setTitle('🎮 GIẢI TRÍ & KINH TẾ')
             .setDescription('Hệ thống tiền tệ (🪙) phong phú cùng các trò chơi giải trí, đầu tư và ngân hàng.')
             .addFields(
-                { name: '💰 Kiếm Tiền', value: `> \`${prefix}daily\` - Nhận thưởng hằng ngày\n> \`${prefix}work\` - Làm việc kiếm coin\n\n> \`${prefix}dovui\` - Đố vui có thưởng> \`${prefix}noitu\` - Chơi nối từ nhận xu`, inline: true },
+                { name: '💰 Kiếm Tiền', value: `> \`${prefix}daily\` - Nhận thưởng hằng ngày\n> \`${prefix}work\` - Làm việc kiếm coin\n\n> \`${prefix}khoahoc\` - Hỏi đáp khoa học\n> \`${prefix}topkhoahoc\` - BXH Khoa học\n> \`${prefix}noitu\` - Chơi nối từ nhận xu`, inline: true },
                 { name: '🏦 Ngân Hàng', value: `> \`${prefix}bank\` - Quản lý tài khoản (Gửi/Rút)\n> \`${prefix}robbank\` - Cướp ngân hàng\n> \`${prefix}dautu\` - Đầu tư sinh lời`, inline: true },
                 { name: '🎲 Cờ Bạc & Trò Chơi', value: `\`\`\`\n${prefix}tx    - Tài xỉu\n${prefix}bc    - Bầu cua\n${prefix}bj    - Blackjack\n${prefix}lode  - Lô đề\n${prefix}hack  - Hack tiền người khác\n\`\`\``, inline: false },
                 { name: '🐾 Pokemon & Cửa Hàng', value: `> \`/shop\` - Mua sắm (Pokeball, Hạt giống...)\n> \`${prefix}cp\` (Bắt) | \`${prefix}pets\` (Xem túi) | \`${prefix}pb\` (Đấu)\n> \`${prefix}farm\` - Trồng trọt, thu hoạch`, inline: false },
@@ -405,6 +405,21 @@ function loadLode() {
     catch { return { bets: [] }; }
 }
 function saveLode(data) { fs.writeFileSync(lodePath, JSON.stringify(data, null, 2)); }
+
+const triviaStatsPath = './trivia_stats.json';
+function loadTriviaStats() {
+    if (!fs.existsSync(triviaStatsPath)) return {};
+    try { return JSON.parse(fs.readFileSync(triviaStatsPath, 'utf8')); }
+    catch { return {}; }
+}
+function saveTriviaStats(data) { fs.writeFileSync(triviaStatsPath, JSON.stringify(data, null, 2)); }
+function addTriviaScore(userId, points) {
+    const data = loadTriviaStats();
+    if (!data[userId]) data[userId] = { correct: 0, score: 0 };
+    data[userId].correct += 1;
+    data[userId].score += points;
+    saveTriviaStats(data);
+}
 
 function getUserCoins(userId) {
     const data = loadCoins();
@@ -2024,7 +2039,7 @@ async function handleTrivia(userId, msgOrInteraction, isNextRound = false) {
     const gameId = Date.now().toString();
     
     const embed = new EmbedBuilder()
-        .setTitle('🧠 Đố Vui Tập Thể!')
+        .setTitle('🧠 Hỏi Đáp Khoa Học!')
         .setDescription(`**Câu hỏi:** ${questionData.question}\n\nMọi người có **1 phút 15 giây** để chọn đáp án đúng! Phần thưởng: **${questionData.reward} ĐT**`)
         .setColor('#9B59B6');
         
@@ -2085,6 +2100,7 @@ async function handleTrivia(userId, msgOrInteraction, isNextRound = false) {
                 updatePlayer(uId, p => {
                     p.coins += questionData.reward;
                 });
+                addTriviaScore(uId, questionData.reward);
             }
         });
         
@@ -2114,7 +2130,7 @@ async function handleTrivia(userId, msgOrInteraction, isNextRound = false) {
             }, 3000);
         } else {
             const channel = msgOrInteraction.channel || msgOrInteraction;
-            channel.send('🛑 Đố vui đã dừng lại vì không có ai tham gia trả lời. Dùng lệnh đố vui để chơi tiếp nhé!');
+            channel.send('🛑 Câu hỏi khoa học đã dừng lại vì không có ai tham gia trả lời. Dùng lệnh khoahoc để chơi tiếp nhé!');
         }
     });
 }
@@ -4210,8 +4226,8 @@ const autoReplies = {
 // ========================
 const slashCommands = [
     new SlashCommandBuilder()
-        .setName('dovui')
-        .setDescription('🧠 Tham gia đố vui để nhận tiền thưởng!'),
+        .setName('khoahoc')
+        .setDescription('🧠 Tham gia hỏi đáp khoa học để nhận tiền thưởng!'),
     new SlashCommandBuilder()
         .setName('help')
         .setDescription('Xem danh sách các tính năng của bot.'),
@@ -7041,6 +7057,33 @@ Bao gồm:
         return message.reply({ embeds: [embed] });
     }
 
+    // !topkhoahoc
+    if (content === `${prefix}topkhoahoc` || content === `${prefix}topscience`) {
+        const data = loadTriviaStats();
+        const lb = Object.entries(data)
+            .map(([id, stats]) => ({ id, ...stats }))
+            .sort((a, b) => b.correct - a.correct)
+            .slice(0, 10);
+
+        if (!lb.length) return message.reply({ embeds: [new EmbedBuilder().setTitle('🏆 BẢNG XẾP HẠNG KHOA HỌC').setDescription('Chưa có ai tham gia trả lời câu hỏi!').setColor('#FFD700')] });
+
+        const medals = ['🥇', '🥈', '🥉'];
+        let lbText = '';
+        lb.forEach((e, i) => {
+            const rankEmoji = medals[i] || `**#${i + 1}**`;
+            lbText += `${rankEmoji} <@${e.id}> — **${e.correct}** câu đúng (${e.score.toLocaleString()} ĐT)\n`;
+        });
+
+        const embed = new EmbedBuilder()
+            .setTitle('🏆 BẢNG XẾP HẠNG KHOA HỌC 🏆')
+            .setDescription(`> Top ${lb.length} bộ não thông thái\n\n━━━━━━━━━━━━━━━━━━━━━━\n\n${lbText}`)
+            .setColor('#FFD700')
+            .setThumbnail(message.client.user.displayAvatarURL())
+            .setTimestamp();
+
+        return message.reply({ embeds: [embed] });
+    }
+
     // !blackjack / !bj <bet>
     if (content.startsWith(`${prefix}blackjack`) || content.startsWith(`${prefix}bj`)) {
         const uid = message.author.id;
@@ -7190,8 +7233,8 @@ Bao gồm:
         return handlePetTrade(message.author.id, target.id, message);
     }
 
-    // !dovui
-    if (content.startsWith(`${prefix}dovui`)) {
+    // !khoahoc
+    if (content.startsWith(`${prefix}khoahoc`)) {
         return handleTrivia(message.author.id, message);
     }
 

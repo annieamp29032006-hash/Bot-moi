@@ -9898,5 +9898,115 @@
     ],
     "correctIndex": 1,
     "reward": 913
+  },
+  {
+    "question": "Vật lý: Hạt mang điện tích dương trong hạt nhân nguyên tử là gì?",
+    "answers": [
+      "Electron",
+      "Proton",
+      "Neutron",
+      "Positron"
+    ],
+    "correctIndex": 1,
+    "reward": 500
+  },
+  {
+    "question": "Sinh học: Bào quan nào được ví như 'nhà máy năng lượng' của tế bào?",
+    "answers": [
+      "Lục lạp",
+      "Ti thể",
+      "Không bào",
+      "Lưới nội chất"
+    ],
+    "correctIndex": 1,
+    "reward": 550
+  },
+  {
+    "question": "Vật lý: Định luật vạn vật hấp dẫn được phát hiện bởi nhà khoa học nào?",
+    "answers": [
+      "Albert Einstein",
+      "Galileo Galilei",
+      "Isaac Newton",
+      "Nikola Tesla"
+    ],
+    "correctIndex": 2,
+    "reward": 450
+  },
+  {
+    "question": "Toán học: Đạo hàm của hàm số y = sin(x) là gì?",
+    "answers": [
+      "cos(x)",
+      "-cos(x)",
+      "sin(x)",
+      "-sin(x)"
+    ],
+    "correctIndex": 0,
+    "reward": 600
+  },
+  {
+    "question": "Hóa học: Nguyên tố nào có độ âm điện lớn nhất trong bảng tuần hoàn?",
+    "answers": [
+      "Oxy (O)",
+      "Clo (Cl)",
+      "Nitơ (N)",
+      "Flo (F)"
+    ],
+    "correctIndex": 3,
+    "reward": 700
+  },
+  {
+    "question": "Toán học: Giả thuyết Riemann liên quan đến sự phân bố của loại số nào?",
+    "answers": [
+      "Số chẵn",
+      "Số nguyên tố",
+      "Số vô tỉ",
+      "Số phức"
+    ],
+    "correctIndex": 1,
+    "reward": 1000
+  },
+  {
+    "question": "Sinh học: Quá trình phiên mã trong di truyền học tạo ra sản phẩm nào?",
+    "answers": [
+      "ADN",
+      "Protein",
+      "mARN",
+      "Lipid"
+    ],
+    "correctIndex": 2,
+    "reward": 800
+  },
+  {
+    "question": "Thiên văn học: Hành tinh nào trong hệ mặt trời có nhiều vệ tinh tự nhiên nhất?",
+    "answers": [
+      "Mộc tinh (Jupiter)",
+      "Thổ tinh (Saturn)",
+      "Thiên vương tinh (Uranus)",
+      "Hải vương tinh (Neptune)"
+    ],
+    "correctIndex": 1,
+    "reward": 500
+  },
+  {
+    "question": "Vật lý Lượng tử: Con mèo của Schrödinger là một thí nghiệm tưởng tượng minh họa cho nguyên lý nào?",
+    "answers": [
+      "Bất định Heisenberg",
+      "Chồng chập lượng tử",
+      "Bảo toàn năng lượng",
+      "Tương đối hẹp"
+    ],
+    "correctIndex": 1,
+    "reward": 900
+  },
+  {
+    "question": "Hóa học: Phản ứng este hóa là phản ứng giữa axit cacboxylic và chất nào?",
+    "answers": [
+      "Ancol",
+      "Andehit",
+      "Xeton",
+      "Phenol"
+    ],
+    "correctIndex": 0,
+    "reward": 600
   }
 ]
