@@ -5005,13 +5005,14 @@ client.once('clientReady', async () => {
                             const lb = Object.entries(data).map(([id, stats]) => ({ id, ...stats })).sort((a, b) => b.correct - a.correct).slice(0, 10);
                             let lbText = '';
                             lb.forEach((e, i) => {
-                                const rankEmoji = ['🥇', '🥈', '🥉'][i] || `**#${i + 1}**`;
-                                lbText += `${rankEmoji} <@${e.id}> — **${e.correct}** câu đúng (${e.score.toLocaleString()} ĐT)\n`;
+                                const rankEmoji = ['🏅', '🥈', '🥉'][i] || `**#${i + 1}**`;
+                                lbText += `${rankEmoji} <@${e.id}>\n╰ Đạt **${e.correct}** câu đúng — Tích lũy: **${e.score.toLocaleString()} ĐT**\n\n`;
                             });
                             const embed = new EmbedBuilder()
-                                .setTitle('🎉 TỔNG KẾT BẢNG XẾP HẠNG KHOA HỌC (27/07/2026) 🎉')
-                                .setDescription(`Sự kiện Giải Đáp Khoa Học Tự Động đã chính thức khép lại. Dưới đây là top 10 bộ não xuất sắc nhất!\n\n━━━━━━━━━━━━━━━━━━━━━━\n\n${lbText || 'Chưa có dữ liệu.'}`)
-                                .setColor('#FFD700');
+                                .setTitle('🧬 TỔNG KẾT VIỆN HÀN LÂM KHOA HỌC (27/07/2026) 🧬')
+                                .setDescription(`Sự kiện Giải Đáp Khoa Học Tự Động đã chính thức khép lại. Dưới đây là top 10 bộ óc vĩ đại nhất!\n\n━━━━━━━━━━━━━━━━━━━━━━\n\n${lbText || '*Chưa có dữ liệu học thuật.*'}`)
+                                .setColor('#2C3E50')
+                                .setThumbnail('https://cdn-icons-png.flaticon.com/512/2072/2072791.png');
                             channel.send({ embeds: [embed] }).catch(()=>{});
                         }
                         guildConfig.enabled = false;
@@ -7247,20 +7248,20 @@ Bao gồm:
             .sort((a, b) => b.correct - a.correct)
             .slice(0, 10);
 
-        if (!lb.length) return message.reply({ embeds: [new EmbedBuilder().setTitle('🏆 BẢNG XẾP HẠNG KHOA HỌC').setDescription('Chưa có ai tham gia trả lời câu hỏi!').setColor('#FFD700')] });
+        if (!lb.length) return message.reply({ embeds: [new EmbedBuilder().setTitle('🧬 VIỆN HÀN LÂM KHOA HỌC').setDescription('Chưa có học giả nào tham gia nghiên cứu!').setColor('#2C3E50')] });
 
-        const medals = ['🥇', '🥈', '🥉'];
         let lbText = '';
         lb.forEach((e, i) => {
-            const rankEmoji = medals[i] || `**#${i + 1}**`;
-            lbText += `${rankEmoji} <@${e.id}> — **${e.correct}** câu đúng (${e.score.toLocaleString()} ĐT)\n`;
+            const rankEmoji = ['🏅', '🥈', '🥉'][i] || `**#${i + 1}**`;
+            lbText += `${rankEmoji} <@${e.id}>\n╰ Đạt **${e.correct}** câu đúng — Tích lũy: **${e.score.toLocaleString()} ĐT**\n\n`;
         });
 
         const embed = new EmbedBuilder()
-            .setTitle('🏆 BẢNG XẾP HẠNG KHOA HỌC 🏆')
-            .setDescription(`> Top ${lb.length} bộ não thông thái\n\n━━━━━━━━━━━━━━━━━━━━━━\n\n${lbText}`)
-            .setColor('#FFD700')
-            .setThumbnail(message.client.user.displayAvatarURL())
+            .setTitle('🧬 VIỆN HÀN LÂM: BẢNG VÀNG DANH DỰ 🧬')
+            .setDescription(`*Vinh danh ${lb.length} bộ óc xuất chúng nhất của nhân loại.*\n\n🔬 **CHỈ SỐ THÔNG THÁI (IQ)**\n━━━━━━━━━━━━━━━━━━━━━━\n\n${lbText}`)
+            .setColor('#2C3E50')
+            .setThumbnail('https://cdn-icons-png.flaticon.com/512/2072/2072791.png')
+            .setFooter({ text: 'Hệ Thống Phân Tích Dữ Liệu Khoa Học', iconURL: message.client.user.displayAvatarURL() })
             .setTimestamp();
 
         return message.reply({ embeds: [embed] });
