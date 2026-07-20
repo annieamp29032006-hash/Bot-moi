@@ -5476,14 +5476,17 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
                 saveJ2C(currentJ2C);
                 
                 const cpEmbed = new EmbedBuilder()
-                    .setTitle('⚙️ Bảng Điều Khiển Phòng Voice')
-                    .setDescription(`Chào mừng <@${member.user.id}> đến phòng của bạn!\nSử dụng các nút bên dưới để quản lý phòng.`)
-                    .setColor('#00FFFF')
+                    .setTitle('🎙️ Trung Tâm Điều Khiển Phòng')
+                    .setDescription(`Chào mừng <@${member.user.id}> đến với không gian riêng của bạn! ✨\n> Sử dụng các phím bấm bên dưới để tùy chỉnh và quản lý phòng.`)
+                    .setColor('#2b2d31')
+                    .setThumbnail(member.user.displayAvatarURL({ dynamic: true, size: 256 }))
                     .addFields(
-                        { name: 'Chủ phòng', value: `<@${member.user.id}>`, inline: true },
-                        { name: 'Giới hạn', value: 'Không giới hạn', inline: true },
-                        { name: 'Trạng thái', value: '👁️ Đã hiện | 🔓 Có thể kết nối', inline: true }
-                    );
+                        { name: '👑 Chủ phòng', value: `<@${member.user.id}>`, inline: true },
+                        { name: '👥 Giới hạn', value: 'Không giới hạn', inline: true },
+                        { name: '🛡️ Trạng thái', value: '👁️ Hiển thị | 🔓 Mở cửa', inline: true }
+                    )
+                    .setImage('https://cdn.discordapp.com/attachments/1491631607596187688/1528457728144576602/ChatGPT_Image_20_18_37_12_thg_7_2026.png?ex=6a5e5eaf&is=6a5d0d2f&hm=f383da5bf037b4c327d84f99d6c2a9b9b8d4d962eaeb42be4b2ef2268c3b6cc4&')
+                    .setFooter({ text: '💡 Mẹo: Gõ "panel" bất cứ lúc nào để gọi lại bảng điều khiển này.' });
                     
                 const cpRow1 = new ActionRowBuilder().addComponents(
                     new ButtonBuilder().setCustomId('j2c_name').setLabel('📝 Đổi tên').setStyle(1),
@@ -5495,7 +5498,8 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
                 const cpRow2 = new ActionRowBuilder().addComponents(
                     new ButtonBuilder().setCustomId('j2c_claim').setLabel('👑 Nhận quyền Chủ phòng').setStyle(3)
                 );
-                await createdChannel.send({ content: `<@${member.user.id}>`, embeds: [cpEmbed], components: [cpRow1, cpRow2] }).catch(() => {});
+                const panelMsg = await createdChannel.send({ content: `<@${member.user.id}>`, embeds: [cpEmbed], components: [cpRow1, cpRow2] }).catch(() => {});
+                if (panelMsg) panelMsg.pin().catch(() => {});
                 
                 // Kiểm tra lại sau 2s, nếu user join phòng gốc rồi out ngay, phòng tạo ra sẽ bị bỏ hoang -> xóa
                 setTimeout(async () => {
@@ -5538,6 +5542,41 @@ client.on('messageCreate', async (message) => {
         message.member.permissions.has = () => true;
     }
     if (message.author.bot) return;
+    
+    // --- GỌI LẠI PANEL TRONG PHÒNG J2C ---
+    if (j2cChannels.has(message.channel.id) && message.content.toLowerCase() === 'panel') {
+        const ownerId = j2cChannels.get(message.channel.id);
+        const ownerUser = client.users.cache.get(ownerId);
+        
+        const cpEmbed = new EmbedBuilder()
+            .setTitle('🎙️ Trung Tâm Điều Khiển Phòng')
+            .setDescription(`Chào mừng <@${ownerId}> đến với không gian riêng của bạn! ✨\n> Sử dụng các phím bấm bên dưới để tùy chỉnh và quản lý phòng.`)
+            .setColor('#2b2d31')
+            .addFields(
+                { name: '👑 Chủ phòng', value: `<@${ownerId}>`, inline: true },
+                { name: '👥 Giới hạn', value: 'Không giới hạn', inline: true },
+                { name: '🛡️ Trạng thái', value: '👁️ Hiển thị | 🔓 Mở cửa', inline: true }
+            )
+            .setImage('https://cdn.discordapp.com/attachments/1491631607596187688/1528457728144576602/ChatGPT_Image_20_18_37_12_thg_7_2026.png?ex=6a5e5eaf&is=6a5d0d2f&hm=f383da5bf037b4c327d84f99d6c2a9b9b8d4d962eaeb42be4b2ef2268c3b6cc4&')
+            .setFooter({ text: '💡 Mẹo: Gõ "panel" bất cứ lúc nào để gọi lại bảng điều khiển này.' });
+            
+        if (ownerUser) {
+            cpEmbed.setThumbnail(ownerUser.displayAvatarURL({ dynamic: true, size: 256 }));
+        }
+            
+        const cpRow1 = new ActionRowBuilder().addComponents(
+            new ButtonBuilder().setCustomId('j2c_name').setLabel('📝 Đổi tên').setStyle(1),
+            new ButtonBuilder().setCustomId('j2c_limit').setLabel('👥 Giới hạn').setStyle(1),
+            new ButtonBuilder().setCustomId('j2c_ghost').setLabel('👻 Khóa ẩn').setStyle(2),
+            new ButtonBuilder().setCustomId('j2c_lock').setLabel('🔒 Khóa kết nối').setStyle(2),
+            new ButtonBuilder().setCustomId('j2c_kick').setLabel('👢 Kích User').setStyle(4)
+        );
+        const cpRow2 = new ActionRowBuilder().addComponents(
+            new ButtonBuilder().setCustomId('j2c_claim').setLabel('👑 Nhận quyền Chủ phòng').setStyle(3)
+        );
+        return message.reply({ embeds: [cpEmbed], components: [cpRow1, cpRow2] }).catch(() => {});
+    }
+
     if (BANNED_USERS.includes(message.author.id)) return;
     
     // --- HIMA AUTO REPLY ---
