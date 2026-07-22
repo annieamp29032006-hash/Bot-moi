@@ -5590,7 +5590,7 @@ client.on('messageCreate', async (message) => {
     }
 
     // --- SVL AUTO REPLY ---
-    if (message.content.toLowerCase() === 'svl') {
+    if (message.content.toLowerCase().trim() === 'svl') {
         message.reply('https://cdn.discordapp.com/attachments/1491631607596187688/1520024141577588878/vc.gif?ex=6a61f74c&is=6a60a5cc&hm=069cd810b63b2aba588c633948c2e4a1d91ec76793b3fc374059e54344b07263&').catch(() => {});
     }
 
