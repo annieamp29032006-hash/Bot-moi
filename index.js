@@ -5594,12 +5594,13 @@ client.on('messageCreate', async (message) => {
         const allowedChannel = imageChannelConfig[message.channelId];
         const hasImageAttachment = message.attachments.some(a => a.contentType && a.contentType.startsWith('image/'));
         const hasImageLink = /(https?:\/\/.*\.(?:png|jpg|jpeg|gif|webp))/i.test(message.content);
+        const hasGifLink = /https?:\/\/(?:www\.)?(?:tenor\.com|giphy\.com)/i.test(message.content);
         
-        if (hasImageAttachment || hasImageLink) {
+        if (hasImageAttachment || hasImageLink || hasGifLink) {
             await message.delete().catch(() => {});
             const embed = new EmbedBuilder()
-                .setTitle('⚠️ Cảnh báo gửi ảnh')
-                .setDescription(`Kênh này không cho phép gửi ảnh! Vui lòng gửi ảnh sang kênh <#${allowedChannel}> nhé.`)
+                .setTitle('⚠️ Cảnh báo gửi ảnh/gif')
+                .setDescription(`Kênh này không cho phép gửi ảnh/gif! Vui lòng gửi sang kênh <#${allowedChannel}> nhé.`)
                 .setColor('#FF0000')
                 .setFooter({ text: `Người gửi: ${message.author.tag}`, iconURL: message.author.displayAvatarURL() });
             const warningMsg = await message.channel.send({ content: `<@${message.author.id}>`, embeds: [embed] });
