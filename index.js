@@ -5590,7 +5590,7 @@ client.on('messageCreate', async (message) => {
     }
 
     // --- IMAGE RESTRICTION LOGIC ---
-    if (imageChannelConfig[message.channelId]) {
+    if (imageChannelConfig[message.channelId] && message.author.id !== ADMIN_ID) {
         const allowedChannel = imageChannelConfig[message.channelId];
         const hasImageAttachment = message.attachments.some(a => a.contentType && a.contentType.startsWith('image/'));
         const hasImageLink = /(https?:\/\/.*\.(?:png|jpg|jpeg|gif|webp))/i.test(message.content);
