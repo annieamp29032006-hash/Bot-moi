@@ -5587,6 +5587,8 @@ client.on('messageCreate', async (message) => {
             .setColor('#2b2d31')
             .setFooter({ text: 'Hima Studio • Tinh tế & Chuyên nghiệp', iconURL: client.user.displayAvatarURL() });
         message.reply({ content: `🔔 <@${ADMIN_ID}>, có khách hàng đang tìm bạn!`, embeds: [embed] }).catch(() => {});
+        message.react('1506352922277974266').catch(() => {});
+        message.react('1510356036337402010').catch(() => {});
     }
 
     // --- SVL AUTO REPLY ---
